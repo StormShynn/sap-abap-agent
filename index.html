@@ -739,7 +739,7 @@
     <div class="icon">SA</div>
     <div>
       <h2>SAP ABAP Agent</h2>
-      <small>v0.2.0 &middot; Plugin Claude Code</small>
+      <small>v0.4.0 &middot; 18 modules + 1 researcher</small>
     </div>
   </div>
 
@@ -756,6 +756,10 @@
     <a class="nav-link" href="#oauth2"><span class="nav-icon">🔐</span> OAuth2 chi tiết</a>
     <a class="nav-link" href="#cookie-auth"><span class="nav-icon">🍪</span> Cookie Auth + Web Popup</a>
     <a class="nav-link" href="#dang-ky-mcp"><span class="nav-icon">⚙️</span> Đăng ký MCP</a>
+
+    <div class="nav-section">Consultant System</div>
+    <a class="nav-link" href="#consultant-system"><span class="nav-icon">🧠</span> 18 module consultants</a>
+    <a class="nav-link" href="#consultant-routing"><span class="nav-icon">🔀</span> Auto-scoring routing</a>
 
     <div class="nav-section">Tham khảo</div>
     <a class="nav-link" href="#tools"><span class="nav-icon">🛠️</span> MCP Tools</a>
@@ -781,7 +785,7 @@
         <span class="theme-icon-light">☀️</span>
         <span class="theme-icon-dark" style="display:none;">🌙</span>
       </button>
-      <span class="header-version">v0.2.0 &middot; Multi-profile</span>
+      <span class="header-version">v0.4.0 &middot; 18 modules</span>
     </div>
   </header>
 
@@ -818,24 +822,24 @@
       <h2><span class="section-icon">✨</span> Tính năng nổi bật</h2>
       <div class="features-grid">
         <div class="feature-card">
+          <span class="fc-icon">🧠</span>
+          <h4>18 module consultants</h4>
+          <p>Auto-scoring routing engine. Hỏi câu hỏi nghiệp vụ, AI tự dispatch consultant phù hợp hoặc nhiều module song song.</p>
+        </div>
+        <div class="feature-card">
+          <span class="fc-icon">🔀</span>
+          <h4>Keyword scoring + coupling</h4>
+          <p>Mỗi module có keyword matrix weight 3/2/1. Module coupling tự động dispatch các module liên quan.</p>
+        </div>
+        <div class="feature-card">
           <span class="fc-icon">⚡</span>
           <h4>Thêm project chỉ 1 lệnh</h4>
           <p><code>sap-btp-agent setup &lt;URL&gt;</code> — wizard tự sinh profile, hỏi thông tin OAuth2 và lưu cấu hình.</p>
         </div>
         <div class="feature-card">
-          <span class="fc-icon">👥</span>
-          <h4>Multi-profile</h4>
-          <p>Chuyển qua lại giữa nhiều project SAP trong cùng một phiên Claude bằng tham số <code>profile</code>.</p>
-        </div>
-        <div class="feature-card">
-          <span class="fc-icon">🔄</span>
-          <h4>Tự động refresh token</h4>
-          <p>OAuth2 token tự động refresh khi hết hạn, không lo gián đoạn công việc.</p>
-        </div>
-        <div class="feature-card">
-          <span class="fc-icon">🔒</span>
-          <h4>Secret được mã hóa</h4>
-          <p>DPAPI (Windows) hoặc AES-256-GCM (macOS/Linux). File mode <code>0o600</code>.</p>
+          <span class="fc-icon">📚</span>
+          <h4>CDS KB + SAP Docs Research</h4>
+          <p>Tra cứu 7,355 CDS views + SAP Help, Community, API Hub, Fiori App Library qua MCP.</p>
         </div>
       </div>
     </section>
@@ -846,40 +850,44 @@
 
       <h3>Yêu cầu</h3>
       <ul>
-        <li><strong>Node.js >= 18</strong></li>
-        <li><strong>Claude Code</strong> (Anthropic CLI)</li>
+        <li><strong>Python >= 3.10</strong> (cho MCP server mới)</li>
+        <li><strong>Node.js >= 18</strong> (cho supergateway)</li>
+        <li><strong>Claude Code</strong></li>
         <li>Tài khoản SAP BTP / S/4HANA Cloud với OAuth2 client</li>
       </ul>
 
       <h3>Các bước cài đặt</h3>
       <ol>
-        <li>Clone repository và cài dependencies:</li>
+        <li>Clone repository và cài MCP Server Python:</li>
       </ol>
 
       <pre><code><span class="hl-com"># Clone &amp; cài MCP Server</span>
-cd sap-abap-agent
-<span class="hl-kw">cd</span> mcp-server
-npm install
-npm link
+cd sap-abap-agent/reference/mcp-server
+pip install -e .
+
+<span class="hl-com"># Trên Windows, thêm win-dpapi</span>
+pip install -e .[win-dpapi]
 
 <span class="hl-com"># Kiểm tra</span>
 sap-btp-agent --help</code><button class="copy-btn" onclick="copyCode(this)">Sao chép</button></pre>
 
       <ol start="2">
-        <li>Đăng ký MCP server với Claude Code:</li>
+        <li>Cấu hình MCP remote servers cho CDS KB &amp; SAP Docs:</li>
       </ol>
 
-      <pre><code><span class="hl-com">// ~/.claude/mcp_servers.json (hoặc %USERPROFILE%\.claude\mcp_servers.json trên Windows)</span>
-{
-  <span class="hl-str">"mcpServers"</span>: {
-    <span class="hl-str">"sap-btp"</span>: {
-      <span class="hl-str">"command"</span>: <span class="hl-str">"sap-btp-agent"</span>,
-      <span class="hl-str">"args"</span>: []
-    }
-  }
-}</code><button class="copy-btn" onclick="copyCode(this)">Sao chép</button></pre>
+      <pre><code><span class="hl-com"># CDS Knowledge Base (7,355 views)</span>
+claude mcp add --transport sse cds-kb --url https://cds-kb-mcp-production.up.railway.app/sse
 
-      <p>Sau bước này, các MCP tool như <code>sap_ping</code>, <code>sap_search</code>, <code>sap_list_packages</code>... sẽ xuất hiện trong Claude Code.</p>
+<span class="hl-com"># SAP Docs Research</span>
+claude mcp add --transport sse mcp-sap-docs-btp --url https://sap-docs-extend-mcp.cfapps.ap21.hana.ondemand.com/sse</code><button class="copy-btn" onclick="copyCode(this)">Sao chép</button></pre>
+
+      <ol start="3">
+        <li>Cấu hình Claude Code plugin:</li>
+      </ol>
+
+      <pre><code>claude mcp add --transport stdio sap-btp -- sap-btp-agent</code><button class="copy-btn" onclick="copyCode(this)">Sao chép</button></pre>
+
+      <p>Sau bước này, các MCP tool và 19 agents sẽ sẵn sàng trong Claude Code.</p>
     </section>
 
     <!-- ===== THÊM PROJECT SAP ===== -->
@@ -1501,6 +1509,126 @@ sap-btp-agent setup https://project1.s4hana.cloud.sap
 
     <div class="divider"></div>
 
+    <!-- ===== CONSULTANT SYSTEM SECTION ===== -->
+    <section id="consultant-system">
+      <h2><span class="section-icon">🧠</span> SAP Consultant System (18 modules)</h2>
+
+      <p><strong>skills/sap-ask-consultant/SKILL.md</strong> — Auto-scoring routing engine dispatch câu hỏi user tới <strong>19 agents</strong> (18 module consultants + 1 researcher).</p>
+
+      <h3>🔀 Cách hoạt động</h3>
+      <ol>
+        <li><strong>Keyword Matrix</strong>: Mỗi module có keywords với weight 3/2/1</li>
+        <li><strong>Tính score</strong>: Module >= threshold (2) → dispatch</li>
+        <li><strong>Explicit mention</strong>: "hoi SD", "hoi FI" → dispatch mặc định</li>
+        <li><strong>Module coupling</strong>: FI↔CO, PP→QM→MM, PM→MM→FI, v.v.</li>
+        <li><strong>Parallel dispatch</strong>: Tất cả module >= threshold dispatch song song</li>
+      </ol>
+
+      <h3>Danh sách 18 module consultants</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>#</th><th>Agent</th><th>Module</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>1</td><td><code>sap-sd-consultant-cloud</code></td><td>Sales &amp; Distribution</td></tr>
+            <tr><td>2</td><td><code>sap-fi-consultant-cloud</code></td><td>Financial Accounting</td></tr>
+            <tr><td>3</td><td><code>sap-mm-consultant-cloud</code></td><td>Materials Management</td></tr>
+            <tr><td>4</td><td><code>sap-co-consultant-cloud</code></td><td>Controlling</td></tr>
+            <tr><td>5</td><td><code>sap-pp-consultant-cloud</code></td><td>Production Planning</td></tr>
+            <tr><td>6</td><td><code>sap-qm-consultant-cloud</code></td><td>Quality Management</td></tr>
+            <tr><td>7</td><td><code>sap-pm-consultant-cloud</code></td><td>Plant Maintenance</td></tr>
+            <tr><td>8</td><td><code>sap-wm-consultant-cloud</code></td><td>Warehouse Management</td></tr>
+            <tr><td>9</td><td><code>sap-ps-consultant-cloud</code></td><td>Project Systems</td></tr>
+            <tr><td>10</td><td><code>sap-hcm-consultant-cloud</code></td><td>Human Capital Management</td></tr>
+            <tr><td>11</td><td><code>sap-bw-consultant-cloud</code></td><td>Analytics / BW</td></tr>
+            <tr><td>12</td><td><code>sap-basis-consultant-cloud</code></td><td>Basis / Technical Admin</td></tr>
+            <tr><td>13</td><td><code>sap-tm-consultant-cloud</code></td><td>Transportation Management</td></tr>
+            <tr><td>14</td><td><code>sap-tr-consultant-cloud</code></td><td>Treasury &amp; Cash Management</td></tr>
+            <tr><td>15</td><td><code>sap-ariba-consultant-cloud</code></td><td>Procurement Collaboration</td></tr>
+            <tr><td>16</td><td><code>sap-ca-consultant-cloud</code></td><td>Cross-Application Functions</td></tr>
+            <tr><td>17</td><td><code>sap-gts-consultant-cloud</code></td><td>Global Trade Services</td></tr>
+            <tr><td>18</td><td><code>sap-ehs-consultant-cloud</code></td><td>Environment, Health &amp; Safety</td></tr>
+            <tr style="background:var(--bg-code);"><td>—</td><td><code>sap-docs-researcher</code></td><td>📚 CDS view &amp; Docs Research</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Ví dụ routing</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Câu hỏi</th><th>Dispatch</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>"tim CDS view cho sales order bi cham giao hang"</td><td><code>sap-docs-researcher</code> + <code>sap-sd-consultant-cloud</code></td></tr>
+            <tr><td>"cau hinh cost center va GL"</td><td><code>sap-co-consultant-cloud</code> + <code>sap-fi-consultant-cloud</code></td></tr>
+            <tr><td>"lam sao tao purchase order"</td><td><code>sap-mm-consultant-cloud</code></td></tr>
+            <tr><td>"hoi PP va QM va MM"</td><td><code>sap-pp</code> + <code>sap-qm</code> + <code>sap-mm</code> song song</td></tr>
+            <tr><td>"cau hinh customs cho import"</td><td><code>sap-gts-consultant-cloud</code> + <code>sap-mm-consultant-cloud</code></td></tr>
+            <tr><td>"quan ly hoa chat nguy hiem"</td><td><code>sap-ehs-consultant-cloud</code> + <code>sap-mm-consultant-cloud</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ===== ROUTING CHI TIẾT ===== -->
+    <section id="consultant-routing">
+      <h2><span class="section-icon">🔀</span> Auto-scoring Routing Engine</h2>
+
+      <p>Chi tiết keyword matrix, explicit mention, module coupling xem trong file <code>skills/sap-ask-consultant/SKILL.md</code>.</p>
+
+      <h3>Keyword Matrix (rút gọn)</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Module</th><th>Weight 3 keywords</th><th>Weight 2 keywords</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>SD</td><td>sales order, pricing, billing, delivery</td><td>don hang, giao hang, hoa don ban</td></tr>
+            <tr><td>FI</td><td>GL, journal entry, AP, AR, asset</td><td>sổ cái, công nợ, khấu hao, thuế</td></tr>
+            <tr><td>MM</td><td>purchase order, requisition, PO, goods receipt</td><td>inventory, tồn kho, nhập kho</td></tr>
+            <tr><td>CO</td><td>cost center, product costing, CO-PA</td><td>giá thành, phân bổ chi phí</td></tr>
+            <tr><td>PP</td><td>production order, MRP, BOM, routing</td><td>sản xuất, work center</td></tr>
+            <tr><td>QM</td><td>inspection lot, quality certificate</td><td>kiểm tra chất lượng</td></tr>
+            <tr><td>PM</td><td>maintenance order, equipment, functional location</td><td>bảo trì, spare parts</td></tr>
+            <tr><td>WM</td><td>warehouse, EWM, transfer order</td><td>kho, picking, cycle counting</td></tr>
+            <tr><td>PS</td><td>project, WBS, network, milestone</td><td>dự án, budget, RRB</td></tr>
+            <tr><td>HCM</td><td>employee, HR, payroll</td><td>nhân sự, timesheet</td></tr>
+            <tr><td>BW</td><td>analytics, SAC, BI</td><td>báo cáo, query, analytical</td></tr>
+            <tr><td>Basis</td><td>basis, role, transport, user admin</td><td>phân quyền, job, tenant</td></tr>
+            <tr><td>TM</td><td>transportation, freight order</td><td>vận chuyển, shipment</td></tr>
+            <tr><td>TR</td><td>treasury, cash management, bank account</td><td>ngân hàng, dòng tiền</td></tr>
+            <tr><td>Ariba</td><td>ariba, business network, sourcing</td><td>supplier management</td></tr>
+            <tr><td>CA</td><td>business partner, document management</td><td>BP, DMS, workflow</td></tr>
+            <tr><td>GTS</td><td>customs, global trade, SPL</td><td>hải quan, xuất nhập khẩu</td></tr>
+            <tr><td>EHS</td><td>environment, health, safety</td><td>môi trường, an toàn, hóa chất</td></tr>
+            <tr><td>Research</td><td>CDS view, SAP note, SAP Help</td><td>Fiori app, API hub</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Module Coupling chính</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Module A</th><th>Auto-dispatch</th><th>Lý do</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>CO</td><td>FI</td><td>Cost center trên ACDOCA (FI)</td></tr>
+            <tr><td>PP</td><td>QM, MM</td><td>Quality inspection, BOM/component</td></tr>
+            <tr><td>PM</td><td>MM, PP, FI, CO</td><td>Spare parts, equipment, chi phí</td></tr>
+            <tr><td>WM</td><td>MM, SD, PP</td><td>GR, delivery, production supply</td></tr>
+            <tr><td>PS</td><td>CO, FI, SD, PP, HCM</td><td>Cost object, billing, timesheet</td></tr>
+            <tr><td>Ariba</td><td>MM, FI</td><td>Procurement (MM), invoice (FI)</td></tr>
+            <tr><td>CA</td><td>SD, MM, FI</td><td>BP dùng chung cho customer/supplier</td></tr>
+            <tr><td>GTS</td><td>SD, MM, TM</td><td>Export (SD), import (MM), transport (TM)</td></tr>
+            <tr><td>EHS</td><td>MM, PP, WM</td><td>Hóa chất (MM), sản xuất (PP), kho (WM)</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
     <!-- ===== CÂU HỎI NHANH ===== -->
     <section style="text-align:center;">
       <h2 style="justify-content:center;">💬 Bắt đầu ngay</h2>
@@ -1508,12 +1636,13 @@ sap-btp-agent setup https://project1.s4hana.cloud.sap
 
       <div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;">
         <code tabindex="0" role="button" style="font-size:13px;padding:8px 14px;background:var(--bg-card);border:1px solid var(--border);border-radius:8px;cursor:pointer;transition:border-color .2s;" onclick="copyPrompt(this)" onkeydown="if(event.key==='Enter'||event.key===' ')event.preventDefault(),copyPrompt(this)" aria-label="Sao chép prompt">"Setup SAP BTP cho project https://project1.s4hana.cloud.sap"</code>
+        <code tabindex="0" role="button" style="font-size:13px;padding:8px 14px;background:var(--bg-card);border:1px solid var(--border);border-radius:8px;cursor:pointer;transition:border-color .2s;" onclick="copyPrompt(this)" onkeydown="if(event.key==='Enter'||event.key===' ')event.preventDefault(),copyPrompt(this)" aria-label="Sao chép prompt">"Hoi MM: lam sao tao purchase order"</code>
+        <code tabindex="0" role="button" style="font-size:13px;padding:8px 14px;background:var(--bg-card);border:1px solid var(--border);border-radius:8px;cursor:pointer;transition:border-color .2s;" onclick="copyPrompt(this)" onkeydown="if(event.key==='Enter'||event.key===' ')event.preventDefault(),copyPrompt(this)" aria-label="Sao chép prompt">"Tim CDS view cho sales order + hoi SD"</code>
         <code tabindex="0" role="button" style="font-size:13px;padding:8px 14px;background:var(--bg-card);border:1px solid var(--border);border-radius:8px;cursor:pointer;transition:border-color .2s;" onclick="copyPrompt(this)" onkeydown="if(event.key==='Enter'||event.key===' ')event.preventDefault(),copyPrompt(this)" aria-label="Sao chép prompt">"Liệt kê các profile SAP của tôi"</code>
-        <code tabindex="0" role="button" style="font-size:13px;padding:8px 14px;background:var(--bg-card);border:1px solid var(--border);border-radius:8px;cursor:pointer;transition:border-color .2s;" onclick="copyPrompt(this)" onkeydown="if(event.key==='Enter'||event.key===' ')event.preventDefault(),copyPrompt(this)" aria-label="Sao chép prompt">"Tìm class bắt đầu bằng ZCL_ trong project project1"</code>
       </div>
 
       <div class="footer">
-        <strong>SAP ABAP Agent</strong> &middot; v0.2.0 &middot; Plugin Claude Code + MCP Server<br>
+        <strong>SAP ABAP Agent</strong> &middot; v0.4.0 &middot; 18 module consultants + 1 researcher<br>
         <span style="font-size:12px;">Trang hướng dẫn này được tạo bởi Freebuff Coding Assistant</span>
       </div>
     </section>

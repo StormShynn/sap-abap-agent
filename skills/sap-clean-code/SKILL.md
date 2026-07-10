@@ -1,7 +1,7 @@
 ---
-name: sap-abap-clean-code
+name: sap-clean-code
 description: Huong dan clean code & name conversion cho SAP ABAP Public Cloud (ABAP Cloud). Dung khi user hoi ve naming conventions, clean ABAP code style, name conversion tu legacy ABAP sang ABAP Cloud, quy tac dat ten cho development objects.
-level: 2
+effort: medium
 model: haiku
 ---
 

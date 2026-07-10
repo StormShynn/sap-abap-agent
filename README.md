@@ -7,43 +7,77 @@ co profile rieng (URL, tenant, secret), luu trong **folder user** tren may
 
 ## Noi bat
 
-- **Them project SAP moi chi bang 1 lenh**: `sap-btp-agent setup https://project1.s4hana.cloud.sap`
-- **Multi-profile**: chuyen qua lai giua cac project SAP trong cung 1 phien Claude
-- **Tu dong refresh token** khi OAuth2 het han
-- **Secret duoc ma hoa** (DPAPI tren Windows, AES-256-GCM cho macOS/Linux)
+- **🧠 SAP Consultant System (18 modules)**: Routing tu dong bang auto-scoring engine. 18 module
+  consultants cho SD, FI, MM, CO, PP, QM, PM, WM, PS, HCM, BW, Basis, TM, TR, Ariba, CA, GTS, EHS.
+- **🔌 SAP BTP Connection**: `sap-btp-agent` — ket noi S/4HANA Cloud, doc/activate ABAP, multi-profile.
+- **📚 CDS Knowledge Base**: Tra cuu 7,355 CDS views released qua semantic search.
+- **📖 SAP Docs Research**: Tra cuu SAP Help, Community, API Hub, Fiori App Library.
 
 ## Cau truc
 
 ```text
 sap-abap-agent/
-+-- .claude-plugin/        # Manifest plugin Claude Code
-+-- commands/              # /abap-scaffold, /sap-connect
-+-- skills/                # abap-code-review, sap-btp-setup
-+-- agents/                # abap-reviewer
-+-- hooks/                 # Canh bao SELECT *
-+-- reference/             # Tai lieu ABAP
-+-- mcp-server/            # MCP server Node.js (multi-profile)
-    +-- src/
-    |   +-- config/        # paths, profile (registry), store, secrets
-    |   +-- sap/           # auth (OAuth2), client (REST + auto-reconnect)
-    |   +-- tools/         # registry cac tool MCP (co tham so `profile`)
-    |   +-- cli/           # wizard setup + quan ly profile
-    |   +-- server.js      # entry MCP server (stdio)
-    +-- test/smoke.js
-    +-- package.json
++-- .claude-plugin/            # Manifest plugin Claude Code
++-- commands/                  # /sap-connect
++-- skills/
+|   +-- sap-ask-consultant/    # 🧠 Auto-scoring routing engine (18 modules)
+|   +-- sap-btp-setup/         # Setup & troubleshoot SAP BTP connection
+|   +-- sap-clean-code/        # ABAP Cloud naming conventions & clean code
+|   +-- sap-extensibility/     # Extensibility bac thang cho Public Cloud
+|   +-- sap-key-user-toolkit/  # Key User Extensibility handbook
+|   +-- sap-cds-kb/            # Tra cuu CDS view qua cds-kb-mcp
+|   +-- sap-docs-research/     # Tra cuu SAP Docs qua mcp-sap-docs
++-- agents/
+|   +-- abap-reviewer.md       # Review code ABAP Cloud
+|   +-- sap-ask-consultant dispatch toi 18 module consultants:
+|   |   +-- sap-sd-consultant-cloud   # Sales & Distribution
+|   |   +-- sap-fi-consultant-cloud   # Financial Accounting
+|   |   +-- sap-mm-consultant-cloud   # Materials Management
+|   |   +-- sap-co-consultant-cloud   # Controlling
+|   |   +-- sap-pp-consultant-cloud   # Production Planning
+|   |   +-- sap-qm-consultant-cloud   # Quality Management
+|   |   +-- sap-pm-consultant-cloud   # Plant Maintenance
+|   |   +-- sap-wm-consultant-cloud   # Warehouse Management
+|   |   +-- sap-ps-consultant-cloud   # Project Systems
+|   |   +-- sap-hcm-consultant-cloud  # Human Capital Management
+|   |   +-- sap-bw-consultant-cloud   # Analytics / BW
+|   |   +-- sap-basis-consultant-cloud# Basis / Technical Admin
+|   |   +-- sap-tm-consultant-cloud   # Transportation Management
+|   |   +-- sap-tr-consultant-cloud   # Treasury & Cash Management
+|   |   +-- sap-ariba-consultant-cloud# Procurement Collaboration
+|   |   +-- sap-ca-consultant-cloud   # Cross-Application Functions
+|   |   +-- sap-gts-consultant-cloud  # Global Trade Services
+|   |   +-- sap-ehs-consultant-cloud  # Environment, Health & Safety
+|   |   +-- sap-docs-researcher       # CDS view & Docs Research
++-- hooks/                   # Canh bao SELECT *
++-- reference/
+    +-- modules/             # Kien thuc module cho tung consultant
+    |   +-- sap-[module]-cloud/SKILL.md
+    +-- mcp-server/          # MCP server Python (multi-profile)
+        +-- sap_btp_agent/
+        |   +-- config/        # paths, profile (registry), store, secrets
+        |   +-- sap/           # auth (OAuth2), client (REST + auto-reconnect)
+        |   +-- tools/         # registry cac tool MCP (co tham so `profile`)
+        |   +-- cli/           # wizard setup + quan ly profile
+        +-- pyproject.toml
 ```
 
 ## Cai dat (1 lan)
 
-Yeu cau: **Node.js >= 18**.
+Yeu cau: **Python >= 3.10**.
 
 ```bash
-cd mcp-server
-npm install
-npm link
+cd reference/mcp-server
+pip install -e .
 ```
 
-Sau buoc `npm link` ban se co lenh `sap-btp-agent` trong PATH.
+Tren Windows, cai them extra `win-dpapi` de ma hoa secrets bang DPAPI:
+
+```bash
+pip install -e ".[win-dpapi]"
+```
+
+Sau buoc `pip install -e .` ban se co lenh `sap-btp-agent` trong PATH (entry point khai bao trong `pyproject.toml`).
 
 ## Them project SAP moi
 
@@ -93,18 +127,14 @@ sap-btp-agent connect project1.s4hana.cloud.sap  # test 1 profile cu the
 
 ## Dang ky MCP voi Claude Code
 
-`~/.claude/mcp_servers.json` (Windows: `%USERPROFILE%\.claude\mcp_servers.json`):
+Dung lenh `claude mcp add` (Claude Code khong con dung file `mcp_servers.json`):
 
-```json
-{
-  "mcpServers": {
-    "sap-btp": {
-      "command": "sap-btp-agent",
-      "args": []
-    }
-  }
-}
+```bash
+claude mcp add --transport stdio sap-btp -- sap-btp-agent
 ```
+
+Mac dinh la scope `local` (chi may nay, chi project hien tai). Dung `--scope user` de dung duoc o moi project,
+hoac `--scope project` de luu vao `.mcp.json` va chia se qua git cho ca team.
 
 Mo Claude Code voi plugin, cac tool sau se xuat hien:
 
@@ -117,6 +147,82 @@ Mo Claude Code voi plugin, cac tool sau se xuat hien:
 | `sap_read_source`     | Doc source code (class, program, include...)                |
 | `sap_syntax_check`    | Syntax check (khong activate)                               |
 | `sap_activate`        | Activate object (transport local)                           |
+
+### MCP server phu tro: tra cuu CDS view & SAP docs
+
+Theo mac dinh, Claude Code chi chap nhan 1 MCP server stdio. De su dung them cac MCP server
+remote (cds-kb-mcp va mcp-sap-docs), dung `claude mcp add` voi transport `sse`:
+
+**CDS Knowledge Base** (7,355 released CDS views):
+
+Cach 1 — `claude mcp add` (neu Claude Code ho tro `--transport sse`):
+
+```bash
+claude mcp add --transport sse cds-kb --url https://cds-kb-mcp-production.up.railway.app/sse
+# Neu primary khong truy cap duoc, dung fallback:
+# claude mcp add --transport sse cds-kb --url https://cds-kb-mcp.cfapps.ap21.hana.ondemand.com/sse
+```
+
+Cach 2 — `supergateway` (tuong thich voi moi IDE ho tro MCP: Cursor, Claude Desktop, VS Code, Gemini IDE):
+
+```json
+{
+  "mcpServers": {
+    "cds-kb": {
+      "command": "npx",
+      "args": ["-y", "supergateway@2.0.0", "--sse", "https://cds-kb-mcp-production.up.railway.app/sse"]
+    }
+  }
+}
+```
+
+**SAP Docs Research** (SAP Help, Community, API Hub, Fiori App, Clean Core):
+
+Cach 1 — `claude mcp add`:
+
+```bash
+claude mcp add --transport sse mcp-sap-docs-btp --url https://sap-docs-extend-mcp.cfapps.ap21.hana.ondemand.com/sse
+# Neu co SAP-API-HUB-KEY:
+# claude mcp add --transport sse mcp-sap-docs-btp --url https://sap-docs-extend-mcp.cfapps.ap21.hana.ondemand.com/sse --headers "{\"SAP-API-HUB-KEY\": \"<YOUR_KEY>\"}"
+```
+
+Cach 2 — `supergateway`:
+
+```json
+{
+  "mcpServers": {
+    "mcp-sap-docs-btp": {
+      "command": "npx",
+      "args": ["-y", "supergateway@2.0.0", "--sse", "https://sap-docs-extend-mcp.cfapps.ap21.hana.ondemand.com/sse"],
+      "disabled": false
+    }
+  }
+}
+```
+
+> **Windows users**: Neu dung supergateway, co the can dung `supergateway.cmd` thay vi `supergateway`
+> hoac chi dinh duong dan tuyet doi.
+
+Sau khi cau hinh, AI se co them cac tool:
+
+| Tool | Server | Mo ta |
+|------|--------|-------|
+| `search_cds` | cds-kb | Tim CDS view theo business meaning |
+| `get_cds_view` | cds-kb | Lay definition day du cua 1 CDS view |
+| `get_views_by_tag` | cds-kb | Liet ke CDS view theo tag (BO, LOB, module) |
+| `get_taxonomy` | cds-kb | Kham pha Lines of Business → Business Objects |
+| `kb_info` | cds-kb | Kiem tra version KB |
+| `search` | mcp-sap-docs-btp | Tra cuu SAP Help Portal + offline docs |
+| `sap_community_search` | mcp-sap-docs-btp | Tim kiem SAP Community Q&A |
+| `sap_search_objects` | mcp-sap-docs-btp | Tra cuu Clean Core Released Objects |
+| `abap_feature_matrix` | mcp-sap-docs-btp | Kiem tra ABAP syntax support |
+| `sap_accelerator_hub_*` | mcp-sap-docs-btp | Kham pha API tren SAP Accelerator Hub |
+| `sap_fiori_library_*` | mcp-sap-docs-btp | Tra cuu Fiori App Reference Library |
+| `sap_discovery_center_*` | mcp-sap-docs-btp | Kham pha BTP services & pricing |
+| `abap_lint` | mcp-sap-docs-btp | Kiem tra chat luong code ABAP |
+
+> **Luu y**: Server `mcp-sap-docs-btp` can `SAP-API-HUB-KEY` de cac tool `sap_accelerator_hub_*`
+> hoat dong day du. Cac tool con lai van chay khong can key.
 
 Moi tool deu co tham so `profile` (de trong = profile active). Vi du:
 
@@ -163,6 +269,52 @@ SAP_BTP_PROFILE=project1.s4hana.cloud.sap sap-btp-agent
 - `SAP_BTP_PROFILE=<id>` -- khoa profile cho 1 lan chay (uu tien registry)
 - `SAP_BTP_AGENT_HOME=/path` -- doi folder cau hinh (test, multi-tenant)
 
+## 🧠 SAP Consultant System (Auto-scoring Routing Engine)
+
+`skills/sap-ask-consultant/SKILL.md` la skill trung tam, dispatch cau hoi user toi **18 module
+consultants + 1 researcher** bang co che **keyword scoring + parallel dispatch**.
+
+### Cach hoat dong
+
+1. **Keyword Matrix**: Moi module co keywords voi weight 3/2/1.
+2. **Tinh score**: Module nao >= threshold (2) thi duoc dispatch.
+3. **Explicit mention**: "hoi SD", "hoi FI" → dispatch mac dinh.
+4. **Module coupling**: Module thuong di cung (FI↔CO, PP→QM→MM...) tu dong dispatch.
+5. **Parallel dispatch**: Tat ca module >= threshold dispatch song song trong 1 message.
+
+### Vi du
+
+| Cau hoi | Module dispatch |
+|---------|----------------|
+| "tim CDS view cho sales order bi cham giao hang" | `sap-docs-researcher` + `sap-sd-consultant-cloud` song song |
+| "cau hinh cost center va GL" | `sap-co-consultant-cloud` + `sap-fi-consultant-cloud` (coupling) |
+| "lam sao tao purchase order" | `sap-mm-consultant-cloud` |
+| "hoi PP, QM, MM" | `sap-pp` + `sap-qm` + `sap-mm` song song |
+
+### Cac module da co
+
+| # | Agent | Module |
+|---|-------|--------|
+| 1 | `sap-sd-consultant-cloud` | Sales & Distribution |
+| 2 | `sap-fi-consultant-cloud` | Financial Accounting |
+| 3 | `sap-mm-consultant-cloud` | Materials Management |
+| 4 | `sap-co-consultant-cloud` | Controlling |
+| 5 | `sap-pp-consultant-cloud` | Production Planning |
+| 6 | `sap-qm-consultant-cloud` | Quality Management |
+| 7 | `sap-pm-consultant-cloud` | Plant Maintenance |
+| 8 | `sap-wm-consultant-cloud` | Warehouse Management |
+| 9 | `sap-ps-consultant-cloud` | Project Systems |
+| 10 | `sap-hcm-consultant-cloud` | Human Capital Management |
+| 11 | `sap-bw-consultant-cloud` | Analytics / BW |
+| 12 | `sap-basis-consultant-cloud` | Basis / Technical Admin |
+| 13 | `sap-tm-consultant-cloud` | Transportation Management |
+| 14 | `sap-tr-consultant-cloud` | Treasury & Cash Management |
+| 15 | `sap-ariba-consultant-cloud` | Procurement Collaboration |
+| 16 | `sap-ca-consultant-cloud` | Cross-Application Functions |
+| 17 | `sap-gts-consultant-cloud` | Global Trade Services |
+| 18 | `sap-ehs-consultant-cloud` | Environment, Health & Safety |
+| 19 | `sap-docs-researcher` | CDS view & Docs Research |
+
 ## Test local
 
 ```bash
@@ -174,6 +326,9 @@ Trong Claude:
 - "Setup SAP BTP cho project https://project1.s4hana.cloud.sap" -> goi wizard
 - "Liet ke cac profile SAP cua toi" -> goi `sap_list_profiles`
 - "Tim class bat dau bang ZCL_ trong project project1" -> goi `sap_search` voi `profile="project1..."`
+- "Hoi SD: cau hinh pricing cho sales order" -> goi `sap-sd-consultant-cloud`
+- "Tim CDS view cho purchase order qua han va hoi MM" -> `sap-docs-researcher` + `sap-mm-consultant-cloud`
+- "Cau hinh cost center va cash management" -> `sap-co-consultant-cloud` + `sap-tr-consultant-cloud`
 
 ## Loi thuong gap
 
@@ -186,5 +341,5 @@ Trong Claude:
 
 ## Trang thai
 
-v0.2.0 -- da ho tro **multi-profile**, them `sap_list_profiles`, moi tool co tham so
-`profile`, wizard sinh id tu URL.
+v0.4.0 -- **SAP Consultant System (18 modules + 1 researcher)** voi auto-scoring routing engine,
+CDS KB, SAP Docs Research, ABAP Cloud clean code, extensibility, key user toolkit.

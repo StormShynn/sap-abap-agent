@@ -46,17 +46,10 @@ sap-btp-agent connect project1.s4hana.cloud.sap
 
 ## Dang ky MCP server voi Claude Code
 
-`~/.claude/mcp_servers.json`:
+Dung lenh `claude mcp add` (Claude Code khong con dung file `mcp_servers.json`):
 
-```json
-{
-  "mcpServers": {
-    "sap-btp": {
-      "command": "sap-btp-agent",
-      "args": []
-    }
-  }
-}
+```bash
+claude mcp add --transport stdio sap-btp -- sap-btp-agent
 ```
 
 Sau khi cau hinh nhieu profile, Claude se co cac tool:
