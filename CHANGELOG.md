@@ -89,13 +89,14 @@ Format dựa trên [Keep a Changelog](https://keepachangelog.com/) và [Semantic
 ## [Unreleased]
 
 ### Planned
-- 🚀 **Thêm SECURITY.md**: Hướng dẫn báo cáo lỗi bảo mật
-- 🚀 **Thêm badges**: Python version, PRs welcome, GitHub stars
-- 🚀 **Thêm CHANGELOG.md badge vào README.md header**
+- 🚀 **Thêm badges**: PRs welcome, GitHub stars
 - 🚀 **Thêm agents còn thiếu**: TM, TR, Ariba, CA, GTS, EHS agent files
 - 🚀 **Hoàn thiện reference modules**: Knowledge base cho 18 modules
 
 ### ✅ Đã hoàn thành gần đây
+- ✅ **SECURITY.md**: Hướng dẫn báo cáo lỗi bảo mật
+- ✅ **Version badge (v0.5.0) + Python badge (3.10+)**: Thêm vào README.md header
+- ✅ **CHANGELOG.md badge**: Thêm vào README.md header
 - ✅ **GitHub Issue templates**: Bug report + Feature request (`.github/ISSUE_TEMPLATE/`)
 - ✅ **Background sync daemon**: `reference/scripts/sync_skills.py` + `install-task-scheduler.bat`
 - ✅ **Open-source files**: `LICENSE` (MIT), `CODE_OF_CONDUCT.md`, `.github/PULL_REQUEST_TEMPLATE.md`
