@@ -1,5 +1,7 @@
 ﻿# SAP ABAP Agent (tieng Viet)
 
+[![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE) [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](CODE_OF_CONDUCT.md)
+
 Plugin Claude Code + MCP server tu dong ket noi **SAP BTP / S/4HANA Cloud** de thao tac
 ABAP (doc / tim / syntax-check / activate). Ho tro **multi-profile** -- moi project SAP
 co profile rieng (URL, tenant, secret), luu trong **folder user** tren may
@@ -12,6 +14,16 @@ co profile rieng (URL, tenant, secret), luu trong **folder user** tren may
 - **🔌 SAP BTP Connection**: `sap-btp-agent` — ket noi S/4HANA Cloud, doc/activate ABAP, multi-profile.
 - **📚 CDS Knowledge Base**: Tra cuu 7,355 CDS views released qua semantic search.
 - **📖 SAP Docs Research**: Tra cuu SAP Help, Community, API Hub, Fiori App Library.
+
+## Dong gop
+
+Du an la **open-source**, moi dong gop deu duoc chao don!
+
+| File | Muc dich |
+|------|----------|
+| [`CONTRIBUTING.md`](CONTRIBUTING.md) | Huong dan dong gop skill, agent, docs |
+| [`SKILL_TEMPLATE.md`](SKILL_TEMPLATE.md) | Template chuan de tao skill / agent / reference module |
+| [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md) | Quy tac ung xu cua cong dong |
 
 ## Cau truc
 

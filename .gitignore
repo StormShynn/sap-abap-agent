@@ -12,9 +12,12 @@ test/
 _*.py
 nul
 
+# Machine-specific wrapper (chua duong dan tuyet doi)
+scripts/run_sync_skills.bat
+
 # Personal learning progress
-.sap-abap-agent/LEARNING_PROGRESS.md
-skills/sap-user-skills/
+#.sap-abap-agent/LEARNING_PROGRESS.md
+#skills/sap-user-skills/
 
 # Env / secrets (duoc ma hoa nhung can than)
 .env
