@@ -1,0 +1,7 @@
+{
+  "name": "sap-abap-agent",
+  "displayName": "SAP ABAP Agent",
+  "version": "0.1.0",
+  "description": "Claude Code plugin to assist with SAP ABAP development: code review, scaffolding, and best-practice guidance.",
+  "keywords": ["sap", "abap"]
+}

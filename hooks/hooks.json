@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "file=$(jq -r '.tool_input.file_path // empty'); if [ -n \"$file\" ] && [[ \"$file\" == *.abap ]] && grep -nE 'SELECT[[:space:]]+\\*' \"$file\" >/dev/null 2>&1; then echo \"[sap-abap-agent] SELECT * found in $file - prefer explicit field lists.\" >&2; fi; exit 0"
+          }
+        ]
+      }
+    ]
+  }
+}

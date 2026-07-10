@@ -1,0 +1,13 @@
+﻿# Node
+node_modules/
+
+# Logs
+*.log
+
+# Tests
+test-results/
+test/
+
+# Env / secrets (duoc ma hoa nhung can than)
+.env
+.env.local

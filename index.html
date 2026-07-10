@@ -1,0 +1,2144 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SAP ABAP Agent — Hướng dẫn sử dụng</title>
+  <style>
+    /* ===== RESET & BASE ===== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0d1117;
+      --bg-card: #161b22;
+      --bg-code: #1c2333;
+      --border: #30363d;
+      --text: #e6edf3;
+      --text-dim: #8b949e;
+      --text-bright: #f0f6fc;
+      --accent: #58a6ff;
+      --accent-glow: rgba(88, 166, 255, .15);
+      --green: #3fb950;
+      --orange: #d29922;
+      --red: #f85149;
+      --purple: #bc8cff;
+      --cyan: #39d2c0;
+      --hl-kw: #ff7b72;
+      --hl-str: #a5d6ff;
+      --hl-op: #79c0ff;
+      --hl-com: #8b949e;
+      --hl-fn: #d2a8ff;
+      --hl-num: #79c0ff;
+      --hl-var: #ffa657;
+      --hl-path: #39d2c0;
+      --radius: 12px;
+      --radius-sm: 8px;
+      --sidebar-w: 260px;
+      --header-h: 64px;
+      --font: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      --font-mono: 'Cascadia Code', 'Fira Code', 'JetBrains Mono', Consolas, monospace;
+      --header-bg: rgba(13, 17, 23, .82);
+    }
+
+    html.light-theme {
+      --bg: #f6f8fa;
+      --bg-card: #ffffff;
+      --bg-code: #f0f2f5;
+      --border: #d0d7de;
+      --text: #1f2328;
+      --text-dim: #656d76;
+      --text-bright: #1f2328;
+      --accent: #0969da;
+      --accent-glow: rgba(9, 105, 218, .12);
+      --green: #1a7f37;
+      --orange: #bf8700;
+      --red: #cf222e;
+      --purple: #8250df;
+      --cyan: #0550ae;
+      --hl-kw: #cf222e;
+      --hl-str: #0550ae;
+      --hl-op: #0550ae;
+      --hl-com: #6e7781;
+      --hl-fn: #8250df;
+      --hl-num: #0550ae;
+      --hl-var: #953800;
+      --hl-path: #0550ae;
+      --header-bg: rgba(246, 248, 250, .92);
+    }
+
+    html { scroll-behavior: smooth; scroll-padding-top: calc(var(--header-h) + 24px); }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      min-height: 100vh;
+      display: flex;
+    }
+
+    a { color: var(--accent); text-decoration: none; transition: color .2s; }
+    a:hover { color: var(--cyan); text-decoration: underline; }
+
+    /* ===== SCROLLBAR ===== */
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--text-dim); }
+
+    /* ===== SIDEBAR ===== */
+    .sidebar {
+      position: fixed;
+      top: 0; left: 0;
+      width: var(--sidebar-w);
+      height: 100vh;
+      background: var(--bg-card);
+      border-right: 1px solid var(--border);
+      padding: 20px 0;
+      overflow-y: auto;
+      z-index: 100;
+      transition: transform .3s ease;
+    }
+
+    .sidebar-logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0 20px 20px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 16px;
+    }
+
+    .sidebar-logo .icon {
+      width: 36px; height: 36px;
+      background: linear-gradient(135deg, var(--accent), var(--purple));
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 16px;
+      color: #fff;
+      flex-shrink: 0;
+    }
+
+    .sidebar-logo h2 {
+      font-size: 15px;
+      color: var(--text-bright);
+      line-height: 1.3;
+    }
+    .sidebar-logo small {
+      font-size: 11px;
+      color: var(--text-dim);
+      display: block;
+    }
+
+    .sidebar nav { padding: 0 12px; }
+
+    .sidebar .nav-section {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .8px;
+      color: var(--text-dim);
+      padding: 16px 8px 6px;
+      font-weight: 600;
+    }
+
+    .sidebar a.nav-link {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 12px;
+      border-radius: var(--radius-sm);
+      color: var(--text-dim);
+      font-size: 14px;
+      transition: all .2s;
+      text-decoration: none;
+    }
+    .sidebar a.nav-link:hover {
+      background: var(--bg);
+      color: var(--text-bright);
+      text-decoration: none;
+    }
+    .sidebar a.nav-link .nav-icon {
+      width: 20px;
+      text-align: center;
+      font-size: 14px;
+    }
+
+    .sidebar-toggle {
+      display: none;
+      position: fixed;
+      top: 14px; left: 14px;
+      z-index: 200;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 8px 10px;
+      color: var(--text);
+      cursor: pointer;
+      font-size: 18px;
+      transition: background .2s;
+    }
+    .sidebar-toggle:hover { background: var(--bg-code); }
+
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.5);
+      z-index: 99;
+    }
+
+    /* ===== MAIN CONTENT ===== */
+    .main {
+      margin-left: var(--sidebar-w);
+      flex: 1;
+      min-width: 0;
+      padding: 0;
+    }
+
+    /* ===== HEADER ===== */
+    .top-header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      height: var(--header-h);
+      background: var(--header-bg);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 40px;
+    }
+
+    .top-header .page-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-bright);
+    }
+
+    .top-header .header-version {
+      font-size: 12px;
+      color: var(--text-dim);
+      background: var(--bg-code);
+      padding: 4px 12px;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+    }
+
+    .theme-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 34px;
+      height: 34px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      font-size: 16px;
+      transition: all .25s;
+      color: var(--text);
+    }
+    .theme-toggle:hover {
+      border-color: var(--accent);
+      background: var(--bg-code);
+      transform: scale(1.05);
+    }
+    .theme-toggle:active {
+      transform: scale(.95);
+    }
+
+    .lang-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 34px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      transition: all .25s;
+      color: var(--text);
+      padding: 0 10px;
+      white-space: nowrap;
+    }
+    .lang-toggle:hover {
+      border-color: var(--accent);
+      background: var(--bg-code);
+    }
+    .lang-toggle:active {
+      transform: scale(.95);
+    }
+
+    /* ===== CONTENT ===== */
+    .content {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 40px 40px 80px;
+    }
+
+    /* ===== HERO ===== */
+    .hero {
+      text-align: center;
+      padding: 60px 0 50px;
+      position: relative;
+    }
+
+    .hero::after {
+      content: '';
+      position: absolute;
+      top: -60px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 600px;
+      height: 300px;
+      background: radial-gradient(ellipse, var(--accent-glow), transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(88, 166, 255, .12);
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 600;
+      padding: 4px 14px;
+      border-radius: 20px;
+      border: 1px solid rgba(88, 166, 255, .25);
+      margin-bottom: 20px;
+    }
+    .hero .badge .dot {
+      width: 7px; height: 7px;
+      background: var(--green);
+      border-radius: 50%;
+      animation: pulse-dot 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: .5; transform: scale(.8); }
+    }
+
+    .hero h1 {
+      font-size: clamp(2rem, 5vw, 3rem);
+      font-weight: 800;
+      color: var(--text-bright);
+      line-height: 1.2;
+      margin-bottom: 12px;
+      position: relative;
+    }
+
+    .hero h1 .gradient {
+      background: linear-gradient(135deg, var(--accent), var(--purple));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero p {
+      font-size: 17px;
+      color: var(--text-dim);
+      max-width: 600px;
+      margin: 0 auto 24px;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 24px;
+      border-radius: var(--radius-sm);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all .25s;
+      text-decoration: none;
+      border: none;
+    }
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+    }
+    .btn-primary:hover {
+      background: #4c96e8;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 14px rgba(88, 166, 255, .35);
+      text-decoration: none;
+      color: #fff;
+    }
+    .btn-ghost {
+      background: transparent;
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .btn-ghost:hover {
+      background: var(--bg-card);
+      border-color: var(--text-dim);
+      transform: translateY(-1px);
+      text-decoration: none;
+      color: var(--text);
+    }
+
+    /* ===== SECTION ===== */
+    section {
+      margin-bottom: 48px;
+    }
+
+    section h2 {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--text-bright);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    section h2 .section-icon {
+      font-size: 22px;
+    }
+
+    section h3 {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text-bright);
+      margin: 28px 0 12px;
+    }
+
+    section h4 {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text);
+      margin: 20px 0 8px;
+    }
+
+    section p {
+      margin-bottom: 12px;
+      color: var(--text-dim);
+    }
+
+    section ul, section ol {
+      margin: 8px 0 16px 20px;
+      color: var(--text-dim);
+    }
+    section li { margin-bottom: 6px; }
+    section li strong { color: var(--text); }
+
+    /* ===== FEATURES GRID ===== */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin: 20px 0;
+    }
+
+    .feature-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 22px 20px;
+      transition: all .3s;
+    }
+    .feature-card:hover {
+      border-color: var(--accent);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0,0,0,.3);
+    }
+
+    .feature-card .fc-icon {
+      font-size: 28px;
+      margin-bottom: 10px;
+      display: block;
+    }
+    .feature-card h4 {
+      margin: 0 0 6px;
+      font-size: 15px;
+      color: var(--text-bright);
+    }
+    .feature-card p {
+      font-size: 13px;
+      margin: 0;
+      color: var(--text-dim);
+    }
+
+    /* ===== CODE BLOCKS ===== */
+    pre {
+      position: relative;
+      background: var(--bg-code);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 18px 20px;
+      overflow-x: auto;
+      margin: 12px 0 18px;
+      font-family: var(--font-mono);
+      font-size: 13.5px;
+      line-height: 1.6;
+      color: var(--text);
+    }
+
+    pre .copy-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: rgba(255,255,255,.06);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 4px 10px;
+      font-size: 11px;
+      color: var(--text-dim);
+      cursor: pointer;
+      opacity: 0;
+      transition: all .2s;
+      font-family: var(--font);
+    }
+    pre:hover .copy-btn { opacity: 1; }
+    .copy-btn:focus-visible,
+    pre .copy-btn:hover {
+      background: rgba(255,255,255,.1);
+      color: var(--text);
+    }
+    pre .copy-btn.copied {
+      background: var(--green);
+      color: #fff;
+      border-color: var(--green);
+    }
+
+    code {
+      font-family: var(--font-mono);
+      font-size: .9em;
+      background: rgba(88, 166, 255, .1);
+      padding: 2px 6px;
+      border-radius: 4px;
+      color: var(--cyan);
+    }
+    pre code {
+      background: none;
+      padding: 0;
+      border-radius: 0;
+      color: inherit;
+      font-size: inherit;
+    }
+
+    /* Syntax highlight colors (themed via CSS vars) */
+    .hl-kw { color: var(--hl-kw); }
+    .hl-str { color: var(--hl-str); }
+    .hl-op { color: var(--hl-op); }
+    .hl-com { color: var(--hl-com); font-style: italic; }
+    .hl-fn { color: var(--hl-fn); }
+    .hl-num { color: var(--hl-num); }
+    .hl-var { color: var(--hl-var); }
+    .hl-path { color: var(--hl-path); }
+
+    /* ===== TABLE ===== */
+    .table-wrap {
+      overflow-x: auto;
+      margin: 16px 0 20px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+
+    thead {
+      background: var(--bg-code);
+    }
+
+    th {
+      text-align: left;
+      padding: 12px 16px;
+      font-weight: 600;
+      color: var(--text-bright);
+      font-size: 13px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    td {
+      padding: 11px 16px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-dim);
+    }
+    tr:last-child td { border-bottom: none; }
+
+    td:first-child {
+      font-weight: 500;
+      color: var(--text);
+      white-space: nowrap;
+      font-family: var(--font-mono);
+      font-size: 13px;
+    }
+
+    tr:hover td { background: rgba(255,255,255,.02); }
+
+    /* ===== TROUBLESHOOTING CARDS ===== */
+    .trouble-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--red);
+      border-radius: var(--radius-sm);
+      padding: 16px 20px;
+      margin: 12px 0;
+    }
+    .trouble-card.ok {
+      border-left-color: var(--orange);
+    }
+
+    .trouble-card .tc-title {
+      font-weight: 600;
+      font-size: 14px;
+      color: var(--text-bright);
+      margin-bottom: 4px;
+    }
+    .trouble-card .tc-desc {
+      font-size: 13px;
+      color: var(--text-dim);
+      margin: 0;
+    }
+    .trouble-card .tc-desc code { font-size: 12px; }
+
+    /* ===== STRUCTURE DIAGRAM ===== */
+    .tree {
+      background: var(--bg-code);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 18px 22px;
+      font-family: var(--font-mono);
+      font-size: 13px;
+      line-height: 1.8;
+      margin: 12px 0 18px;
+      color: var(--text-dim);
+    }
+    .tree .dir { color: var(--cyan); }
+    .tree .file { color: var(--text-dim); }
+    .tree .highlight { color: var(--accent); font-weight: 500; }
+    .tree .branch { color: var(--text-dim); opacity: .5; }
+
+    /* ===== ENV TABLE ===== */
+    .env-row {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      padding: 8px 12px;
+      background: var(--bg-code);
+      border-radius: var(--radius-sm);
+      margin: 6px 0;
+      font-family: var(--font-mono);
+      font-size: 13px;
+    }
+    .env-row .env-name { color: var(--orange); }
+    .env-row .env-eq { color: var(--text-dim); }
+    .env-row .env-val { color: var(--cyan); }
+
+    /* ===== COMMANDS LIST ===== */
+    .cmd-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 10px;
+      margin: 12px 0;
+    }
+
+    .cmd-item {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 14px 16px;
+      transition: border-color .2s;
+    }
+    .cmd-item:hover { border-color: var(--accent); }
+
+    .cmd-item .cmd {
+      font-family: var(--font-mono);
+      font-size: 13px;
+      color: var(--accent);
+      font-weight: 500;
+    }
+    .cmd-item .cmd-desc {
+      font-size: 13px;
+      color: var(--text-dim);
+      margin: 2px 0 0;
+    }
+
+    /* ===== DIVIDER ===== */
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 40px 0;
+    }
+
+    /* ===== FOOTER ===== */
+    .footer {
+      text-align: center;
+      padding: 32px 0 16px;
+      color: var(--text-dim);
+      font-size: 13px;
+      border-top: 1px solid var(--border);
+      margin-top: 40px;
+    }
+
+    /* ===== ANIMATIONS ===== */
+    .fade-in {
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeInUp .5s ease forwards;
+    }
+    .fade-in:nth-child(2) { animation-delay: .1s; }
+    .fade-in:nth-child(3) { animation-delay: .2s; }
+    .fade-in:nth-child(4) { animation-delay: .3s; }
+
+    @keyframes fadeInUp {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 860px) {
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.open { transform: translateX(0); }
+      .sidebar-overlay.open { display: block; }
+      .sidebar-toggle { display: block; }
+      .main { margin-left: 0; }
+      .content { padding: 24px 20px 60px; }
+      .top-header { padding: 0 20px; }
+      .top-header { padding-left: 60px; }
+    }
+
+    @media (max-width: 480px) {
+      .features-grid { grid-template-columns: 1fr; }
+      .cmd-grid { grid-template-columns: 1fr; }
+      .hero { padding: 32px 0 28px; }
+      .hero-actions { flex-direction: column; align-items: center; }
+      .btn { width: 100%; justify-content: center; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ===== SIDEBAR TOGGLE (mobile) ===== -->
+<button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle sidebar">☰</button>
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<!-- ===== SIDEBAR ===== -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <div class="icon">SA</div>
+    <div>
+      <h2>SAP ABAP Agent</h2>
+      <small>v0.2.0 &middot; Plugin Claude Code</small>
+    </div>
+  </div>
+
+  <nav>
+    <div class="nav-section">Bắt đầu</div>
+    <a class="nav-link" href="#gioi-thieu"><span class="nav-icon">🏠</span> Giới thiệu</a>
+    <a class="nav-link" href="#tinh-nang"><span class="nav-icon">✨</span> Tính năng</a>
+    <a class="nav-link" href="#cai-dat"><span class="nav-icon">📦</span> Cài đặt</a>
+
+    <div class="nav-section">Sử dụng</div>
+    <a class="nav-link" href="#them-project"><span class="nav-icon">➕</span> Thêm project SAP</a>
+    <a class="nav-link" href="#quan-ly-profile"><span class="nav-icon">👥</span> Quản lý profile</a>
+    <a class="nav-link" href="#ket-noi"><span class="nav-icon">🔌</span> Kiểm tra kết nối</a>
+    <a class="nav-link" href="#oauth2"><span class="nav-icon">🔐</span> OAuth2 chi tiết</a>
+    <a class="nav-link" href="#cookie-auth"><span class="nav-icon">🍪</span> Cookie Auth + Web Popup</a>
+    <a class="nav-link" href="#dang-ky-mcp"><span class="nav-icon">⚙️</span> Đăng ký MCP</a>
+
+    <div class="nav-section">Tham khảo</div>
+    <a class="nav-link" href="#tools"><span class="nav-icon">🛠️</span> MCP Tools</a>
+    <a class="nav-link" href="#commands"><span class="nav-icon">⌨️</span> Lệnh CLI</a>
+    <a class="nav-link" href="#cau-truc"><span class="nav-icon">📁</span> Cấu trúc thư mục</a>
+    <a class="nav-link" href="#loi-thuong-gap"><span class="nav-icon">⚠️</span> Lỗi thường gặp</a>
+    <a class="nav-link" href="#env"><span class="nav-icon">🌐</span> Biến môi trường</a>
+  </nav>
+</aside>
+
+<!-- ===== MAIN ===== -->
+<div class="main">
+
+  <!-- TOP HEADER -->
+  <header class="top-header">
+    <div class="page-title">📘 Hướng dẫn sử dụng</div>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <button class="lang-toggle" id="langToggle" aria-label="Switch language">
+        <span class="lang-vi">🇻🇳 VI</span>
+        <span class="lang-en" style="display:none;">🇬🇧 EN</span>
+      </button>
+      <button class="theme-toggle" id="themeToggle" aria-label="Chuyển đổi giao diện">
+        <span class="theme-icon-light">☀️</span>
+        <span class="theme-icon-dark" style="display:none;">🌙</span>
+      </button>
+      <span class="header-version">v0.2.0 &middot; Multi-profile</span>
+    </div>
+  </header>
+
+  <div class="content">
+
+    <!-- ===== HERO ===== -->
+    <section class="hero fade-in">
+      <div class="badge">
+        <span class="dot"></span>
+        Đã kết nối &amp; sẵn sàng
+      </div>
+      <h1>
+        <span class="gradient">SAP ABAP Agent</span>
+        <br>cho Claude Code
+      </h1>
+      <p>Plugin Claude Code + MCP Server tự động kết nối SAP BTP / S/4HANA Cloud để thao tác ABAP — đọc, tìm, syntax-check, activate. Hỗ trợ <strong>multi-profile</strong> cho nhiều project SAP cùng lúc.</p>
+      <div class="hero-actions">
+        <a href="#cai-dat" class="btn btn-primary">⚡ Bắt đầu cài đặt</a>
+        <a href="#them-project" class="btn btn-ghost">➕ Thêm project SAP</a>
+        <a href="https://github.com/your-repo/sap-abap-agent" target="_blank" class="btn btn-ghost">📂 GitHub</a>
+      </div>
+    </section>
+
+    <!-- ===== GIỚI THIỆU ===== -->
+    <section id="gioi-thieu" class="fade-in">
+      <h2><span class="section-icon">🏠</span> Giới thiệu</h2>
+      <p><strong>SAP ABAP Agent</strong> là plugin dành cho <strong>Claude Code</strong> (Anthropic) kết hợp với MCP server, cho phép bạn tương tác trực tiếp với SAP BTP hoặc S/4HANA Cloud ngay trong terminal.</p>
+      <p>Bạn có thể đọc source code ABAP, tìm kiếm object, syntax-check, activate object — tất cả đều thông qua hội thoại với Claude mà không cần rời khỏi editor.</p>
+      <p>Điểm mạnh nhất là hỗ trợ <strong>multi-profile</strong>: mỗi project SAP (URL, tenant, OAuth2 riêng) là một profile độc lập, được lưu an toàn trong máy bạn với secret được mã hóa.</p>
+    </section>
+
+    <!-- ===== TÍNH NĂNG ===== -->
+    <section id="tinh-nang" class="fade-in">
+      <h2><span class="section-icon">✨</span> Tính năng nổi bật</h2>
+      <div class="features-grid">
+        <div class="feature-card">
+          <span class="fc-icon">⚡</span>
+          <h4>Thêm project chỉ 1 lệnh</h4>
+          <p><code>sap-btp-agent setup &lt;URL&gt;</code> — wizard tự sinh profile, hỏi thông tin OAuth2 và lưu cấu hình.</p>
+        </div>
+        <div class="feature-card">
+          <span class="fc-icon">👥</span>
+          <h4>Multi-profile</h4>
+          <p>Chuyển qua lại giữa nhiều project SAP trong cùng một phiên Claude bằng tham số <code>profile</code>.</p>
+        </div>
+        <div class="feature-card">
+          <span class="fc-icon">🔄</span>
+          <h4>Tự động refresh token</h4>
+          <p>OAuth2 token tự động refresh khi hết hạn, không lo gián đoạn công việc.</p>
+        </div>
+        <div class="feature-card">
+          <span class="fc-icon">🔒</span>
+          <h4>Secret được mã hóa</h4>
+          <p>DPAPI (Windows) hoặc AES-256-GCM (macOS/Linux). File mode <code>0o600</code>.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== CÀI ĐẶT ===== -->
+    <section id="cai-dat" class="fade-in">
+      <h2><span class="section-icon">📦</span> Cài đặt</h2>
+
+      <h3>Yêu cầu</h3>
+      <ul>
+        <li><strong>Node.js >= 18</strong></li>
+        <li><strong>Claude Code</strong> (Anthropic CLI)</li>
+        <li>Tài khoản SAP BTP / S/4HANA Cloud với OAuth2 client</li>
+      </ul>
+
+      <h3>Các bước cài đặt</h3>
+      <ol>
+        <li>Clone repository và cài dependencies:</li>
+      </ol>
+
+      <pre><code><span class="hl-com"># Clone &amp; cài MCP Server</span>
+cd sap-abap-agent
+<span class="hl-kw">cd</span> mcp-server
+npm install
+npm link
+
+<span class="hl-com"># Kiểm tra</span>
+sap-btp-agent --help</code><button class="copy-btn" onclick="copyCode(this)">Sao chép</button></pre>
+
+      <ol start="2">
+        <li>Đăng ký MCP server với Claude Code:</li>
+      </ol>
+
+      <pre><code><span class="hl-com">// ~/.claude/mcp_servers.json (hoặc %USERPROFILE%\.claude\mcp_servers.json trên Windows)</span>
+{
+  <span class="hl-str">"mcpServers"</span>: {
+    <span class="hl-str">"sap-btp"</span>: {
+      <span class="hl-str">"command"</span>: <span class="hl-str">"sap-btp-agent"</span>,
+      <span class="hl-str">"args"</span>: []
+    }
+  }
+}</code><button class="copy-btn" onclick="copyCode(this)">Sao chép</button></pre>
+
+      <p>Sau bước này, các MCP tool như <code>sap_ping</code>, <code>sap_search</code>, <code>sap_list_packages</code>... sẽ xuất hiện trong Claude Code.</p>
+    </section>
+
+    <!-- ===== THÊM PROJECT SAP ===== -->
+    <section id="them-project">
+      <h2><span class="section-icon">➕</span> Thêm project SAP mới</h2>
+
+      <p>Cách nhanh nhất — truyền URL trực tiếp:</p>
+
+      <pre><code>sap-btp-agent setup https://project1.s4hana.cloud.sap</code><button class="copy-btn" onclick="copyCode(this)">Sao chép</button></pre>
+
+      <p>Wizard sẽ tự sinh profile ID từ hostname (vd: <code>project1.s4hana.cloud.sap</code>) và hỏi:</p>
+      <ul>
+        <li>OAuth2 <code>client_id</code> + <code>client_secret</code> (hoặc username/password, hoặc bearer token)</li>
+        <li>Region, service type</li>
+      </ul>
+
+      <p>Thông tin được lưu riêng trong thư mục profile:</p>
+
+      <div class="tree">
+<div class="dir">📂 %USERPROFILE%\.sap-btp-agent\profiles\project1.s4hana.cloud.sap\</div>
+<div class="branch">├──</div> <span class="highlight">config.json</span> <span class="file">   ← URL, tenant, client_id, region, service (không nhạy cảm)</span>
+<div class="branch">└──</div> <span class="highlight">secrets.json</span>  <span class="file">  ← client_secret / token (ĐÃ MÃ HÓA)</span>
+      </div>
+
+      <p><strong>Thêm project thứ 2, thứ 3...</strong> cũng dễ dàng:</p>
+
+      <pre><code>sap-btp-agent setup https://project2.s4hana.cloud.sap
+sap-btp-agent setup https://project3.s4hana.cloud.sap</code><button class="copy-btn" onclick="copyCode(this)">Sao chép</button></pre>
+
+      <p>Mỗi project có profile riêng, secret riêng (mã hóa độc lập).</p>
+    </section>
+
+    <!-- ===== QUẢN LÝ PROFILE ===== -->
+    <section id="quan-ly-profile">
+      <h2><span class="section-icon">👥</span> Quản lý nhiều profile</h2>
+
+      <div class="cmd-grid">
+        <div class="cmd-item">
+          <div class="cmd">sap-btp-agent profiles list</div>
+          <div class="cmd-desc">Liệt kê tất cả profile (<code>*</code> = active)</div>
+        </div>
+        <div class="cmd-item">
+          <div class="cmd">sap-btp-agent profiles use &lt;id&gt;</div>
+          <div class="cmd-desc">Chọn profile active</div>
+        </div>
+        <div class="cmd-item">
+          <div class="cmd">sap-btp-agent profiles show</div>
+          <div class="cmd-desc">Xem chi tiết profile đang dùng</div>
+        </div>
+        <div class="cmd-item">
+          <div class="cmd">sap-btp-agent profiles remove &lt;id&gt;</div>
+          <div class="cmd-desc">Xóa một profile</div>
+        </div>
+        <div class="cmd-item">
+          <div class="cmd">sap-btp-agent reset</div>
+          <div class="cmd-desc">⚠️ Xóa tất cả (cẩn thận!)</div>
+        </div>
+      </div>
+
+      <h3>Chọn profile trong MCP tools</h3>
+      <p>Mỗi MCP tool đều có tham số <code>profile</code> (để trống = dùng profile active):</p>
+
+      <pre><code><span class="hl-str">"Liệt kê các package trong project project1"</span>
+→ Claude gọi sap_list_packages({ <span class="hl-var">profile</span>: <span class="hl-str">"project1.s4hana.cloud.sap"</span> })
+
+<span class="hl-str">"Tìm class ZCL_* trong project đang dùng"</span>
+→ Claude gọi sap_search({ <span class="hl-var">query</span>: <span class="hl-str">"ZCL_"</span> })</code><button class="copy-btn" onclick="copyCode(this)">Sao chép</button></pre>
+
+      <h3>Chạy nhiều instance cùng lúc</h3>
+      <p>Đặt env <code>SAP_BTP_PROFILE=&lt;id&gt;</code> trước mỗi lần chạy:</p>
+
+      <pre><code><span class="hl-com"># Terminal 1: Claude 1 với profile A</span>
+SAP_BTP_PROFILE=project1.s4hana.cloud.sap sap-btp-agent
+
+<span class="hl-com"># Terminal 2: Claude 2 với profile B</span>
+SAP_BTP_PROFILE=project1.s4hana.cloud.sap sap-btp-agent</code><button class="copy-btn" onclick="copyCode(this)">Sao chép</button></pre>
+
+    </section>
+
+    <!-- ===== KIỂM TRA KẾT NỐI ===== -->
+    <section id="ket-noi">
+      <h2><span class="section-icon">🔌</span> Kiểm tra kết nối</h2>
+
+      <pre><code><span class="hl-com"># Test profile active</span>
+sap-btp-agent connect
+
+<span class="hl-com"># Test một profile cụ thể</span>
+sap-btp-agent connect project1.s4hana.cloud.sap</code><button class="copy-btn" onclick="copyCode(this)">Sao chép</button></pre>
+    </section>
+
+    <!-- ===== OAuth2 CHI TIẾT ===== -->
+    <section id="oauth2">
+      <h2><span class="section-icon">🔐</span> OAuth2 — Kết nối SAP BTP</h2>
+
+      <p>SAP ABAP Agent hỗ trợ <strong>3 chế độ xác thực OAuth2</strong> để kết nối SAP BTP / S/4HANA Cloud. Tùy vào cấu hình tenant, bạn chọn chế độ phù hợp.</p>
+
+      <div class="features-grid">
+        <div class="feature-card">
+          <span class="fc-icon">🔑</span>
+          <h4>Client Credentials</h4>
+          <p>Dùng <code>client_id</code> + <code>client_secret</code>. Phù hợp cho M2M automation, không cần user tương tác.</p>
+        </div>
+        <div class="feature-card">
+          <span class="fc-icon">👤</span>
+          <h4>Password Grant</h4>
+          <p>Dùng <code>username</code> + <code>password</code>. Phù hợp khi bạn có tài khoản SAP BTP cá nhân.</p>
+        </div>
+        <div class="feature-card">
+          <span class="fc-icon">🎫</span>
+          <h4>Bearer Token</h4>
+          <p>Dùng token có sẵn (nhập tay). Phù hợp cho testing hoặc token ngắn hạn.</p>
+        </div>
+      </div>
+
+      <h3>Luồng hoạt động</h3>
+      <p>Khi bạn gọi một MCP tool (vd <code>sap_search</code>), hệ thống tự động:</p>
+
+      <div class="tree">
+<span class="branch">1.</span> <span class="file">Kiểm tra token trong bộ nhớ (memory cache)</span>
+<span class="branch">2.</span> <span class="file">Nếu hết hạn → kiểm tra secret đã mã hóa trong <span class="highlight">secrets.json</span></span>
+<span class="branch">3.</span> <span class="file">Nếu còn hạn → dùng lại (tránh gọi OAuth2 liên tục)</span>
+<span class="branch">4.</span> <span class="file">Nếu hết hạn → gọi OAuth2 endpoint để lấy token mới</span>
+<span class="branch">5.</span> <span class="file">Tự động lưu <span class="highlight">refresh_token</span> + <span class="highlight">expiresAt</span> vào secrets.json</span>
+<span class="branch">6.</span> <span class="file">Token được refresh <strong>30 giây</strong> trước khi hết hạn (<span class="hl-com">SAFETY_MARGIN_S</span>)</span>
+      </div>
+
+      <h3>Cấu hình OAuth2 Client trên SAP BTP</h3>
+      <p>Trước khi setup, bạn cần tạo OAuth2 client trên SAP BTP cockpit:</p>
+      <ol>
+        <li><strong>Đăng nhập SAP BTP Cockpit</strong> → vào <strong>Subaccount</strong> của bạn</li>
+        <li>Vào menu <strong>Security &gt; OAuth2 Client</strong> (hoặc <strong>API Clients</strong> trong các phiên bản mới)</li>
+        <li>Tạo client mới với <strong>Grant Type</strong> = <code>Client Credentials</code></li>
+        <li>Ghi lại <strong>Client ID</strong> và <strong>Client Secret</strong></li>
+        <li>Nếu dùng <strong>IAS (Identity Authentication)</strong>, lưu ý token URL là <code>/oauth2/token</code> thay vì <code>/oauth/token</code></li>
+      </ol>
+
+      <h3>Wizard Setup chi tiết</h3>
+      <p>Khi chạy <code>sap-btp-agent setup</code>, wizard sẽ hỏi từng thông tin:</p>
+
+      <pre><code><span class="hl-com"># Bước 1: Nhập URL SAP BTP</span>
+$ sap-btp-agent setup https://project1.s4hana.cloud.sap
+
+<span class="hl-com"># Bước 2: Chọn chế độ xác thực</span>
+? Chọn auth mode:
+  1. OAuth2 (client_credentials) <span class="hl-com">← Mặc định, khuyên dùng</span>
+  2. Password (username/password)
+  3. Bearer token (nhập tay)
+
+<span class="hl-com"># Bước 3a: Nếu chọn OAuth2 client_credentials</span>
+? Client ID: sb-abc123-4567-project1x-project1project1
+? Client Secret: ****************
+? Scope (để trống nếu không cần):
+
+<span class="hl-com"># Bước 3b: Nếu chọn Password grant</span>
+? Username: your-username
+? Password: ****************
+? Client ID: sb-abc123-4567-project1x-project1project1
+
+<span class="hl-com"># Bước 3c: Nếu chọn Bearer token</span>
+? Bearer Token: ****************
+
+<span class="hl-com"># Bước 4: Thông tin bổ sung</span>
+? Region: eu10
+? Service type (s4hc / btp / onprem): s4hc</code><button class="copy-btn" onclick="copyCode(this)">Sao chép</button></pre>
+
+      <h3>Token URL &amp; Xử lý các hệ thống khác nhau</h3>
+      <p>Mỗi hệ thống SAP có endpoint OAuth2 khác nhau. Agent tự động xác định dựa trên URL gốc, nhưng bạn có thể override nếu cần:</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Hệ thống</th>
+              <th>Token URL mặc định</th>
+              <th>Ghi chú</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>XS UAA (cf)</td>
+              <td><code>{btpUrl}/oauth/token</code></td>
+              <td>Mặc định cho hầu hết S/4HANA Cloud</td>
+            </tr>
+            <tr>
+              <td>IAS</td>
+              <td><code>{btpUrl}/oauth2/token</code></td>
+              <td>Identity Authentication Service</td>
+            </tr>
+            <tr>
+              <td>Custom</td>
+              <td>Override trong <code>secrets.json</code></td>
+              <td>Sửa <code>tokenUrl</code> theo ý muốn</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Override Token URL thủ công</h3>
+      <p>Nếu gặp lỗi <code>404 /oauth/token</code>, bạn có thể sửa trực tiếp file secrets.json:</p>
+
+      <pre><code><span class="hl-com"># Mở file secrets.json (đã mã hóa, cần giải mã qua CLI)</span>
+<span class="hl-com"># HOẶC chạy lại setup với đúng token URL</span>
+
+<span class="hl-com"># Cách nhanh: chạy lại setup với flag --overwrite</span>
+sap-btp-agent setup https://project1.s4hana.cloud.sap
+
+<span class="hl-com"># Sau đó sửa tokenUrl trong profile</span>
+<span class="hl-com"># File nằm ở:</span>
+<span class="hl-path">%USERPROFILE%\.sap-btp-agent\profiles\project1.s4hana.cloud.sap\secrets.json</span></code><button class="copy-btn" onclick="copyCode(this)">Sao chép</button></pre>
+
+      <h3>Token Lifecycle &amp; Auto-Refresh</h3>
+      <p>Agent quản lý vòng đời token hoàn toàn tự động:</p>
+
+      <div class="trouble-card ok" style="border-left-color:var(--cyan);">
+        <div class="tc-title">🔄 Tự động refresh</div>
+        <p class="tc-desc">Token được cache trong bộ nhớ. Khi còn <strong>30 giây</strong> trước khi hết hạn, agent tự động gọi OAuth2 endpoint để lấy token mới — bạn không cần làm gì cả.</p>
+      </div>
+
+      <div class="trouble-card" style="border-left-color:var(--green);">
+        <div class="tc-title">💾 Lưu token an toàn</div>
+        <p class="tc-desc">Token mới + <code>refresh_token</code> + <code>expiresAt</code> được lưu vào <code>secrets.json</code> <strong>đã mã hóa</strong>. Khi restart agent, token được phục hồi từ file mà không cần xác thực lại.</p>
+      </div>
+
+      <div class="trouble-card" style="border-left-color:var(--purple);">
+        <div class="tc-title">🔐 Mã hóa đa nền tảng</div>
+        <p class="tc-desc"><strong>Windows:</strong> DPAPI (gắn với tài khoản Windows). <strong>macOS/Linux:</strong> AES-256-GCM, key derive từ <code>hostname + username</code> qua scrypt. File mode <code>0o600</code>.</p>
+      </div>
+
+    </section>
+
+    <!-- ===== COOKIE AUTH + WEB POPUP ===== -->
+    <section id="cookie-auth">
+      <h2><span class="section-icon">🍪</span> Cookie Auth &amp; Web Popup Re-Auth</h2>
+
+      <p>Bên cạnh OAuth2, SAP ABAP Agent hỗ trợ <strong>cookie-based authentication</strong> sử dụng SAP session cookies (<code>MYSAPSSO2</code>, <code>SAP_SESSIONID</code>, <code>sap-usercontext</code>). Phương thức này đặc biệt hữu dụng khi bạn đã có sẵn session từ SAP GUI, Fiori Launchpad, hoặc muốn tận dụng cơ chế <strong>Single Sign-On (SSO)</strong>.</p>
+
+      <h3>⚡ Tính năng chính</h3>
+      <div class="features-grid">
+        <div class="feature-card">
+          <span class="fc-icon">🍪</span>
+          <h4>Cookie-Based Auth</h4>
+          <p>Dùng session cookies SAP thay vì OAuth2 tokens. Hỗ trợ <code>MYSAPSSO2</code>, <code>SAP_SESSIONID</code>, v.v.</p>
+        </div>
+        <div class="feature-card">
+          <span class="fc-icon">🖥️</span>
+          <h4>Web Popup Re-Auth</h4>
+          <p>Khi session hết hạn (401), tự động mở browser cho user đăng nhập lại — lấy cookies mới, tiếp tục công việc.</p>
+        </div>
+        <div class="feature-card">
+          <span class="fc-icon">🛡️</span>
+          <h4>Stampede Protection</h4>
+          <p>Nhiều request cùng bị 401 chỉ kích hoạt 1 lần re-auth (mutex + cooldown 5s) — giống cơ chế <code>reauthMu</code> của vibing-steampunk.</p>
+        </div>
+        <div class="feature-card">
+          <span class="fc-icon">🔒</span>
+          <h4>Lưu cookies an toàn</h4>
+          <p>Cookies được mã hóa và lưu trong <code>secrets.json</code> (DPAPI / AES-256-GCM), phục hồi khi restart agent.</p>
+        </div>
+      </div>
+
+      <h3>🔧 CLI Wizard — Cài đặt Cookie Auth</h3>
+      <p>Khi chạy <code>sap-btp-agent setup</code>, wizard sẽ hỏi bạn chọn phương thức xác thực. Chọn <strong>option 4 (Cookie-based)</strong>:</p>
+
+      <pre><code><span class="hl-com"># Chạy setup wizard</span>
+$ sap-btp-agent setup https://project1.s4hana.cloud.sap
+
+<span class="hl-com"># Wizard hỏi auth mode — chọn 4</span>
+? Chọn auth mode:
+  1. OAuth2 (client_credentials) <span class="hl-com">← Mặc định</span>
+  2. Password (username/password)
+  3. Bearer token (nhập tay)
+  <span class="hl-var">4. Cookie-based</span> <span class="hl-com">← MỚI!</span>
+
+<span class="hl-com"># Nhập cookies từ file hoặc paste tay</span>
+? Lay cookies tu: (1) File Netscape format  (2) Nhap tay
+  <span class="hl-com">→ Chọn 2 và paste cookie string từ browser</span>
+
+? Cookie string (name=value; name2=value2):
+  MYSAPSSO2=abc123...; SAP_SESSIONID=xyz456...
+
+<span class="hl-com"># Chọn chế độ re-auth</span>
+? Che do re-auth khi session het han?
+  (1) Manual paste  <span class="hl-com">← Mở browser, user login, paste cookie</span>
+  (2) Auto (Playwright) <span class="hl-com">← Tự động mở + trích xuất cookies</span>
+
+<span class="hl-com"># Hoàn tất</span>
+✅ Da tao profile 'project1.s4hana.cloud.sap' thanh cong!
+  i Auth mode: cookie
+  i Re-auth mode: manual
+  i Nhan dien 3 cookies (MYSAPSSO2, SAP_SESSIONID, sap-usercontext)</code><button class="copy-btn" onclick="copyCode(this)">Sao chép</button></pre>
+
+      <h3>🌐 Web Popup Re-Auth — Khi Session Hết Hạn</h3>
+      <p>Khi đang code mà session SAP hết hạn (HTTP 401), agent tự động:</p>
+
+      <div class="tree">
+<span class="branch">1.</span> <span class="file">Phát hiện <span class="highlight">401 Unauthorized</span> từ SAP</span>
+<span class="branch">2.</span> <span class="file">Kích hoạt <span class="highlight">stampede guard</span> (chỉ 1 lần re-auth dù nhiều request cùng fail)</span>
+<span class="branch">3.</span> <span class="file">Gọi <span class="highlight">ReauthHandler</span> — mở trình duyệt web</span>
+<span class="branch">4.</span> <span class="file">Hiển thị thông báo <span class="hl-str">"🔐 SESSION SAP DA HET HAN!"</span> + URL đăng nhập</span>
+<span class="branch">5.</span> <span class="file">User đăng nhập vào SAP qua browser</span>
+<span class="branch">6.</span> <span class="file"><strong>Manual mode:</strong> User copy cookies từ DevTools (F12) → paste vào terminal</span>
+<span class="branch">7.</span> <span class="file"><strong>Auto mode:</strong> Playwright tự động trích xuất cookies sau login</span>
+<span class="branch">8.</span> <span class="file">Cookies mới được lưu vào <span class="highlight">secrets.json</span> (mã hóa)</span>
+<span class="branch">9.</span> <span class="file">Request được retry tự động với cookies mới → thành công!</span>
+      </div>
+
+      <h3>🔐 Hai Chế Độ Re-Auth</h3>
+      <div class="features-grid">
+        <div class="feature-card">
+          <span class="fc-icon">👆</span>
+          <h4>Manual Paste (Mặc định)</h4>
+          <p>Dùng <code>webbrowser.open()</code> mở SAP URL. User login thủ công, sau đó mở DevTools (F12) → Application → Cookies → copy cookie string → paste vào terminal.</p>
+          <p style="margin-top:8px;font-size:12px;color:var(--text-dim);">✅ Không cần cài đặt thêm. Hoạt động trên mọi nền tảng.</p>
+        </div>
+        <div class="feature-card">
+          <span class="fc-icon">🤖</span>
+          <h4>Auto (Playwright)</h4>
+          <p>Dùng <code>playwright</code> mở Chromium, cho user login, tự động phát hiện khi đăng nhập xong và trích xuất cookies.</p>
+          <p style="margin-top:8px;font-size:12px;color:var(--text-dim);">⚠️ Yêu cầu <code>pip install playwright</code>. Tự động fallback về manual nếu chưa cài.</p>
+        </div>
+      </div>
+
+      <h3>📦 Cài đặt Playwright (cho Auto mode)</h3>
+      <pre><code><span class="hl-com"># Cài playwright + Chromium</span>
+pip install playwright
+playwright install chromium
+
+<span class="hl-com"># Khi setup, chọn re-auth mode = Auto</span>
+sap-btp-agent setup https://project1.s4hana.cloud.sap
+<span class="hl-com"># → Chọn option 4 (Cookie), re-auth: 2 (Auto)</span></code><button class="copy-btn" onclick="copyCode(this)">Sao chép</button></pre>
+
+      <h3>🧠 Kiến trúc — Lấy cảm hứng từ vibing-steampunk</h3>
+      <p>Cơ chế cookie re-auth được xây dựng dựa trên pattern từ <a href="https://github.com/StormShynn/vibing-steampunk" target="_blank">vibing-steampunk</a> (dự án ADT → MCP bridge bằng Go):</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>vibing-steampunk (Go)</th>
+              <th>SAP ABAP Agent (Python)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>Transport.ReauthFunc</code></td>
+              <td><code>ReauthHandler</code> (callback type)</td>
+            </tr>
+            <tr>
+              <td><code>reauthMu</code> (mutex)</td>
+              <td><code>ReauthStampedeGuard</code> (asyncio.Lock)</td>
+            </tr>
+            <tr>
+              <td><code>reauthCooldown = 5s</code></td>
+              <td><code>cooldown_s = 5.0</code></td>
+            </tr>
+            <tr>
+              <td><code>LoadCookiesFromFile()</code></td>
+              <td><code>_load_cookies_from_file()</code></td>
+            </tr>
+            <tr>
+              <td><code>chromedp</code> (CDP)</td>
+              <td><code>playwright</code> / <code>webbrowser</code></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>🔧 File liên quan</h3>
+      <ul>
+        <li><code>reference/mcp-server/sap_btp_agent/sap/auth.py</code> — <code>SapCookieAuth</code>, <code>ReauthHandler</code>, <code>ReauthStampedeGuard</code>, <code>web_login_popup()</code>, <code>web_login_auto()</code></li>
+        <li><code>reference/mcp-server/sap_btp_agent/sap/client.py</code> — <code>SapClient</code> với 401 → re-auth flow + cookie support</li>
+        <li><code>reference/mcp-server/sap_btp_agent/cli/__init__.py</code> — CLI wizard với option 4 (Cookie-based)</li>
+        <li><code>reference/mcp-server/sap_btp_agent/config/store.py</code> — <code>reauthMode</code> config field</li>
+      </ul>
+
+      <h3>⚠️ Lưu ý</h3>
+      <div class="trouble-card" style="border-left-color:var(--cyan);">
+        <div class="tc-title">🍪 Cookies cần có SAP session</div>
+        <p class="tc-desc">Cần ít nhất một trong các cookies: <code>MYSAPSSO2</code>, <code>SAP_SESSIONID</code>, <code>sap-usercontext</code>, hoặc <code>sap-contextid</code>.</p>
+      </div>
+      <div class="trouble-card" style="border-left-color:var(--orange);">
+        <div class="tc-title">🔄 Round-trip an toàn</div>
+        <p class="tc-desc">Khi re-auth, cookies cũ được giữ nguyên cho đến khi cookies mới được xác nhận. Stampede protection ngăn multiple re-auth đồng thời.</p>
+      </div>
+
+    </section>
+
+    <!-- ===== ĐĂNG KÝ MCP ===== -->
+    <section id="dang-ky-mcp">
+      <h2><span class="section-icon">⚙️</span> Đăng ký MCP với Claude Code</h2>
+
+      <p>Thêm vào file <code>~/.claude/mcp_servers.json</code> (Windows: <code>%USERPROFILE%\.claude\mcp_servers.json</code>):</p>
+
+      <pre><code>{
+  <span class="hl-str">"mcpServers"</span>: {
+    <span class="hl-str">"sap-btp"</span>: {
+      <span class="hl-str">"command"</span>: <span class="hl-str">"sap-btp-agent"</span>,
+      <span class="hl-str">"args"</span>: []
+    }
+  }
+}</code><button class="copy-btn" onclick="copyCode(this)">Sao chép</button></pre>
+
+      <p>Mở Claude Code với plugin:</p>
+
+      <pre><code>claude --plugin-dir ./sap-abap-agent</code><button class="copy-btn" onclick="copyCode(this)">Sao chép</button></pre>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ===== MCP TOOLS ===== -->
+    <section id="tools">
+      <h2><span class="section-icon">🛠️</span> MCP Tools</h2>
+
+      <p>Sau khi đăng ký, các tool sau sẽ xuất hiện trong Claude Code. Mỗi tool đều có tham số <code>profile</code> (để trống = dùng profile active).</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Tool</th>
+              <th>Mô tả</th>
+              <th>Tham số chính</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>sap_list_profiles</td>
+              <td>Liệt kê các profile đã cấu hình</td>
+              <td>—</td>
+            </tr>
+            <tr>
+              <td>sap_ping</td>
+              <td>Test kết nối profile</td>
+              <td><code>profile</code></td>
+            </tr>
+            <tr>
+              <td>sap_list_packages</td>
+              <td>Liệt kê package ABAP</td>
+              <td><code>profile</code>, <code>parent</code></td>
+            </tr>
+            <tr>
+              <td>sap_search</td>
+              <td>Tìm object ABAP theo tên</td>
+              <td><code>profile</code>, <code>query</code>, <code>objectType</code></td>
+            </tr>
+            <tr>
+              <td>sap_read_source</td>
+              <td>Đọc source code (class, program, include...)</td>
+              <td><code>profile</code>, <code>objectUri</code>, <code>objectType</code></td>
+            </tr>
+            <tr>
+              <td>sap_syntax_check</td>
+              <td>Syntax check (không activate)</td>
+              <td><code>profile</code>, <code>objectUri</code>, <code>objectType</code></td>
+            </tr>
+            <tr>
+              <td>sap_activate</td>
+              <td>Activate object (transport local)</td>
+              <td><code>profile</code>, <code>objectUri</code>, <code>objectType</code></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>Ví dụ prompt trong Claude Code:</p>
+      <pre><code><span class="hl-str">"Liệt kê tất cả profile SAP của tôi"</span>
+→ Claude gọi <span class="hl-fn">sap_list_profiles</span>()
+
+<span class="hl-str">"Tìm class bắt đầu bằng ZCL_ trong project project1"</span>
+→ Claude gọi <span class="hl-fn">sap_search</span>({ <span class="hl-var">profile</span>: <span class="hl-str">"project1.s4hana.cloud.sap"</span>, <span class="hl-var">query</span>: <span class="hl-str">"ZCL_"</span> })</code><button class="copy-btn" onclick="copyCode(this)">Sao chép</button></pre>
+    </section>
+
+    <!-- ===== LỆNH CLI ===== -->
+    <section id="commands">
+      <h2><span class="section-icon">⌨️</span> Lệnh CLI</h2>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Lệnh</th>
+              <th>Mô tả</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>sap-btp-agent setup &lt;URL&gt;</td>
+              <td>Thêm project SAP mới (wizard)</td>
+            </tr>
+            <tr>
+              <td>sap-btp-agent connect</td>
+              <td>Test kết nối profile active</td>
+            </tr>
+            <tr>
+              <td>sap-btp-agent connect &lt;id&gt;</td>
+              <td>Test kết nối một profile cụ thể</td>
+            </tr>
+            <tr>
+              <td>sap-btp-agent profiles list</td>
+              <td>Liệt kê tất cả profile</td>
+            </tr>
+            <tr>
+              <td>sap-btp-agent profiles use &lt;id&gt;</td>
+              <td>Chọn profile active</td>
+            </tr>
+            <tr>
+              <td>sap-btp-agent profiles show</td>
+              <td>Xem chi tiết profile active</td>
+            </tr>
+            <tr>
+              <td>sap-btp-agent profiles remove &lt;id&gt;</td>
+              <td>Xóa một profile</td>
+            </tr>
+            <tr>
+              <td>sap-btp-agent reset</td>
+              <td>⚠️ Xóa tất cả dữ liệu</td>
+            </tr>
+            <tr>
+              <td>sap-btp-agent --help</td>
+              <td>Xem trợ giúp</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p><strong>Tips:</strong> Bạn có thể dùng lệnh <code>/sap-connect</code> ngay trong Claude Code để được hướng dẫn từng bước.</p>
+    </section>
+
+    <!-- ===== CẤU TRÚC THƯ MỤC ===== -->
+    <section id="cau-truc">
+      <h2><span class="section-icon">📁</span> Cấu trúc thư mục</h2>
+
+      <h3>Project</h3>
+      <div class="tree">
+<span class="dir">📦 sap-abap-agent/</span>
+<span class="branch">├──</span> <span class="highlight">.claude-plugin/</span>    <span class="file">   ← Manifest plugin Claude Code</span>
+<span class="branch">├──</span> <span class="highlight">commands/</span>              <span class="file">   ← /abap-scaffold, /sap-connect</span>
+<span class="branch">├──</span> <span class="highlight">skills/</span>                <span class="file">   ← abap-code-review, sap-btp-setup</span>
+<span class="branch">├──</span> <span class="highlight">hooks/</span>                 <span class="file">   ← Cảnh báo SELECT *</span>
+<span class="branch">├──</span> <span class="highlight">reference/</span>             <span class="file">   ← Tài liệu ABAP</span>
+<span class="branch">├──</span> <span class="highlight">mcp-server/</span>            <span class="file">   ← MCP server Node.js (multi-profile)</span>
+<span class="branch">│</span>   <span class="branch">├──</span> <span class="highlight">src/config/</span>    <span class="file">   ← paths, profile, store, secrets</span>
+<span class="branch">│</span>   <span class="branch">├──</span> <span class="highlight">src/sap/</span>       <span class="file">   ← auth (OAuth2), client (REST + auto-reconnect)</span>
+<span class="branch">│</span>   <span class="branch">├──</span> <span class="highlight">src/tools/</span>     <span class="file">   ← registry các tool MCP</span>
+<span class="branch">│</span>   <span class="branch">├──</span> <span class="highlight">src/cli/</span>       <span class="file">   ← wizard setup + quản lý profile</span>
+<span class="branch">│</span>   <span class="branch">└──</span> <span class="highlight">server.js</span>      <span class="file">   ← entry MCP server (stdio)</span>
+<span class="branch">├──</span> <span class="file">index.html</span>              <span class="file">   ← Trang hướng dẫn này</span>
+<span class="branch">└──</span> <span class="file">README.md</span>               <span class="file">   ← Tổng quan dự án</span>
+      </div>
+
+      <h3>Cấu hình (User folder)</h3>
+      <div class="tree">
+<span class="dir">📂 %USERPROFILE%\.sap-btp-agent\</span>  <span class="file">(Windows)</span>
+<span class="dir">📂 ~/.sap-btp-agent/</span>              <span class="file">  (macOS/Linux)</span>
+<span class="branch">├──</span> <span class="highlight">profiles.json</span>                <span class="file">   ← Registry (danh sách + active)</span>
+<span class="branch">├──</span> <span class="highlight">profiles/</span>
+<span class="branch">│</span>   <span class="branch">└──</span> <span class="highlight">&lt;profile-id&gt;/</span>
+<span class="branch">│</span>       <span class="branch">├──</span> <span class="highlight">config.json</span>       <span class="file">   ← URL, tenant, client_id...</span>
+<span class="branch">│</span>       <span class="branch">└──</span> <span class="highlight">secrets.json</span>      <span class="file">   ← Secret đã mã hóa</span>
+<span class="branch">├──</span> <span class="highlight">log/</span>
+<span class="branch">└──</span> <span class="highlight">cache/</span>
+      </div>
+
+      <ul>
+        <li><strong>Windows</strong>: secrets mã hóa bằng DPAPI (gắn với tài khoản Windows)</li>
+        <li><strong>macOS/Linux</strong>: AES-256-GCM, key derive từ <code>hostname + username</code></li>
+        <li>File mode <code>0o600</code>, chỉ owner đọc/ghi</li>
+      </ul>
+    </section>
+
+    <!-- ===== BIẾN MÔI TRƯỜNG ===== -->
+    <section id="env">
+      <h2><span class="section-icon">🌐</span> Biến môi trường</h2>
+
+      <div class="env-row">
+        <span class="env-name">SAP_BTP_PROFILE</span>
+        <span class="env-eq">=</span>
+        <span class="env-val">&lt;id&gt;</span>
+        <span style="color:var(--text-dim);font-family:var(--font);margin-left:8px;">— Khóa profile cho 1 lần chạy (ưu tiên hơn registry)</span>
+      </div>
+
+      <div class="env-row">
+        <span class="env-name">SAP_BTP_AGENT_HOME</span>
+        <span class="env-eq">=</span>
+        <span class="env-val">/path/to/folder</span>
+        <span style="color:var(--text-dim);font-family:var(--font);margin-left:8px;">— Đổi thư mục cấu hình (test, multi-tenant)</span>
+      </div>
+    </section>
+
+    <!-- ===== LỖI THƯỜNG GẶP ===== -->
+    <section id="loi-thuong-gap">
+      <h2><span class="section-icon">⚠️</span> Lỗi thường gặp</h2>
+
+      <div class="trouble-card">
+        <div class="tc-title">❌ 401 Unauthorized</div>
+        <p class="tc-desc">Client_secret sai hoặc hết hạn. Chạy <code>sap-btp-agent setup &lt;profile-id&gt;</code> để cập nhật thông tin OAuth2.</p>
+      </div>
+
+      <div class="trouble-card ok">
+        <div class="tc-title">⚠️ 404 /oauth/token</div>
+        <p class="tc-desc">URL token sai. Vào <code>profiles/&lt;id&gt;/secrets.json</code>, sửa <code>tokenUrl</code> (vd: đổi <code>/oauth/token</code> thành <code>/oauth2/token</code> nếu dùng IAS).</p>
+      </div>
+
+      <div class="trouble-card">
+        <div class="tc-title">🔒 Không giải mã được secret</div>
+        <p class="tc-desc">Đổi máy / hostname. Chạy lại <code>sap-btp-agent setup &lt;profile-id&gt;</code> để tạo lại secret.</p>
+      </div>
+
+      <div class="trouble-card ok">
+        <div class="tc-title">📭 Chưa có profile nào</div>
+        <p class="tc-desc">Chạy <code>sap-btp-agent setup &lt;URL&gt;</code> để thêm project SAP đầu tiên.</p>
+      </div>
+
+      <div class="trouble-card">
+        <div class="tc-title">🔌 MCP tool không xuất hiện</div>
+        <p class="tc-desc">Kiểm tra <code>mcp_servers.json</code> đã đúng cấu trúc chưa. Đảm bảo <code>sap-btp-agent</code> có trong PATH.</p>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ===== CÂU HỎI NHANH ===== -->
+    <section style="text-align:center;">
+      <h2 style="justify-content:center;">💬 Bắt đầu ngay</h2>
+      <p style="max-width:500px;margin:0 auto 18px;">Mở Claude Code với plugin và thử một trong các câu lệnh sau:</p>
+
+      <div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;">
+        <code tabindex="0" role="button" style="font-size:13px;padding:8px 14px;background:var(--bg-card);border:1px solid var(--border);border-radius:8px;cursor:pointer;transition:border-color .2s;" onclick="copyPrompt(this)" onkeydown="if(event.key==='Enter'||event.key===' ')event.preventDefault(),copyPrompt(this)" aria-label="Sao chép prompt">"Setup SAP BTP cho project https://project1.s4hana.cloud.sap"</code>
+        <code tabindex="0" role="button" style="font-size:13px;padding:8px 14px;background:var(--bg-card);border:1px solid var(--border);border-radius:8px;cursor:pointer;transition:border-color .2s;" onclick="copyPrompt(this)" onkeydown="if(event.key==='Enter'||event.key===' ')event.preventDefault(),copyPrompt(this)" aria-label="Sao chép prompt">"Liệt kê các profile SAP của tôi"</code>
+        <code tabindex="0" role="button" style="font-size:13px;padding:8px 14px;background:var(--bg-card);border:1px solid var(--border);border-radius:8px;cursor:pointer;transition:border-color .2s;" onclick="copyPrompt(this)" onkeydown="if(event.key==='Enter'||event.key===' ')event.preventDefault(),copyPrompt(this)" aria-label="Sao chép prompt">"Tìm class bắt đầu bằng ZCL_ trong project project1"</code>
+      </div>
+
+      <div class="footer">
+        <strong>SAP ABAP Agent</strong> &middot; v0.2.0 &middot; Plugin Claude Code + MCP Server<br>
+        <span style="font-size:12px;">Trang hướng dẫn này được tạo bởi Freebuff Coding Assistant</span>
+      </div>
+    </section>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+
+<script>
+  // ===== COPY CODE =====
+  function copyCode(btn) {
+    btn.setAttribute('aria-label', 'Code đã được sao chép');
+    const pre = btn.closest('pre');
+    const code = pre.querySelector('code');
+    const text = code.textContent;
+
+    navigator.clipboard.writeText(text).then(() => {
+      btn.textContent = '✅ Đã sao chép';
+      btn.classList.add('copied');
+      setTimeout(() => {
+        btn.textContent = 'Sao chép';
+        btn.classList.remove('copied');
+      }, 2000);
+    }).catch(() => {
+      // Fallback
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+      btn.textContent = '✅ Đã sao chép';
+      btn.classList.add('copied');
+      setTimeout(() => {
+        btn.textContent = 'Sao chép';
+        btn.classList.remove('copied');
+      }, 2000);
+    });
+  }
+
+  // ===== COPY PROMPT (clickable code at bottom) =====
+  function copyPrompt(el) {
+    const text = el.textContent;
+    navigator.clipboard.writeText(text).then(() => {
+      el.style.borderColor = 'var(--green)';
+      el.textContent = '✅ Đã sao chép';
+      setTimeout(() => {
+        el.textContent = text;
+        el.style.borderColor = '';
+      }, 2000);
+    });
+  }
+
+  // ===== SIDEBAR TOGGLE (mobile) =====
+  const toggleBtn = document.getElementById('sidebarToggle');
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('sidebarOverlay');
+
+  function openSidebar() {
+    sidebar.classList.add('open');
+    overlay.classList.add('open');
+  }
+
+  function closeSidebar() {
+    sidebar.classList.remove('open');
+    overlay.classList.remove('open');
+  }
+
+  if (toggleBtn) {
+    toggleBtn.addEventListener('click', () => {
+      if (sidebar.classList.contains('open')) {
+        closeSidebar();
+      } else {
+        openSidebar();
+      }
+    });
+  }
+
+  if (overlay) {
+    overlay.addEventListener('click', closeSidebar);
+  }
+
+  // Close sidebar when clicking a nav link (mobile)
+  document.querySelectorAll('.sidebar a.nav-link').forEach(link => {
+    link.addEventListener('click', () => {
+      if (window.innerWidth <= 860) closeSidebar();
+    });
+  });
+
+  // ===== ACTIVE NAV LINK =====
+  const navLinks = document.querySelectorAll('.sidebar a.nav-link');
+  const sections = document.querySelectorAll('section[id]');
+
+  function updateActiveLink() {
+    let current = '';
+    sections.forEach(section => {
+      const top = section.offsetTop - 100;
+      if (window.scrollY >= top) {
+        current = section.getAttribute('id');
+      }
+    });
+
+    navLinks.forEach(link => {
+      link.style.color = '';
+      link.style.background = '';
+      if (link.getAttribute('href') === '#' + current) {
+        link.style.color = 'var(--accent)';
+        link.style.background = 'var(--bg)';
+      }
+    });
+  }
+
+  window.addEventListener('scroll', updateActiveLink);
+  window.addEventListener('load', updateActiveLink);
+
+  // ===== THEME TOGGLE (dark/light) =====
+  const themeToggle = document.getElementById('themeToggle');
+  const iconLight = document.querySelector('.theme-icon-light');
+  const iconDark = document.querySelector('.theme-icon-dark');
+  const html = document.documentElement;
+
+  function setTheme(theme) {
+    if (theme === 'light') {
+      html.classList.add('light-theme');
+      iconLight.style.display = 'none';
+      iconDark.style.display = '';
+      html.style.colorScheme = 'light';
+    } else {
+      html.classList.remove('light-theme');
+      iconLight.style.display = '';
+      iconDark.style.display = 'none';
+      html.style.colorScheme = 'dark';
+    }
+    localStorage.setItem('sap-abap-agent-theme', theme);
+  }
+
+  // Detect initial theme: localStorage > system preference > dark default
+  const saved = localStorage.getItem('sap-abap-agent-theme');
+  if (saved === 'light' || saved === 'dark') {
+    setTheme(saved);
+  } else {
+    const prefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
+    setTheme(prefersLight ? 'light' : 'dark');
+  }
+
+  if (themeToggle) {
+    themeToggle.addEventListener('click', () => {
+      const isLight = html.classList.contains('light-theme');
+      setTheme(isLight ? 'dark' : 'light');
+    });
+  }
+
+  // Listen for system theme changes (when no saved preference)
+  window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', (e) => {
+    if (!localStorage.getItem('sap-abap-agent-theme')) {
+      setTheme(e.matches ? 'light' : 'dark');
+    }
+  });
+
+  // ===== BILINGUAL (VI / EN) =====
+  const langToggle = document.getElementById('langToggle');
+  const langVi = document.querySelector('.lang-vi');
+  const langEn = document.querySelector('.lang-en');
+  const htmlEl = document.documentElement;
+
+  const translations = {
+    // --- Sidebar nav ---
+    'Bắt đầu': 'Getting Started',
+    'Giới thiệu': 'Introduction',
+    'Tính năng': 'Features',
+    'Cài đặt': 'Installation',
+    'Sử dụng': 'Usage',
+    'Thêm project SAP': 'Add SAP Project',
+    'Quản lý profile': 'Manage Profiles',
+    'Kiểm tra kết nối': 'Test Connection',
+    'OAuth2 chi tiết': 'OAuth2 Details',
+    'Đăng ký MCP': 'MCP Registration',
+    'Tham khảo': 'Reference',
+    'MCP Tools': 'MCP Tools',
+    'Lệnh CLI': 'CLI Commands',
+    'Cấu trúc thư mục': 'Directory Structure',
+    'Lỗi thường gặp': 'Troubleshooting',
+    'Biến môi trường': 'Environment Variables',
+    'Plugin Claude Code': 'Claude Code Plugin',
+
+    // --- Header ---
+    '📘 Hướng dẫn sử dụng': '📘 User Guide',
+    'Chuyển đổi giao diện': 'Toggle theme',
+
+    // --- Hero ---
+    'Đã kết nối & sẵn sàng': 'Connected & ready',
+    'cho Claude Code': 'for Claude Code',
+    'Plugin Claude Code + MCP Server tự động kết nối SAP BTP / S/4HANA Cloud để thao tác ABAP — đọc, tìm, syntax-check, activate. Hỗ trợ ': '',
+    'multi-profile': 'multi-profile',
+    ' cho nhiều project SAP cùng lúc.': ' — read, search, syntax-check, activate ABAP objects via Claude Code + MCP Server. Supports multiple SAP projects simultaneously.',
+    '⚡ Bắt đầu cài đặt': '⚡ Start Installation',
+    '➕ Thêm project SAP': '➕ Add SAP Project',
+    '📂 GitHub': '📂 GitHub',
+
+    // --- Intro section ---
+    '🏠 Giới thiệu': '🏠 Introduction',
+    'SAP ABAP Agent': 'SAP ABAP Agent',
+    ' là plugin dành cho ': ' is a ',  // partial
+    // Full sentences handled below
+
+    // --- Features section ---
+    '✨ Tính năng nổi bật': '✨ Key Features',
+    'Thêm project chỉ 1 lệnh': 'One-Command Setup',
+    'sap-btp-agent setup <URL>': 'sap-btp-agent setup <URL>',
+    ' — wizard tự sinh profile, hỏi thông tin OAuth2 và lưu cấu hình.': ' — auto-generates profile, prompts for OAuth2 info, saves config.',
+    'Chuyển qua lại giữa nhiều project SAP trong cùng một phiên Claude bằng tham số ': 'Switch between SAP projects within one Claude session using the ',
+    'profile': 'profile',
+    'Tự động refresh token': 'Auto Refresh Token',
+    'OAuth2 token tự động refresh khi hết hạn, không lo gián đoạn công việc.': 'OAuth2 tokens auto-refresh on expiry — no interruption.',
+    'Secret được mã hóa': 'Encrypted Secrets',
+    'DPAPI (Windows) hoặc AES-256-GCM (macOS/Linux). File mode ': 'DPAPI (Windows) or AES-256-GCM (macOS/Linux). File mode ',
+    '0o600': '0o600',
+
+    // --- Installation ---
+    '📦 Cài đặt': '📦 Installation',
+    'Yêu cầu': 'Requirements',
+    'Claude Code': 'Claude Code',
+    ' (Anthropic CLI)': '',
+    'Tài khoản SAP BTP / S/4HANA Cloud với OAuth2 client': 'SAP BTP / S/4HANA Cloud account with OAuth2 client',
+    'Các bước cài đặt': 'Setup Steps',
+    'Clone repository và cài dependencies:': 'Clone the repo and install dependencies:',
+    '# Clone & cài MCP Server': '# Clone & install MCP Server',
+    '# Kiểm tra': '# Verify',
+    'Sao chép': 'Copy',
+    'Đăng ký MCP server với Claude Code:': 'Register MCP server with Claude Code:',
+    'Sau bước này, các MCP tool như ': 'After this step, MCP tools like ',
+    'sap_ping': 'sap_ping',
+    'sap_search': 'sap_search',
+    'sap_list_packages': 'sap_list_packages',
+    '... sẽ xuất hiện trong Claude Code.': '... will appear in Claude Code.',
+
+    // --- Add Project ---
+    '➕ Thêm project SAP mới': '➕ Add New SAP Project',
+    'Cách nhanh nhất — truyền URL trực tiếp:': 'Quickest way — pass URL directly:',
+    'Wizard sẽ tự sinh profile ID từ hostname (vd: ': 'Wizard auto-generates profile ID from the hostname (e.g. ',
+    ') và hỏi:': ') and prompts for:',
+    'OAuth2 ': '',
+    'client_id': 'client_id',
+    ' + ': ' + ',
+    'client_secret': 'client_secret',
+    ' (hoặc username/password, hoặc bearer token)': ' (or username/password, or bearer token)',
+    'Region, service type': 'Region, service type',
+    'Thông tin được lưu riêng trong thư mục profile:': 'Info is saved in the profile directory:',
+    'Thêm project thứ 2, thứ 3...': 'Adding 2nd, 3rd project...',
+    ' cũng dễ dàng:': ' is just as easy:',
+    'Mỗi project có profile riêng, secret riêng (mã hóa độc lập).': 'Each project has its own profile and independently encrypted secrets.',
+
+    // --- Profile Management ---
+    '👥 Quản lý nhiều profile': '👥 Multi-Profile Management',
+    'Liệt kê tất cả profile (': 'List all profiles (',
+    ' = active)': ' = active)',
+    'Chọn profile active': 'Set active profile',
+    'Xem chi tiết profile đang dùng': 'Show active profile details',
+    'Xóa một profile': 'Remove a profile',
+    '⚠️ Xóa tất cả (cẩn thận!)': '⚠️ Delete everything (careful!)',
+    'Chọn profile trong MCP tools': 'Selecting Profile in MCP Tools',
+    'Mỗi MCP tool đều có tham số ': 'Each MCP tool has a ',
+    ' (để trống = dùng profile active):': ' parameter (empty = use active profile):',
+    'Chạy nhiều instance cùng lúc': 'Running Multiple Instances',
+    'Đặt env ': 'Set the ',
+    ' trước mỗi lần chạy:': ' env var before each run:',
+
+    // --- Test Connection ---
+    '🔌 Kiểm tra kết nối': '🔌 Test Connection',
+    '# Test profile active': '# Test active profile',
+    '# Test một profile cụ thể': '# Test a specific profile',
+
+    // --- OAuth2 ---
+    '🔐 OAuth2 — Kết nối SAP BTP': '🔐 OAuth2 — SAP BTP Connection',
+    'SAP ABAP Agent hỗ trợ ': 'SAP ABAP Agent supports ',
+    '3 chế độ xác thực OAuth2': '3 OAuth2 authentication modes',
+    ' để kết nối SAP BTP / S/4HANA Cloud. Tùy vào cấu hình tenant, bạn chọn chế độ phù hợp.': 'for SAP BTP / S/4HANA Cloud. Choose based on your tenant config.',
+    'Dùng ': 'Uses ',
+    '. Phù hợp cho M2M automation, không cần user tương tác.': '. Ideal for M2M automation — no user interaction needed.',
+    'Password Grant': 'Password Grant',
+    'username': 'username',
+    'password': 'password',
+    '. Phù hợp khi bạn có tài khoản SAP BTP cá nhân.': '. Suitable when you have a personal SAP BTP account.',
+    'Bearer Token': 'Bearer Token',
+    'Dùng token có sẵn (nhập tay). Phù hợp cho testing hoặc token ngắn hạn.': 'Use a pre-obtained token (manual entry). Good for testing or short-lived tokens.',
+    'Luồng hoạt động': 'How It Works',
+    'Khi bạn gọi một MCP tool (vd ': 'When you call an MCP tool (e.g. ',
+    '), hệ thống tự động:': '), the system auto:',
+    'Kiểm tra token trong bộ nhớ (memory cache)': 'Checks token in memory cache',
+    'Nếu hết hạn → kiểm tra secret đã mã hóa trong ': 'Expired → checks encrypted secret in ',
+    'Nếu còn hạn → dùng lại (tránh gọi OAuth2 liên tục)': 'Still valid → reuse (avoid repeated OAuth2 calls)',
+    'Nếu hết hạn → gọi OAuth2 endpoint để lấy token mới': 'Expired → calls OAuth2 endpoint for fresh token',
+    'Tự động lưu ': 'Auto-saves ',
+    ' + ': ' + ',
+    ' vào secrets.json': ' to secrets.json',
+    'Token được refresh ': 'Token auto-refreshes ',
+    '30 giây': '30 seconds',
+    ' trước khi hết hạn (': ' before expiry (',
+    ')': ')',
+    'Cấu hình OAuth2 Client trên SAP BTP': 'Configuring OAuth2 Client on SAP BTP',
+    'Trước khi setup, bạn cần tạo OAuth2 client trên SAP BTP cockpit:': 'Before setup, create an OAuth2 client in SAP BTP Cockpit:',
+    'Đăng nhập SAP BTP Cockpit': 'Log in to SAP BTP Cockpit',
+    ' → vào ': ' → go to ',
+    'Subaccount': 'Subaccount',
+    ' của bạn': '',
+    'Vào menu ': 'Go to menu ',
+    'Security > OAuth2 Client': 'Security > OAuth2 Client',
+    ' (hoặc API Clients trong các phiên bản mới)': ' (or API Clients in newer versions)',
+    'Tạo client mới với Grant Type = ': 'Create new client with Grant Type = ',
+    'Client Credentials': 'Client Credentials',
+    'Ghi lại ': 'Save your ',
+    ' và ': ' and ',
+    'Client ID': 'Client ID',
+    'Client Secret': 'Client Secret',
+    'Nếu dùng ': 'If using ',
+    'IAS (Identity Authentication)': 'IAS (Identity Authentication)',
+    ', lưu ý token URL là ': ', note the token URL is ',
+    ' thay vì ': ' instead of ',
+    'Wizard Setup chi tiết': 'Detailed Wizard Setup',
+    'Khi chạy ': 'When running ',
+    ', wizard sẽ hỏi từng thông tin:': ', the wizard will prompt for each detail:',
+    'Token URL & Xử lý các hệ thống khác nhau': 'Token URL & Different Systems',
+    'Mỗi hệ thống SAP có endpoint OAuth2 khác nhau. Agent tự động xác định dựa trên URL gốc, nhưng bạn có thể override nếu cần:': 'Each SAP system has a different OAuth2 endpoint. The agent auto-detects from the base URL, but you can override if needed:',
+    'Hệ thống': 'System',
+    'Token URL mặc định': 'Default Token URL',
+    'Ghi chú': 'Notes',
+    'Mặc định cho hầu hết S/4HANA Cloud': 'Default for most S/4HANA Cloud instances',
+    'Identity Authentication Service': 'Identity Authentication Service',
+    'Override trong ': 'Override in ',
+    'secrets.json': 'secrets.json',
+    'Sửa ': 'Edit ',
+    'tokenUrl': 'tokenUrl',
+    ' theo ý muốn': ' as needed',
+    'Override Token URL thủ công': 'Manual Token URL Override',
+    'Nếu gặp lỗi ': 'If you get a ',
+    '404 /oauth/token': '404 /oauth/token',
+    ', bạn có thể sửa trực tiếp file secrets.json:': ', you can edit the secrets.json file directly:',
+    'Token Lifecycle & Auto-Refresh': 'Token Lifecycle & Auto-Refresh',
+    'Agent quản lý vòng đời token hoàn toàn tự động:': 'The agent manages the token lifecycle automatically:',
+    '🔄 Tự động refresh': '🔄 Auto Refresh',
+    'Token được cache trong bộ nhớ. Khi còn ': 'Token is cached in memory. When ',
+    ' trước khi hết hạn, agent tự động gọi OAuth2 endpoint để lấy token mới — bạn không cần làm gì cả.': ' before expiry, the agent auto-calls the OAuth2 endpoint for a new token — no action needed.',
+    '💾 Lưu token an toàn': '💾 Secure Token Storage',
+    'Token mới + ': 'New token + ',
+    ' + ': ' + ',
+    'expiresAt': 'expiresAt',
+    ' được lưu vào ': ' are saved to ',
+    'secrets.json': '',
+    ' đã mã hóa': ' (encrypted)',
+    '. Khi restart agent, token được phục hồi từ file mà không cần xác thực lại.': '. On restart, tokens are restored from file without re-authentication.',
+    '🔐 Mã hóa đa nền tảng': '🔐 Cross-Platform Encryption',
+    'Windows:': 'Windows:',
+    ' DPAPI (gắn với tài khoản Windows)': ' DPAPI (bound to Windows account)',
+    'macOS/Linux:': 'macOS/Linux:',
+    ' AES-256-GCM, key derive từ ': ' AES-256-GCM, key derived from ',
+    'hostname + username': 'hostname + username',
+    ' qua scrypt': ' via scrypt',
+
+    // --- MCP Registration ---
+    '⚙️ Đăng ký MCP với Claude Code': '⚙️ MCP Registration with Claude Code',
+    'Thêm vào file ': 'Add to your ',
+    ' (Windows: ': ' (Windows: ',
+    '):': ') file:',
+    'Mở Claude Code với plugin:': 'Launch Claude Code with the plugin:',
+
+    // --- MCP Tools ---
+    '🛠️ MCP Tools': '🛠️ MCP Tools',
+    'Sau khi đăng ký, các tool sau sẽ xuất hiện trong Claude Code. Mỗi tool đều có tham số ': 'After registration, these tools appear in Claude Code. Each tool has a ',
+    ' (để trống = dùng profile active).': ' parameter (empty = active profile).',
+    'Mô tả': 'Description',
+    'Tham số chính': 'Key Parameters',
+    'Liệt kê các profile đã cấu hình': 'List configured profiles',
+    'Test kết nối profile': 'Test profile connection',
+    'Liệt kê package ABAP': 'List ABAP packages',
+    'Tìm object ABAP theo tên': 'Search ABAP objects by name',
+    'Đọc source code (class, program, include...)': 'Read source code (class, program, include...)',
+    'Syntax check (không activate)': 'Syntax check (no activation)',
+    'Activate object (transport local)': 'Activate object (local transport)',
+    'Ví dụ prompt trong Claude Code:': 'Example prompts in Claude Code:',
+
+    // --- CLI Commands ---
+    '⌨️ Lệnh CLI': '⌨️ CLI Commands',
+    'Thêm project SAP mới (wizard)': 'Add new SAP project (wizard)',
+    'Test kết nối profile active': 'Test active profile connection',
+    'Test kết nối một profile cụ thể': 'Test a specific profile',
+    'Liệt kê tất cả profile': 'List all profiles',
+    'Xem chi tiết profile active': 'Show active profile details (continued)',
+    '⚠️ Xóa tất cả dữ liệu': '⚠️ Delete all data',
+    'Xem trợ giúp': 'Show help',
+    'Tips:': 'Tip:',
+    ' Bạn có thể dùng lệnh ': ' You can use the ',
+    ' ngay trong Claude Code để được hướng dẫn từng bước.': ' command in Claude Code for step-by-step guidance.',
+
+    // --- Directory Structure ---
+    '📁 Cấu trúc thư mục': '📁 Directory Structure',
+    'Project': 'Project',
+    'Manifest plugin Claude Code': 'Claude Code plugin manifest',
+    'Cảnh báo SELECT *': 'SELECT * warning hook',
+    'Tài liệu ABAP': 'ABAP documentation',
+    'MCP server Node.js (multi-profile)': 'MCP server (multi-profile)',
+    'paths, profile, store, secrets': 'paths, profile, store, secrets',
+    'auth (OAuth2), client (REST + auto-reconnect)': 'auth (OAuth2), client (REST + auto-reconnect)',
+    'registry các tool MCP': 'MCP tool registry',
+    'wizard setup + quản lý profile': 'setup wizard + profile management',
+    'entry MCP server (stdio)': 'MCP server entry (stdio)',
+    'Trang hướng dẫn này': 'This guide page',
+    'Tổng quan dự án': 'Project overview',
+    'Cấu hình (User folder)': 'User config folder',
+    'Registry (danh sách + active)': 'Registry (list + active)',
+    'URL, tenant, client_id...': 'URL, tenant, client_id...',
+    'Secret đã mã hóa': 'Encrypted secrets',
+    'Windows:': 'Windows:',
+    ' secrets mã hóa bằng DPAPI (gắn với tài khoản Windows)': ' secrets encrypted via DPAPI (Windows account-bound)',
+    'macOS/Linux:': 'macOS/Linux:',
+    ' AES-256-GCM, key derive từ ': ' AES-256-GCM, key derived from ',
+    'hostname + username': 'hostname + username',
+    'File mode ': 'File mode ',
+    ', chỉ owner đọc/ghi': ', owner read/write only',
+
+    // --- Environment Variables ---
+    '🌐 Biến môi trường': '🌐 Environment Variables',
+    '— Khóa profile cho 1 lần chạy (ưu tiên hơn registry)': '— Pin profile for a single run (overrides registry)',
+    '— Đổi thư mục cấu hình (test, multi-tenant)': '— Override config directory (testing, multi-tenant)',
+
+    // --- Troubleshooting ---
+    '⚠️ Lỗi thường gặp': '⚠️ Troubleshooting',
+    '❌ 401 Unauthorized': '❌ 401 Unauthorized',
+    'Client_secret sai hoặc hết hạn. Chạy ': 'Incorrect or expired client_secret. Run ',
+    ' để cập nhật thông tin OAuth2.': ' to update OAuth2 credentials.',
+    '⚠️ 404 /oauth/token': '⚠️ 404 /oauth/token',
+    'URL token sai. Vào ': 'Wrong token URL. Edit ',
+    ', sửa ': ', fix ',
+    ' (vd: đổi ': ' (e.g. change ',
+    ' thành ': ' to ',
+    ' nếu dùng IAS).': ' if using IAS).',
+    '🔒 Không giải mã được secret': '🔒 Cannot Decrypt Secret',
+    'Đổi máy / hostname. Chạy lại ': 'Changed machine/hostname. Re-run ',
+    ' để tạo lại secret.': ' to recreate the secret.',
+    '📭 Chưa có profile nào': '📭 No Profile Configured',
+    'Chạy ': 'Run ',
+    ' để thêm project SAP đầu tiên.': ' to add your first SAP project.',
+    '🔌 MCP tool không xuất hiện': '🔌 MCP Tools Not Showing',
+    'Kiểm tra ': 'Check ',
+    ' đã đúng cấu trúc chưa. Đảm bảo ': ' has the correct structure. Ensure ',
+    ' có trong PATH.': ' is in your PATH.',
+
+    // --- Cookie Auth section ---
+    '🍪 Cookie Auth & Web Popup Re-Auth': '🍪 Cookie Auth & Web Popup Re-Auth',
+    'Bên cạnh OAuth2, SAP ABAP Agent hỗ trợ ': 'In addition to OAuth2, SAP ABAP Agent supports ',
+    'cookie-based authentication': 'cookie-based authentication',
+    ' sử dụng SAP session cookies (': ' using SAP session cookies (',
+    'MYSAPSSO2': 'MYSAPSSO2',
+    'SAP_SESSIONID': 'SAP_SESSIONID',
+    'sap-usercontext': 'sap-usercontext',
+    '). Phương thức này đặc biệt hữu dụng khi bạn đã có sẵn session từ SAP GUI, Fiori Launchpad, hoặc muốn tận dụng cơ chế ': '. This is especially useful if you already have a session from SAP GUI, Fiori Launchpad, or want to leverage ',
+    'Single Sign-On (SSO)': 'Single Sign-On (SSO)',
+    '⚡ Tính năng chính': '⚡ Key Features',
+    'Cookie-Based Auth': 'Cookie-Based Auth',
+    'Dùng session cookies SAP thay vì OAuth2 tokens. Hỗ trợ ': 'Uses SAP session cookies instead of OAuth2 tokens. Supports ',
+    ', v.v.': ', etc.',
+    'Web Popup Re-Auth': 'Web Popup Re-Auth',
+    'Khi session hết hạn (401), tự động mở browser cho user đăng nhập lại — lấy cookies mới, tiếp tục công việc.': 'When session expires (401), auto-opens a browser for the user to re-login — gets fresh cookies, continues work.',
+    'Stampede Protection': 'Stampede Protection',
+    'Nhiều request cùng bị 401 chỉ kích hoạt 1 lần re-auth (mutex + cooldown 5s) — giống cơ chế ': 'Multiple concurrent 401s trigger only 1 re-auth (mutex + 5s cooldown) — same as ',
+    ' của vibing-steampunk.': ' from vibing-steampunk.',
+    'reauthMu': 'reauthMu',
+    'Lưu cookies an toàn': 'Secure Cookie Storage',
+    'Cookies được mã hóa và lưu trong ': 'Cookies are encrypted and stored in ',
+    ' (DPAPI / AES-256-GCM), phục hồi khi restart agent.': ' (DPAPI / AES-256-GCM), restored on agent restart.',
+    '🔧 CLI Wizard — Cài đặt Cookie Auth': '🔧 CLI Wizard — Setting up Cookie Auth',
+    'Khi chạy ': 'When running ',
+    ', wizard sẽ hỏi bạn chọn phương thức xác thực. Chọn ': ', the wizard asks you to pick an auth method. Choose ',
+
+    'option 4 (Cookie-based)': 'option 4 (Cookie-based)',
+    '🌐 Web Popup Re-Auth — Khi Session Hết Hạn': '🌐 Web Popup Re-Auth — When Session Expires',
+    'Khi đang code mà session SAP hết hạn (HTTP 401), agent tự động:': 'While coding, if the SAP session expires (HTTP 401), the agent auto:',
+    'Phát hiện ': 'Detects ',
+    '401 Unauthorized': '401 Unauthorized',
+    ' từ SAP': ' from SAP',
+    'Kích hoạt ': 'Activates ',
+
+    ' (chỉ 1 lần re-auth dù nhiều request cùng fail)': ' (only 1 re-auth even if multiple requests fail)',
+    'Gọi ': 'Calls ',
+    'ReauthHandler': 'ReauthHandler',
+    ' — mở trình duyệt web': ' — opens web browser',
+    'Hiển thị thông báo ': 'Shows notification ',
+    '🔐 SESSION SAP DA HET HAN!': '🔐 SESSION EXPIRED!',
+    ' + URL đăng nhập': ' + login URL',
+    'User đăng nhập vào SAP qua browser': 'User logs into SAP via browser',
+    'Manual mode:': 'Manual mode:',
+    ' User copy cookies từ DevTools (F12) → paste vào terminal': ' User copies cookies from DevTools (F12) → pastes into terminal',
+    'Auto mode:': 'Auto mode:',
+    ' Playwright tự động trích xuất cookies sau login': ' Playwright auto-extracts cookies after login',
+    'Cookies mới được lưu vào ': 'Fresh cookies saved to ',
+    ' (mã hóa)': ' (encrypted)',
+    'Request được retry tự động với cookies mới → thành công!': 'Request auto-retried with fresh cookies → success!',
+    '🔐 Hai Chế Độ Re-Auth': '🔐 Two Re-Auth Modes',
+    'Manual Paste (Mặc định)': 'Manual Paste (Default)',
+    'Dùng ': 'Uses ',
+    'webbrowser.open()': 'webbrowser.open()',
+    ' mở SAP URL. User login thủ công, sau đó mở DevTools (F12) → Application → Cookies → copy cookie string → paste vào terminal.': ' to open SAP URL. User logs in manually, then opens DevTools (F12) → Application → Cookies → copy cookie string → paste into terminal.',
+    '✅ Không cần cài đặt thêm. Hoạt động trên mọi nền tảng.': '✅ No extra installation. Works on all platforms.',
+    'Auto (Playwright)': 'Auto (Playwright)',
+    'Dùng ': 'Uses ',
+    'playwright': 'playwright',
+    ' mở Chromium, cho user login, tự động phát hiện khi đăng nhập xong và trích xuất cookies.': ' to open Chromium, let user login, auto-detect when done and extract cookies.',
+    '⚠️ Yêu cầu ': '⚠️ Requires ',
+    'pip install playwright': 'pip install playwright',
+    '. Tự động fallback về manual nếu chưa cài.': '. Auto-fallback to manual if not installed.',
+    '📦 Cài đặt Playwright (cho Auto mode)': '📦 Installing Playwright (for Auto mode)',
+    '🧠 Kiến trúc — Lấy cảm hứng từ vibing-steampunk': '🧠 Architecture — Inspired by vibing-steampunk',
+    'Cơ chế cookie re-auth được xây dựng dựa trên pattern từ ': 'The cookie re-auth mechanism is built on the pattern from ',
+    ' (dự án ADT → MCP bridge bằng Go):': ' (an ADT → MCP bridge in Go):',
+    '🔧 File liên quan': '🔧 Related Files',
+    '⚠️ Lưu ý': '⚠️ Notes',
+    '🍪 Cookies cần có SAP session': '🍪 Cookies Need SAP Session',
+    'Cần ít nhất một trong các cookies: ': 'At least one of these cookies is needed: ',
+    ', hoặc ': ', or ',
+    'sap-contextid': 'sap-contextid',
+    '🔄 Round-trip an toàn': '🔄 Safe Round-Trip',
+    'Khi re-auth, cookies cũ được giữ nguyên cho đến khi cookies mới được xác nhận. Stampede protection ngăn multiple re-auth đồng thời.': 'On re-auth, old cookies are preserved until new ones are confirmed. Stampede protection prevents concurrent re-auths.',
+
+    // --- Final CTA ---
+    '💬 Bắt đầu ngay': '💬 Get Started Now',
+    'Mở Claude Code với plugin và thử một trong các câu lệnh sau:': 'Launch Claude Code with the plugin and try one of these prompts:',
+    'Trang hướng dẫn này được tạo bởi Freebuff Coding Assistant': 'This guide was created by Freebuff Coding Assistant',
+  };
+
+  let currentLang = localStorage.getItem('sap-abap-agent-lang') || 'vi';
+
+  function translatePage(lang) {
+    const isEn = lang === 'en';
+    const root = document.querySelector('.content');
+    if (!root) return;
+
+    // Update html lang attribute
+    htmlEl.setAttribute('lang', isEn ? 'en' : 'vi');
+
+    // Toggle button labels
+    langVi.style.display = isEn ? 'none' : '';
+    langEn.style.display = isEn ? '' : 'none';
+
+    // Update page title
+    document.title = isEn ? 'SAP ABAP Agent — User Guide' : 'SAP ABAP Agent — Hướng dẫn sử dụng';
+
+    // Walk text nodes and translate
+    const walker = document.createTreeWalker(
+      root,
+      NodeFilter.SHOW_TEXT,
+      {
+        acceptNode: function(node) {
+          // Skip code blocks and pre elements
+          let el = node.parentElement;
+          while (el) {
+            if (el.tagName === 'PRE' || el.tagName === 'CODE' || el.tagName === 'SCRIPT' || el.tagName === 'STYLE') {
+              return NodeFilter.FILTER_REJECT;
+            }
+            el = el.parentElement;
+          }
+          return NodeFilter.FILTER_ACCEPT;
+        }
+      }
+    );
+
+    const replacements = [];
+    while (walker.nextNode()) {
+      const node = walker.currentNode;
+      let text = node.textContent;
+      let original = text;
+
+      if (isEn) {
+        // Save original VI text for perfect round-trip restoration
+        const parent = node.parentElement;
+        if (parent && !parent.hasAttribute('data-vi')) {
+          parent.setAttribute('data-vi', text);
+        }
+
+        // VI -> EN
+        for (const [vi, en] of Object.entries(translations)) {
+          if (en === '') {
+            text = text.replace(vi, '');
+          } else if (text.includes(vi)) {
+            text = text.split(vi).join(en);
+          }
+        }
+      } else {
+        // EN -> VI: restore from saved data-vi if available
+        const parent = node.parentElement;
+        const savedVi = parent ? parent.getAttribute('data-vi') : null;
+        if (savedVi !== null && savedVi.trim()) {
+          text = savedVi;
+        } else {
+          // Fallback: reverse lookup
+          for (const [vi, en] of Object.entries(translations)) {
+            if (en && text.includes(en)) {
+              text = text.split(en).join(vi);
+            }
+          }
+        }
+      }
+
+      if (text !== original) {
+        replacements.push({ node, text });
+      }
+    }
+
+    for (const { node, text } of replacements) {
+      node.textContent = text;
+    }
+
+    currentLang = lang;
+    localStorage.setItem('sap-abap-agent-lang', lang);
+  }
+
+  if (langToggle) {
+    langToggle.addEventListener('click', () => {
+      const newLang = currentLang === 'vi' ? 'en' : 'vi';
+      translatePage(newLang);
+    });
+  }
+
+  // Apply saved language on load
+  if (currentLang === 'en') {
+    translatePage('en');
+  }
+</script>
+
+</body>
+</html>

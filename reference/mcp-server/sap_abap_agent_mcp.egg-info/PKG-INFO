@@ -1,0 +1,18 @@
+Metadata-Version: 2.4
+Name: sap-abap-agent-mcp
+Version: 0.3.0
+Summary: MCP server tu dong ket noi SAP BTP (multi-profile) - rewrite Python
+Author: StormShyn
+License: MIT
+Keywords: sap,abap,mcp,btp,s4hana
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+Requires-Dist: mcp>=1.0.0
+Requires-Dist: httpx>=0.27
+Requires-Dist: cryptography>=42.0
+Provides-Extra: win-dpapi
+Requires-Dist: pywin32>=306; extra == "win-dpapi"
+Provides-Extra: mac-keychain
+Requires-Dist: keyring>=24; extra == "mac-keychain"
+Provides-Extra: dev
+Requires-Dist: pytest>=8; extra == "dev"
