@@ -1,2 +1,0 @@
-[console_scripts]
-sap-btp-agent = sap_btp_agent.cli:main

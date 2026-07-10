@@ -5,6 +5,9 @@ node_modules/
 __pycache__/
 *.py[cod]
 *.pyc
+build/
+dist/
+*.egg-info/
 
 # Logs
 *.log

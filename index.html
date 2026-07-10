@@ -871,25 +871,27 @@
       </ul>
 
       <h3>Các bước cài đặt</h3>
+      <p><strong>Không cần clone repo</strong> — tải 1 file <code>.whl</code> và cài bằng pip:</p>
       <ol>
-        <li>Clone repository và cài MCP Server Python:</li>
+        <li>Cài MCP Server từ file wheel:</li>
       </ol>
 
-      <pre><code><span class="hl-com"># Clone &amp; cài MCP Server</span>
-cd sap-abap-agent/reference/mcp-server
-pip install -e .
+      <pre><code><span class="hl-com"># Cài MCP Server — không cần clone repo</span>
+pip install https://github.com/StormShynn/sap-abap-agent/releases/download/mcp-server-v0.3.0/sap_abap_agent_mcp-0.3.0-py3-none-any.whl
 
 <span class="hl-com"># Trên Windows, thêm win-dpapi</span>
-pip install -e .[win-dpapi]
+pip install "sap_abap_agent_mcp-0.3.0-py3-none-any.whl[win-dpapi]"
 
 <span class="hl-com"># Muốn dùng Cookie Auth kiểu tự mở browser đăng nhập (Auto mode)</span>
-pip install -e .[playwright]
+pip install "sap_abap_agent_mcp-0.3.0-py3-none-any.whl[playwright]"
 playwright install chromium
 
 <span class="hl-com"># Kiểm tra môi trường — chạy được dù PATH chưa đúng</span>
 python -m sap_btp_agent.doctor</code><button class="copy-btn" onclick="copyCode(this)">Sao chép</button></pre>
 
       <p>Lệnh <code>doctor</code> tự phát hiện các lỗi môi trường hay gặp nhất (PATH thiếu entry point, thiếu pywin32/playwright...) và in sẵn lệnh fix — không cần debug thủ công.</p>
+
+      <p style="font-size:13px;color:var(--text-dim);">Muốn sửa code MCP server hoặc tự build wheel mới? Xem phần "Dev / contributor" trong <a href="https://github.com/StormShynn/sap-abap-agent/blob/main/README.md" target="_blank">README</a> (mục xổ xuống ngay sau bước cài đặt).</p>
 
       <ol start="2">
         <li>Cấu hình MCP remote servers cho CDS KB &amp; SAP Docs:</li>

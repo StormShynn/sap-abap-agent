@@ -77,28 +77,49 @@ sap-abap-agent/
 
 ## Cai dat (1 lan)
 
-Yeu cau: **Python >= 3.10**.
+Yeu cau: **Python >= 3.10**. **Khong can clone repo** -- chi can tai 1 file `.whl` va `pip install`:
 
 ```bash
-cd reference/mcp-server
-pip install -e .
+pip install https://github.com/StormShynn/sap-abap-agent/releases/download/mcp-server-v0.3.0/sap_abap_agent_mcp-0.3.0-py3-none-any.whl
 ```
 
-Tren Windows, cai them extra `win-dpapi` de ma hoa secrets bang DPAPI:
+(Hoac tai file `.whl` ve truoc roi `pip install duong-dan-file.whl` neu may khong co internet luc chay lenh.)
+
+Tren Windows, cai them extra `win-dpapi` de ma hoa secrets bang DPAPI (them `[win-dpapi]` ngay sau ten file, truoc phan mo rong `.whl`):
 
 ```bash
-pip install -e ".[win-dpapi]"
+pip install "sap_abap_agent_mcp-0.3.0-py3-none-any.whl[win-dpapi]"
 ```
 
 Neu muon dung Cookie-based auth kieu **tu mo browser dang nhap** (khong can F12 copy tay), cai them extra `playwright`
 va download browser binary:
 
 ```bash
-pip install -e ".[playwright]"
+pip install "sap_abap_agent_mcp-0.3.0-py3-none-any.whl[playwright]"
 playwright install chromium
 ```
 
-Sau buoc `pip install -e .` ban se co lenh `sap-btp-agent` trong PATH (entry point khai bao trong `pyproject.toml`).
+Sau buoc cai, ban se co lenh `sap-btp-agent` trong PATH (entry point khai bao trong `pyproject.toml`).
+
+<details>
+<summary>Dev / contributor: cai tu source (editable install)</summary>
+
+```bash
+git clone https://github.com/StormShynn/sap-abap-agent.git
+cd sap-abap-agent/reference/mcp-server
+pip install -e .[win-dpapi,playwright]
+```
+
+Dung khi ban muon sua code MCP server (`reference/mcp-server/sap_btp_agent/`) va thay doi co hieu luc ngay
+khong can build lai wheel. Build wheel moi de release:
+
+```bash
+pip install build
+python -m build --wheel
+# -> dist/sap_abap_agent_mcp-<version>-py3-none-any.whl
+```
+
+</details>
 
 **Kiem tra ngay sau khi cai** (khuyen dung, danh cho moi nguoi -- khong can dung AI de debug):
 
