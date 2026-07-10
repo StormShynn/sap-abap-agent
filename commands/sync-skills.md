@@ -21,3 +21,25 @@ Trong Claude Code, go:
 - 📡 Can co internet de ket noi GitHub
 - 🔄 Chi lay **skills/ agents/ commands/ reference/** moi — khong anh huong config SAP cua ban
 - 📊 Xem lich su dong bo tai `.sap-abap-agent/sync_skills.log`
+
+## Tu dong dong bo (background)
+
+Muon tu dong cap nhat skills ma khong can go `/sync-skills` bang tay?
+Dung Python daemon:
+
+```bash
+# Chay 1 lan
+python reference/scripts/sync_skills.py
+
+# Chay background (macOS/Linux: nohup, Windows: Task Scheduler)
+python reference/scripts/sync_skills.py --daemon --interval 600
+
+# Xem them tham so
+python reference/scripts/sync_skills.py --help
+```
+
+Cai dat Task Scheduler tren Windows bang:
+```
+# Chay voi quyen Administrator
+reference/scripts/install-task-scheduler.bat
+```
