@@ -95,8 +95,11 @@ Format dựa trên [Keep a Changelog](https://keepachangelog.com/) và [Semantic
 
 ### ✅ Đã hoàn thành gần đây
 - ✅ **SECURITY.md**: Hướng dẫn báo cáo lỗi bảo mật
+- ✅ **SECURITY.md badge**: Thêm Security Policy badge vào README.md header
 - ✅ **Version badge (v0.5.0) + Python badge (3.10+)**: Thêm vào README.md header
 - ✅ **CHANGELOG.md badge**: Thêm vào README.md header
+- ✅ **Section Đóng góp trong index.html**: Thêm contributing section với bảng file (CONTRIBUTING, CODE_OF_CONDUCT, SECURITY, SKILL_TEMPLATE)
+- ✅ **Translations cho section Đóng góp**: 13 English translation entries cho sidebar, title, table headers, file descriptions
 - ✅ **GitHub Issue templates**: Bug report + Feature request (`.github/ISSUE_TEMPLATE/`)
 - ✅ **Background sync daemon**: `reference/scripts/sync_skills.py` + `install-task-scheduler.bat`
 - ✅ **Open-source files**: `LICENSE` (MIT), `CODE_OF_CONDUCT.md`, `.github/PULL_REQUEST_TEMPLATE.md`
