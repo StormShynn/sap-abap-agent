@@ -8,6 +8,14 @@ node_modules/
 test-results/
 test/
 
+# Temp scripts
+_*.py
+nul
+
+# Personal learning progress
+.sap-abap-agent/LEARNING_PROGRESS.md
+skills/sap-user-skills/
+
 # Env / secrets (duoc ma hoa nhung can than)
 .env
 .env.local

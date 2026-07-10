@@ -50,6 +50,9 @@ Doc cau hoi user, ap dung ma tran duoi day. Moi keyword co **weight** (1-3). Mod
 | **GTS** | `sap-gts-consultant-cloud` | customs, global trade, sanctioned party list, SPL | hai quan, xuat nhap khau, preference, embargo | intrastat, bonded warehouse, export control, FTA, certificate of origin | ≥ 2 |
 | **EHS** | `sap-ehs-consultant-cloud` | environment, health, safety, hazardous substance, waste | moi truong, an toan, hoa chat, MSDS, incident | product safety, industrial hygiene, occupational health, disposal, PPE | ≥ 2 |
 | **Research** | `sap-docs-researcher` | CDS view, SAP note, SAP Help | Fiori app, API hub, documentation, ABAP syntax | release note, clean core, community, tra cuu, feature matrix | ≥ 2 |
+| **Daily Learner** 🧠 | `sap-daily-learner` | hoc, learning, tip, hermes, quiz, progress | bai tap, lộ trình, track, tien do, on tap, practice | daily, skill, test, cau hoi, trac nghiem, study, beginner, advanced | ≥ 1 |
+
+**Luu y**: Daily Learner co threshold thap hon (≥ 1) de dam bao user luon co the nhan duoc goi y hoc tap.
 
 **Cach tinh score**:
 - Moi ky tu dong tim kiem khong phan biet hoa thuong. Keyword weight 3 → score +3, weight 2 → +2,
@@ -88,8 +91,8 @@ Neu user noi "hoi X" / "X tu van" / "nho X" voi X la ten module, dispatch module
 - **1 agent**: dispatch duy nhat.
 - **≥2 agent**: dispatch **tat ca song song** trong 1 message.
 
-**Da co agent**: SD, FI, MM, CO, PP, QM, PM, WM, PS, HCM, BW, Basis, TM, TR, Ariba, CA, GTS, EHS, Research
-**Tong cong**: 18 modules consultant + 1 researcher = 19 agents.
+**Da co agent**: SD, FI, MM, CO, PP, QM, PM, WM, PS, HCM, BW, Basis, TM, TR, Ariba, CA, GTS, EHS, Research, **Daily Learner**
+**Tong cong**: 18 modules consultant + 1 researcher + 1 daily learner = **20 agents**.
 
 ## Quy trinh — Automated Routing Engine
 
@@ -100,7 +103,7 @@ Neu user noi "hoi X" / "X tu van" / "nho X" voi X la ten module, dispatch module
 5. **Tong hop danh sach agent can dispatch** (Buoc 4).
 6. **Dispatch** song song.
 7. **Tong hop cau tra loi**: 1 agent → nguyen van; ≥2 agent → 1 doan tong hop + tung agent.
-8. **Goi y buoc tiep theo**: `abap-reviewer`, `sap-docs-researcher`.
+8. **Goi y buoc tiep theo**: `abap-reviewer`, `sap-docs-researcher`, `sap-daily-learner` (cho cau hoi hoc tap).
 
 ## Output format
 

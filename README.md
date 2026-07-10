@@ -7,8 +7,8 @@ co profile rieng (URL, tenant, secret), luu trong **folder user** tren may
 
 ## Noi bat
 
-- **🧠 SAP Consultant System (18 modules)**: Routing tu dong bang auto-scoring engine. 18 module
-  consultants cho SD, FI, MM, CO, PP, QM, PM, WM, PS, HCM, BW, Basis, TM, TR, Ariba, CA, GTS, EHS.
+- **🧠 SAP Consultant System (19 modules)**: Routing tu dong bang auto-scoring engine. 19 module
+  consultants cho SD, FI, MM, CO, PP, QM, PM, WM, PS, HCM, BW, Basis, TM, TR, Ariba, CA, GTS, EHS + Daily Learner.
 - **🔌 SAP BTP Connection**: `sap-btp-agent` — ket noi S/4HANA Cloud, doc/activate ABAP, multi-profile.
 - **📚 CDS Knowledge Base**: Tra cuu 7,355 CDS views released qua semantic search.
 - **📖 SAP Docs Research**: Tra cuu SAP Help, Community, API Hub, Fiori App Library.
@@ -21,6 +21,7 @@ sap-abap-agent/
 +-- commands/                  # /sap-connect
 +-- skills/
 |   +-- sap-ask-consultant/    # 🧠 Auto-scoring routing engine (18 modules)
+|   +-- sap-daily-learner/     # 📚 Daily SAP Learning — Hermes-like (self-improving)
 |   +-- sap-btp-setup/         # Setup & troubleshoot SAP BTP connection
 |   +-- sap-clean-code/        # ABAP Cloud naming conventions & clean code
 |   +-- sap-extensibility/     # Extensibility bac thang cho Public Cloud
@@ -272,7 +273,7 @@ SAP_BTP_PROFILE=project1.s4hana.cloud.sap sap-btp-agent
 ## 🧠 SAP Consultant System (Auto-scoring Routing Engine)
 
 `skills/sap-ask-consultant/SKILL.md` la skill trung tam, dispatch cau hoi user toi **18 module
-consultants + 1 researcher** bang co che **keyword scoring + parallel dispatch**.
+consultants + 1 researcher + 1 daily learner** bang co che **keyword scoring + parallel dispatch**.
 
 ### Cach hoat dong
 
@@ -314,6 +315,7 @@ consultants + 1 researcher** bang co che **keyword scoring + parallel dispatch**
 | 17 | `sap-gts-consultant-cloud` | Global Trade Services |
 | 18 | `sap-ehs-consultant-cloud` | Environment, Health & Safety |
 | 19 | `sap-docs-researcher` | CDS view & Docs Research |
+| 20 | `sap-daily-learner` | Daily SAP Learning, Hermes-like skill creation |
 
 ## Test local
 
@@ -328,6 +330,8 @@ Trong Claude:
 - "Tim class bat dau bang ZCL_ trong project project1" -> goi `sap_search` voi `profile="project1..."`
 - "Hoi SD: cau hinh pricing cho sales order" -> goi `sap-sd-consultant-cloud`
 - "Tim CDS view cho purchase order qua han va hoi MM" -> `sap-docs-researcher` + `sap-mm-consultant-cloud`
+- "Hoc SAP hom nay" -> `sap-daily-learner` (daily tip + learning path)
+- "Quiz MM cho toi" -> `sap-daily-learner` (trac nghiem MM)
 - "Cau hinh cost center va cash management" -> `sap-co-consultant-cloud` + `sap-tr-consultant-cloud`
 
 ## Loi thuong gap
@@ -341,5 +345,5 @@ Trong Claude:
 
 ## Trang thai
 
-v0.4.0 -- **SAP Consultant System (18 modules + 1 researcher)** voi auto-scoring routing engine,
-CDS KB, SAP Docs Research, ABAP Cloud clean code, extensibility, key user toolkit.
+v0.5.0 -- **20 agents (18 modules + 1 researcher + 1 daily learner)** voi auto-scoring routing engine,
+CDS KB, SAP Docs Research, ABAP Cloud clean code, extensibility, key user toolkit, Hermes-like self-improving learning.
