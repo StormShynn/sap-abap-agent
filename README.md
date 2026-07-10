@@ -90,7 +90,27 @@ Tren Windows, cai them extra `win-dpapi` de ma hoa secrets bang DPAPI:
 pip install -e ".[win-dpapi]"
 ```
 
+Neu muon dung Cookie-based auth kieu **tu mo browser dang nhap** (khong can F12 copy tay), cai them extra `playwright`
+va download browser binary:
+
+```bash
+pip install -e ".[playwright]"
+playwright install chromium
+```
+
 Sau buoc `pip install -e .` ban se co lenh `sap-btp-agent` trong PATH (entry point khai bao trong `pyproject.toml`).
+
+**Kiem tra ngay sau khi cai** (khuyen dung, danh cho moi nguoi -- khong can dung AI de debug):
+
+```bash
+python -m sap_btp_agent.doctor
+```
+
+Lenh nay chay duoc **ngay ca khi `sap-btp-agent` chua nam trong PATH** (loi thuong gap nhat tren Windows: `pip`
+cai vao user-scheme site-packages vi khong co quyen viet vao Python goc, VD `%APPDATA%\Python\PythonXY\Scripts`,
+folder nay thuong khong tu dong co trong PATH). Doctor se tu phat hien va in san lenh PowerShell de fix, kem
+kiem tra cac dependency hay bi thieu ngam (pywin32/DPAPI, playwright+chromium...). Sau khi da cai xong va PATH
+dung, co the goi lai qua `sap-btp-agent doctor`.
 
 ## Them project SAP moi
 
@@ -100,10 +120,19 @@ Cach nhanh nhat -- truyen URL truc tiep:
 sap-btp-agent setup https://project1.s4hana.cloud.sap
 ```
 
-Wizard se tu sinh profile id tu hostname (`project1.s4hana.cloud.sap`) va hoi:
+Wizard se tu sinh profile id tu hostname (`project1.s4hana.cloud.sap`) va hoi phuong thuc xac thuc (chon 1-4):
 
-- OAuth2 `client_id` + `client_secret` (hoac `username/password`, hoac bearer token)
-- Region, service type
+1. **OAuth2** (client_credentials) -- `client_id` + `client_secret`, mac dinh/khuyen dung
+2. **Password** -- `username` + `password`
+3. **Bearer token** -- token co san, nhap tay
+4. **Cookie-based** -- session cookie SAP (`MYSAPSSO2`, `SAP_SESSIONID`, `sap-usercontext`...). Wizard hoi tiep lay cookie tu dau:
+   - (1) File cookie Netscape format
+   - (2) Paste tay (F12 -> Application -> Cookies)
+   - (3) **Auto** -- tu mo browser cho ban dang nhap, tu lay cookie (can extra `playwright`, khong co se fallback ve paste tay)
+
+   Sau khi co cookie, tu dong re-auth qua browser popup (hoac Playwright) moi lan session het han (401).
+
+Sau do hoi them Region, service type.
 
 Thong tin duoc luu rieng trong `profiles/<id>/`:
 
@@ -139,6 +168,9 @@ sap-btp-agent connect project1.s4hana.cloud.sap  # test 1 profile cu the
 ```
 
 ## Dang ky MCP voi Claude Code
+
+`sap-btp-agent` goi khong co argument se chay MCP stdio server (`sap_btp_agent/server.py`), serve cac tool
+ben duoi qua JSON-RPC. Da test end-to-end (initialize -> tools/list -> tools/call) truoc khi cong bo.
 
 Dung lenh `claude mcp add` (Claude Code khong con dung file `mcp_servers.json`):
 
@@ -354,6 +386,7 @@ Trong Claude:
 | `404 /oauth/token`                  | Sua `tokenUrl` trong `profiles/<id>/secrets.json`         |
 | `Khong giai ma duoc secret`         | Doi may. Chay `setup <profile-id>` de tao lai             |
 | `Chua co profile nao`               | Chay `sap-btp-agent setup <URL>`                          |
+| `'sap-btp-agent' is not recognized` | PATH thieu folder chua entry point. Chay `python -m sap_btp_agent.doctor` de tu phat hien + lay lenh fix |
 
 ## Trang thai
 

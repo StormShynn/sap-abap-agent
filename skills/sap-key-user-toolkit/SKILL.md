@@ -1,4 +1,4 @@
-﻿---
+---
 name: sap-key-user-toolkit
 description: Huong dan thuc hanh Key User Extensibility tren SAP S/4HANA Cloud Public Edition (2-system landscape). Dung khi key user/functional consultant muon tu them field, tao business object, viet custom logic don gian, hoac sua giao dien Fiori ma KHONG can developer. Phu hop cho Custom Fields and Logic, Custom Business Objects, Custom Logic (Cloud BAdI), Adaptation Transactions. KHONG dung khi yeu cau can ABAP developer / side-by-side BTP.
 argument-hint: [tac vu key user: them field | tao BO | custom logic | adaptation UI]
@@ -114,8 +114,8 @@ Buoc thuc hien:
 
 Vi du thuc te:
 
-- Tao BO `YY_VehicleRecord`: truong license_plate, owner`, `registration_date`, `vehicle_type`.
-- Tu dong co OData `/sap/opu/odata/sap/```YY_VEHICLERECORD_CDS`` de app khac goi (side-by-side, BTP, Power Platform...)
+- Tao BO `YY_VehicleRecord`: truong `license_plate`, `owner`, `registration_date`, `vehicle_type`.
+- Tu dong co OData `/sap/opu/odata/sap/YY_VEHICLERECORD_CDS` de app khac goi (side-by-side, BTP, Power Platform...)
 
 ### 3.4 Adaptation Transactions (sua Fiori UI)
 

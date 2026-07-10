@@ -352,7 +352,7 @@ async def web_login_auto(ctx: dict[str, Any]) -> ReauthResult:
 
     async with async_playwright() as pw:
         browser = await pw.chromium.launch(headless=False)
-        context = browser.new_context()
+        context = await browser.new_context()
         page = await context.new_page()
 
         login_url = f"{base_url.rstrip('/')}/sap/bc/adt/core/discovery"

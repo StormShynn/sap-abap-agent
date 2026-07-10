@@ -1,6 +1,7 @@
 ﻿"""CLI entry point: sap-btp-agent setup / connect / profiles / reset.
 
 Usage:
+  sap-btp-agent                              Chay MCP stdio server (khong argument)
   sap-btp-agent setup https://xxx.s4hana.cloud.sap
   sap-btp-agent connect [profile-id]
   sap-btp-agent profiles list|use|show|remove <id>
@@ -31,9 +32,17 @@ from .prompt import ask, header, info, ok, warn
 
 
 def main() -> None:
-    """Entry point: sap-btp-agent <command> [args...]"""
+    """Entry point: sap-btp-agent <command> [args...]
+
+    Khong co argument -> chay MCP stdio server (dung khi Claude Code/Desktop
+    spawn qua `claude mcp add ... -- sap-btp-agent`). Co argument -> CLI thuong.
+    """
     args = sys.argv[1:] if len(sys.argv) > 1 else []
-    if not args or args[0] in ("--help", "-h"):
+    if not args:
+        from ..server import main as run_mcp_server
+        run_mcp_server()
+        return
+    if args[0] in ("--help", "-h"):
         _show_help()
         return
 
@@ -49,6 +58,9 @@ def main() -> None:
         asyncio.run(_cmd_profiles(cmd_args[0], cmd_args[1] if len(cmd_args) > 1 else None))
     elif cmd == "reset":
         _cmd_reset()
+    elif cmd == "doctor":
+        from ..doctor import main as run_doctor
+        run_doctor()
     else:
         print(f"  ❌ Unknown command: {cmd}")
         _show_help()
@@ -67,11 +79,18 @@ def _show_help() -> None:
     print("    profiles show          Xem chi tiết profile active")
     print("    profiles remove <id>   Xóa một profile")
     print("    reset                  Xóa TẤT CẢ dữ liệu (cẩn thận!)")
+    print("    doctor                 Kiểm tra môi trường (PATH, dependency...)")
+    print()
+    print("  (Khong argument = chay MCP stdio server, dung cho claude mcp add)")
     print()
     print("  Examples:")
     print("    sap-btp-agent setup https://xxx.s4hana.cloud.sap")
     print("    sap-btp-agent connect")
     print("    sap-btp-agent profiles list")
+    print("    sap-btp-agent doctor")
+    print()
+    print("  Neu 'sap-btp-agent' khong duoc nhan dien (not recognized), chay:")
+    print("    python -m sap_btp_agent.doctor")
     print()
 
 
@@ -165,14 +184,25 @@ async def _wizard_setup(url: str) -> None:
         info("Cookie auth: SAP session cookies (MYSAPSSO2, SAP_SESSIONID, ...)")
         print()
 
-        cookie_source = ask("Lay cookies tu: (1) File Netscape format  (2) Nhap tay",
-                            default="2")
+        cookie_source = ask(
+            "Lay cookies tu: (1) File Netscape format  (2) Nhap tay  "
+            "(3) Auto - mo browser dang nhap (can playwright)",
+            default="3",
+        )
 
         if cookie_source == "1":
             cookie_file = ask("Duong dan file cookies (Netscape format)")
             cookies = _load_cookies_from_file(cookie_file)
             if not cookies:
                 print("  ⚠️ Khong doc duoc cookies tu file. Thu nhap tay.")
+                cookie_str = ask("Cookie string (name=value; name2=value2)")
+                cookies = _parse_cookie_string(cookie_str)
+        elif cookie_source == "3":
+            from ..sap.auth import web_login_auto
+            result = await web_login_auto({"base_url": url, "profile_id": profile_id})
+            cookies = result.cookies
+            if not cookies:
+                print("  ⚠️ Khong lay duoc cookie tu browser. Thu nhap tay.")
                 cookie_str = ask("Cookie string (name=value; name2=value2)")
                 cookies = _parse_cookie_string(cookie_str)
         else:
@@ -192,7 +222,7 @@ async def _wizard_setup(url: str) -> None:
         # Reauth mode
         reauth_mode = ask(
             "Che do re-auth khi session het han? (1) Manual paste  (2) Auto (Playwright)",
-            default="1"
+            default="2" if cookie_source == "3" else "1",
         )
         config_data["reauthMode"] = "auto" if reauth_mode == "2" else "manual"
         config_data.update({

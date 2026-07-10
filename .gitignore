@@ -1,6 +1,11 @@
 ﻿# Node
 node_modules/
 
+# Python
+__pycache__/
+*.py[cod]
+*.pyc
+
 # Logs
 *.log
 
@@ -15,9 +20,10 @@ nul
 # Machine-specific wrapper (chua duong dan tuyet doi)
 scripts/run_sync_skills.bat
 
-# Personal learning progress
-#.sap-abap-agent/LEARNING_PROGRESS.md
-#skills/sap-user-skills/
+# Personal learning progress (state rieng cua tung user, khong track)
+.sap-abap-agent/LEARNING_PROGRESS.md
+skills/sap-user-skills/*
+!skills/sap-user-skills/.gitkeep
 
 # Env / secrets (duoc ma hoa nhung can than)
 .env

@@ -135,7 +135,7 @@ async def _handle_ping(args: dict[str, Any] | None) -> str:
         )
     except Exception as err:
         me = {"error": str(err)}
-    profile_id = client.profile_id or await get_current_active()
+    profile_id = client.profile_id or get_current_active()
     if isinstance(me, str):
         me = me[:200]
     return _to_json({
@@ -150,7 +150,7 @@ async def _handle_ping(args: dict[str, Any] | None) -> str:
 
 
 async def _handle_list_profiles(_args: dict[str, Any] | None) -> str:
-    data = await list_profiles()
+    data = list_profiles()
     return _to_json(data)
 
 

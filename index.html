@@ -882,8 +882,14 @@ pip install -e .
 <span class="hl-com"># Trên Windows, thêm win-dpapi</span>
 pip install -e .[win-dpapi]
 
-<span class="hl-com"># Kiểm tra</span>
-sap-btp-agent --help</code><button class="copy-btn" onclick="copyCode(this)">Sao chép</button></pre>
+<span class="hl-com"># Muốn dùng Cookie Auth kiểu tự mở browser đăng nhập (Auto mode)</span>
+pip install -e .[playwright]
+playwright install chromium
+
+<span class="hl-com"># Kiểm tra môi trường — chạy được dù PATH chưa đúng</span>
+python -m sap_btp_agent.doctor</code><button class="copy-btn" onclick="copyCode(this)">Sao chép</button></pre>
+
+      <p>Lệnh <code>doctor</code> tự phát hiện các lỗi môi trường hay gặp nhất (PATH thiếu entry point, thiếu pywin32/playwright...) và in sẵn lệnh fix — không cần debug thủ công.</p>
 
       <ol start="2">
         <li>Cấu hình MCP remote servers cho CDS KB &amp; SAP Docs:</li>
@@ -912,11 +918,14 @@ claude mcp add --transport sse mcp-sap-docs-btp --url https://sap-docs-extend-mc
 
       <pre><code>sap-btp-agent setup https://project1.s4hana.cloud.sap</code><button class="copy-btn" onclick="copyCode(this)">Sao chép</button></pre>
 
-      <p>Wizard sẽ tự sinh profile ID từ hostname (vd: <code>project1.s4hana.cloud.sap</code>) và hỏi:</p>
+      <p>Wizard sẽ tự sinh profile ID từ hostname (vd: <code>project1.s4hana.cloud.sap</code>) và hỏi phương thức xác thực (chọn 1-4):</p>
       <ul>
-        <li>OAuth2 <code>client_id</code> + <code>client_secret</code> (hoặc username/password, hoặc bearer token)</li>
-        <li>Region, service type</li>
+        <li><strong>1. OAuth2</strong> (client_credentials) — <code>client_id</code> + <code>client_secret</code>, mặc định/khuyên dùng</li>
+        <li><strong>2. Password</strong> — <code>username</code> + <code>password</code></li>
+        <li><strong>3. Bearer token</strong> — token có sẵn, nhập tay</li>
+        <li><strong>4. Cookie-based</strong> — session cookie SAP, xem chi tiết ở mục <a href="#cookie-auth">Cookie Auth &amp; Web Popup Re-Auth</a> bên dưới</li>
       </ul>
+      <p>Sau đó hỏi thêm Region, service type.</p>
 
       <p>Thông tin được lưu riêng trong thư mục profile:</p>
 
@@ -1175,9 +1184,10 @@ $ sap-btp-agent setup https://project1.s4hana.cloud.sap
   3. Bearer token (nhập tay)
   <span class="hl-var">4. Cookie-based</span> <span class="hl-com">← MỚI!</span>
 
-<span class="hl-com"># Nhập cookies từ file hoặc paste tay</span>
-? Lay cookies tu: (1) File Netscape format  (2) Nhap tay
-  <span class="hl-com">→ Chọn 2 và paste cookie string từ browser</span>
+<span class="hl-com"># Wizard hỏi tiếp lấy cookie từ đâu</span>
+? Lay cookies tu: (1) File Netscape format  (2) Nhap tay  (3) Auto - mo browser dang nhap [3]
+  <span class="hl-com">→ (3) Auto: tự mở browser cho bạn đăng nhập user/pass, tự lấy cookie — không cần F12</span>
+  <span class="hl-com">→ (2) Nhap tay: tự F12 → Application → Cookies → copy, paste cookie string</span>
 
 ? Cookie string (name=value; name2=value2):
   MYSAPSSO2=abc123...; SAP_SESSIONID=xyz456...
@@ -1208,30 +1218,31 @@ $ sap-btp-agent setup https://project1.s4hana.cloud.sap
 <span class="branch">9.</span> <span class="file">Request được retry tự động với cookies mới → thành công!</span>
       </div>
 
-      <h3>🔐 Hai Chế Độ Re-Auth</h3>
+      <h3>🔐 Hai Chế Độ — Lấy Cookie Lần Đầu &amp; Re-Auth Khi Hết Hạn</h3>
+      <p>Playwright (Auto) dùng ở 2 chỗ độc lập trong wizard: lúc setup lần đầu (bước chọn nguồn cookie, option 3) và lúc session hết hạn giữa lúc dùng (bước chọn re-auth mode, option 2). Chọn Manual ở chỗ này không bắt buộc chọn Manual ở chỗ kia.</p>
       <div class="features-grid">
         <div class="feature-card">
           <span class="fc-icon">👆</span>
-          <h4>Manual Paste (Mặc định)</h4>
+          <h4>Manual Paste</h4>
           <p>Dùng <code>webbrowser.open()</code> mở SAP URL. User login thủ công, sau đó mở DevTools (F12) → Application → Cookies → copy cookie string → paste vào terminal.</p>
           <p style="margin-top:8px;font-size:12px;color:var(--text-dim);">✅ Không cần cài đặt thêm. Hoạt động trên mọi nền tảng.</p>
         </div>
         <div class="feature-card">
           <span class="fc-icon">🤖</span>
           <h4>Auto (Playwright)</h4>
-          <p>Dùng <code>playwright</code> mở Chromium, cho user login, tự động phát hiện khi đăng nhập xong và trích xuất cookies.</p>
-          <p style="margin-top:8px;font-size:12px;color:var(--text-dim);">⚠️ Yêu cầu <code>pip install playwright</code>. Tự động fallback về manual nếu chưa cài.</p>
+          <p>Dùng <code>playwright</code> mở Chromium, cho user login, tự động phát hiện khi đăng nhập xong và trích xuất cookies — dùng được cả lúc setup lần đầu và lúc re-auth.</p>
+          <p style="margin-top:8px;font-size:12px;color:var(--text-dim);">⚠️ Yêu cầu extra <code>playwright</code>. Tự động fallback về manual nếu chưa cài.</p>
         </div>
       </div>
 
       <h3>📦 Cài đặt Playwright (cho Auto mode)</h3>
-      <pre><code><span class="hl-com"># Cài playwright + Chromium</span>
-pip install playwright
+      <pre><code><span class="hl-com"># Trong reference/mcp-server/ — cài playwright + Chromium</span>
+pip install -e ".[playwright]"
 playwright install chromium
 
-<span class="hl-com"># Khi setup, chọn re-auth mode = Auto</span>
+<span class="hl-com"># Setup lần đầu — chọn cookie source = Auto (option 3, mặc định)</span>
 sap-btp-agent setup https://project1.s4hana.cloud.sap
-<span class="hl-com"># → Chọn option 4 (Cookie), re-auth: 2 (Auto)</span></code><button class="copy-btn" onclick="copyCode(this)">Sao chép</button></pre>
+<span class="hl-com"># → option 4 (Cookie) → option 3 (Auto, mở browser tự đăng nhập)</span></code><button class="copy-btn" onclick="copyCode(this)">Sao chép</button></pre>
 
       <h3>🧠 Kiến trúc — Lấy cảm hứng từ vibing-steampunk</h3>
       <p>Cơ chế cookie re-auth được xây dựng dựa trên pattern từ <a href="https://github.com/StormShynn/vibing-steampunk" target="_blank">vibing-steampunk</a> (dự án ADT → MCP bridge bằng Go):</p>
@@ -1293,18 +1304,13 @@ sap-btp-agent setup https://project1.s4hana.cloud.sap
     <section id="dang-ky-mcp">
       <h2><span class="section-icon">⚙️</span> Đăng ký MCP với Claude Code</h2>
 
-      <p>Thêm vào file <code>~/.claude/mcp_servers.json</code> (Windows: <code>%USERPROFILE%\.claude\mcp_servers.json</code>):</p>
+      <p>Claude Code không còn dùng file <code>mcp_servers.json</code> — đăng ký bằng lệnh <code>claude mcp add</code>:</p>
 
-      <pre><code>{
-  <span class="hl-str">"mcpServers"</span>: {
-    <span class="hl-str">"sap-btp"</span>: {
-      <span class="hl-str">"command"</span>: <span class="hl-str">"sap-btp-agent"</span>,
-      <span class="hl-str">"args"</span>: []
-    }
-  }
-}</code><button class="copy-btn" onclick="copyCode(this)">Sao chép</button></pre>
+      <pre><code>claude mcp add --transport stdio sap-btp -- sap-btp-agent</code><button class="copy-btn" onclick="copyCode(this)">Sao chép</button></pre>
 
-      <p>Mở Claude Code với plugin:</p>
+      <p>Mặc định scope <code>local</code> (chỉ máy này, chỉ project hiện tại). Dùng <code>--scope user</code> để dùng được ở mọi project, hoặc <code>--scope project</code> để lưu vào <code>.mcp.json</code> và chia sẻ qua git cho cả team.</p>
+
+      <p>Test plugin cục bộ (không cần cài vào marketplace):</p>
 
       <pre><code>claude --plugin-dir ./sap-abap-agent</code><button class="copy-btn" onclick="copyCode(this)">Sao chép</button></pre>
     </section>
@@ -1420,6 +1426,10 @@ sap-btp-agent setup https://project1.s4hana.cloud.sap
               <td>⚠️ Xóa tất cả dữ liệu</td>
             </tr>
             <tr>
+              <td>sap-btp-agent doctor</td>
+              <td>Kiểm tra môi trường (PATH, dependency...)</td>
+            </tr>
+            <tr>
               <td>sap-btp-agent --help</td>
               <td>Xem trợ giúp</td>
             </tr>
@@ -1427,7 +1437,7 @@ sap-btp-agent setup https://project1.s4hana.cloud.sap
         </table>
       </div>
 
-      <p><strong>Tips:</strong> Bạn có thể dùng lệnh <code>/sap-connect</code> ngay trong Claude Code để được hướng dẫn từng bước.</p>
+      <p><strong>Tips:</strong> Bạn có thể dùng lệnh <code>/sap-connect</code> ngay trong Claude Code để được hướng dẫn từng bước. Nếu <code>sap-btp-agent</code> báo "not recognized", chạy <code>python -m sap_btp_agent.doctor</code> — lệnh này chạy được dù PATH chưa đúng.</p>
     </section>
 
     <!-- ===== CẤU TRÚC THƯ MỤC ===== -->
@@ -1517,7 +1527,12 @@ sap-btp-agent setup https://project1.s4hana.cloud.sap
 
       <div class="trouble-card">
         <div class="tc-title">🔌 MCP tool không xuất hiện</div>
-        <p class="tc-desc">Kiểm tra <code>mcp_servers.json</code> đã đúng cấu trúc chưa. Đảm bảo <code>sap-btp-agent</code> có trong PATH.</p>
+        <p class="tc-desc">Kiểm tra đã <code>claude mcp add --transport stdio sap-btp -- sap-btp-agent</code> chưa (<code>claude mcp list</code> để xem). Đảm bảo <code>sap-btp-agent</code> có trong PATH.</p>
+      </div>
+
+      <div class="trouble-card">
+        <div class="tc-title">💻 'sap-btp-agent' is not recognized</div>
+        <p class="tc-desc">PATH thiếu folder chứa entry point — lỗi rất hay gặp trên Windows khi <code>pip</code> cài vào user-scheme site-packages. Chạy <code>python -m sap_btp_agent.doctor</code> (chạy được dù PATH sai) để tự phát hiện và lấy sẵn lệnh fix.</p>
       </div>
     </section>
 
@@ -2717,6 +2732,34 @@ sap-btp-agent setup https://project1.s4hana.cloud.sap
     // --- Feature cards ---
     'H\u1ecdc SAP m\u1ed7i ng\u00e0y': 'Learn SAP Daily',
     'Hermes-like daily learning agent. T\u1ef1 \u0111\u1ed9ng track ti\u1ebfn \u0111\u1ed9, g\u1eedi tip h\u1eb1ng ng\u00e0y, t\u1ea1o skill documents t\u1eeb c\u00e2u h\u1ecfi ph\u1ee9c t\u1ea1p.': 'Hermes-like daily learning agent. Auto-tracks progress, sends daily tips, creates skill docs from complex Q&As.',
+
+    // --- Doctor / MCP transport / PATH troubleshooting (added when server.py + doctor.py were built) ---
+    ' t\u1ef1 ph\u00e1t hi\u1ec7n c\u00e1c l\u1ed7i m\u00f4i tr\u01b0\u1eddng hay g\u1eb7p nh\u1ea5t (PATH thi\u1ebfu entry point, thi\u1ebfu pywin32/playwright...) v\u00e0 in s\u1eb5n l\u1ec7nh fix \u2014 kh\u00f4ng c\u1ea7n debug th\u1ee7 c\u00f4ng.': ' auto-detects the most common environment issues (missing entry point on PATH, missing pywin32/playwright...) and prints the exact fix command \u2014 no manual debugging needed.',
+    ') v\u00e0 h\u1ecfi ph\u01b0\u01a1ng th\u1ee9c x\u00e1c th\u1ef1c (ch\u1ecdn 1-4):': ') and asks for the auth method (choose 1-4):',
+    ', m\u1eb7c \u0111\u1ecbnh/khuy\u00ean d\u00f9ng': ', default/recommended',
+    ' \u2014 token c\u00f3 s\u1eb5n, nh\u1eadp tay': ' \u2014 a ready-made token, entered manually',
+    ' \u2014 session cookie SAP, xem chi ti\u1ebft \u1edf m\u1ee5c ': ' \u2014 SAP session cookie, see details in the ',
+    'Sau \u0111\u00f3 h\u1ecfi th\u00eam Region, service type.': 'Then asks for Region, service type.',
+    '\ud83d\udd10 Hai Ch\u1ebf \u0110\u1ed9 \u2014 L\u1ea5y Cookie L\u1ea7n \u0110\u1ea7u & Re-Auth Khi H\u1ebft H\u1ea1n': '\ud83d\udd10 Two Modes \u2014 Initial Cookie Fetch & Re-Auth on Expiry',
+    'Playwright (Auto) d\u00f9ng \u1edf 2 ch\u1ed7 \u0111\u1ed9c l\u1eadp trong wizard: l\u00fac setup l\u1ea7n \u0111\u1ea7u (b\u01b0\u1edbc ch\u1ecdn ngu\u1ed3n cookie, option 3) v\u00e0 l\u00fac session h\u1ebft h\u1ea1n gi\u1eefa l\u00fac d\u00f9ng (b\u01b0\u1edbc ch\u1ecdn re-auth mode, option 2). Ch\u1ecdn Manual \u1edf ch\u1ed7 n\u00e0y kh\u00f4ng b\u1eaft bu\u1ed9c ch\u1ecdn Manual \u1edf ch\u1ed7 kia.': 'Playwright (Auto) is used in 2 independent places in the wizard: at initial setup (the cookie-source step, option 3) and when the session expires mid-use (the re-auth mode step, option 2). Choosing Manual in one does not force Manual in the other.',
+    ' m\u1edf Chromium, cho user login, t\u1ef1 \u0111\u1ed9ng ph\u00e1t hi\u1ec7n khi \u0111\u0103ng nh\u1eadp xong v\u00e0 tr\u00edch xu\u1ea5t cookies \u2014 d\u00f9ng \u0111\u01b0\u1ee3c c\u1ea3 l\u00fac setup l\u1ea7n \u0111\u1ea7u v\u00e0 l\u00fac re-auth.': ' to open Chromium, let the user log in, auto-detect when done, and extract cookies \u2014 works both at initial setup and at re-auth.',
+    'Claude Code kh\u00f4ng c\u00f2n d\u00f9ng file ': 'Claude Code no longer uses the ',
+    ' \u2014 \u0111\u0103ng k\u00fd b\u1eb1ng l\u1ec7nh ': ' file \u2014 register with the ',
+    'M\u1eb7c \u0111\u1ecbnh scope ': 'Default scope is ',
+    ' (ch\u1ec9 m\u00e1y n\u00e0y, ch\u1ec9 project hi\u1ec7n t\u1ea1i). D\u00f9ng ': ' (this machine, this project only). Use ',
+    ' \u0111\u1ec3 d\u00f9ng \u0111\u01b0\u1ee3c \u1edf m\u1ecdi project, ho\u1eb7c ': ' to make it available in every project, or ',
+    ' \u0111\u1ec3 l\u01b0u v\u00e0o ': ' to save it into ',
+    ' v\u00e0 chia s\u1ebb qua git cho c\u1ea3 team.': ' and share it via git with the team.',
+    'Test plugin c\u1ee5c b\u1ed9 (kh\u00f4ng c\u1ea7n c\u00e0i v\u00e0o marketplace):': 'Test the plugin locally (no marketplace install needed):',
+    'Ki\u1ec3m tra m\u00f4i tr\u01b0\u1eddng (PATH, dependency...)': 'Check environment (PATH, dependencies...)',
+    ' b\u00e1o "not recognized", ch\u1ea1y ': ' says "not recognized", run ',
+    ' \u2014 l\u1ec7nh n\u00e0y ch\u1ea1y \u0111\u01b0\u1ee3c d\u00f9 PATH ch\u01b0a \u0111\u00fang.': ' \u2014 this command works even if PATH is wrong.',
+    'Ki\u1ec3m tra \u0111\u00e3 ': 'Check whether ',
+    ' ch\u01b0a (': ' has run (',
+    ' \u0111\u1ec3 xem). \u0110\u1ea3m b\u1ea3o ': ' to check). Make sure ',
+    'PATH thi\u1ebfu folder ch\u1ee9a entry point \u2014 l\u1ed7i r\u1ea5t hay g\u1eb7p tr\u00ean Windows khi ': 'PATH is missing the folder with the entry point \u2014 a very common Windows issue when ',
+    ' c\u00e0i v\u00e0o user-scheme site-packages. Ch\u1ea1y ': ' installs into user-scheme site-packages. Run ',
+    ' (ch\u1ea1y \u0111\u01b0\u1ee3c d\u00f9 PATH sai) \u0111\u1ec3 t\u1ef1 ph\u00e1t hi\u1ec7n v\u00e0 l\u1ea5y s\u1eb5n l\u1ec7nh fix.': ' (works even if PATH is wrong) to auto-detect the issue and get the exact fix command.',
 
   };
 
