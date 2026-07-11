@@ -25,6 +25,9 @@ context; 2 tang con lai chi load theo nhu cau.
 ├── semantic/              # Tang 2 - kien thuc da rut trich (file chinh, load default)
 │   ├── LEARNING_PROGRESS.md   # module progress, level, mastered topics
 │   ├── knowledge_graph.jsonl  # entity: concept/module/topic; relationship
+│   ├── lessons/               # ACE-style lesson card, 1 file/module - xem muc 1
+│   │   ├── FI.jsonl
+│   │   └── MM.jsonl
 │   └── notes/
 │       ├── fi-acdoca.md       # concept-level note, viet khi user "explain ACDOCA"
 │       └── mm-stock-valuation.md
@@ -83,6 +86,52 @@ Quy tac ghi:
 - Moi khi user noi "explain X" hoac "Y la gi", tao 1 entity neu chua co.
 - Moi khi consultant agent noi "X lien quan Y", tao 1 relationship.
 - KHONG ghi nhan thong tin da bi (rule gotcha #3 cua memory-systems: tranh over-engineer early).
+
+### Lesson Cards (ACE-style) — extraction + retrieval, bo sung cho Knowledge Graph
+
+Khac voi Knowledge Graph (entity/relationship, on dinh, it thay doi), **Lesson Card** la 1
+fact/kinh nghiem ngan (1-3 dong) rut ra tu 1 lan giai quyet van de cu the — itemized, khong phai
+tong hop lai toan bo skill (tranh "context collapse": ghi de/tom tat lai toan bo lam mat kien thuc
+cu). Pattern tu ACE (arXiv 2510.04618) — merge tang dan (deterministic, append-or-skip-duplicate),
+khong bao gio wholesale-rewrite 1 file lesson.
+
+**Luu tru**: `.sap-abap-agent/memory/semantic/lessons/<MODULE>.jsonl` (1 file/module, moi dong 1
+lesson card). Script: `reference/scripts/lesson_card_add.py` (them, tu dong bo qua neu trung —
+Jaccard similarity >= 0.8 tren cung topic) va `reference/scripts/lesson_card_retrieve.py` (truy
+xuat top-K). `<memory-root>` trong 2 lenh duoi day = `.sap-abap-agent/memory/semantic`.
+
+**Khi nao extract 1 lesson card** (khong phai moi cau tra loi — chi khi co gia tri tai su dung):
+- Cau tra loi dai (>5 turn) VA co ket luan cu the (khong phai chi giai thich chung chung).
+- `sap-systematic-debugging` resolve xong 1 bug — extract dang "truoc day loi X do Y, fix la Z"
+  (failure-driven extraction).
+- User phai hoi lai lan 2 cung 1 van de trong session khac — dau hieu lan dau chua luu lai kien
+  thuc dung cho.
+
+**Cach extract** (Claude tu lam, KHONG phai script — day la judgment task, khong the tu dong hoa):
+1. Tom tat fact thanh 1-3 dong, tu ngu cu the (ten field/API/SSCUI that, khong noi chung chung).
+2. Xac dinh `module` + `topic` (topic la slug ngan, vd `acdoca`, `clearing`, khong phai ca cau).
+3. Neu fact gan voi 1 SAP release cu the (vd hanh vi chi dung o release 2502) — dat `valid_until`
+   la ngay uoc tinh release do het support/bi thay (tranh fact cu "poison" context sau khi SAP ra
+   ban moi — SAP ra ~4 ban/nam).
+4. Goi:
+   ```bash
+   echo '{"module":"FI","topic":"acdoca","fact":"...","source_session":"<session_id>","valid_until":"2027-01-01"}' \
+     | python reference/scripts/lesson_card_add.py <memory-root>
+   ```
+
+**Cach retrieve** (truoc khi tra loi cau hoi thuoc module da co lesson card):
+```bash
+python reference/scripts/lesson_card_retrieve.py <memory-root> FI "cau hoi user" --top-k 5
+```
+Script tu dong: loai fact het han (`valid_until` da qua — khong tra ve), diem theo
+`0.5*keyword_overlap + 0.3*recency + 0.2*usage_frequency`, **bat buoc co it nhat 1 tu khoa trung**
+(recency/usage khong the tu dua 1 fact khong lien quan len top — phat hien va fix qua thuc te
+test truoc khi dung), va tu tang `usage_count` + `last_used` cho card duoc tra ve.
+
+**Vi sao khong dung Mem0/Zep/Letta**: plugin nay uu tien **khong them dependency ngoai** (khong
+vector store, khong service rieng) de giu dung trai nghiem cai dat "1 lenh pip install" hien tai.
+Neu sau nay can temporal knowledge graph phuc tap hon (nhu Zep/Graphiti), co the danh gia lai —
+hien tai JSONL + scoring script la du cho quy mo plugin.
 
 ### Module Knowledge Matrix - Noi dung hoc cho tung module
 
@@ -284,3 +333,6 @@ Cross-module integration patterns:
 - [ ] Module coupling duoc ton trong khi goi y
 - [ ] File YAML frontmatter dung format
 - [ ] KHONG ghi thong tin da bi vao knowledge_graph (tranh over-engineer)
+- [ ] Lesson card (neu extract) da qua `lesson_card_add.py` — KHONG ghi tay vao `.jsonl`
+- [ ] Lesson card gan release cu the co dat `valid_until`
+- [ ] Truoc khi tra loi cau hoi module da co lesson — da goi `lesson_card_retrieve.py` truoc

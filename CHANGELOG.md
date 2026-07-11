@@ -6,6 +6,55 @@ Format dựa trên [Keep a Changelog](https://keepachangelog.com/) và [Semantic
 
 ---
 
+## [v0.6.5] — 2026-07-11
+
+### Added
+- 🧩 **ACE-style lesson cards** cho `sap-daily-learner` (bo sung cho Knowledge Graph, khong thay
+  the auto-skill-creation) — thay vi luon tao ca 1 skill file cho cau tra loi phuc tap (de phinh,
+  kho retrieve), extract 1-3 fact ngan (1-3 dong) va luu vao
+  `.sap-abap-agent/memory/semantic/lessons/<MODULE>.jsonl`.
+  - `reference/scripts/lesson_card_add.py` — append-or-skip-duplicate (Jaccard similarity >= 0.8
+    tren cung topic), KHONG bao gio wholesale-rewrite (tranh "context collapse" kieu ACE mo ta,
+    arXiv 2510.04618).
+  - `reference/scripts/lesson_card_retrieve.py` — retrieval scoring
+    `0.5*keyword_overlap + 0.3*recency + 0.2*usage_frequency`, top-K, tu tang `usage_count`.
+  - **Temporal validity**: moi card co the co `valid_until` — card het han bi loai hoan toan khoi
+    retrieval (fact gan release SAP cu, vd 2502, khong "poison" context sau khi SAP ra ban moi).
+  - Da test 11 case that (add/dedup/expired/retrieve/module-isolation) truoc khi tich hop vao
+    SKILL.md. Phat hien va fix 1 bug that qua test: recency+usage co the tu day 1 fact khong lien
+    quan len tren nguong diem chi vi no "moi"/"hay duoc dung" — them dieu kien bat buoc co it nhat
+    1 tu khoa trung truoc khi 1 card duoc coi la ung vien.
+  - Quyet dinh kien truc: **khong dung Mem0/Zep/Letta** (framework memory ngoai) — giu kien truc
+    filesystem/JSONL hien co, khong them dependency/vector-store de giu dung trai nghiem cai dat
+    "1 lenh pip install".
+  - Cap nhat `skills/sap-daily-learner/SKILL.md` (section moi "Lesson Cards") va
+    `agents/sap-daily-learner.md` (duong dan `LEARNING_PROGRESS.md` dang tro sai cho cu, va them
+    bang quyet dinh "lesson card vs skill file day du" — sua boi phien nay, khong phai phien dang
+    thiet ke 3-tier memory).
+
+---
+
+## [v0.6.4] — 2026-07-11
+
+### Fixed
+- `index.html`: **244 doan text chua co ban dich EN** (phat hien bang script mo phong dung logic
+  thay the VI→EN cua chinh trang, khong doan bang mat) — da dich va them vao `translations`.
+  - Lan quet dau tien bao 336 doan; sau khi phat hien 1 loi trong chinh script kiem tra (`.strip()`
+    truoc khi so sanh, trong khi thuat toan that dung whitespace nguyen ban) — sua lai va quet lai
+    ra so chinh xac: **244**.
+  - Da verify: mo phong tinh toan lai ra **0** con thieu; **test that qua trinh duyet Chromium
+    that** (Playwright) — bam nut chuyen EN that, doc DOM that, xac nhan 4 doan mau (kem toan bo
+    244) khong con xuat hien nguyen van tieng Viet.
+  - **Phat hien phu (chua sua, ngoai pham vi lan nay)**: co che dich cua trang dung substring-replace
+    tuan tu theo thu tu khai bao trong dict — 1 entry ngan/chung chung (vd `'Bắt đầu': 'Getting
+    Started'`) co the chay truoc va lam hong 1 cau dai hon chua chinh no (vd `'⚡ Bắt đầu cài đặt':
+    '⚡ Start Installation'`), de lai ket qua lai tieng ("⚡ Getting Started cài đặt"). Da xac nhan
+    day la loi co tu truoc (test lai ban HEAD chua sua: **324** doan con loi kieu nay). Sau khi
+    them 244 ban dich moi (dat truoc dict cu de uu tien full-match), so doan loi giam con **93** —
+    cai thien that nhung chua giai quyet triet de kien truc thay the tuan tu nay.
+
+---
+
 ## [v0.6.3] — 2026-07-11
 
 ### Added
