@@ -1,6 +1,6 @@
 ﻿# SAP ABAP Agent (tieng Viet)
 
-[![Version](https://img.shields.io/badge/version-0.6.5-blue.svg)](CHANGELOG.md) [![Python](https://img.shields.io/badge/Python-3.10+-blue.svg)](https://python.org) [![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE) [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](CODE_OF_CONDUCT.md) [![Security Policy](https://img.shields.io/badge/Security-View_Policy-blue.svg)](SECURITY.md) [![Changelog](https://img.shields.io/badge/Changelog-%23ff69b4.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.7.0-blue.svg)](CHANGELOG.md) [![Python](https://img.shields.io/badge/Python-3.10+-blue.svg)](https://python.org) [![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE) [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](CODE_OF_CONDUCT.md) [![Security Policy](https://img.shields.io/badge/Security-View_Policy-blue.svg)](SECURITY.md) [![Changelog](https://img.shields.io/badge/Changelog-%23ff69b4.svg)](CHANGELOG.md) [![CI/CD](https://github.com/StormShynn/sap-abap-agent/actions/workflows/deploy.yml/badge.svg)](https://github.com/StormShynn/sap-abap-agent/actions/workflows/deploy.yml) [![GitHub Pages](https://img.shields.io/github/deployments/StormShynn/sap-abap-agent/github-pages?label=GitHub%20Pages&logo=github)](https://stormshynn.github.io/sap-abap-agent/)
 
 Plugin Claude Code + MCP server tu dong ket noi **SAP BTP / S/4HANA Cloud** de thao tac
 ABAP (doc / tim / syntax-check / activate). Ho tro **multi-profile** -- moi project SAP
@@ -9,8 +9,9 @@ co profile rieng (URL, tenant, secret), luu trong **folder user** tren may
 
 ## Noi bat
 
-- **🧠 SAP Consultant System (19 modules)**: Routing tu dong bang auto-scoring engine. 19 module
-  consultants cho SD, FI, MM, CO, PP, QM, PM, WM, PS, HCM, BW, Basis, TM, TR, Ariba, CA, GTS, EHS + Daily Learner.
+- **🧠 SAP Consultant System (22 modules)**: Routing tu dong bang auto-scoring engine. 20 module
+  consultants cho SD, FI, MM, CO, PP, QM, PM, WM, PS, HCM, BW, Basis, TM, TR, Ariba, CA, GTS, EHS,
+  IBP, EWM + Docs Researcher + Daily Learner.
 - **🔌 SAP BTP Connection**: `sap-btp-agent` — ket noi S/4HANA Cloud, doc/activate ABAP, multi-profile.
 - **📚 CDS Knowledge Base**: Tra cuu 7,355 CDS views released qua semantic search.
 - **📖 SAP Docs Research**: Tra cuu SAP Help, Community, API Hub, Fiori App Library.
@@ -38,7 +39,7 @@ sap-abap-agent/
 +-- .claude-plugin/            # Manifest plugin Claude Code
 +-- commands/                  # /sap-connect
 +-- skills/
-|   +-- sap-ask-consultant/    # 🧠 Auto-scoring routing engine (18 modules)
+|   +-- sap-ask-consultant/    # 🧠 Auto-scoring routing engine (20 modules)
 |   +-- sap-daily-learner/     # 📚 Daily SAP Learning — Hermes-like (self-improving)
 |   +-- sap-btp-setup/         # Setup & troubleshoot SAP BTP connection
 |   +-- sap-clean-code/        # ABAP Cloud naming conventions & clean code
@@ -63,7 +64,7 @@ sap-abap-agent/
 |   +-- sap-context-module-routing/     # Pattern 2-layer (CORE+DEEP) cho reference modules
 +-- agents/
 |   +-- abap-reviewer.md       # Review code ABAP Cloud
-|   +-- sap-ask-consultant dispatch toi 18 module consultants:
+|   +-- sap-ask-consultant dispatch toi 20 module consultants:
 |   |   +-- sap-sd-consultant-cloud   # Sales & Distribution
 |   |   +-- sap-fi-consultant-cloud   # Financial Accounting
 |   |   +-- sap-mm-consultant-cloud   # Materials Management
@@ -82,6 +83,8 @@ sap-abap-agent/
 |   |   +-- sap-ca-consultant-cloud   # Cross-Application Functions
 |   |   +-- sap-gts-consultant-cloud  # Global Trade Services
 |   |   +-- sap-ehs-consultant-cloud  # Environment, Health & Safety
+|   |   +-- **sap-ibp-consultant-cloud**    # 🆕 Supply Chain Planning (IBP)
+|   |   +-- **sap-ewm-consultant-cloud**    # 🆕 Extended Warehouse (EWM)
 |   |   +-- sap-docs-researcher       # CDS view & Docs Research
 +-- hooks/                   # Canh bao SELECT * (PostToolUse) + routing discipline (SessionStart)
 +-- reference/
@@ -358,7 +361,7 @@ SAP_BTP_PROFILE=project1.s4hana.cloud.sap sap-btp-agent
 
 ## 🧠 SAP Consultant System (Auto-scoring Routing Engine)
 
-`skills/sap-ask-consultant/SKILL.md` la skill trung tam, dispatch cau hoi user toi **18 module
+`skills/sap-ask-consultant/SKILL.md` la skill trung tam, dispatch cau hoi user toi **20 module
 consultants + 1 researcher + 1 daily learner** bang co che **keyword scoring + parallel dispatch**.
 
 ### Cach hoat dong
@@ -377,6 +380,12 @@ consultants + 1 researcher + 1 daily learner** bang co che **keyword scoring + p
 | "cau hinh cost center va GL" | `sap-co-consultant-cloud` + `sap-fi-consultant-cloud` (coupling) |
 | "lam sao tao purchase order" | `sap-mm-consultant-cloud` |
 | "hoi PP, QM, MM" | `sap-pp` + `sap-qm` + `sap-mm` song song |
+| "hoi IBP: du bao doanh thu quy sau" | `sap-ibp-consultant-cloud` (Demand Planning) |
+| "EWM cau hinh wave management cho kho" | `sap-ewm-consultant-cloud` |
+| "IBP inventory optimization cho supply chain" | `sap-ibp-consultant-cloud` + `sap-mm-consultant-cloud` (coupling) |
+| "hoi IBP: du bao doanh thu quy sau" | `sap-ibp-consultant-cloud` (Demand Planning) |
+| "EWM cau hinh wave management cho kho" | `sap-ewm-consultant-cloud` |
+| "IBP inventory optimization cho supply chain" | `sap-ibp-consultant-cloud` + `sap-mm-consultant-cloud` (coupling) |
 
 ### Cac module da co
 
@@ -400,8 +409,10 @@ consultants + 1 researcher + 1 daily learner** bang co che **keyword scoring + p
 | 16 | `sap-ca-consultant-cloud` | Cross-Application Functions |
 | 17 | `sap-gts-consultant-cloud` | Global Trade Services |
 | 18 | `sap-ehs-consultant-cloud` | Environment, Health & Safety |
-| 19 | `sap-docs-researcher` | CDS view & Docs Research |
-| 20 | `sap-daily-learner` | Daily SAP Learning, Hermes-like skill creation |
+| 19 🆕 | `sap-ibp-consultant-cloud` | **Supply Chain Planning (IBP)** |
+| 20 🆕 | `sap-ewm-consultant-cloud` | **Extended Warehouse Mgmt (EWM)** |
+| — | `sap-docs-researcher` | CDS view & Docs Research |
+| — | `sap-daily-learner` | Daily SAP Learning, Hermes-like skill creation |
 
 ## 🏗️ Codegen Pipeline (Function Spec -> ABAP code)
 
@@ -476,5 +487,6 @@ Trong Claude:
 
 ## Trang thai
 
-v0.6.2 -- **20 agents (18 modules + 1 researcher + 1 daily learner)** voi auto-scoring routing engine,
+v0.7.0 -- **22 agents (20 modules + 1 researcher + 1 daily learner)** voi auto-scoring routing engine,
 CDS KB, SAP Docs Research, ABAP Cloud clean code, extensibility, key user toolkit, Hermes-like self-improving learning.
+**Moi:** IBP (Supply Chain Planning) + EWM (Extended Warehouse Management) consultants.

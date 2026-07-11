@@ -52,6 +52,8 @@ Doc cau hoi user, ap dung ma tran duoi day. Moi keyword co **weight** (1-3). Mod
 | **CA** | `sap-ca-consultant-cloud` | business partner, document management, workflow, output management | BP, DMS, WF, archiving, number range, output control | cross-application, flexible workflow, ILM, printing, forms, report painter | ≥ 2 |
 | **GTS** | `sap-gts-consultant-cloud` | customs, global trade, sanctioned party list, SPL | hai quan, xuat nhap khau, preference, embargo | intrastat, bonded warehouse, export control, FTA, certificate of origin | ≥ 2 |
 | **EHS** | `sap-ehs-consultant-cloud` | environment, health, safety, hazardous substance, waste | moi truong, an toan, hoa chat, MSDS, incident | product safety, industrial hygiene, occupational health, disposal, PPE | ≥ 2 |
+| **IBP** 🆕 | `sap-ibp-consultant-cloud` | demand planning, supply planning, S&OP, inventory optimization, IBP | du bao, planning, control tower, forecast, cung cap, chuoi cung ung | safety stock, time-series, optimizer, heuristic, key figure, alert | ≥ 2 |
+| **EWM** 🆕 | `sap-ewm-consultant-cloud` | warehouse, EWM, inbound, outbound, picking, packing, wave, slotting | kho, warehouse order, RF, handling unit, yard, labor | kitting, VAS, cycle counting, putaway, replenishment, storage bin | ≥ 2 |
 | **Research** | `sap-docs-researcher` | CDS view, SAP note, SAP Help | Fiori app, API hub, documentation, ABAP syntax | release note, clean core, community, tra cuu, feature matrix | ≥ 2 |
 | **Daily Learner** 🧠 | `sap-daily-learner` | hoc, learning, tip, hermes, quiz, progress | bai tap, lộ trình, track, tien do, on tap, practice | daily, skill, test, cau hoi, trac nghiem, study, beginner, advanced | ≥ 1 |
 
@@ -87,6 +89,8 @@ Neu user noi "hoi X" / "X tu van" / "nho X" voi X la ten module, dispatch module
 | **CA** | `sap-sd-consultant-cloud`, `sap-mm-consultant-cloud`, `sap-fi-consultant-cloud` | Business Partner thuong di kem SD (customer), MM (supplier), FI (GL) |
 | **GTS** | `sap-sd-consultant-cloud`, `sap-mm-consultant-cloud`, `sap-tm-consultant-cloud` | Sales export (SD), procurement import (MM), van chuyen (TM) |
 | **EHS** | `sap-mm-consultant-cloud`, `sap-pp-consultant-cloud`, `sap-wm-consultant-cloud` | Hoa chat = material (MM), safety in production (PP), kho hoa chat (WM) |
+| **IBP** 🆕 | `sap-sd-consultant-cloud`, `sap-pp-consultant-cloud`, `sap-mm-consultant-cloud` | S&OP can sales forecast (SD), supply planning (PP), procurement (MM) |
+| **EWM** 🆕 | `sap-mm-consultant-cloud`, `sap-sd-consultant-cloud`, `sap-pp-consultant-cloud`, `sap-tm-consultant-cloud` | Inbound (MM), outbound (SD), production supply (PP), yard (TM) |
 
 ### Buoc 4: Tong hop dispatch
 
@@ -94,8 +98,8 @@ Neu user noi "hoi X" / "X tu van" / "nho X" voi X la ten module, dispatch module
 - **1 agent**: dispatch duy nhat.
 - **≥2 agent**: dispatch **tat ca song song** trong 1 message.
 
-**Da co agent**: SD, FI, MM, CO, PP, QM, PM, WM, PS, HCM, BW, Basis, TM, TR, Ariba, CA, GTS, EHS, Research, **Daily Learner**
-**Tong cong**: 18 modules consultant + 1 researcher + 1 daily learner = **20 agents**.
+**Da co agent**: SD, FI, MM, CO, PP, QM, PM, WM, PS, HCM, BW, Basis, TM, TR, Ariba, CA, GTS, EHS, **IBP**, **EWM**, Research, **Daily Learner**
+**Tong cong**: 20 modules consultant + 1 researcher + 1 daily learner = **22 agents**.
 
 ## Quy trinh — Automated Routing Engine
 

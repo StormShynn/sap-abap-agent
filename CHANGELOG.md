@@ -6,6 +6,28 @@ Format dựa trên [Keep a Changelog](https://keepachangelog.com/) và [Semantic
 
 ---
 
+## [v0.7.0] — 2026-07-11
+
+### Added
+- 🆕 **SAP IBP Consultant** (`sap-ibp-consultant-cloud`) — Supply Chain Planning agent: Demand
+  Planning (forecast, AI/ML sensing), Supply Planning (heuristic/optimizer), Inventory Optimization,
+  S&OP, Control Tower. Reference module 2-layer CORE+DEEP.
+- 🆕 **SAP EWM Consultant** (`sap-ewm-consultant-cloud`) — Extended Warehouse Management agent:
+  inbound/outbound, wave, slotting, kitting, VAS, labor, RF, yard. Embedded EWM (scope BK9) thay
+  WM (EOL 2025). Reference module 2-layer CORE+DEEP.
+- 🔀 **Routing Engine update**: The IBP + EWM vao keyword matrix + module coupling. Tong agent tu
+  20 → 22 (20 module consultants + 1 researcher + 1 daily learner).
+
+### Changed
+- `skills/sap-ask-consultant/SKILL.md`: Routing matrix m rong them IBP + EWM keywords & coupling.
+- `index.html`: Cap nhat version counts (22 agents, 23 files), them IBP/EWM vao module list, keyword
+  matrix, coupling bang, agent directory feature cards.
+- `.claude-plugin/plugin.json`: Bump version v0.6.5 → v0.7.0.
+- `agents/sap-ibp-consultant-cloud.md`: Bo skill `sap-clean-code` + `sap-extensibility` (IBP la cloud
+  service rieng, khong dung ABAP naming/extensibility ladder).
+
+---
+
 ## [v0.6.5] — 2026-07-11
 
 ### Added

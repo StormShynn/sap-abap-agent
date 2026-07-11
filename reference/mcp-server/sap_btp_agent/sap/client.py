@@ -252,6 +252,61 @@ class SapClient:
             headers={"x-csrf-token": "fetch"},
         )
 
+    # ============ New tools ===========================================
+    async def find_where_used(self, object_name: str, object_type: str) -> Any:
+        """Tim noi su dung 1 object (where-used list)."""
+        return await self.get(
+            "/sap/bc/adt/repository/informationsystem/usage",
+            query={
+                "operation": "whereUsed",
+                "objectName": object_name,
+                "objectType": object_type,
+            },
+        )
+
+    async def execute_query(self, table_name: str, object_type: str = "TABL", top: int = 50) -> Any:
+        """Truy van du lieu tu 1 bang / CDS view.
+
+        Su dung ADT data preview endpoint, tra ve top dong.
+        objectType: TABL (bang), DDLS (CDS view), VIEW (view)...
+        """
+        return await self.get(
+            "/sap/bc/adt/data/preview",
+            query={
+                "objectName": table_name,
+                "objectType": object_type,
+                "maxRows": str(top),
+            },
+        )
+
+    async def run_unit_tests(self, object_uri: str, object_type: str) -> Any:
+        """Chay ABAP Unit tests cho 1 class."""
+        return await self.post(
+            "/sap/bc/adt/abapunit/testruns",
+            body={
+                "objectUri": object_uri,
+                "objectType": object_type,
+                "runMode": "all",
+            },
+            headers={"x-csrf-token": "fetch"},
+        )
+
+    async def get_system_info(self) -> Any:
+        """Lay thong tin he thong SAP (version, release, database...)."""
+        return await self.get("/sap/bc/adt/core/discovery", query={"scope": "all"})
+
+    async def analyze_dump(self, dump_id: str | None = None, top: int = 20) -> Any:
+        """Doc phan tich ST22 dump.
+
+        Neu khong co dump_id, lay top dump gan nhat.
+        """
+        if dump_id:
+            return await self.get(f"/sap/bc/adt/runtime/dumps/{dump_id}")
+        return await self.get(
+            "/sap/bc/adt/runtime/dumps",
+            query={"maxResults": str(top)},
+        )
+
 
 async def _maybe_await(value: Any) -> Any:
     if asyncio.iscoroutine(value):

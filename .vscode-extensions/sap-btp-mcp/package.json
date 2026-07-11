@@ -1,0 +1,86 @@
+{
+  "name": "sap-btp-mcp",
+  "displayName": "SAP BTP MCP — sap-btp-agent",
+  "description": "Tự động đăng ký MCP server sap-btp-agent vào VS Code — không cần chạy 'claude mcp add' thủ công. Kết nối SAP S/4HANA Cloud để đọc, tìm, syntax-check, activate ABAP.",
+  "version": "0.1.0",
+  "publisher": "StormShynn",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/StormShynn/sap-abap-agent"
+  },
+  "engines": {
+    "vscode": "^1.98.0"
+  },
+  "categories": [
+    "Other",
+    "Programming Languages",
+    "Machine Learning"
+  ],
+  "keywords": [
+    "sap",
+    "abap",
+    "mcp",
+    "s4hana",
+    "btp",
+    "ai",
+    "claude"
+  ],
+  
+  "activationEvents": [],
+  "contributes": {
+    "mcpServerDefinitionProviders": [
+      {
+        "id": "sap-btp-mcp",
+        "label": "SAP BTP MCP (sap-btp-agent)"
+      }
+    ],
+    "commands": [
+      {
+        "command": "sapBtpMcp.checkConnection",
+        "title": "SAP BTP: Check Connection"
+      },
+      {
+        "command": "sapBtpMcp.openSettings",
+        "title": "SAP BTP: Open Settings"
+      },
+      {
+        "command": "sapBtpMcp.runDoctor",
+        "title": "SAP BTP: Run Doctor"
+      }
+    ],
+    "configuration": {
+      "title": "SAP BTP MCP",
+      "properties": {
+        "sapBtpMcp.command": {
+          "type": "string",
+          "default": "sap-btp-agent",
+          "description": "Đường dẫn hoặc tên lệnh của sap-btp-agent. Mặc định là 'sap-btp-agent' (cần có trong PATH). Có thể set đường dẫn tuyệt đối (vd: C:\\Python312\\Scripts\\sap-btp-agent.exe)."
+        },
+        "sapBtpMcp.args": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": [],
+          "description": "Đối số dòng lệnh thêm cho sap-btp-agent (vd: ['--verbose'])."
+        },
+        "sapBtpMcp.profile": {
+          "type": "string",
+          "default": "",
+          "description": "Profile SAP BTP mặc định. Để trống = dùng profile active. Set env SAP_BTP_PROFILE=<id> khi cần khóa profile."
+        }
+      }
+    }
+  },
+  "main": "./dist/extension.js",
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./tsconfig.json",
+    "watch": "tsc -watch -p ./tsconfig.json",
+    "package": "vsce package --no-dependencies"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.98.0",
+    "@vscode/vsce": "^3.0.0",
+    "typescript": "^5.7.0"
+  }
+}

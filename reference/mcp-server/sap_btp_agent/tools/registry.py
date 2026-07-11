@@ -120,6 +120,74 @@ def build_tools() -> list[dict[str, Any]]:
             },
             "handler": _handle_activate,
         },
+        # ===== New tools ===========================================
+        {
+            "name": "sap_find_where_used",
+            "description": "Tim noi su dung object ABAP (where-used list). Tra ve danh sach object co tham chieu den object chi dinh.",
+            "inputSchema": {
+                "type": "object",
+                "properties": {
+                    "profile": {"type": "string", "description": "Profile id (de trong = active)."},
+                    "objectName": {"type": "string", "description": "Ten object can tim (VD: ZCL_MY_CLASS, I_SalesDocument...)"},
+                    "objectType": {"type": "string", "description": "Loai object (CLAS, PROG, TABL, DDLS...)"},
+                },
+                "required": ["objectName", "objectType"],
+            },
+            "handler": _handle_find_where_used,
+        },
+        {
+            "name": "sap_execute_query",
+            "description": "Truy van du lieu tu bang / CDS view (data preview). Tra ve top N dong.",
+            "inputSchema": {
+                "type": "object",
+                "properties": {
+                    "profile": {"type": "string"},
+                    "tableName": {"type": "string", "description": "Ten bang / CDS view (VD: I_SalesDocument, MARA, T000)"},
+                    "objectType": {"type": "string", "description": "Loai object: TABL (bang), DDLS (CDS view), VIEW (view). Mac dinh TABL.", "default": "TABL"},
+                    "top": {"type": "number", "description": "So dong toi da (mac dinh 50, toi da 500).", "default": 50},
+                },
+                "required": ["tableName"],
+            },
+            "handler": _handle_execute_query,
+        },
+        {
+            "name": "sap_run_unit_tests",
+            "description": "Chay ABAP Unit tests cho 1 class. Tra ve ket qua PASS/FAIL + chi tiet.",
+            "inputSchema": {
+                "type": "object",
+                "properties": {
+                    "profile": {"type": "string"},
+                    "objectUri": {"type": "string", "description": "URI ADT cua class (VD: /sap/bc/adt/oo/classes/zcl_demo)"},
+                    "objectType": {"type": "string", "description": "Loai object (CLAS, PROG...)"},
+                },
+                "required": ["objectUri", "objectType"],
+            },
+            "handler": _handle_run_unit_tests,
+        },
+        {
+            "name": "sap_get_system_info",
+            "description": "Lay thong tin he thong SAP (version SAP_BASIS, release, database, kernel, tenant, region).",
+            "inputSchema": {
+                "type": "object",
+                "properties": {
+                    "profile": {"type": "string"},
+                },
+            },
+            "handler": _handle_get_system_info,
+        },
+        {
+            "name": "sap_analyze_dump",
+            "description": "Phan tich ST22 runtime dump. Neu khong co dump_id, lay top dump gan nhat.",
+            "inputSchema": {
+                "type": "object",
+                "properties": {
+                    "profile": {"type": "string"},
+                    "dumpId": {"type": "string", "description": "ID dump cu the (VD: DMP_20250101_123456). De trong = lay dump gan nhat."},
+                    "top": {"type": "number", "description": "So dump gan nhat (mac dinh 20). Chi dung khi dumpId de trong.", "default": 20},
+                },
+            },
+            "handler": _handle_analyze_dump,
+        },
     ]
 
 
@@ -186,4 +254,45 @@ async def _handle_activate(args: dict[str, Any] | None) -> str:
     args = args or {}
     client = SapClient(_pick_profile(args))
     data = await client.activate(args["objectUri"], args["objectType"])
+    return _to_json(data)
+
+
+# ===== New tools ===================================================
+
+async def _handle_find_where_used(args: dict[str, Any] | None) -> str:
+    args = args or {}
+    client = SapClient(_pick_profile(args))
+    data = await client.find_where_used(args["objectName"], args["objectType"])
+    return _to_json(data)
+
+
+async def _handle_execute_query(args: dict[str, Any] | None) -> str:
+    args = args or {}
+    client = SapClient(_pick_profile(args))
+    top = min(int(args.get("top", 50) or 50), 500)
+    object_type = (args.get("objectType") or "TABL").strip()
+    data = await client.execute_query(args["tableName"], object_type=object_type, top=top)
+    return _to_json(data)
+
+
+async def _handle_run_unit_tests(args: dict[str, Any] | None) -> str:
+    args = args or {}
+    client = SapClient(_pick_profile(args))
+    data = await client.run_unit_tests(args["objectUri"], args["objectType"])
+    return _to_json(data)
+
+
+async def _handle_get_system_info(args: dict[str, Any] | None) -> str:
+    args = args or {}
+    client = SapClient(_pick_profile(args))
+    data = await client.get_system_info()
+    return _to_json(data)
+
+
+async def _handle_analyze_dump(args: dict[str, Any] | None) -> str:
+    args = args or {}
+    client = SapClient(_pick_profile(args))
+    dump_id = (args.get("dumpId") or "").strip()
+    top = min(int(args.get("top", 20) or 20), 100)
+    data = await client.analyze_dump(dump_id=dump_id or None, top=top)
     return _to_json(data)

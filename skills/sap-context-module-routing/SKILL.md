@@ -4,7 +4,7 @@ description: |
   Pattern 2-layer cho reference/modules: tach thanh CORE (luôn load khi dispatch module) + DEEP
   (chi load khi agent can chi tiet SSCUI/API/Fiori/gotcha). Giam context token khi 18 module
   consultant duoc dispatch song song (sap-ask-consultant).
-  Dung khi refactor reference/modules/<module>-cloud/SKILL.md hien tai (da co full content)
+  Dung khi refactor reference/modules/sap-[module]-cloud/SKILL.md hien tai (da co full content)
   thanh 2 file: SKILL.md (core) + deep/SKILL.md (full cu).
   KHONG dung cho module moi chua co content (viet core truc tiep tu dau).
 when_to_use: |
