@@ -1,26 +1,56 @@
 ---
 name: sap-daily-learner
-description: Skill tu dong hoa viec hoc SAP/ABAP moi ngay — tu dong tao skill, track tien do, goi y noi dung dua trinh do nguoi dung. Lay cam hung tu Hermes Agent (Nous Research).
+description: Skill tu dong hoa viec hoc SAP/ABAP moi ngay - tu dong tao skill, track tien do, goi y noi dung dua trinh do nguoi dung. Lay cam hung tu Hermes Agent (Nous Research).
 when_to_use: |
   "hoc SAP hom nay", "quiz MM cho toi", "progress hoc tap cua toi", "hoc tiep module PP".
 effort: high
 model: sonnet
 ---
 
-# SAP Daily Learner — Skill Implementation
+# SAP Daily Learner - Skill Implementation
 
-## 1. Persistent Knowledge Store
+## 0. Memory Hierarchies (3 tang - ap dung tu memory-systems skill)
 
-### File: `.sap-abap-agent/LEARNING_PROGRESS.md`
+He thong persistent memory cua skill nay duoc to chuc thanh 3 tang (theo pattern memory-systems
+trong repo agent-skills-for-context-engineering). Mac dinh chi tang SEMANTIC la load len
+context; 2 tang con lai chi load theo nhu cau.
 
-File nay duy tri trang thai hoc tap cua user. Cau truc:
+```
+<workspace>/.sap-abap-agent/memory/
+├── episodic/              # Tang 1 - lich su chat (append-only, log raw)
+│   ├── 2026-07/
+│   │   ├── 2026-07-11_session-001.md   # 1 file / session, gom chat + tool calls
+│   │   └── 2026-07-11_session-002.md
+│   └── index.jsonl        # append-only: 1 dong / turn (timestamp, session_id, role, brief)
+├── semantic/              # Tang 2 - kien thuc da rut trich (file chinh, load default)
+│   ├── LEARNING_PROGRESS.md   # module progress, level, mastered topics
+│   ├── knowledge_graph.jsonl  # entity: concept/module/topic; relationship
+│   └── notes/
+│       ├── fi-acdoca.md       # concept-level note, viet khi user "explain ACDOCA"
+│       └── mm-stock-valuation.md
+└── procedural/            # Tang 3 - skill/cach lam (auto-created tu success cases)
+    └── skills/                # alias cho skills/sap-user-skills/
+        └── <module>-<topic>.md
+```
+
+**Quy tac su dung**:
+- Tang SEMANTIC: luon load khi goi skill (chi LEARNING_PROGRESS.md + knowledge_graph.jsonl - gioi han <100KB).
+- Tang EPISODIC: chi load khi user hoi "hom qua chung ta thao luan gi" / "session truoc toi da hoi gi" - doc qua index.jsonl de biet session nao can doc.
+- Tang PROCEDURAL: giong auto-skill creation hien tai - khong load, chi dispatch khi relevant.
+
+## 1. Persistent Knowledge Store (tang SEMANTIC)
+
+### File chinh: `.sap-abap-agent/memory/semantic/LEARNING_PROGRESS.md`
+
+Cau truc (giu nguyen format hien tai, chi them metadata cho memory-tier):
 
 ```markdown
-# 📚 SAP Learning Progress
+# SAP Learning Progress
 
 Last updated: 2026-07-11
 Session count: 1
 Total skills created: 0
+Memory tier loaded: semantic
 
 ## Module Progress
 
@@ -33,15 +63,30 @@ Total skills created: 0
 | PP | beginner | 0 | 5 | never |
 
 ## Recommended Next Module
-> **Mới bắt đầu? Hãy học MM (Materials Management)** — module phổ biến nhất, dễ tiếp cận với quy trình procurement hàng ngày.
+> **Moi bat dau? Hay hoc MM (Materials Management)** - module pho bien nhat, de tiep can voi quy trinh procurement hang ngay.
 
 ## Auto-Created Skills
-*(chưa có skill nào)*
+*(chua co skill nao)*
 ```
 
-### Module Knowledge Matrix — Nội dung học cho từng module
+### Knowledge Graph (knowledge_graph.jsonl - moi line la 1 entity hoac relationship)
 
-Mỗi module có 5 topics, 3 levels:
+```jsonl
+{"type":"entity","id":"fi-acdoca","name":"Universal Journal (ACDOCA)","module":"FI","tags":["gl","fundamental","public-cloud"]}
+{"type":"entity","id":"mm-po","name":"Purchase Order","module":"MM","tags":["procurement"]}
+{"type":"entity","id":"sd-pricing","name":"Pricing Condition","module":"SD","tags":["sales"]}
+{"type":"relationship","from":"fi-acdoca","to":"mm-po","rel":"referenced-by","note":"IR (Invoice Receipt) posts to ACDOCA"}
+{"type":"relationship","from":"sd-pricing","to":"fi-acdoca","rel":"posts-to","note":"Billing writes FI doc via ACDOCA"}
+```
+
+Quy tac ghi:
+- Moi khi user noi "explain X" hoac "Y la gi", tao 1 entity neu chua co.
+- Moi khi consultant agent noi "X lien quan Y", tao 1 relationship.
+- KHONG ghi nhan thong tin da bi (rule gotcha #3 cua memory-systems: tranh over-engineer early).
+
+### Module Knowledge Matrix - Noi dung hoc cho tung module
+
+Moi module co 5 topics, 3 levels:
 
 | Module | Beginner | Intermediate | Advanced |
 |--------|----------|-------------|----------|
@@ -69,134 +114,157 @@ Mỗi module có 5 topics, 3 levels:
 ### Tip Selection Algorithm
 
 ```
-1. Read LEARNING_PROGRESS.md
-2. Find modules with lowest "Topics Mastered" count
-3. Pick next topic from "Topics Pending" for that module
-4. Determine user level from Module Progress
-5. Generate appropriate tip template based on level
+1. Read LEARNING_PROGRESS.md (semantic tier, default load)
+2. Xac dinh module user dang hoc (Level cao nhat, gan nhat)
+3. Chon topic trong module do chua mastered
+4. Tao tip 1-3 dong + link den notes/<concept>.md neu co (semantic tier)
+5. Neu user hoi them -> load notes/<concept>.md (cung semantic tier, nhu chi load 1 file)
 ```
 
-### Scheduling cơ chế
+### Scheduling co che
 
-- **Mỗi session đầu tiên trong ngày**: Hiển thị 1 daily tip
-- **Sau mỗi 3 câu hỏi được giải đáp**: Gợi ý 1 bài tập ngắn
-- **Khi user hỏi "học gì hôm nay"**: Đề xuất learning path cá nhân hóa
+Mac dinh tip khi session dau trong ngay (kiem tra `episodic/index.jsonl` ngay hom nay).
 
-## 3. Auto-Skill Creation Engine
+## 3. Auto-Skill Creation Engine (tang PROCEDURAL)
 
-### Trigger conditions
+Tu dong tao skill khi:
 
-Tự động tạo skill khi:
+1. **Problem complexity >= 3 steps**: Van de can >= 3 buoc giai quyet
+2. **Co cau hinh cu the**: Co SSCUI / Fiori app / API duoc de cap
+3. **User response positive**: User noi "cam on", "huu ich", "duoc roi", "got it", "great"
+4. **Khong trung lap**: Kiem tra `procedural/skills/` (alias `skills/sap-user-skills/`) khong co file tuong tu
 
-1. **Problem complexity ≥ 3 steps**: Vấn đề cần ≥ 3 bước giải quyết
-2. **Có cấu hình cụ thể**: Có SSCUI / Fiori app / API được đề cập
-3. **User response positive**: User nói "cảm ơn", "hữu ích", "được rồi", "got it", "great"
-4. **Không trùng lặp**: Kiểm tra `skills/sap-user-skills/` không có file tương tự
+### Skill storage (tang PROCEDURAL)
 
-### Skill storage
-
-- **Thư mục**: `skills/sap-user-skills/`
+- **Thu muc**: `memory/procedural/skills/` (alias `skills/sap-user-skills/` - giu compat)
 - **Naming**: `<module>-<topic-slug>.md` (vd: `mm-purchase-order-approval.md`)
 - **Format**: YAML frontmatter + markdown content
 
-### Ví dụ skill được tạo tự động:
+### Vi du skill duoc tao tu dong:
 
 ```markdown
 ---
 name: mm-purchase-order-approval
-description: Hướng dẫn cấu hình approve workflow cho purchase order trên S/4HANA Cloud Public Edition
+description: Huong dan cau hinh approve workflow cho purchase order tren S/4HANA Cloud Public Edition
 created: 2026-07-11
-source: "User hỏi: làm sao để PO cần approval trước khi gửi supplier?"
+source: "User hoi: lam sao de PO can approval truoc khi gui supplier?"
 tags: [MM, PO, workflow, approval, SSCUI]
 ---
 
 # Purchase Order Approval Workflow
 
 ## Problem
-PO cần được phê duyệt trước khi gửi supplier. Không có workflow mặc định.
+PO can duoc phe duyet truoc khi gui supplier. Khong co workflow mac dinh.
 
 ## Solution
 
-### Bước 1: Kích hoạt scope item
+### Buoc 1: Kich hoat scope item
 - Scope item: **BNS** (Operational Procurement)
-- App: Manage Your Solution → check BNS đã active
+- App: Manage Your Solution -> check BNS da active
 
-### Bước 2: Cấu hình Release Strategy
+### Buoc 2: Cau hinh Release Strategy
 - SSCUI: **101122** (Define Release Strategy for Purchasing Documents)
-- Điều kiện: dựa trên giá trị PO (>= 5000 USD cần approve)
+- Dieu kien: dua tren gia tri PO (>= 5000 USD can approve)
 
-### Bước 3: Gán người phê duyệt
+### Buoc 3: Gan nguoi phe duyet
 - SSCUI: **101123** (Assign Release Codes)
-- Gán user/role cho từng release code
+- Gan user/role cho tung release code
 
-### Bước 4: Test
-- Fiori app: Manage Purchase Orders → tạo PO > 5000 → kiểm tra status "To be released"
+### Buoc 4: Test
+- Fiori app: Manage Purchase Orders -> tao PO > 5000 -> kiem tra status "To be released"
 
 ## SSCUI / Fiori App
 - SSCUI 101122: Define Release Strategy for Purchasing Documents
 - SSCUI 101123: Assign Release Codes
 - Fiori: Manage Purchase Orders
 
-## API (nếu có)
+## API (neu co)
 - `API_PURCHASEORDER_PROCESS_SRV`
 - `API_RELEASESTRATEGY_SRV`
 
 ## Notes
-- Release strategy cần active trước khi PO được tạo
-- Có thể kết hợp nhiều điều kiện (value + material group)
-- Phiên bản 2502+ có thêm condition "document type"
+- Release strategy can active truoc khi PO duoc tao
+- Co the ket hop nhieu dieu kien (value + material group)
+- Phien ban 2502+ co them condition "document type"
 ```
 
-## 4. Tích hợp với sap-ask-consultant
+## 4. Episodic tier - chat history
 
-Thêm daily-learner vào module routing:
+File `<workspace>/.sap-abap-agent/memory/episodic/<YYYY-MM>/<YYYY-MM-DD>_session-<id>.md`
+ghi lai session (user prompt, agent response, tool calls). Dinh dang append-only - KHONG sua
+sau khi ghi (dinh ly audit trail).
+
+Header moi file:
+```markdown
+# Session <id> - <YYYY-MM-DD>
+Started: <timestamp>
+Ended: <timestamp>
+User: <user_id_or_alias>
+Topics: <list_module_topics>
+Outcome: <success | partial | failed>
+```
+
+Dong cuoi file luon la 1 dong JSON append vao `index.jsonl`:
+```json
+{"session_id":"<id>","date":"<YYYY-MM-DD>","topics":["FI","MM"],"outcome":"success","turns":12}
+```
+
+**Quy tac cleanup episodic**:
+- Giu 30 ngay gan nhat (hoac 100 session, lay gia tri nho hon).
+- Sau do archive vao `episodic/archive/<YYYY>/` (zip), KHONG xoa (audit).
+
+## 5. Tich hop voi sap-ask-consultant
+
+Them daily-learner vao module routing (giu nguyen):
 
 | Trigger keywords | Dispatch |
 |-----------------|----------|
-| "hoc", "học", "learning", "daily", "tip", "bài tập", "lộ trình", "progress", "hermes" | `sap-daily-learner` |
-| "hoc SD", "hoc FI", "hoc MM"... | `sap-daily-learner` + module tương ứng (song song) |
+| "hoc", "learning", "daily", "tip", "bai tap", "lo trinh", "progress", "hermes" | `sap-daily-learner` |
+| "hoc SD", "hoc FI", "hoc MM"... | `sap-daily-learner` + module tuong ung (song song) |
 
-## 5. User Commands
+## 6. User Commands
 
 | Command | Action |
 |---------|--------|
-| "hoc hom nay" | Hiển thị daily tip + đề xuất module |
-| "hoc [module]" | Bắt đầu/bài tiếp theo của module |
-| "progress" / "tien do" | Hiển thị LEARNING_PROGRESS.md |
-| "skill list" / "danh sach skill" | Liệt kê skills/user-skills/ |
-| "onboard [module]" | Tạo learning path cho module mới |
-| "tip" | Random tip từ module user thích |
-| "quiz [module]" | Câu hỏi trắc nghiệm về module |
+| "hoc hom nay" | Hien thi daily tip + de xuat module (semantic tier) |
+| "hoc [module]" | Bat dau/bai tiep theo cua module |
+| "progress" / "tien do" | Hien thi LEARNING_PROGRESS.md |
+| "skill list" / "danh sach skill" | Liet ke memory/procedural/skills/ |
+| "onboard [module]" | Tao learning path cho module moi |
+| "tip" | Random tip tu module user thich |
+| "quiz [module]" | Cau hoi trac nghiem ve module |
+| "hom qua chung ta noi gi" | Load episodic tier ngay gan nhat (rule gotcha: chi khi user hoi) |
 
-## 6. Hermes-like Features Mapping
+## 7. Hermes-like Features Mapping (cap nhat)
 
 | Hermes Agent Feature | SAP Daily Learner Implementation |
 |---------------------|--------------------------------|
-| Automated Skill Creation | Tự sinh `skills/user-skills/<module>-<topic>.md` từ câu trả lời phức tạp |
-| Persistent Memory | `LEARNING_PROGRESS.md` — module progress, mastered topics |
-| Multi-Platform Integration | Hoạt động trong Claude Code, có thể dispatch qua `sap-ask-consultant` |
-| Cron Scheduling | Daily tip mỗi session đầu ngày |
-| Self-Improving | Càng học càng nhiều skill documents, knowledge base càng phong phú |
-| Training Data Export | Có thể export LEARNING_PROGRESS + skill documents làm training data |
-| Skill Reusability | Skill documents có thể dispatch lại cho user khác có cùng câu hỏi |
+| Automated Skill Creation | Tu sinh `memory/procedural/skills/<module>-<topic>.md` tu cau tra loi phuc tap |
+| Persistent Memory (3-tier) | semantic (default load) + episodic (chat history) + procedural (skills) |
+| Multi-Platform Integration | Hoat dong trong Claude Code, co the dispatch qua `sap-ask-consultant` |
+| Cron Scheduling | Daily tip moi session dau ngay |
+| Self-Improving | Cang hoc cang nhieu skill documents, knowledge graph cang day |
+| Training Data Export | Co the export LEARNING_PROGRESS + knowledge graph + skills lam training data |
+| Skill Reusability | Skill documents co the dispatch lai cho user khac co cung cau hoi |
+| Memory Consolidation | Periodic cleanup episodic (>30 ngay) + archive, KHONG xoa |
 
-## 7. Progressive Learning Paths
+## 8. Progressive Learning Paths
 
-### Beginner Path (cho người mới)
+### Beginner Path (cho nguoi moi)
 ```
-Tuần 1: MM (procurement cơ bản) → PO → GR → IR
-Tuần 2: SD (sales cơ bản) → Sales Order → Delivery → Billing
-Tuần 3: FI (kế toán cơ bản) → GL → AP → AR
-Tuần 4: CO (controlling cơ bản) → Cost Center → Internal Order
-```
-
-### Intermediate Path (cho người đã biết SAP)
-```
-Chọn 1 module chuyên sâu + 2 module liên quan
-Ví dụ: MM advanced + FI (valuation) + SD (stock transport)
+Tuan 1: MM (procurement co ban) -> PO -> GR -> IR
+Tuan 2: SD (sales co ban) -> Sales Order -> Delivery -> Billing
+Tuan 3: FI (ke toan co ban) -> GL -> AP -> AR
+Tuan 4: CO (controlling co ban) -> Cost Center -> Internal Order
 ```
 
-### Expert Path (cho chuyên gia)
+### Intermediate Path (cho nguoi da biet SAP)
+```
+Chon 1 module chuyen sau + 2 module lien quan
+Vi du: MM advanced + FI (valuation) + SD (stock transport)
+```
+
+### Expert Path (cho chuyen gia)
 ```
 Cross-module integration patterns:
 - Order-to-Cash (SD-FI-CO)
@@ -206,11 +274,13 @@ Cross-module integration patterns:
 - Project-to-Report (PS-SD-CO-FI)
 ```
 
-## 8. Review Checklist
+## 9. Review Checklist
 
-- [ ] `LEARNING_PROGRESS.md` được tạo/tìm thấy
-- [ ] `skills/sap-user-skills/` thư mục tồn tại
-- [ ] Daily tip phù hợp với level user
-- [ ] Skill không trùng lặp
-- [ ] Module coupling được tôn trọng khi gợi ý
-- [ ] File YAML frontmatter đúng format
+- [ ] `LEARNING_PROGRESS.md` duoc tao/tim thay (semantic tier)
+- [ ] `memory/procedural/skills/` (alias `skills/sap-user-skills/`) ton tai
+- [ ] Chi load semantic tier default; episodic/procedural chi load khi user hoi
+- [ ] Daily tip phu hop voi level user
+- [ ] Skill khong trung lap
+- [ ] Module coupling duoc ton trong khi goi y
+- [ ] File YAML frontmatter dung format
+- [ ] KHONG ghi thong tin da bi vao knowledge_graph (tranh over-engineer)

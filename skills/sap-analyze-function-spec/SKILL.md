@@ -1,7 +1,7 @@
 ---
 name: sap-analyze-function-spec
 description: |
-  Phan tich Function Spec (file .docx cua khach hang) va sinh INTAKE.md chuan hoa —
+  Phan tich Function Spec (file .docx cua khach hang) va sinh INTAKE.md chuan hoa -
   buoc 1 trong pipeline "FS -> INTAKE -> TECHNICAL_SPEC -> scaffold code -> review -> test".
   Dung khi user dua file .docx Function Spec (FS) SAP va can chuan hoa yeu cau thanh
   1 file de lam viec tiep (tim CDS nguon, viet Technical Spec, sinh code ABAP).
@@ -16,7 +16,7 @@ effort: medium
 tools: [Bash, Read, Write, Glob, Grep]
 ---
 
-# SAP Analyze Function Spec — FS.docx → INTAKE.md
+# SAP Analyze Function Spec - FS.docx -> INTAKE.md
 
 ## Khi nao dung
 
@@ -27,40 +27,94 @@ tools: [Bash, Read, Write, Glob, Grep]
 
 ## Quy trinh
 
-### Buoc 1: Convert FS sang Markdown
+### Buoc 0: Mo session working memory (MOI, truoc khi convert)
 
-Dung skill `sap-doc-to-md` (hoac truc tiep `reference/scripts/office_to_md.py`) de convert file
-`.docx` sang `.md` truoc — tan dung bang bieu/heading da duoc parse san, khong can parse XML tay:
+FS lon (30+ trang, nhieu bang) khong the do full vao context 1 lan - context se phinh
+(killed co hon 50K token), dan den mat attention o cac phan quan trong. Ap dung pattern
+**filesystem-context** (xem skill `sap-context-tool-result-trim`):
 
-```bash
-python reference/scripts/office_to_md.py
+```
+Session dir: <workspace>/.sap-abap-agent/sessions/<ticket>/
+├── fs_full.md         # Toan bo FS convert sang markdown
+├── chunks/            # 8 file, moi file la 1 section INTAKE
+│   ├── 01_thong_tin_tai_lieu.md
+│   ├── 02_quan_ly_thay_doi.md
+│   ├── 03_pham_vi_thuat_ngu.md
+│   ├── 04_mo_ta_chung.md
+│   ├── 05_yeu_cau_nghiep_vu.md
+│   ├── 06_edge_cases_questions.md
+│   ├── 07_tai_lieu_tham_khao.md
+│   └── 08_ghi_chu_agent.md
+├── summary.md         # Tom tat toan bo FS (1-2 trang)
+└── intake.md          # Output cuoi - INTAKE chinh
 ```
 
-`in/`/`out/` **khong nam trong repo** — la thu muc local per-user (xem skill `sap-doc-to-md` de
-biet duong dan day du va cach lay dung duong dan da resolve). Doc lai file `.md` vua tao trong
-`out/` thay vi doc `.docx` truc tiep.
+Trong `<workspace>` (thu muc user, KHONG phai repo plugin), tao session dir tren.
+Neu user chi dinh ticket tu prompt (vd "ticket PROJECT_2024_Q1") -> dung ticket do; neu khong
+-> tao ticket tu ten file FS (vd FS_KH01.docx -> ticket KH01).
 
-### Buoc 2: Phan loai noi dung vao 8 section INTAKE
+### Buoc 1: Convert FS sang Markdown + luu vao session
 
-Doc noi dung `.md`, phan loai vao cau truc INTAKE.md chuan (xem mau ben duoi). Cac tieu de FS
-thuong gap va mapping tuong ung:
+Dung skill `sap-doc-to-md` (hoac truc tiep `reference/scripts/office_to_md.py`) de convert file
+`.docx` sang `.md`. Hai output can tao:
 
-| Tieu de thuong gap trong FS | Section INTAKE |
-|---|---|
-| "Thong tin tai lieu" | 1 |
-| "Quan ly thay doi" | 2 |
-| "Pham vi tai lieu" | 3.1 |
-| "Thuat ngu" | 3.2 |
-| "Muc dich" | 4.1 |
-| "Cac qui dinh chung" | 4.2 |
-| "Man hinh chuc nang / Mau bao cao" | 5.1 |
-| "Mo ta tham so" | 5.2 |
-| "Man hinh trung gian" | 5.3 |
-| "Mo ta cac truong" | 5.4 |
-| "Tieu chi sap xep" | 5.5 |
-| "Yeu cau khac" | 5.6 |
-| (phat hien khi doc) | 6 — Cau hoi can lam ro |
-| "Tai lieu tham khao" | 7 |
+**1a. Full text vao session**
+```
+Ghi: <session-dir>/fs_full.md
+```
+
+**1b. Summary vao session + context**
+Chi doc `fs_full.md` qua tat ca section heading de sinh `summary.md`. Quick scan:
+- Title + subtitle (de xac dinh ticket, version)
+- Dem so heading H1 / H2 / H3
+- Dem so table
+- Dem so trang (tinh tu page break neu co)
+- Trich 1-2 dong tu moi H1 lam one-liner
+- Liet ke cac bang lon (>= 5 cot hoac >= 20 dong) - vi day la noi rat hay mat context
+
+Ghi `summary.md` (1-2 trang) vao session. Trong CONTEXT hien tai, chi load `summary.md` -
+KHONG load `fs_full.md`. Day la ky thuat **observation masking** ap dung cho FS.
+
+**1c. Chunk theo 8 section INTAKE**
+Ap dung pattern **context-decomposition**:
+- Doc `fs_full.md` theo heading, cat thanh 8 file trong `chunks/` (mapping xem Buoc 2).
+- Moi chunk chi load khi can (default KHONG load len context chi moi summary).
+- Trong `summary.md`, ghi "Chi tiet section X: xem `chunks/0X_<ten>.md`".
+
+Lenh mau:
+```bash
+# Tu office_to_md.py sinh markdown -> in/<ticket>/fs_full.md
+python reference/scripts/office_to_md.py
+# Copy vao session
+New-Item -ItemType Directory -Path "<session-dir>" -Force
+Copy-Item "in/<ticket>/fs_full.md" -Destination "<session-dir>/fs_full.md"
+```
+
+### Buoc 2: Phan loai noi dung vao 8 section INTAKE (tu summary + chunks)
+
+Doc summary + load chunks tu `chunks/` theo nhu cau. Phan loai vao cau truc INTAKE.md chuan
+(xem mau ben duoi). Cac tieu de FS thuong gap va mapping tuong ung:
+
+| Tieu de thuong gap trong FS | Section INTAKE | Chunk file tuong ung |
+|---|---|---|
+| "Thong tin tai lieu" | 1 | `01_thong_tin_tai_lieu.md` |
+| "Quan ly thay doi" | 2 | `02_quan_ly_thay_doi.md` |
+| "Pham vi tai lieu" | 3.1 | `03_pham_vi_thuat_ngu.md` |
+| "Thuat ngu" | 3.2 | `03_pham_vi_thuat_ngu.md` |
+| "Muc dich" | 4.1 | `04_mo_ta_chung.md` |
+| "Cac qui dinh chung" | 4.2 | `04_mo_ta_chung.md` |
+| "Man hinh chuc nang / Mau bao cao" | 5.1 | `05_yeu_cau_nghiep_vu.md` |
+| "Mo ta tham so" | 5.2 | `05_yeu_cau_nghiep_vu.md` |
+| "Man hinh trung gian" | 5.3 | `05_yeu_cau_nghiep_vu.md` |
+| "Mo ta cac truong" | 5.4 | `05_yeu_cau_nghiep_vu.md` |
+| "Tieu chi sap xep" | 5.5 | `05_yeu_cau_nghiep_vu.md` |
+| "Yeu cau khac" | 5.6 | `05_yeu_cau_nghiep_vu.md` |
+| (phat hien khi doc) | 6 - Cau hoi can lam ro | `06_edge_cases_questions.md` |
+| "Tai lieu tham khao" | 7 | `07_tai_lieu_tham_khao.md` |
+
+QUY TAC TAI SUC: section 5 (Yeu cau nghiep vu chi tiet) thuong chiem 50-70% tong FS. KHONG
+load full section 5 vao context 1 lan - dung `chunks/05_yeu_cau_nghiep_vu.md` lam reference, doc
+theo bang can thiet (5.1, 5.2, ...).
 
 ### Buoc 3: Nhan dien phan he & danh dau nguon du lieu
 
@@ -73,7 +127,7 @@ thuong gap va mapping tuong ung:
 
 ### Buoc 4: Phat hien inconsistency & danh dau ambiguous
 
-- So sanh section 5.2 (tham so) voi 5.3 (man hinh trung gian) — co khop khong.
+- So sanh section 5.2 (tham so) voi 5.3 (man hinh trung gian) - co khop khong.
 - Field khong co "Nguon" -> ghi vao section 6.
 - Logic phuc tap (goi API ngoai, sequence dac biet, tich hop he thong khac) -> ghi vao section 6.
 
@@ -89,13 +143,22 @@ Ghi 1 cau ly do tai sao chon muc do.
 
 ### Buoc 6: Ghi file INTAKE.md
 
-Output mac dinh: `out/<ten-ticket>/INTAKE.md` (tao thu muc neu chua co). Bao user: "Da tao INTAKE.md
-tai `<path>`. Vui long review muc 6 (cau hoi can lam ro) truoc khi tiep tuc."
+Output: ghi `<session-dir>/intake.md` (VA copy ra `out/<ticket>/INTAKE.md` neu can tinh nhat
+quan voi pipeline cu). Bao user: "Da tao INTAKE.md tai `<path>`. Vui long review muc 6 (cau hoi
+can lam ro) truoc khi tiep tuc."
+
+### Buoc 7: Cleanup session
+
+- `fs_full.md` chi giu trong session local, KHONG commit len repo public (bi mat noi dung FS).
+- Ghi vao `LEARNING_PROGRESS.md` (skill `sap-daily-learner`): so chunk da tao, co hay khong
+  summary bi thieu so voi full.
+- Sau khi pipeline xong (INTAKE -> TECHNICAL_SPEC -> scaffold -> review -> test), co the
+  cleanup `fs_full.md` de tiet kiem disk (giai doan sau chi can `intake.md`).
 
 ## Template INTAKE.md
 
 ```markdown
-# INTAKE — <Ten du an/ticket> / <Ten chuc nang> / v<phien ban>
+# INTAKE - <Ten du an/ticket> / <Ten chuc nang> / v<phien ban>
 
 ## 1. Thong tin tai lieu
 - Ten du an / ticket: ...
@@ -145,13 +208,16 @@ tai `<path>`. Vui long review muc 6 (cau hoi can lam ro) truoc khi tiep tuc."
 
 ## Quy tac quan trong
 
-1. **Khong bia field** neu FS khong noi ro — ghi vao section 6.
+1. **Khong bia field** neu FS khong noi ro - ghi vao section 6.
 2. **Giu nguyen text goc** trong glossary, muc dich, yeu cau khac.
-3. **Moi field phai co "Nguon"** — day la input quan trong nhat cho buoc sau tim CDS/API.
-4. **Muc rui ro phai co ly do** — 1 cau giai thich.
+3. **Moi field phai co "Nguon"** - day la input quan trong nhat cho buoc sau tim CDS/API.
+4. **Muc rui ro phai co ly do** - 1 cau giai thich.
+5. **KHONG load full FS vao context** - chi load `summary.md`, doc chunks theo nhu cau
+   (ky thuat observation masking + context decomposition).
+6. **KHONG commit `fs_full.md` len repo** - luu trong session local, cleanup sau pipeline.
 
 ## Luu y
 
-- ⚠️ Neu file FS co nhieu anh chup man hinh la noi dung chinh (khong co bang mo ta di kem) — bao
+- ⚠️ Neu file FS co nhieu anh chup man hinh la noi dung chinh (khong co bang mo ta di kem) - bao
   user phan do co the mat ngu canh khi convert (xem `sap-doc-to-md`).
 - 🔗 Sau khi co INTAKE.md, buoc tiep theo la skill `sap-write-technical-spec`.

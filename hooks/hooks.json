@@ -1,12 +1,48 @@
 {
   "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup|clear|compact",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "f=\"${CLAUDE_PLUGIN_ROOT}/skills/sap-routing-discipline/SKILL.md\"; [ -f \"$f\" ] || exit 0; sed -n '/^---$/,/^---$/!p' \"$f\" | python -c \"import sys, json; print(json.dumps({'hookSpecificOutput': {'hookEventName': 'SessionStart', 'additionalContext': sys.stdin.read()}}))\"",
+            "async": false
+          }
+        ]
+      }
+    ],
     "PostToolUse": [
       {
         "matcher": "Edit|Write",
         "hooks": [
           {
             "type": "command",
-            "command": "file=$(jq -r '.tool_input.file_path // empty'); if [ -n \"$file\" ] && [[ \"$file\" == *.abap ]] && grep -nE 'SELECT[[:space:]]+\\*' \"$file\" >/dev/null 2>&1; then echo \"[sap-abap-agent] SELECT * found in $file - prefer explicit field lists.\" >&2; fi; exit 0"
+            "command": "file=$(python -c \"import sys, json; print(json.load(sys.stdin).get('tool_input', {}).get('file_path', '') or '')\"); if [ -n \"$file\" ] && [[ \"$file\" == *.abap ]] && grep -nE 'SELECT[[:space:]]+\\*' \"$file\" >/dev/null 2>&1; then echo \"[sap-abap-agent] SELECT * found in $file - prefer explicit field lists.\" >&2; fi; exit 0"
+          },
+          {
+            "type": "command",
+            "command": "python \"${CLAUDE_PLUGIN_ROOT}/hooks/verify_nudge.py\" mark-edit"
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"${CLAUDE_PLUGIN_ROOT}/hooks/verify_nudge.py\" mark-verified"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"${CLAUDE_PLUGIN_ROOT}/hooks/verify_nudge.py\" check-stop",
+            "async": false
           }
         ]
       }

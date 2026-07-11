@@ -61,11 +61,29 @@ Template co san (copy roi thay `<OBJECT>`/`<Object>`/`<Field...>`): `reference/t
 
 Lay: danh sach object can tao, pseudo code behavior definition, test plan.
 
-### Buoc 2-9: Generate tung layer
+### Buoc 2-9: Generate tung layer — sinh xong 1 buoc, verify roi moi sang buoc sau
 
-Theo dung thu tu I -> R (behavior) -> C (behavior) -> ZBP -> DCL -> Service, dung template trong
-`reference/templates/rap-boilerplate/managed/` lam khung. Xem chi tiet cu phap tung layer trong
-skill `sap-clean-code` (muc CDS View — 5 layer VDM) va vi du duoi day.
+KHONG sinh het toan bo file roi moi activate 1 lan cuoi — loi activation thuong do object sau
+phu thuoc object truoc (vd behavior can CDS I da activate duoc), dong het lai kho biet loi nam
+o dau. Sinh + activate + xac nhan tung buoc theo thu tu:
+
+| # | Sinh object | Activate + xac nhan (ADT) truoc khi qua buoc sau |
+|---|---|---|
+| 2 | Table (`ztb_*`) | Activate table, xac nhan field/key dung TECHNICAL_SPEC |
+| 3 | CDS Interface (I) | Activate, xac nhan field expose dung tu VDM nguon |
+| 4 | CDS Reuse/Consumption (R/C) | Activate, xac nhan association/annotation |
+| 5 | Behavior Definition (R) | Activate — day la buoc hay fail nhat neu `numbering`/field control sai (xem Gotcha #2-3) |
+| 6 | Behavior Implementation (ZBP) | Activate class, xac nhan method stub dung tu behavior |
+| 7 | Behavior Definition (C, projection) | Activate — xac nhan alias/association khop projection (Gotcha #7) |
+| 8 | DCL (R + C) | Activate, xac nhan rule/inheriting dung |
+| 9 | Service Definition/Binding | Publish, xac nhan preview mo duoc trong Fiori Elements |
+
+Neu 1 buoc activate fail: DUNG, doc dung thong bao loi ADT (khong doan), sua, activate lai —
+roi moi sang buoc ke tiep. Ap dung skill `sap-verification-before-completion`: "activate duoc"
+phai la ket qua that trong ADT, khong phai "code nhin dung syntax".
+
+Dung template trong `reference/templates/rap-boilerplate/managed/` lam khung cho tung layer. Xem
+chi tiet cu phap trong skill `sap-clean-code` (muc CDS View — 5 layer VDM) va vi du duoi day.
 
 **R behavior (managed, bat buoc `strict ( 2 )`):**
 ```abap
@@ -144,8 +162,8 @@ PDF/version cho 1 BO -> them field `version` vao table.
 
 ### Buoc 10: Bao user
 
-Liet ke file da tao, nhac import vao Eclipse ADT, nhac chay `/sap-atc-review`, nhac tao transport
-request, nhac chay `/sap-unit-test`.
+Liet ke file da tao + xac nhan da activate tung buoc (Buoc 2-9). Nhac chay `sap-atc-review`, tao
+transport request, chay `sap-unit-test`, roi `sap-finish-ticket` de dong ticket.
 
 ## Quy tac bat buoc
 
@@ -240,4 +258,5 @@ outbound), hoac dung background job + `COMMIT ENTITIES ... RESPONSE OF` o class 
 - `reference/templates/rap-boilerplate/managed/` — template 3-layer day du.
 - Skill `sap-clean-code` — quy uoc dat ten, VDM layer.
 - Skill `sap-extensibility` — decision tree managed/unmanaged/side-by-side.
-- Buoc tiep theo: `sap-atc-review`, `sap-unit-test`.
+- Buoc tiep theo: `sap-atc-review`, `sap-unit-test`, `sap-finish-ticket`.
+- Loi runtime kho hieu sau khi activate -> skill `sap-systematic-debugging`.

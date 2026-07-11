@@ -1,6 +1,6 @@
 ﻿# SAP ABAP Agent (tieng Viet)
 
-[![Version](https://img.shields.io/badge/version-0.5.0-blue.svg)](CHANGELOG.md) [![Python](https://img.shields.io/badge/Python-3.10+-blue.svg)](https://python.org) [![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE) [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](CODE_OF_CONDUCT.md) [![Security Policy](https://img.shields.io/badge/Security-View_Policy-blue.svg)](SECURITY.md) [![Changelog](https://img.shields.io/badge/Changelog-%23ff69b4.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.6.2-blue.svg)](CHANGELOG.md) [![Python](https://img.shields.io/badge/Python-3.10+-blue.svg)](https://python.org) [![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE) [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](CODE_OF_CONDUCT.md) [![Security Policy](https://img.shields.io/badge/Security-View_Policy-blue.svg)](SECURITY.md) [![Changelog](https://img.shields.io/badge/Changelog-%23ff69b4.svg)](CHANGELOG.md)
 
 Plugin Claude Code + MCP server tu dong ket noi **SAP BTP / S/4HANA Cloud** de thao tac
 ABAP (doc / tim / syntax-check / activate). Ho tro **multi-profile** -- moi project SAP
@@ -14,6 +14,12 @@ co profile rieng (URL, tenant, secret), luu trong **folder user** tren may
 - **🔌 SAP BTP Connection**: `sap-btp-agent` — ket noi S/4HANA Cloud, doc/activate ABAP, multi-profile.
 - **📚 CDS Knowledge Base**: Tra cuu 7,355 CDS views released qua semantic search.
 - **📖 SAP Docs Research**: Tra cuu SAP Help, Community, API Hub, Fiori App Library.
+- **🔒 Process Discipline**: SessionStart hook ep routing truoc khi tra loi,
+  verification-before-completion, systematic-debugging, finish-ticket checklist — chan lai kieu
+  loi "code doc on nhung chua chay that".
+- **🧠 Context Engineering** (v0.6.2): trim MCP output (observation masking),
+  scaffold summary giua cac layer, 2-layer module routing (CORE+DEEP), 3-tier memory
+  cho daily-learner — lay pattern tu agent-skills-for-context-engineering.
 
 ## Dong gop
 
@@ -48,6 +54,13 @@ sap-abap-agent/
 |   +-- sap-virtual-element/        # Calculated field trong CDS view
 |   +-- sap-atc-review/             # Lint naming/released-API/clean-ABAP (buoc 4)
 |   +-- sap-unit-test/              # Sinh ABAP Unit test class (buoc 5)
+|   +-- sap-finish-ticket/          # Checklist dong ticket - activation/ATC/test/transport (buoc 6)
+|   +-- sap-verification-before-completion/  # Bang chung chay that truoc khi bao "xong"
+|   +-- sap-systematic-debugging/   # Debug runtime co he thong (ST22/SAT/breakpoint)
+|   +-- sap-routing-discipline/     # Bom qua SessionStart hook - ep check routing truoc khi tra loi
+|   +-- sap-context-tool-result-trim/  # Trim/compact MCP tool output (observation masking)
+|   +-- sap-scaffold-context-summary/   # Compact giua cac layer scaffold 3-layer
+|   +-- sap-context-module-routing/     # Pattern 2-layer (CORE+DEEP) cho reference modules
 +-- agents/
 |   +-- abap-reviewer.md       # Review code ABAP Cloud
 |   +-- sap-ask-consultant dispatch toi 18 module consultants:
@@ -70,7 +83,7 @@ sap-abap-agent/
 |   |   +-- sap-gts-consultant-cloud  # Global Trade Services
 |   |   +-- sap-ehs-consultant-cloud  # Environment, Health & Safety
 |   |   +-- sap-docs-researcher       # CDS view & Docs Research
-+-- hooks/                   # Canh bao SELECT *
++-- hooks/                   # Canh bao SELECT * (PostToolUse) + routing discipline (SessionStart)
 +-- reference/
     +-- modules/             # Kien thuc module cho tung consultant
     |   +-- sap-[module]-cloud/SKILL.md
@@ -392,8 +405,8 @@ consultants + 1 researcher + 1 daily learner** bang co che **keyword scoring + p
 
 ## 🏗️ Codegen Pipeline (Function Spec -> ABAP code)
 
-7 skill noi tiep nhau, bien Function Spec (`.docx` khach hang gui) thanh code ABAP scaffold theo
-chuan RAP/CDS. File trung gian dat trong `in/`/`out/` — **thu muc local per-user, KHONG nam trong
+8 skill noi tiep nhau, bien Function Spec (`.docx` khach hang gui) thanh code ABAP da activate,
+review, test va san sang release, theo chuan RAP/CDS. File trung gian dat trong `in/`/`out/` — **thu muc local per-user, KHONG nam trong
 git repo**: `%USERPROFILE%\.sap-btp-agent\in\` + `...\out\` (Windows) hoac `~/.sap-btp-agent/in/` +
 `.../out/` (macOS/Linux), cung noi luu profile/secrets ket noi SAP BTP (xem muc "Cau hinh folder").
 Ly do: tai lieu FS va output sinh ra la du lieu nghiep vu/khach hang, khong nen nam chung voi
@@ -419,12 +432,20 @@ cp /path/to/FS_xxx.docx "$(python -c 'from sap_btp_agent.config.paths import get
 
 # 5. Sinh ABAP Unit test
 # -> skill sap-unit-test
+
+# 6. Checklist dong ticket (activation/ATC/test/transport/abapGit)
+# -> skill sap-finish-ticket -> out/<ticket>/FINISH_CHECKLIST.md
 ```
 
 Skill phu tro: `sap-virtual-element` (calculated field trong CDS). Quy uoc dat ten & bac thang
 extensibility dung chung voi `sap-clean-code` / `sap-extensibility`. Khi can tim CDS view/API
 chuan cho 1 phan he cu the (buoc 2), hoi agent consultant tuong ung (`sap-fi-consultant-cloud`,
 `sap-mm-consultant-cloud`...) hoac `sap-docs-researcher`.
+
+Ky luat xuyen suot (khong phai buoc rieng, ap dung moi luc trong pipeline): `sap-routing-discipline`
+(luon check routing truoc khi tra loi — bom tu dong qua SessionStart hook),
+`sap-verification-before-completion` (bang chung chay that truoc khi bao "xong"),
+`sap-systematic-debugging` (khi co bug runtime, thay vi doan-sua-lap-lai).
 
 ## Test local
 
@@ -455,5 +476,5 @@ Trong Claude:
 
 ## Trang thai
 
-v0.5.0 -- **20 agents (18 modules + 1 researcher + 1 daily learner)** voi auto-scoring routing engine,
+v0.6.2 -- **20 agents (18 modules + 1 researcher + 1 daily learner)** voi auto-scoring routing engine,
 CDS KB, SAP Docs Research, ABAP Cloud clean code, extensibility, key user toolkit, Hermes-like self-improving learning.
