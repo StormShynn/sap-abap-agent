@@ -31,3 +31,7 @@ skills/sap-user-skills/*
 # Env / secrets (duoc ma hoa nhung can than)
 .env
 .env.local
+
+# Other
+in/
+out/

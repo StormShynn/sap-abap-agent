@@ -624,6 +624,8 @@
       line-height: 1.8;
       margin: 12px 0 18px;
       color: var(--text-dim);
+      white-space: pre;
+      overflow-x: auto;
     }
     .tree .dir { color: var(--cyan); }
     .tree .file { color: var(--text-dim); }
@@ -760,7 +762,20 @@
     <div class="nav-section">Consultant System</div>
     <a class="nav-link" href="#consultant-system"><span class="nav-icon">🧠</span> 19 module consultants</a>
     <a class="nav-link" href="#consultant-routing"><span class="nav-icon">🔀</span> Auto-scoring routing</a>
+    <a class="nav-link" href="#agent-directory"><span class="nav-icon">📇</span> Chi tiết từng Agent</a>
     <a class="nav-link" href="#daily-learner"><span class="nav-icon">📚</span> Học SAP mỗi ngày</a>
+
+    <div class="nav-section">Skills khác</div>
+    <a class="nav-link" href="#skill-cds-kb"><span class="nav-icon">📚</span> CDS Knowledge Base</a>
+    <a class="nav-link" href="#skill-docs-research"><span class="nav-icon">📖</span> SAP Docs Research</a>
+    <a class="nav-link" href="#skill-clean-code"><span class="nav-icon">🧹</span> Clean Code & Naming</a>
+    <a class="nav-link" href="#skill-extensibility"><span class="nav-icon">🧩</span> Extensibility Ladder</a>
+    <a class="nav-link" href="#skill-key-user-toolkit"><span class="nav-icon">🛠️</span> Key User Toolkit</a>
+    <a class="nav-link" href="#skill-btp-setup"><span class="nav-icon">🔌</span> BTP Setup Helper</a>
+    <a class="nav-link" href="#skill-doc-to-md"><span class="nav-icon">📄</span> Doc → Markdown</a>
+
+    <div class="nav-section">Codegen Pipeline</div>
+    <a class="nav-link" href="#codegen-pipeline"><span class="nav-icon">🏗️</span> FS.docx → ABAP code</a>
 
     <div class="nav-section">Hướng dẫn</div>
     <a class="nav-link" href="#architecture"><span class="nav-icon">🏗️</span> Kiến trúc hệ thống</a>
@@ -1663,6 +1678,143 @@ sap-btp-agent setup https://project1.s4hana.cloud.sap
       </div>
     </section>
 
+    <div class="divider"></div>
+
+    <!-- ===== AGENT DIRECTORY SECTION ===== -->
+    <section id="agent-directory">
+      <h2><span class="section-icon">📇</span> Chi tiết từng Agent (21 files)</h2>
+      <p>18 module consultants + 1 docs researcher + 1 daily learner (được <code>sap-ask-consultant</code> tự động dispatch) + 1 abap-reviewer (gọi thủ công). Mỗi agent đều <strong>chỉ tư vấn/review — không tự sửa code</strong> (không có quyền Write/Edit), chạy trên model <code>sonnet</code>.</p>
+
+      <div class="features-grid">
+        <div class="feature-card">
+          <span class="fc-icon">🛒</span>
+          <h4>SD — Sales &amp; Distribution</h4>
+          <p><code>sap-sd-consultant-cloud</code></p>
+          <p>Tư vấn order-to-cash: sales order, pricing, availability check, delivery, billing, credit management. Luôn chỉ rõ SSCUI/Fiori app cụ thể và đúng bậc thang extensibility khi cần mở rộng.</p>
+        </div>
+        <div class="feature-card">
+          <span class="fc-icon">💰</span>
+          <h4>FI — Financial Accounting</h4>
+          <p><code>sap-fi-consultant-cloud</code></p>
+          <p>Tư vấn General Ledger (Universal Journal/ACDOCA), Accounts Payable/Receivable, Asset Accounting. Cân nhắc tác động đóng sổ kỳ/năm khi câu hỏi liên quan closing.</p>
+        </div>
+        <div class="feature-card">
+          <span class="fc-icon">📦</span>
+          <h4>MM — Materials Management</h4>
+          <p><code>sap-mm-consultant-cloud</code></p>
+          <p>Tư vấn procurement (purchase order, requisition, sourcing, contract), inventory management, material master, valuation (standard/moving average price, material ledger).</p>
+        </div>
+        <div class="feature-card">
+          <span class="fc-icon">📊</span>
+          <h4>CO — Controlling</h4>
+          <p><code>sap-co-consultant-cloud</code></p>
+          <p>Cost center accounting, product costing, profitability analysis (CO-PA trên Universal Journal), phân bổ chi phí. <strong>Lưu ý:</strong> Internal Orders không hỗ trợ đầy đủ trên Public Cloud (thường thay bằng WBS/PS); chỉ có Account-based CO-PA.</p>
+        </div>
+        <div class="feature-card">
+          <span class="fc-icon">🏭</span>
+          <h4>PP — Production Planning</h4>
+          <p><code>sap-pp-consultant-cloud</code></p>
+          <p>Production order, MRP (<strong>MRP Live</strong>, không phải classic MRP), BOM, routing, work center, capacity, Repetitive Manufacturing (REM). Phân biệt rõ Discrete vs REM; PP/DS cần thêm BTP + IBP.</p>
+        </div>
+        <div class="feature-card">
+          <span class="fc-icon">✅</span>
+          <h4>QM — Quality Management</h4>
+          <p><code>sap-qm-consultant-cloud</code></p>
+          <p>Quality inspection (inspection lot, result recording, usage decision), inspection plan, certificate, non-conformance. Inspection lot thường tự tạo từ GR/production confirmation; phạm vi QM hẹp hơn on-premise.</p>
+        </div>
+        <div class="feature-card">
+          <span class="fc-icon">🔧</span>
+          <h4>PM — Plant Maintenance</h4>
+          <p><code>sap-pm-consultant-cloud</code></p>
+          <p>Maintenance order, notification, equipment, functional location, maintenance plan. Phân biệt corrective (sự cố → notification + order) vs preventive (định kỳ → plan); tích hợp MM/PP/FI.</p>
+        </div>
+        <div class="feature-card">
+          <span class="fc-icon">🏬</span>
+          <h4>WM — Warehouse Management</h4>
+          <p><code>sap-wm-consultant-cloud</code></p>
+          <p>Warehouse structure, stock placement/removal, transfer order, cycle counting. Public Cloud khuyến dùng <strong>Embedded EWM</strong> (scope BK9) thay vì LE-WM cổ điển.</p>
+        </div>
+        <div class="feature-card">
+          <span class="fc-icon">📋</span>
+          <h4>PS — Project Systems</h4>
+          <p><code>sap-ps-consultant-cloud</code></p>
+          <p>Project, WBS element, network, milestone, project budget, resource-related billing (RRB), settlement. Phạm vi hẹp hơn on-premise — Internal Order không đầy đủ, dùng WBS thay thế.</p>
+        </div>
+        <div class="feature-card">
+          <span class="fc-icon">👥</span>
+          <h4>HCM — Human Capital Mgmt</h4>
+          <p><code>sap-hcm-consultant-cloud</code></p>
+          <p>Personnel admin, organizational management, time management, payroll cơ bản. <strong>Quan trọng:</strong> phân biệt rõ S/4HANA HCM core (PA/OM/time) vs SuccessFactors (talent/recruiting/performance) — 2 hệ thống khác nhau.</p>
+        </div>
+        <div class="feature-card">
+          <span class="fc-icon">📈</span>
+          <h4>BW — Analytics / BW</h4>
+          <p><code>sap-bw-consultant-cloud</code></p>
+          <p>3 mức độ analytics: Embedded Analytics (CDS query) → SAP Analytics Cloud (SAC) → BW/4HANA side-by-side. Luôn ưu tiên embedded analytics trước, chỉ đề xuất SAC/BW khi cần.</p>
+        </div>
+        <div class="feature-card">
+          <span class="fc-icon">⚙️</span>
+          <h4>Basis — Technical Admin</h4>
+          <p><code>sap-basis-consultant-cloud</code></p>
+          <p>User &amp; role (Business User/Role), transport (Software Collection), job scheduling, monitoring, certificate. Basis Cloud khác hoàn toàn on-premise — kernel update/DB backup/STMS do SAP tự làm.</p>
+        </div>
+        <div class="feature-card">
+          <span class="fc-icon">🚚</span>
+          <h4>TM — Transportation Mgmt</h4>
+          <p><code>sap-tm-consultant-cloud</code></p>
+          <p>Freight order, carrier selection, freight charge calculation/settlement, transportation planning. Phân biệt Embedded TM (scope BPL) vs TM side-by-side trên BTP.</p>
+        </div>
+        <div class="feature-card">
+          <span class="fc-icon">🏦</span>
+          <h4>TR — Treasury &amp; Cash Mgmt</h4>
+          <p><code>sap-tr-consultant-cloud</code></p>
+          <p>Cash management, bank account management, liquidity forecast, payment processing (F110). Nghiệp vụ phức tạp (derivatives, hedge) có phạm vi hẹp trên Public Cloud.</p>
+        </div>
+        <div class="feature-card">
+          <span class="fc-icon">🤝</span>
+          <h4>Ariba — Procurement Collab.</h4>
+          <p><code>sap-ariba-consultant-cloud</code></p>
+          <p>SAP Ariba/Business Network (sourcing, supplier management) và tích hợp S/4HANA qua CPI. <strong>Quan trọng:</strong> Ariba là hệ thống riêng (Java-based, Ariba Admin Console), không phải module trong S/4HANA core.</p>
+        </div>
+        <div class="feature-card">
+          <span class="fc-icon">🔗</span>
+          <h4>CA — Cross-Application</h4>
+          <p><code>sap-ca-consultant-cloud</code></p>
+          <p>Business Partner, Document Management (DMS), Flexible Workflow, Output Management, Archiving/ILM, Number Ranges. Module ngang — luôn kiểm tra có cần dispatch thêm SD/MM/FI không.</p>
+        </div>
+        <div class="feature-card">
+          <span class="fc-icon">🌍</span>
+          <h4>GTS — Global Trade Services</h4>
+          <p><code>sap-gts-consultant-cloud</code></p>
+          <p>Customs management, Sanctioned Party List (SPL), preference processing, embargo control, Intrastat. Thường triển khai side-by-side trên BTP, cấu hình qua GTS cloud chứ không phải SSCUI.</p>
+        </div>
+        <div class="feature-card">
+          <span class="fc-icon">🌿</span>
+          <h4>EHS — Environment, Health &amp; Safety</h4>
+          <p><code>sap-ehs-consultant-cloud</code></p>
+          <p>Product safety (MSDS), hazardous substance management, waste management, industrial hygiene, incident management. Tích hợp chặt với MM (hóa chất), PP, WM (kho hóa chất).</p>
+        </div>
+        <div class="feature-card" style="border-color:var(--cyan);">
+          <span class="fc-icon">🔎</span>
+          <h4>Docs Researcher</h4>
+          <p><code>sap-docs-researcher</code></p>
+          <p>Tra cứu CDS view (7,355 views), SAP Help, SAP Community, Accelerator Hub, Fiori App Library, Clean Core Released Objects, ABAP feature matrix qua 2 MCP server chuyên dụng. Chỉ tra cứu — không tư vấn cấu hình chuyên sâu.</p>
+        </div>
+        <div class="feature-card" style="border-color:var(--purple);">
+          <span class="fc-icon">📚</span>
+          <h4>Daily Learner</h4>
+          <p><code>sap-daily-learner</code></p>
+          <p>Agent tự cải thiện (self-improving) lấy cảm hứng từ Hermes Agent — gia sư SAP hàng ngày + tự tạo skill document từ tương tác phức tạp. Xem chi tiết ở mục <a href="#daily-learner">Học SAP mỗi ngày</a> bên dưới.</p>
+        </div>
+        <div class="feature-card" style="border-color:var(--green);">
+          <span class="fc-icon">🕵️</span>
+          <h4>ABAP Reviewer</h4>
+          <p><code>abap-reviewer</code> · gọi thủ công</p>
+          <p>Review code ABAP theo chuẩn ABAP Cloud: kiểm tra <strong>cả 2 tầng</strong> — đặt tên/clean code (namespace Z/Y, bỏ Hungarian notation) VÀ kiến trúc/extensibility (cú pháp bị cấm, released API). Chỉ review, không tự sửa hay tạo code mới.</p>
+        </div>
+      </div>
+    </section>
+
     <!-- ===== DAILY LEARNER SECTION ===== -->
     <section id="daily-learner">
       <h2><span class="section-icon">📚</span> Học SAP mỗi ngày — Hermes-like Agent</h2>
@@ -1726,6 +1878,302 @@ sap-btp-agent setup https://project1.s4hana.cloud.sap
 
     <div class="divider"></div>
 
+    <!-- ===== SKILL: CDS KB ===== -->
+    <section id="skill-cds-kb">
+      <h2><span class="section-icon">📚</span> CDS Knowledge Base (cds-kb-mcp)</h2>
+      <p><strong>skills/sap-cds-kb/SKILL.md</strong> — Tra cứu <strong>7,355 CDS views</strong> released cho SAP S/4HANA Cloud Public Edition qua MCP server <code>cds-kb-mcp</code> (host remote, không cần cài local).</p>
+
+      <h3>5 tools</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Tool</th><th>Dùng khi</th><th>Ví dụ</th></tr></thead>
+          <tbody>
+            <tr><td><code>search_cds</code></td><td>Tìm CDS view theo business meaning/từ khóa SAP</td><td><code>search_cds({ query: "overdue invoices", module: "FI" })</code></td></tr>
+            <tr><td><code>get_cds_view</code></td><td>Lấy definition đầy đủ 1 view (metadata/fields/associations/source)</td><td><code>get_cds_view({ name: "I_SalesDocument" })</code></td></tr>
+            <tr><td><code>get_views_by_tag</code></td><td>Liệt kê view theo tag (bo:/lob:/module:) khi cần danh sách xác định</td><td><code>get_views_by_tag({ tag: "bo:salesorder" })</code></td></tr>
+            <tr><td><code>get_taxonomy</code></td><td>Khám phá bản đồ 12 Lines of Business → 829 Business Objects</td><td><code>get_taxonomy()</code></td></tr>
+            <tr><td><code>kb_info</code></td><td>Kiểm tra bản build, số view, nguồn dữ liệu KB</td><td><code>kb_info()</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Module aliasing (dùng tên tự nhiên thay vì code SAP)</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Code</th><th>Tên tự nhiên</th></tr></thead>
+          <tbody>
+            <tr><td>FI</td><td>Finance</td></tr>
+            <tr><td>SD</td><td>Sales</td></tr>
+            <tr><td>MM</td><td>Procurement</td></tr>
+            <tr><td>PP</td><td>Production</td></tr>
+            <tr><td>HR</td><td>Workforce</td></tr>
+            <tr><td>WM</td><td>Logistics</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>💡 <strong>Lưu ý:</strong> CDS view <em>không phải</em> released API — chỉ là định nghĩa view. Luôn kiểm tra thêm trên <code>api.sap.com</code> nếu cần xác nhận 1 view có được phép dùng trong ABAP Cloud hay không. Dữ liệu được cache local (ETag-based), có thể out-of-date so với release mới nhất.</p>
+    </section>
+
+    <!-- ===== SKILL: DOCS RESEARCH ===== -->
+    <section id="skill-docs-research">
+      <h2><span class="section-icon">📖</span> SAP Docs Research (mcp-sap-docs)</h2>
+      <p><strong>skills/sap-docs-research/SKILL.md</strong> — Tra cứu tài liệu SAP tổng hợp qua MCP server <code>mcp-sap-docs-btp</code>: SAP Help, SAP Community, Accelerator Hub, Fiori App Reference Library, Clean Core Released Objects, ABAP feature matrix.</p>
+
+      <div class="features-grid">
+        <div class="feature-card">
+          <span class="fc-icon">🔍</span>
+          <h4>search / fetch</h4>
+          <p>Tra cứu SAP Help Portal + offline docs (BM25 + semantic embeddings), rồi lấy chi tiết 1 document theo path.</p>
+        </div>
+        <div class="feature-card">
+          <span class="fc-icon">💬</span>
+          <h4>sap_community_search</h4>
+          <p>Tìm SAP Community Q&amp;A/blog cho lỗi thực tế hoặc SAP Note.</p>
+        </div>
+        <div class="feature-card">
+          <span class="fc-icon">✅</span>
+          <h4>sap_search_objects</h4>
+          <p>Kiểm tra 1 class/interface/CDS view có được release cho ABAP Cloud không (Clean Core).</p>
+        </div>
+        <div class="feature-card">
+          <span class="fc-icon">🧬</span>
+          <h4>abap_feature_matrix</h4>
+          <p>Kiểm tra 1 statement/feature ABAP hỗ trợ từ version nào (7.40/7.50/7.54...).</p>
+        </div>
+        <div class="feature-card">
+          <span class="fc-icon">🌐</span>
+          <h4>sap_accelerator_hub_*</h4>
+          <p>Khám phá API/OData/SOAP/REST trên SAP API Business Hub.</p>
+        </div>
+        <div class="feature-card">
+          <span class="fc-icon">📱</span>
+          <h4>sap_fiori_library_*</h4>
+          <p>Tra cứu Fiori app chuẩn — app ID, tile, semantic object, OData dependency.</p>
+        </div>
+      </div>
+
+      <p>💡 <strong>Lưu ý:</strong> <code>SAP-API-HUB-KEY</code> không bắt buộc (thiếu thì chỉ giới hạn <code>sap_accelerator_hub_*</code>). Offline docs có thể không phản ánh release mới nhất (SAP ra 4 bản/năm). <code>sap_search_objects</code> chỉ trả về released objects — không xuất hiện nghĩa là chưa release cho ABAP Cloud.</p>
+    </section>
+
+    <!-- ===== SKILL: CLEAN CODE ===== -->
+    <section id="skill-clean-code">
+      <h2><span class="section-icon">🧹</span> Clean Code &amp; Name Conversion</h2>
+      <p><strong>skills/sap-clean-code/SKILL.md</strong> — Naming conventions &amp; clean code cho ABAP Cloud (Public Cloud), kèm hướng dẫn chuyển đổi từ legacy ABAP.</p>
+
+      <h3>Quy tắc bắt buộc</h3>
+      <ul>
+        <li>Mọi development object customer tạo <strong>bắt buộc</strong> bắt đầu bằng <code>Z</code>/<code>Y</code> (hoặc namespace <code>/prefix/</code> đã đăng ký với SAP).</li>
+        <li>Giới hạn <strong>30 ký tự</strong> cho mọi development object (class, CDS view, data element...).</li>
+        <li>ABAP chỉ hỗ trợ ASCII — không dùng tiếng Việt có dấu trong tên.</li>
+        <li><strong>Bỏ Hungarian notation</strong> hoàn toàn (thay đổi lớn nhất so với legacy ABAP).</li>
+      </ul>
+
+      <h3>Bỏ Hungarian notation</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Tiền tố</th><th>Legacy</th><th>ABAP Cloud</th></tr></thead>
+          <tbody>
+            <tr><td>Local variable</td><td><code>lv_name</code></td><td><code>name</code></td></tr>
+            <tr><td>Structure</td><td><code>ls_address</code></td><td><code>address</code></td></tr>
+            <tr><td>Table</td><td><code>lt_users</code></td><td><code>users</code> (số nhiều)</td></tr>
+            <tr><td>Import param</td><td><code>iv_matnr</code></td><td><code>material_number</code></td></tr>
+            <tr><td>Returning param</td><td><code>rv_result</code></td><td><code>result</code></td></tr>
+            <tr><td>Field symbol</td><td><code>&lt;fs_entry&gt;</code></td><td><code>&lt;entry&gt;</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>CDS View — 5 layer VDM (Virtual Data Model)</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Layer</th><th>Prefix</th><th>Vai trò</th></tr></thead>
+          <tbody>
+            <tr><td>Interface View</td><td><code>Z_I_</code></td><td>Đọc trực tiếp từ database table — single source of truth</td></tr>
+            <tr><td>Consumption View</td><td><code>Z_C_</code></td><td>Build trên Interface View, tối ưu cho OData/Fiori/analytics</td></tr>
+            <tr><td>Extension View</td><td><code>Z_X_</code></td><td>Thêm field/logic vào standard SAP view</td></tr>
+            <tr><td>Projection View</td><td><code>Z_P_</code></td><td>Giới hạn field/association cho 1 BO context (RAP)</td></tr>
+            <tr><td>Abstract Entity</td><td><code>Z_A_</code></td><td>Không map database — kiểu dữ liệu cho RAP actions/functions</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Released API — quy tắc bắt buộc (Clean Core)</h3>
+      <p>ABAP Cloud <strong>không thể</strong> gọi trực tiếp unreleased API — trình biên dịch sẽ báo lỗi. Kiểm tra API State trong ADT (🟢 Released / 🟡 Deprecated / 🔴 Unreleased) trước khi dùng bất kỳ class/BAPI/function module nào. Nếu bắt buộc phải dùng unreleased API, tạo <strong>wrapper class</strong> đánh dấu <code>@deprecated</code> thay vì gọi trực tiếp.</p>
+    </section>
+
+    <!-- ===== SKILL: EXTENSIBILITY ===== -->
+    <section id="skill-extensibility">
+      <h2><span class="section-icon">🧩</span> Extensibility Ladder &amp; ABAP Cloud Constraints</h2>
+      <p><strong>skills/sap-extensibility/SKILL.md</strong> — Xác định nên đặt custom logic ở đâu (SSCUI/Key User/side-by-side BTP) và ràng buộc cú pháp ABAP Cloud.</p>
+
+      <h3>4 bậc thang Extensibility (luôn đánh giá từ trên xuống)</h3>
+      <ol>
+        <li><strong>Cấu hình chuẩn qua SSCUI</strong> — chỉ là 1 switch/setting SAP có sẵn.</li>
+        <li><strong>Key User Extensibility (in-app, không cần dev)</strong> — Custom Fields and Logic, Custom Business Objects, Custom Logic (Cloud BAdI), Adaptation Transactions.</li>
+        <li><strong>Developer Extensibility (on-stack)</strong> — chỉ có trên 3-system landscape, vẫn chỉ dùng released API/extension point.</li>
+        <li><strong>Side-by-side trên BTP</strong> — hệ thống/runtime riêng (BTP ABAP Environment/RAP), gọi ngược lại core qua released API.</li>
+      </ol>
+      <p>⚠️ <strong>Nguyên tắc fail-fast:</strong> nếu 1 yêu cầu không khớp bậc nào trong 4 bậc trên — không bịa ra cách làm không tồn tại, nói thẳng là chưa làm được.</p>
+
+      <h3>Cú pháp bị cấm trên ABAP Cloud</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Nhóm</th><th>Không được dùng</th><th>Dùng thay bằng</th></tr></thead>
+          <tbody>
+            <tr><td>Màn hình</td><td>Dynpro (<code>CALL SCREEN</code>...)</td><td>Fiori Elements / RAP</td></tr>
+            <tr><td>DB access</td><td><code>EXEC SQL</code>, <code>SELECT ... CLIENT SPECIFIED</code></td><td>Không có</td></tr>
+            <tr><td>Debug</td><td><code>BREAK-POINT</code></td><td>ADT Debugging</td></tr>
+            <tr><td>Ngày/giờ hệ thống</td><td><code>sy-datum</code>, <code>sy-uzeit</code></td><td><code>cl_abap_context_info=&gt;get_system_date/time( )</code></td></tr>
+            <tr><td>Số học</td><td><code>ADD</code>, <code>SUBTRACT</code>...</td><td><code>+</code>, <code>-</code>, <code>*</code>, <code>/</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>📁 <strong>2-system vs 3-system landscape:</strong> đa số khách hàng Public Cloud là 2-system (chỉ Key User + side-by-side); 3-system có thêm Development tenant → mở khóa Developer Extensibility. Khi không chắc, mặc định giả định 2-system.</p>
+    </section>
+
+    <!-- ===== SKILL: KEY USER TOOLKIT ===== -->
+    <section id="skill-key-user-toolkit">
+      <h2><span class="section-icon">🛠️</span> Key User Toolkit</h2>
+      <p><strong>skills/sap-key-user-toolkit/SKILL.md</strong> — Hướng dẫn thực hành Key User Extensibility (bậc 2 trong thang extensibility) — tự làm không cần developer.</p>
+
+      <h3>4 tác vụ hay gặp nhất</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Tác vụ</th><th>Fiori app</th><th>Mô tả</th></tr></thead>
+          <tbody>
+            <tr><td>Custom Field</td><td>Custom Fields and Logic</td><td>Thêm field vào business object/report/UI chuẩn — giới hạn 30-50 field/BO tùy loại</td></tr>
+            <tr><td>Custom Logic</td><td>Custom Fields and Logic → tab Custom Logic</td><td>Validation (chặn save) / Determination (tự điền giá trị) — cú pháp "ABAP for Key Users" đơn giản hóa</td></tr>
+            <tr><td>Custom Business Object</td><td>Custom Business Objects</td><td>Tạo BO mới hoàn toàn — tự động có OData API CRUD + Fiori UI cơ bản</td></tr>
+            <tr><td>Adaptation Transactions</td><td>Adapt UI</td><td>Ẩn/hiện/đổi nhãn/di chuyển field trên Fiori app có sẵn — không thêm được field/button mới</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Quy trình release (2-system landscape)</h3>
+      <p>Tạo/sửa trên Customizing tenant → test bằng test plan SAP → <strong>Export Software Collection</strong> → <strong>Import Software Collection</strong> vào Production → Activate → verify bằng user thật.</p>
+
+      <p>⚠️ <strong>Lưu ý:</strong> sau khi publish, custom field <strong>không thể xóa</strong>, chỉ có thể tắt qua Usage. Đặt tên nhất quán theo prefix (<code>YY_</code>/<code>Z_</code>) để tránh trùng với extension của team khác trong cùng tenant.</p>
+    </section>
+
+    <!-- ===== SKILL: BTP SETUP ===== -->
+    <section id="skill-btp-setup">
+      <h2><span class="section-icon">🔌</span> SAP BTP Setup Helper (multi-profile)</h2>
+      <p><strong>skills/sap-btp-setup/SKILL.md</strong> — Setup &amp; xử lý sự cố kết nối SAP BTP qua MCP, hỗ trợ nhiều project SAP cùng lúc (multi-profile).</p>
+
+      <p>Thêm project mới chỉ 1 lệnh: <code>sap-btp-agent setup https://project1.s4hana.cloud.sap</code> — wizard tự sinh profile, hỏi phương thức xác thực.</p>
+
+      <h3>4 phương thức xác thực</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>#</th><th>Mode</th><th>Khi nào dùng</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td>OAuth2 (client_credentials)</td><td>Mặc định/khuyến dùng — đã có client_id + client_secret</td></tr>
+            <tr><td>2</td><td>Password</td><td>Có tài khoản SAP đăng nhập trực tiếp</td></tr>
+            <tr><td>3</td><td>Bearer token</td><td>Đã có access token sẵn</td></tr>
+            <tr><td>4</td><td>Cookie-based</td><td>Đã đăng nhập SAP GUI/Fiori/SSO sẵn — tự động re-auth qua browser popup khi hết hạn</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>7 MCP tools</h3>
+      <p><code>sap_list_profiles</code>, <code>sap_ping</code>, <code>sap_list_packages</code>, <code>sap_search</code>, <code>sap_read_source</code>, <code>sap_syntax_check</code>, <code>sap_activate</code> — mỗi tool đều nhận tham số <code>profile</code> (để trống = active).</p>
+
+      <p>💡 <strong>Xử lý sự cố nhanh:</strong> lỗi <code>'sap-btp-agent' is not recognized</code> (Windows, hay gặp nhất) → chạy <code>python -m sap_btp_agent.doctor</code> để tự phát hiện và lấy lệnh fix PATH.</p>
+    </section>
+
+    <!-- ===== SKILL: DOC TO MD ===== -->
+    <section id="skill-doc-to-md">
+      <h2><span class="section-icon">📄</span> Doc to Markdown (Word/Excel → .md)</h2>
+      <p><strong>skills/sap-doc-to-md/SKILL.md</strong> — Convert file Word (.docx)/Excel (.xlsx/.xls) sang Markdown để làm ngữ cảnh cho AI đọc hiểu tài liệu nghiệp vụ (Functional Spec, Business Process...) và hỗ trợ sinh code/logic ABAP.</p>
+
+      <div class="features-grid">
+        <div class="feature-card">
+          <span class="fc-icon">📝</span>
+          <h4>.docx → markitdown CLI</h4>
+          <p>Đơn giản, đủ dùng cho text + bảng: <code>markitdown "in/file.docx" -o "out/file.md"</code>. Ảnh minh họa sẽ không render được (data URI bị cắt bỏ).</p>
+        </div>
+        <div class="feature-card" style="border-color:var(--purple);">
+          <span class="fc-icon">📊</span>
+          <h4>.xlsx/.xls → script riêng</h4>
+          <p><strong>Không dùng markitdown trực tiếp</strong> — đã kiểm chứng markitdown/pandas làm mất số 0 đứng đầu (Material SAP dạng số). Dùng <code>reference/scripts/office_to_md.py</code> (đã fix bằng <code>dtype=str</code>).</p>
+        </div>
+        <div class="feature-card" style="border-color:var(--cyan);">
+          <span class="fc-icon">🖼️</span>
+          <h4>Cần giữ ảnh minh họa?</h4>
+          <p>Cùng dùng <code>reference/scripts/office_to_md.py</code> — trích xuất ảnh thật (kể cả EMF screenshot) ra thư mục <code>&lt;tên-file&gt;_assets/</code> thay vì bị lược bỏ.</p>
+        </div>
+      </div>
+
+      <p>⚠️ <strong>Lưu ý quan trọng:</strong> mã nghiệp vụ SAP (Material, Plant, Order...) thường có số 0 đứng đầu — luôn đối chiếu vài mã sau khi convert Excel để chắc chắn không bị đổi định dạng số.</p>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ===== CODEGEN PIPELINE SECTION ===== -->
+    <section id="codegen-pipeline">
+      <h2><span class="section-icon">🏗️</span> Codegen Pipeline — Function Spec → ABAP code</h2>
+      <p>7 skill nối tiếp nhau, biến 1 file Function Spec (<code>.docx</code> khách hàng gửi) thành code ABAP scaffold theo chuẩn RAP/CDS. File trung gian đặt trong <code>in/</code>/<code>out/</code> — <strong>thư mục local per-user, không nằm trong git repo</strong>: <code>%USERPROFILE%\.sap-btp-agent\in\</code> + <code>...\out\</code> (Windows) hoặc <code>~/.sap-btp-agent/in/</code> + <code>.../out/</code> (macOS/Linux) — cùng nơi lưu profile/secrets kết nối SAP BTP. Lý do: tài liệu FS và output sinh ra là dữ liệu nghiệp vụ/khách hàng, không nên nằm chung với source code plugin.</p>
+
+      <div class="tree" style="line-height:1.9;">
+<span class="dir">┌─────────────────────────────────────────────────────────┐</span>
+<span class="dir">│        📄 FS.docx (Function Spec khách hàng gửi)         │</span>
+<span class="dir">└──────────────────────┬──────────────────────────────────┘</span>
+<span class="branch">                       │</span>
+<span class="dir">                       ▼</span>
+<span class="dir">┌─────────────────────────────────────────────────────────┐</span>
+<span class="dir">│ [0] sap-doc-to-md            → out/&lt;file&gt;.md            │</span>
+<span class="dir">└──────────────────────┬──────────────────────────────────┘</span>
+<span class="branch">                       │</span>
+<span class="dir">                       ▼</span>
+<span class="dir">┌─────────────────────────────────────────────────────────┐</span>
+<span class="dir">│ [1] sap-analyze-function-spec → INTAKE.md                │</span>
+<span class="dir">└──────────────────────┬──────────────────────────────────┘</span>
+<span class="branch">                       │</span>
+<span class="dir">                       ▼</span>
+<span class="dir">┌─────────────────────────────────────────────────────────┐</span>
+<span class="dir">│ [2] sap-write-technical-spec  → TECHNICAL_SPEC.md         │</span>
+<span class="dir">└──────────────────────┬──────────────────────────────────┘</span>
+<span class="branch">              ┌────────┴─────────┐</span>
+<span class="dir">              ▼                  ▼</span>
+<span class="dir">┌────────────────────────┐ ┌────────────────────────┐</span>
+<span class="dir">│ [3a] sap-scaffold-rap  │ │ [3b] sap-scaffold-cds  │</span>
+<span class="dir">│   (có CRUD/RAP)        │ │   (chỉ-read)           │</span>
+<span class="dir">└────────────┬───────────┘ └───────────┬────────────┘</span>
+<span class="branch">             └─────────┬──────────────┘</span>
+<span class="dir">                       ▼</span>
+<span class="dir">┌─────────────────────────────────────────────────────────┐</span>
+<span class="dir">│ [4] sap-atc-review     → ATC_REVIEW.md (naming/API/lint) │</span>
+<span class="dir">└──────────────────────┬──────────────────────────────────┘</span>
+<span class="branch">                       │</span>
+<span class="dir">                       ▼</span>
+<span class="dir">┌─────────────────────────────────────────────────────────┐</span>
+<span class="dir">│ [5] sap-unit-test      → ABAP Unit test class             │</span>
+<span class="dir">└─────────────────────────────────────────────────────────┘</span>
+      </div>
+
+      <h3>Bước nào làm gì</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>#</th><th>Skill</th><th>Input → Output</th><th>Làm gì</th></tr></thead>
+          <tbody>
+            <tr><td>0</td><td><code>sap-doc-to-md</code></td><td>FS.docx → FS.md</td><td>Convert Word sang Markdown (bảng/heading giữ nguyên) để AI đọc được nội dung FS.</td></tr>
+            <tr><td>1</td><td><code>sap-analyze-function-spec</code></td><td>FS.md → INTAKE.md</td><td>Chuẩn hoá yêu cầu thành 8 mục cố định, đánh dấu field thiếu "Nguồn", liệt kê câu hỏi cần làm rõ (mục 6), đánh giá mức rủi ro (Tiny/Normal/High-risk).</td></tr>
+            <tr><td>2</td><td><code>sap-write-technical-spec</code></td><td>INTAKE.md → TECHNICAL_SPEC.md</td><td>Áp decision tree chọn pattern (class thường / 3-layer CDS / RAP managed / RAP unmanaged), tìm CDS-API nguồn qua agent consultant phân hệ, liệt kê object cần tạo + test plan.</td></tr>
+            <tr><td>3a</td><td><code>sap-scaffold-rap</code></td><td>TECHNICAL_SPEC.md → src/ (RAP)</td><td>Sinh skeleton RAP 3-layer (I→R→C) khi pattern cần CRUD — kèm 7 gotcha BDEF đã verify thực tế (comment syntax, field control, numbering UUID, action con...).</td></tr>
+            <tr><td>3b</td><td><code>sap-scaffold-cds</code></td><td>TECHNICAL_SPEC.md → src/ (CDS)</td><td>Sinh CDS view (interface/consumption/MDE) khi pattern chỉ-read — kèm annotation reference + 6 gotcha activate CDS.</td></tr>
+            <tr><td>4</td><td><code>sap-atc-review</code></td><td>src/ → ATC_REVIEW.md</td><td>Lint naming Z*, released API, clean ABAP, test coverage — kèm bảng anti-rationalization (bắt lỗi "cắt góc").</td></tr>
+            <tr><td>5</td><td><code>sap-unit-test</code></td><td>src/ → *.clas.testclasses.abap</td><td>Sinh ABAP Unit test class cho method/action/validation đã scaffold.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>🔗 Skill phụ trợ <code>sap-virtual-element</code> (calculated field trong CDS) dùng bổ sung ở bước 3 khi cần field tính runtime. Quy ước đặt tên & bậc thang extensibility dùng chung với <a href="#skill-clean-code">Clean Code &amp; Naming</a> / <a href="#skill-extensibility">Extensibility Ladder</a>.</p>
+    </section>
+
+    <div class="divider"></div>
+
     <!-- ===== ARCHITECTURE SECTION ===== -->
     <section id="architecture">
       <h2><span class="section-icon">🏗️</span> Kiến trúc hệ thống</h2>
@@ -1767,6 +2215,7 @@ sap-btp-agent setup https://project1.s4hana.cloud.sap
 <span class="dir">│  🧩 sap-extensibility→ Extensibility checklist         │</span>
 <span class="dir">│  🛠️ sap-key-user-toolkit→ Key User handbook          │</span>
 <span class="dir">│  📘 sap-daily-learner→ Hermes-like skill creation      │</span>
+<span class="dir">│  📄 sap-doc-to-md   → Word/Excel → Markdown           │</span>
 <span class="dir">└──────────────────────┬──────────────────────────────────┘</span>
 <span class="branch">                       │</span>
 <span class="branch">                       ▼</span>
@@ -1794,7 +2243,7 @@ sap-btp-agent setup https://project1.s4hana.cloud.sap
 <span class="dir">📦 sap-abap-agent/</span>
 <span class="branch">├──</span> <span class="highlight">.claude-plugin/</span>        <span class="file"> ← Manifest + metadata</span>
 <span class="branch">├──</span> <span class="highlight">agents/</span>                 <span class="file"> ← 20 agent definitions (.md)</span>
-<span class="branch">├──</span> <span class="highlight">skills/</span>                 <span class="file"> ← 8 skill implementations</span>
+<span class="branch">├──</span> <span class="highlight">skills/</span>                 <span class="file"> ← 9 skill implementations</span>
 <span class="branch">│</span>   <span class="branch">├──</span> <span class="highlight">sap-ask-consultant/</span>    <span class="file"> ← Routing engine (20 agents)</span>
 <span class="branch">│</span>   <span class="branch">├──</span> <span class="highlight">sap-btp-setup/</span>         <span class="file"> ← BTP connection manager</span>
 <span class="branch">│</span>   <span class="branch">├──</span> <span class="highlight">sap-cds-kb/</span>            <span class="file"> ← CDS view search (7,355 views)</span>
@@ -1802,7 +2251,8 @@ sap-btp-agent setup https://project1.s4hana.cloud.sap
 <span class="branch">│</span>   <span class="branch">├──</span> <span class="highlight">sap-clean-code/</span>        <span class="file"> ← ABAP Cloud naming rules</span>
 <span class="branch">│</span>   <span class="branch">├──</span> <span class="highlight">sap-extensibility/</span>     <span class="file"> ← Extensibility checklist</span>
 <span class="branch">│</span>   <span class="branch">├──</span> <span class="highlight">sap-key-user-toolkit/</span>  <span class="file"> ← Key User handbook</span>
-<span class="branch">│</span>   <span class="branch">└──</span> <span class="highlight">sap-daily-learner/</span>     <span class="file"> ← Hermes-like skill creation</span>
+<span class="branch">│</span>   <span class="branch">├──</span> <span class="highlight">sap-daily-learner/</span>     <span class="file"> ← Hermes-like skill creation</span>
+<span class="branch">│</span>   <span class="branch">└──</span> <span class="highlight">sap-doc-to-md/</span>         <span class="file"> ← Convert Word/Excel → Markdown</span>
 <span class="branch">├──</span> <span class="highlight">reference/modules/</span>       <span class="file"> ← 19 module knowledge bases</span>
 <span class="branch">├──</span> <span class="highlight">commands/</span>               <span class="file"> ← /sap-connect command</span>
 <span class="branch">├──</span> <span class="highlight">hooks/</span>                  <span class="file"> ← SELECT * warning hook</span>
@@ -1998,6 +2448,11 @@ sap-btp-agent setup https://project1.s4hana.cloud.sap
               <td><code>sap-key-user-toolkit</code></td>
               <td>Hướng dẫn Key User Extensibility</td>
               <td><code>"them custom field vao journal entry bang Key User"</code></td>
+            </tr>
+            <tr>
+              <td><code>sap-doc-to-md</code></td>
+              <td>Convert file Word/Excel (FS, BP...) sang Markdown</td>
+              <td><code>"convert file FS_ZMFG12.docx sang markdown"</code></td>
             </tr>
             <tr>
               <td><code>sap-daily-learner</code></td>

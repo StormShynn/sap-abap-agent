@@ -14,6 +14,8 @@ Cau truc multi-profile:
     |   +- secrets.json          <- secret da ma hoa
     +- log/
     +- cache/
+    +- in/                       <- FS/tai lieu dau vao (Function Spec, ...), khong commit git
+    +- out/                      <- output sinh ra (md, INTAKE/TECHNICAL_SPEC, scaffold ABAP...)
 """
 from __future__ import annotations
 
@@ -78,3 +80,13 @@ def get_log_dir() -> Path:
 
 def get_cache_dir() -> Path:
     return get_app_dir() / "cache"
+
+
+def get_in_dir() -> Path:
+    """Thu muc chua tai lieu dau vao (Function Spec .docx/.xlsx...) - khong nam trong git repo."""
+    return get_app_dir() / "in"
+
+
+def get_out_dir() -> Path:
+    """Thu muc chua output sinh ra (md, INTAKE/TECHNICAL_SPEC, scaffold ABAP...) - khong nam trong git repo."""
+    return get_app_dir() / "out"

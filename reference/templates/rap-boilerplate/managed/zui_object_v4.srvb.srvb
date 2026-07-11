@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
+  <asx:values>
+    <SERVICE_BINDING>
+      <BINDING_TYPE>0</BINDING_TYPE>
+      <VERSION>4</VERSION>
+      <NAME>ZUI_<OBJECT>_V4</NAME>
+    </SERVICE_BINDING>
+  </asx:values>
+</asx:abap>

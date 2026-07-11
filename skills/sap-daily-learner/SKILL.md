@@ -1,6 +1,8 @@
 ---
 name: sap-daily-learner
 description: Skill tu dong hoa viec hoc SAP/ABAP moi ngay — tu dong tao skill, track tien do, goi y noi dung dua trinh do nguoi dung. Lay cam hung tu Hermes Agent (Nous Research).
+when_to_use: |
+  "hoc SAP hom nay", "quiz MM cho toi", "progress hoc tap cua toi", "hoc tiep module PP".
 effort: high
 model: sonnet
 ---

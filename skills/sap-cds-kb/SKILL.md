@@ -1,6 +1,9 @@
 ---
 name: sap-cds-kb
 description: Tra cuu CDS view released cho SAP S/4HANA Cloud Public Edition qua MCP server cds-kb-mcp. Dung khi user can tim CDS view theo business meaning/ten SAP/module, can xem definition/fields/associations/source cua 1 CDS view cu the, hoac can kham pha taxonomy BO.
+when_to_use: |
+  "tim CDS view cho overdue invoices", "xem field cua view I_SalesDocument",
+  "co CDS view nao cho purchase order khong".
 effort: medium
 model: haiku
 ---

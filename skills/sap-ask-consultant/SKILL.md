@@ -1,6 +1,9 @@
 ---
 name: sap-ask-consultant
 description: Hoi truc tiep 1 "chuyen gia" SAP theo phan he (SD, FI...) cho SAP S/4HANA Cloud Public Edition. Tu dong chon dung agent tu van theo module, chay song song neu cau hoi dung nhieu module, roi tong hop cau tra loi. Dung khi user hoi "hoi SD", "hoi FI", hoac cau hoi nghiep vu ro module (sales order, GL, AP...).
+when_to_use: |
+  "hoi SD: cau hinh pricing", "hoi FI ve dong so ky", "tu van MM ve purchase order",
+  "cau hinh cost center va GL" (nhieu module cung luc).
 argument-hint: "[cau hoi]"
 model: haiku
 ---

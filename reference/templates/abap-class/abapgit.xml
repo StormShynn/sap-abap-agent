@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
+  <asx:values>
+    <DATA>
+      <MASTER_LANGUAGE>E</MASTER_LANGUAGE>
+      <TRANSPORT_REQUEST>TBD</TRANSPORT_REQUEST>
+      <PACKAGE><PACKAGE></PACKAGE>
+    </DATA>
+  </asx:values>
+</asx:abap>

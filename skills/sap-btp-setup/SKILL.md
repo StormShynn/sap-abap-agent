@@ -1,6 +1,9 @@
 ---
 name: sap-btp-setup
 description: Ho tro setup & xu ly su co ket noi SAP BTP qua MCP (multi-profile). Dung khi user muon ket noi SAP BTP, hoi ve BTP/ADT/ABAP system, OAuth2, hoac gap loi authentication khi dung sap_* tool.
+when_to_use: |
+  "setup SAP BTP cho <url>", "loi authentication khi dung sap_* tool", "them profile SAP moi",
+  "'sap-btp-agent' is not recognized".
 effort: medium
 model: haiku
 ---

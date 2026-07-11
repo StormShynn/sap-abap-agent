@@ -1,6 +1,9 @@
 ---
 name: sap-docs-research
 description: Tra cuu tai lieu SAP tong hop qua MCP server mcp-sap-docs — SAP Help, SAP Community, SAP Accelerator Hub, SAP Fiori App Library, Clean Core Released Objects, ABAP feature matrix. Dung khi user can tra cuu SAP notes, SAP Community Q&A, kham pha API tren Accelerator Hub, xem Fiori app reference, hoac kiem tra ABAP syntax support.
+when_to_use: |
+  "tra cuu SAP note ve loi X", "tim API tren Accelerator Hub cho Y", "Fiori app nao cho Z",
+  "FOR TABLE ITERATION co tu ban ABAP nao".
 effort: medium
 model: haiku
 ---

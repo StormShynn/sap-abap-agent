@@ -1,6 +1,9 @@
 ---
 name: sap-key-user-toolkit
 description: Huong dan thuc hanh Key User Extensibility tren SAP S/4HANA Cloud Public Edition (2-system landscape). Dung khi key user/functional consultant muon tu them field, tao business object, viet custom logic don gian, hoac sua giao dien Fiori ma KHONG can developer. Phu hop cho Custom Fields and Logic, Custom Business Objects, Custom Logic (Cloud BAdI), Adaptation Transactions. KHONG dung khi yeu cau can ABAP developer / side-by-side BTP.
+when_to_use: |
+  "them custom field vao purchase order", "tao custom business object moi",
+  "sua giao dien Fiori khong can dev", "custom logic validate don gian the nao".
 argument-hint: [tac vu key user: them field | tao BO | custom logic | adaptation UI]
 model: haiku
 ---

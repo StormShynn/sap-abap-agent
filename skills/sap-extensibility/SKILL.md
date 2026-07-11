@@ -1,6 +1,9 @@
 ---
 name: sap-extensibility
 description: Huong dan extensibility & rang buoc ABAP Cloud cho SAP S/4HANA Cloud Public Edition. Dung khi user hoi nen dat custom logic o dau (SSCUI/Key User/side-by-side BTP), co dung duoc BAdI/SPRO/table truc tiep khong, hoac gap loi cu phap ABAP Cloud (RAP, released API).
+when_to_use: |
+  "custom logic nay nen dat o dau", "co dung SELECT truc tiep vao bang standard khong",
+  "object chua released thi lam sao", "CALL SCREEN co dung duoc tren Cloud khong".
 effort: medium
 model: haiku
 ---
@@ -41,6 +44,47 @@ Uu tien bac cao nhat phu hop yeu cau — cang xuong duoi cang phuc tap va cang n
 Vi khong co cach nao sua duoc core, moi custom asset chi co the la (a) 1 artifact Key User nam trong tenant extension rieng, hoac (b) 1 app side-by-side goi qua released API. Nghia la:
 - Moi de xuat dung theo bac thang o muc 2 **tu dong tuan thu Clean Core**.
 - Loi thuong gap nhat khong phai la vi pham Clean Core, ma la **de xuat 1 thu khong ton tai tren Public Cloud** (1 BAdI, 1 bang truy cap truc tiep, 1 BAPI chua duoc release, 1 man hinh khong phai Fiori). Luon xac minh moi de xuat co thuc su kha thi tren Public Cloud truoc khi dua ra.
+
+## 3b. Khi 1 object CAN DUNG nhung CHUA released — cay quyet dinh mitigation
+
+Dung khi qua trinh sinh code/tim CDS nguon phat hien 1 view/BO/API can dung nhung **chua released**
+hoac **khong ton tai** cho ABAP Cloud. DUNG dead-end bang cach ghi `[Unverified]` roi dung lai —
+di theo cay quyet dinh nay (thu tu uu tien tren xuong):
+
+```
+Object X can dung nhung xac minh la KHONG released / khong ton tai
+   │
+   ├─① Co RELEASED ALTERNATIVE khong? (view/API khac tra ve cung du lieu)
+   │      → tra cuu qua sap-docs-researcher / skill sap-cds-kb / agent consultant phan he
+   │      → co → DUNG cai released. Xong.
+   │
+   ├─② Co STANDARD OData/SOAP API (whitelist Public Cloud) khong?
+   │      → api.sap.com filter "SAP S/4HANA Cloud Public Edition" → tim API_* SRV
+   │      → goi qua HTTP client + Communication Arrangement (KHONG can released ABAP object)
+   │      → phu hop khi: BO EML khong du / can so chung tu ngay (late numbering) / action cross-LUW
+   │
+   ├─③ Chi can THEM FIELD / logic nho tren object standard?
+   │      → Key User Extensibility (Custom Fields & Logic) / released BAdI enhancement spot
+   │      → khong can code core (xem muc 2, bac 2 o tren)
+   │
+   └─④ Khong co duong nao o tren
+          → [Unverified] + ghi vao INTAKE muc 6 (cau hoi can lam ro) + escalate cho KH/tech lead.
+          → TUYET DOI KHONG: bia ten released, dung object on-prem, direct SQL vao bang standard SAP.
+```
+
+**Bang mitigation nhanh:**
+
+| Tinh huong | Lam gi | Ghi chu |
+|---|---|---|
+| CDS view can chua released | Tim view released tuong duong; hoac build ZI_* select from view released khac | KHONG select from view chua released |
+| BO interface (EML) chua released/thieu | Standard OData API (②) hoac released BO khac | — |
+| BO EML released nhung **late numbering** (khong lay duoc so trong handler) | **OData API** commit LUW rieng → tra so ngay | Cam COMMIT ENTITIES trong behavior; EML MODIFY chi co `%pid` |
+| Object on-prem quen thuoc (BAPI/table DDIC raw) | Released CDS/API tuong duong | Object on-prem = ATC reject tren Public Cloud |
+| Chi them field vao chung tu standard | Key User Custom Fields, hoac released BAdI | Khong can dev core |
+| Khong co gi | `[Unverified]` + escalate KH | Dung bia, dung cat goc |
+
+Xem them: skill `sap-atc-review` (bang anti-rationalization, dong R7 "Object chua released") va
+skill `sap-write-technical-spec` (buoc 3 — chon CDS/API nguon).
 
 ## 4. Rang buoc cu phap ABAP Cloud (khi code thuc su chay trong side-by-side / on-stack)
 

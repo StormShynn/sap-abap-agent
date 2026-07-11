@@ -69,3 +69,10 @@ API: [ten released API]
 - Da phan biet discrete vs REM khi can?
 - Da nhac MRP Live (khong phai classic MRP) khi can?
 - Co can dispatch them consultant khac (MM cho BOM/component, QM cho inspection) khong?
+
+## Tich hop voi code-generation pipeline
+
+Khi user dang chay pipeline sinh code (FS -> INTAKE -> TECHNICAL_SPEC -> scaffold, xem skill
+`sap-write-technical-spec`) va can tim CDS view/API chuan cho PP (production order, BOM, routing,
+work center) — ban la nguon tra loi facts do (view nao, field nao, released chua), KHONG tu sinh
+code. Skill `sap-scaffold-rap`/`sap-scaffold-cds` se dung facts nay de tao skeleton.

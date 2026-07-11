@@ -1,6 +1,9 @@
 ---
 name: sap-clean-code
 description: Huong dan clean code & name conversion cho SAP ABAP Public Cloud (ABAP Cloud). Dung khi user hoi ve naming conventions, clean ABAP code style, name conversion tu legacy ABAP sang ABAP Cloud, quy tac dat ten cho development objects.
+when_to_use: |
+  "dat ten class nay dung chuan chua", "convert code legacy sang ABAP Cloud",
+  "review naming convention", "gioi han do dai ten CDS view la bao nhieu".
 effort: medium
 model: haiku
 ---
@@ -291,6 +294,62 @@ Z_I_* (Interface Views)  ← basic, reusable
 Z_C_* (Consumption Views)  ← for UI / OData
     ↓
 Z_P_* (Projection Views)  ← cho BO context
+```
+
+> ⚠️ **Bien the convention khac (khong co underscore sau Z)**: 1 so du an dung `ZI_*` / `ZR_*` /
+> `ZC_*` (khong dau `_` giua `Z` va chu cai layer) thay vi `Z_I_*`/`Z_C_*`. Ca 2 kieu deu la quy
+> uoc du an (project convention), KHONG phai chuan cung nhac cua SAP — **luon xac nhan voi tech
+> lead/du an dang lam kieu nao truoc khi dat ten**, dung tron 2 kieu trong cung 1 package. Bang
+> duoi la bien the pho bien thu 2 (thuong di kem cach dat `<OBJECT>` = ma ticket/bao cao, xem 4.1b).
+
+#### 4.1a Bien the: `<OBJECT>` = ma ticket/bao cao (khong phai ten mo ta)
+
+Mot so du an quy uoc phan `<OBJECT>` sau prefix la **ma bao cao/ticket** (vd `ZSD01`), KHONG dung
+ten nghiep vu mo ta:
+
+```
+✅ ZI_ZSD01, ZR_ZSD01, ZC_ZSD01, ZUI_ZSD01_O4 (service def + binding cung ten), ZBP_R_ZSD01
+❌ ZI_PACKINGLIST, ZC_PACKINGLIST (ten mo ta — sai theo quy uoc nay)
+```
+
+Neu tach header/item: them hau to `_H` / `_IT` (vd `ZC_ZSD01_IT`, `ZR_ZSD01_H`). Object dung
+chung/master cua nhieu ticket giu ten rieng theo domain (vd `ZI_COMPANY_CODE`). Quy uoc nay chi
+ap dung neu du an chon theo huong "1 object = 1 ticket" — xac nhan voi tech lead truoc khi ap dung.
+
+**Prefix bo sung cho bien the nay** (dung kem RAP service/behavior):
+
+| Prefix | Loai object | Vi du |
+|--------|-------------|-------|
+| `ZBP_*` | Behavior implementation (behavior pool class) | `ZBP_R_ZSD01` — impl cho behavior definition |
+| `ZUI_*` | Service def + binding cho **APP/UI** | `ZUI_ZSD01_O4` (OData V4 UI), `ZUI_ZSD01_O2` (V2) |
+| `ZAPI_*` | Service def + binding cho **API machine-to-machine** | `ZAPI_ZSD01_O4` — API M2M rieng voi UI |
+
+Service binding **trung ten** service definition (SRVD va SRVB la 2 object type khac nhau nen duoc
+phep cung ten — khong can tach hau to `_SD` rieng).
+
+**Gioi han do dai ten theo tung loai object** (nguon: ABAP Keyword Documentation – Names of
+Repository Objects, ban Cloud):
+
+| Loai object | Max ky tu | Ghi chu |
+|-------------|-----------|---------|
+| **Database table** (transparent, `ZTB*`) | **16** | Sinh physical DB object — chat nhat. Bay hay gap: ghep `ZTB_<MODULE>_<TICKET>_<SUB>_D` (draft) rat de vuot 16 — uu tien ma ticket + hau to ngan, bo tien to phan he neu can. |
+| CDS view/class/service/structure/data element/domain | 30 | Nhu muc "Gioi han ky tu" o tren |
+| **Message class** | **20** | Khac voi 30 — de y khi dat ten message class rieng |
+
+**Mapping clause** (bat buoc khi ten CDS khac ten cot DB, vd dung 1 table generic cho nhieu report):
+
+```abap
+managed implementation in class zbp_<zr> unique;
+strict ( 2 );
+
+define behavior for ZR_<OBJECT> {
+  action CreatePDF result [1..*] $self;
+  mapping for ztb_shared_table          // BAT BUOC neu ten CDS != ten cot DB
+    {
+      Key        = object_id;
+      Attachment = attachment;
+    }
+}
 ```
 
 #### 4.2 Dat ten cho CDS fields (elements)
@@ -802,6 +861,62 @@ METHODS get_name
 " ❌ Khong dep
 METHODS get_name
   RETURNING VALUE(name) TYPE string.
+```
+
+### RETURNING (va moi param method) phai tro type da dat ten
+
+Tham so **RETURNING** bat buoc **complete type da dat ten** (data element DDIC hoac `TYPES` tu
+dinh nghia) — KHONG viet `LENGTH`/`DECIMALS` inline trong chu ky method (chi hop le trong
+`TYPES`/`DATA`).
+
+```ABAP
+" ❌ ADT bao "A RETURNING parameter must be fully typed"
+METHODS get_total RETURNING VALUE(rv) TYPE p LENGTH 15 DECIMALS 2.
+
+" ✅ Dinh nghia type trong interface dung chung
+" ZIF_FOO_TYPES: TYPES ty_amount TYPE p LENGTH 15 DECIMALS 2.
+METHODS get_total RETURNING VALUE(rv) TYPE zif_foo_types=>ty_amount.
+```
+
+IMPORTING/CHANGING van cho phep generic `TYPE p`.
+
+### `CONV n( )` / `VALUE n( )` — KHONG construct duoc type generic
+
+`n`, `p`, `c`, `x` (khong kem LENGTH/DECIMALS) la **type generic** — dung trong constructor
+operator (`CONV`/`VALUE`/`REDUCE`) se bi ADT bao *"A value of the generic type N cannot be
+constructed"*.
+
+```ABAP
+" ❌ n generic -> activation fail
+DATA(lv_year_prev) = CONV n( is_selection-year - 1 ).
+
+" ✅ Khai bien typed roi gan (hoac CONV sang type DA dat ten / co length)
+DATA lv_year_prev TYPE n LENGTH 4.
+lv_year_prev = is_selection-year - 1.
+```
+
+### ABAP SQL strict — literal KHONG duoc rong hon cot (narrowing bi cam)
+
+Strict SQL (ABAP Cloud) cam narrowing lossy: so field voi literal **dai hon** kieu cot -> bao
+*"type of 'X' cannot be converted to the type of `COLUMN`"* (activation fail), KHONG am tham
+truncate.
+
+```ABAP
+" ❌ field CHAR(4) nhung literal 5 ky tu -> fail
+WHERE material_group IN ( 'ABCDE' ).
+```
+
+Fix: dung host variable/range typed theo cot, hoac neu literal sai do dai so voi field that (dau
+hieu hieu nham yeu cau) -> verify field type + hoi lai, DUNG truncate cho "chay duoc".
+
+### Khong offset/length truc tiep tren ket qua goi method
+
+`cl_abap_context_info=>get_system_date( )+0(4)` -> loi *"Method ... does not have any
+parameters"* (ABAP hieu `( )+0(4)` la truyen tham so). Gan ra bien truoc roi moi `+off(len)`:
+
+```ABAP
+DATA(lv_today) = cl_abap_context_info=>get_system_date( ).
+lv_year = lv_today+0(4).
 ```
 
 ## 10. ABAP Cloud Released APIs Checklist

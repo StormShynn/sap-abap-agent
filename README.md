@@ -40,6 +40,14 @@ sap-abap-agent/
 |   +-- sap-key-user-toolkit/  # Key User Extensibility handbook
 |   +-- sap-cds-kb/            # Tra cuu CDS view qua cds-kb-mcp
 |   +-- sap-docs-research/     # Tra cuu SAP Docs qua mcp-sap-docs
+|   +-- sap-doc-to-md/         # Convert Word/Excel sang Markdown (markitdown)
+|   +-- sap-analyze-function-spec/  # FS.docx -> INTAKE.md (buoc 1 codegen pipeline)
+|   +-- sap-write-technical-spec/   # INTAKE.md -> TECHNICAL_SPEC.md (buoc 2)
+|   +-- sap-scaffold-rap/           # TECHNICAL_SPEC.md -> RAP 3-layer skeleton (buoc 3)
+|   +-- sap-scaffold-cds/           # -> CDS view skeleton, pattern read-only (buoc 3)
+|   +-- sap-virtual-element/        # Calculated field trong CDS view
+|   +-- sap-atc-review/             # Lint naming/released-API/clean-ABAP (buoc 4)
+|   +-- sap-unit-test/              # Sinh ABAP Unit test class (buoc 5)
 +-- agents/
 |   +-- abap-reviewer.md       # Review code ABAP Cloud
 |   +-- sap-ask-consultant dispatch toi 18 module consultants:
@@ -381,6 +389,42 @@ consultants + 1 researcher + 1 daily learner** bang co che **keyword scoring + p
 | 18 | `sap-ehs-consultant-cloud` | Environment, Health & Safety |
 | 19 | `sap-docs-researcher` | CDS view & Docs Research |
 | 20 | `sap-daily-learner` | Daily SAP Learning, Hermes-like skill creation |
+
+## 🏗️ Codegen Pipeline (Function Spec -> ABAP code)
+
+7 skill noi tiep nhau, bien Function Spec (`.docx` khach hang gui) thanh code ABAP scaffold theo
+chuan RAP/CDS. File trung gian dat trong `in/`/`out/` — **thu muc local per-user, KHONG nam trong
+git repo**: `%USERPROFILE%\.sap-btp-agent\in\` + `...\out\` (Windows) hoac `~/.sap-btp-agent/in/` +
+`.../out/` (macOS/Linux), cung noi luu profile/secrets ket noi SAP BTP (xem muc "Cau hinh folder").
+Ly do: tai lieu FS va output sinh ra la du lieu nghiep vu/khach hang, khong nen nam chung voi
+source code plugin (rui ro commit nham len repo public). Co the doi qua env `SAP_BTP_AGENT_HOME`.
+Lay dung duong dan: `python -c "from sap_btp_agent.config.paths import get_in_dir; print(get_in_dir())"`.
+
+```bash
+# 0. Dat FS vao in/ (thu muc local per-user o tren), convert sang markdown
+cp /path/to/FS_xxx.docx "$(python -c 'from sap_btp_agent.config.paths import get_in_dir; print(get_in_dir())')/"
+# -> skill sap-doc-to-md (reference/scripts/office_to_md.py, khong tham so) -> out/FS_xxx.md
+
+# 1. Phan tich FS -> chuan hoa yeu cau
+# -> skill sap-analyze-function-spec -> out/<ticket>/INTAKE.md
+
+# 2. Quyet dinh kien truc (managed/unmanaged/CDS/class)
+# -> skill sap-write-technical-spec -> out/<ticket>/TECHNICAL_SPEC.md
+
+# 3. Sinh skeleton code
+# -> skill sap-scaffold-rap (CRUD/RAP) hoac sap-scaffold-cds (chi-read) -> out/<ticket>/src/
+
+# 4. Review naming/released-API/clean-ABAP
+# -> skill sap-atc-review -> out/<ticket>/ATC_REVIEW.md
+
+# 5. Sinh ABAP Unit test
+# -> skill sap-unit-test
+```
+
+Skill phu tro: `sap-virtual-element` (calculated field trong CDS). Quy uoc dat ten & bac thang
+extensibility dung chung voi `sap-clean-code` / `sap-extensibility`. Khi can tim CDS view/API
+chuan cho 1 phan he cu the (buoc 2), hoi agent consultant tuong ung (`sap-fi-consultant-cloud`,
+`sap-mm-consultant-cloud`...) hoac `sap-docs-researcher`.
 
 ## Test local
 

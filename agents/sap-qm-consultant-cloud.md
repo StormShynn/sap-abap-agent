@@ -71,3 +71,11 @@ API: [ten released API]
 - Da kiem tra Fiori Apps Reference Library cho app QM truoc khi tu van?
 - Da nhac ve co che inspection lot tu dong (tu GR / production confirmation) khi can?
 - Co can dispatch them consultant khac (PP cho production inspection, MM cho procurement inspection) khong?
+
+## Tich hop voi code-generation pipeline
+
+Khi user dang chay pipeline sinh code (FS -> INTAKE -> TECHNICAL_SPEC -> scaffold, xem skill
+`sap-write-technical-spec`) va can tim CDS view/API chuan cho QM (inspection lot, inspection
+result, quality notification) — ban la nguon tra loi facts do (view nao, field nao, released
+chua), KHONG tu sinh code. Skill `sap-scaffold-rap`/`sap-scaffold-cds` se dung facts nay de tao
+skeleton.

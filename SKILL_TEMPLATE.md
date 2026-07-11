@@ -27,6 +27,9 @@ name: <tên-skill>
 description: |
   <1-3 câu mô tả ngắn gọn>
   Ghi rõ: KHI NÀO dùng, KHÔNG dùng khi nào.
+when_to_use: |
+  <cụm từ/câu hỏi mẫu người dùng hay gõ, cách nhau bằng dấu phẩy — vd:
+  "hoi SD ve pricing", "tao INTAKE tu file X.docx">
 argument-hint: "[cau hoi]"
 model: haiku
 effort: medium
@@ -40,12 +43,15 @@ disallowedTools: [Bash]
 | Field | Bắt buộc | Giá trị | Mô tả |
 |-------|----------|---------|-------|
 | `name` | ✅ | `sap-<tên>` | Tên skill, khớp với tên thư mục |
-| `description` | ✅ | Text | Mô tả ngắn, rõ ràng. **Càng chi tiết càng tốt cho Claude hiểu.** |
+| `description` | ✅ | Text | Mô tả ngắn, rõ ràng: skill làm gì + khi nào dùng. **Đưa use case chính lên đầu** — Claude Code hiển thị field này trong danh sách skill (gõ `/`), và cắt bớt nếu quá dài (giới hạn cứng 1.536 ký tự tính chung với `when_to_use`; ngoài ra còn 1 ngân sách tổng cho toàn bộ danh sách skill, v.d skill ít dùng có thể bị rút gọn còn mỗi tên — xem `/doctor` để kiểm tra). |
+| `when_to_use` | ❌ | Text | Câu hỏi/cụm từ mẫu người dùng hay gõ (trigger phrase). Tách riêng khỏi `description` cho gọn, nhưng vẫn tính chung vào giới hạn 1.536 ký tự. |
 | `argument-hint` | ❌ | `"[cau hoi]"` | Gợi ý argument khi dùng skill |
 | `model` | ❌ | `haiku` / `sonnet` | `haiku` cho đơn giản, `sonnet` cho phức tạp |
 | `effort` | ❌ | `low` / `medium` / `high` | Độ phức tạp tính toán |
 | `tools` | ❌ | `[Read, Write, Edit, ...]` | Tools được phép (mặc định: tất cả) |
 | `disallowedTools` | ❌ | `[Bash]` | Tools bị cấm |
+
+> 💡 Claude Code **không có UI hover/click để xem trước nội dung skill** — chỉ có dòng mô tả rút gọn khi gõ `/` (hoặc lệnh `/skills`). Viết `description`/`when_to_use` sao cho phần đầu đã đủ rõ "dùng khi nào" là cách duy nhất để tận dụng tốt phần hiển thị có sẵn.
 
 ### Template nội dung
 
@@ -308,7 +314,9 @@ index.html                                      # Thêm vào table + sidebar + t
 
 ```
 name:           # string - Tên (bắt buộc)
-description:    | # string - Mô tả (bắt buộc, càng dài càng tốt)
+description:    | # string - Mô tả (bắt buộc). Đưa use case chính lên đầu — bị cắt cùng
+                #   ngân sách với when_to_use (giới hạn cứng 1.536 ký tự/skill)
+when_to_use:    | # string - Câu hỏi/trigger phrase mẫu (tuỳ chọn, chỉ dùng trong skill)
 model:          # string - haiku | sonnet (mặc định: haiku)
 effort:         # string - low | medium | high
 tools:          # array - [Read, Write, Edit, ...]

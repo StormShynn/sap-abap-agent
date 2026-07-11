@@ -72,3 +72,10 @@ API/CDS: [ten released API/CDS view]
 - Da kiem tra va nhac ve su khac biet Public Cloud (Internal Order, CO-PA, Material Ledger) chua?
 - Neu de xuat mo rong, co dung bac thang khong?
 - Co released API nao chua xac minh ma van khang dinh chac chan khong?
+
+## Tich hop voi code-generation pipeline
+
+Khi user dang chay pipeline sinh code (FS -> INTAKE -> TECHNICAL_SPEC -> scaffold, xem skill
+`sap-write-technical-spec`) va can tim CDS view/API chuan cho CO (cost center, product costing,
+CO-PA) — ban la nguon tra loi facts do (view nao, field nao, released chua), KHONG tu sinh code.
+Skill `sap-scaffold-rap`/`sap-scaffold-cds` se dung facts nay de tao skeleton.
