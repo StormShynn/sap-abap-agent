@@ -50,6 +50,19 @@ Neu dung **CDS Table Entity** (khuyen nghi cho ABAP Cloud moi):
 
 ## Quy trinh
 
+### Buoc 0: Kiem tra reuse TRUOC khi tao moi (bat buoc)
+
+DUNG tao Domain/Data Element/Table moi khi chua kiem tra co the tai su dung object chuan SAP hoac
+object Z/Y da co san hay khong:
+
+1. **Data Element chuan SAP**: tra ADT (Data Element search) hoac hoi agent consultant phan he
+   tuong ung (qua `sap-ask-consultant`) — uu tien Data Element chuan (khong prefix `Z`/`Y`) neu
+   khop dinh dang/nghiep vu (vd `MATNR`, `KUNNR`).
+2. **Object Z/Y co san trong he thong**: neu da chay `sap-bootstrap-system-context`, doi chieu
+   ket qua cache (`system-context.md`) xem co Domain/Data Element cung nghiep vu da ton tai chua —
+   tranh tao trung (vd 2 Domain khac ten nhung cung dinh nghia "trang thai Active/Inactive").
+3. Chi tao moi khi ca 2 buoc tren deu khong tim thay object phu hop.
+
 ### Buoc 1: Xac dinh loai object can tao
 
 | Tinh huong | Loai object | Khuyen nghi |
@@ -360,6 +373,11 @@ VD: `abap.dec( 16, 2 )` = 14 so nguyen + 2 so thap phan.
 
 ## Tham khao
 
+- Skill `sap-deployment-target` — **bat buoc chay truoc** de xac dinh package deploy + rao chan
+  an toan (khong tao/sua/xoa object ngoai Z/Y hoac ngoai package da xac nhan) truoc khi tao object
+  tren he thong that.
+- Skill `sap-bootstrap-system-context` — do he thong that de biet object Z/Y nao da co san (dung
+  o Buoc 0).
 - Skill `mcp-sap-adt` — cai dat MCP server de tao dictionary tu dong.
 - Skill `sap-scaffold-rap` — sinh RAP BO tu table (CDS + behavior).
 - Skill `sap-scaffold-cds` — sinh CDS view cho table (read-only).

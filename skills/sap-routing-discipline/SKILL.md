@@ -95,3 +95,6 @@ Khi user hoi ve "lich su" / "hom qua" / "truoc do":
 - Skill `sap-daily-learner` - memory tier loading (Tier 2.4).
 - `hooks/hooks.json` (SessionStart) - co che bom noi dung file nay vao dau phien. File nay
   phai on dinh (khong them timestamp, khong dynamic data) de giu KV-cache hit rate cao.
+- Skill `sap-ask-before-guessing` - nguyen tac song song, bom qua cung hook: TONG QUAT hoa vien
+  co R4 (hoi khi khong chac) ra MOI diem quyet dinh trong pipeline scaffold/deploy, khong chi
+  routing module.

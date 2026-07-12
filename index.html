@@ -860,6 +860,68 @@
       .btn { min-height: 44px; }
     }
 
+
+    /* ===== FLOW DIAGRAM (workflow-by-goal overview) ===== */
+    .flow-diagram { margin: 8px 0 32px; }
+    .flow-trunk { display: flex; flex-direction: column; align-items: center; }
+    .flow-node {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 8px 16px;
+      text-align: center;
+      min-width: 240px;
+      max-width: 460px;
+    }
+    .flow-node .flow-node-step {
+      font-size: 10.5px; font-weight: 700; color: var(--accent);
+      text-transform: uppercase; letter-spacing: .05em;
+    }
+    .flow-node .flow-node-title {
+      font-family: var(--font-mono); font-size: 13.5px; font-weight: 600; margin: 2px 0;
+    }
+    .flow-node .flow-node-desc { font-size: 12px; color: var(--text-dim); }
+    .flow-node.optional { border-style: dashed; opacity: .85; }
+    .flow-node.milestone { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent-glow); }
+    .flow-arrow { color: var(--text-dim); font-size: 20px; line-height: 1.2; }
+    .flow-fork-label {
+      font-size: 12px; color: var(--text-dim); margin: 4px 0 2px; text-align: center;
+    }
+    .flow-fork { display: flex; gap: 18px; justify-content: center; flex-wrap: wrap; margin-top: 4px; width: 100%; }
+    .flow-branch {
+      flex: 1 1 240px; max-width: 300px; display: flex; flex-direction: column; align-items: center;
+      border-top: 3px solid var(--border); padding-top: 14px;
+    }
+    .flow-branch .flow-node { min-width: 0; width: 100%; }
+    .flow-branch.branch-report { border-top-color: var(--green); }
+    .flow-branch.branch-api { border-top-color: var(--accent); }
+    .flow-branch.branch-form { border-top-color: var(--purple); }
+    .flow-branch-title {
+      font-weight: 700; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; font-size: 14px;
+    }
+    .branch-report .flow-branch-title { color: var(--green); }
+    .branch-api .flow-branch-title { color: var(--accent); }
+    .branch-form .flow-branch-title { color: var(--purple); }
+    .flow-output {
+      margin-top: 2px;
+      background: var(--bg-code);
+      border-radius: var(--radius-sm);
+      padding: 8px 16px;
+      font-weight: 700;
+      text-align: center;
+      width: 100%;
+    }
+    .branch-report .flow-output { border: 2px solid var(--green); color: var(--green); }
+    .branch-api .flow-output { border: 2px solid var(--accent); color: var(--accent); }
+    .branch-form .flow-output { border: 2px solid var(--purple); color: var(--purple); }
+    .flow-inherit-note {
+      font-size: 11.5px; color: var(--text-dim); text-align: center; margin: 6px 0; font-style: italic;
+    }
+    @media (max-width: 768px) {
+      .flow-node { min-width: 0; width: 100%; max-width: 340px; }
+      .flow-fork { gap: 10px; }
+    }
+
   </style>
   <script src="https://cdn.jsdelivr.net/npm/flexsearch@0.7.43/dist/flexsearch.bundle.min.js"></script>
   
@@ -877,7 +939,7 @@
     <div class="icon">SA</div>
     <div>
       <h2>SAP ABAP Agent</h2>
-      <small>v0.8.3 · 25 modules + MCP Notes/GUI/ADT</small>
+      <small>v0.9.0 · 25 modules + 48 skills</small>
     </div>
   </div>
 
@@ -931,6 +993,7 @@
 
     <div class="nav-section">Codegen Pipeline</div>
     <a class="nav-link" href="#codegen-pipeline"><span class="nav-icon">🏗️</span> FS.docx → ABAP code</a>
+    <a class="nav-link" href="#workflow-by-goal"><span class="nav-icon">🎯</span> Báo cáo / API / Form</a>
 
     <div class="nav-section">Hướng dẫn</div>
     <a class="nav-link" href="#architecture"><span class="nav-icon">🏗️</span> Kiến trúc hệ thống</a>
@@ -968,7 +1031,7 @@
         <span class="theme-icon-light">☀️</span>
         <span class="theme-icon-dark" style="display:none;">🌙</span>
       </button>
-      <span class="header-version">v0.8.3 · 27 agents + MCP Notes/GUI/ADT</span>
+      <span class="header-version">v0.9.0 · 27 agents · 48 skills</span>
     </div>
   </header>
 
@@ -1545,7 +1608,6 @@ sap-btp-agent setup https://project1.s4hana.cloud.sap
               <td>Syntax check (không activate)</td>
               <td><code>profile</code>, <code>objectUri</code>, <code>objectType</code></td>
             </tr>
-            <tr>
             <tr>
               <td>sap_activate</td>
               <td>Activate object (transport local)</td>
@@ -2740,6 +2802,189 @@ java -jar cdata.jdbc.sapfieldglass.jar --license</code><button class="copy-btn" 
 
     <div class="divider"></div>
 
+    <!-- ===== WORKFLOW BY GOAL SECTION ===== -->
+    <section id="workflow-by-goal">
+      <h2><span class="section-icon">🎯</span> Quy trình theo mục tiêu đầu ra: Báo cáo / API / Form</h2>
+
+      <p>Cùng xuất phát từ 1 file FS.docx/Excel, nhưng đầu ra khác nhau (báo cáo, API, form Fiori) thì rẽ nhánh skill khác nhau ở giữa pipeline. Làm đúng theo thứ tự 1 trong 3 quy trình dưới đây — không bỏ bước (*) trừ khi ghi rõ "tuỳ chọn" — là ra đủ end-to-end, không cần tự suy luận thêm bước nào.</p>
+
+      <p>💡 <strong>Bước 2a/2b (<code>sap-ask-consultant</code>)</strong> xuất hiện trong cả 3 quy trình dưới đây — đây là chỗ 2 "AI" trao đổi với nhau: 1 bên viết Technical Spec, 1 bên là chuyên gia nghiệp vụ theo phân hệ (SD/FI/MM/...). Mục đích: giảm lỗi chọn sai CDS view/field/object do chỉ dựa vào suy luận kỹ thuật thuần, không có góc nhìn nghiệp vụ thật — hỏi 1 lần để chọn nguồn, xác nhận lại 1 lần trước khi chốt.</p>
+
+      <p>🔒 <strong>Bước 2c (<code>sap-deployment-target</code>)</strong> hỏi 1 lần duy nhất xem deploy vào package nào trên hệ thống thật (có sẵn hoặc tạo mới package Z), rồi tái sử dụng cho toàn bộ pipeline — tránh phải hỏi lại nhiều lần giữa chừng. Từ bước này trở đi, quy tắc cứng áp dụng xuyên suốt: <strong>không bao giờ tạo/sửa/xoá object ngoài namespace Z/Y hoặc ngoài package đã xác nhận</strong>; chỗ nào cần thao tác thủ công (approve transport, đăng nhập, activate khi chưa nối MCP...) thì dừng lại, mô tả rõ việc cần làm, và chỉ tiếp tục sau khi có xác nhận từ người dùng.</p>
+
+
+      <div class="flow-diagram">
+        <div class="flow-trunk">
+          <div class="flow-node">
+            <div class="flow-node-step">Bước 0</div>
+            <div class="flow-node-title">sap-doc-to-md</div>
+            <div class="flow-node-desc">FS.docx/xlsx → FS.md</div>
+          </div>
+          <div class="flow-arrow">↓</div>
+          <div class="flow-node">
+            <div class="flow-node-step">Bước 1</div>
+            <div class="flow-node-title">sap-analyze-function-spec</div>
+            <div class="flow-node-desc">FS.md → INTAKE.md</div>
+          </div>
+          <div class="flow-arrow">↓</div>
+          <div class="flow-node milestone">
+            <div class="flow-node-step">Bước 2</div>
+            <div class="flow-node-title">sap-write-technical-spec</div>
+            <div class="flow-node-desc">→ TECHNICAL_SPEC.md (gồm 2a/2b — <code>sap-ask-consultant</code> hỏi rồi xác nhận lại CDS nguồn)</div>
+          </div>
+          <div class="flow-arrow">↓</div>
+          <div class="flow-node milestone">
+            <div class="flow-node-step">Bước 2c · bắt buộc</div>
+            <div class="flow-node-title">sap-deployment-target</div>
+            <div class="flow-node-desc">Chọn package deploy + bật rào chắn an toàn Z/Y</div>
+          </div>
+          <div class="flow-arrow">↓</div>
+          <div class="flow-node optional">
+            <div class="flow-node-step">Bước 2.5* / 2.6* · tuỳ chọn</div>
+            <div class="flow-node-title">sap-bootstrap-system-context / sap-cloud-dictionary</div>
+            <div class="flow-node-desc">Dò hệ thống thật / tạo Domain-Data Element-Table nếu cần</div>
+          </div>
+          <div class="flow-arrow">↓</div>
+          <div class="flow-fork-label">Rẽ nhánh theo mục tiêu đầu ra ▾</div>
+        </div>
+
+        <div class="flow-fork">
+          <div class="flow-branch branch-report">
+            <div class="flow-branch-title">🅰️ Báo cáo</div>
+            <div class="flow-node">
+              <div class="flow-node-step">Bước 3</div>
+              <div class="flow-node-title">sap-scaffold-cds / -cds-analytics</div>
+              <div class="flow-node-desc">List/detail hoặc KPI/Cube</div>
+            </div>
+            <div class="flow-arrow">↓</div>
+            <div class="flow-node">
+              <div class="flow-node-step">Bước 4-5</div>
+              <div class="flow-node-title">sap-atc-review · sap-cds-unit-test</div>
+            </div>
+            <div class="flow-arrow">↓</div>
+            <div class="flow-node">
+              <div class="flow-node-step">Bước 6</div>
+              <div class="flow-node-title">sap-finish-ticket</div>
+            </div>
+            <div class="flow-arrow">↓</div>
+            <div class="flow-output">📊 Báo cáo (Fiori List/Analytical)</div>
+          </div>
+
+          <div class="flow-branch branch-api">
+            <div class="flow-branch-title">🅱️ API</div>
+            <div class="flow-node">
+              <div class="flow-node-step">Bước 3</div>
+              <div class="flow-node-title">sap-scaffold-rap</div>
+              <div class="flow-node-desc">Table → CDS → Behavior → Service</div>
+            </div>
+            <div class="flow-arrow">↓</div>
+            <div class="flow-node">
+              <div class="flow-node-step">Bước 4-5</div>
+              <div class="flow-node-title">sap-odata-service · sap-authorization</div>
+            </div>
+            <div class="flow-arrow">↓</div>
+            <div class="flow-node optional">
+              <div class="flow-node-step">Bước 6*/7* · tuỳ chọn</div>
+              <div class="flow-node-title">sap-rap-events / sap-badi-enhancement</div>
+            </div>
+            <div class="flow-arrow">↓</div>
+            <div class="flow-node">
+              <div class="flow-node-step">Bước 8-9</div>
+              <div class="flow-node-title">sap-atc-review · sap-unit-test + sap-cds-unit-test</div>
+            </div>
+            <div class="flow-arrow">↓</div>
+            <div class="flow-node">
+              <div class="flow-node-step">Bước 10</div>
+              <div class="flow-node-title">sap-finish-ticket</div>
+            </div>
+            <div class="flow-arrow">↓</div>
+            <div class="flow-output">🔌 API (OData V4)</div>
+          </div>
+
+          <div class="flow-branch branch-form">
+            <div class="flow-branch-title">🅲️ Form chức năng</div>
+            <div class="flow-inherit-note">= toàn bộ nhánh API (bước 3-9), giữ bước 10 lại đến cuối</div>
+            <div class="flow-node">
+              <div class="flow-node-step">Bước 11</div>
+              <div class="flow-node-title">sapui5-fiori</div>
+              <div class="flow-node-desc">Fiori Elements / Freestyle UI5</div>
+            </div>
+            <div class="flow-arrow">↓</div>
+            <div class="flow-node">
+              <div class="flow-node-step">Bước 12</div>
+              <div class="flow-node-title">sap-finish-ticket</div>
+              <div class="flow-node-desc">Chạy sau cùng, khi cả API lẫn UI đều xong</div>
+            </div>
+            <div class="flow-arrow">↓</div>
+            <div class="flow-output">🖥️ Form (Fiori app CRUD)</div>
+          </div>
+        </div>
+      </div>
+
+      <h3>🅰️ Báo cáo (list/detail hoặc KPI dashboard)</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>#</th><th>Skill</th><th>Input → Output</th><th>Làm gì</th></tr></thead>
+          <tbody>
+            <tr><td>0</td><td><code>sap-doc-to-md</code></td><td>FS.docx/xlsx → FS.md</td><td>Convert Word/Excel sang Markdown để AI đọc được nội dung.</td></tr>
+            <tr><td>1</td><td><code>sap-analyze-function-spec</code></td><td>FS.md → INTAKE.md</td><td>Chuẩn hoá yêu cầu thành 8 mục cố định, đánh dấu field thiếu nguồn, liệt kê câu hỏi cần làm rõ.</td></tr>
+            <tr><td>2</td><td><code>sap-write-technical-spec</code></td><td>INTAKE.md → TECHNICAL_SPEC.md</td><td>Chọn pattern: "3-layer CDS" (list/detail đơn giản) hay "CDS Analytics" (KPI/multi-dimensional).</td></tr>
+            <tr><td>2a</td><td><code>sap-ask-consultant</code></td><td>→ CDS/field nguồn theo phân hệ</td><td>Bên trong bước 2: dispatch tự động tới đúng agent tư vấn phân hệ (SD/FI/MM/...), kể cả nhiều phân hệ cùng lúc (module coupling) — hỏi "CDS view/field nào chuẩn cho nghiệp vụ này". KHÔNG tự đoán CDS view khi chưa hỏi domain expert.</td></tr>
+            <tr><td>2b</td><td><code>sap-ask-consultant</code></td><td>Danh sách object dự kiến → xác nhận</td><td>Bên trong bước 2: sau khi liệt kê xong field/object, gửi lại danh sách cụ thể cho <strong>cùng consultant</strong> xác nhận lần 2 — "đúng nghiệp vụ chưa, thiếu/thừa field gì" — trước khi chốt TECHNICAL_SPEC.md. Đây là bước 2 AI trao đổi với nhau để bắt lỗi sai mục đích trước khi scaffold code thật.</td></tr>
+            <tr><td>2c</td><td><code>sap-deployment-target</code></td><td>→ package deploy + rào chắn an toàn</td><td>Hỏi user deploy vào package nào (có sẵn hoặc tạo mới package Z) — bắt buộc, chạy 1 lần rồi tái sử dụng xuyên suốt. Từ đây tuyệt đối không tạo/sửa/xoá object ngoài Z/Y hoặc ngoài package đã xác nhận.</td></tr>
+            <tr><td>2.5*</td><td><code>sap-bootstrap-system-context</code></td><td>MCP ADT → system-context.md</td><td>(Tuỳ chọn) Hệ thống lạ, chưa biết quy ước đặt tên/field admin thật đang dùng.</td></tr>
+            <tr><td>2.6*</td><td><code>sap-cloud-dictionary</code></td><td>→ Domain/Data Element/Table</td><td>(Tuỳ chọn) Chỉ khi báo cáo cần bảng/field hoàn toàn mới (custom fact table), chưa có CDS nguồn nào dùng được — tự kiểm tra reuse trước (Bước 0 của skill này) trước khi tạo mới.</td></tr>
+            <tr><td>3</td><td><code>sap-scaffold-cds</code> hoặc <code>sap-scaffold-cds-analytics</code></td><td>TECHNICAL_SPEC.md → src/</td><td>List/detail đơn giản dùng <code>sap-scaffold-cds</code>; KPI/aggregate/dashboard dùng <code>sap-scaffold-cds-analytics</code> (Cube/Dimension/Query).</td></tr>
+            <tr><td>3b*</td><td><code>sap-virtual-element</code></td><td>→ field tính runtime</td><td>(Tuỳ chọn) Field tính toán phức tạp (gọi API, lookup, format đặc biệt) không viết được bằng CDS expression thuần.</td></tr>
+            <tr><td>4</td><td><code>sap-atc-review</code></td><td>src/ → ATC_REVIEW.md</td><td>Lint naming Z*, released API, clean ABAP.</td></tr>
+            <tr><td>5</td><td><code>sap-cds-unit-test</code></td><td>src/ → *.testclasses.abap</td><td>Test CDS view bằng Test Double Framework — mock data nguồn, không đâm vào DB thật.</td></tr>
+            <tr><td>6</td><td><code>sap-finish-ticket</code></td><td>→ đóng ticket</td><td>Activate hết, ATC PASS, test xanh, transport sẵn sàng, abapGit push.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>💡 Xem trên Fiori Elements (List Report/Analytical List Page) tự sinh từ CDS + annotation — <strong>không cần code UI riêng</strong>, chỉ cần publish Service Definition/Binding ở bước 3 là đủ. Cần in PDF/xuất file thay vì xem online? Xem pattern <code>@Semantics.largeObject</code> trong <code>sap-scaffold-rap</code>.</p>
+
+      <h3>🅱️ API (OData service cho hệ thống/app khác gọi, CRUD hoặc read-only)</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>#</th><th>Skill</th><th>Input → Output</th><th>Làm gì</th></tr></thead>
+          <tbody>
+            <tr><td>0</td><td><code>sap-doc-to-md</code></td><td>FS.docx/xlsx → FS.md</td><td>Convert Word/Excel sang Markdown để AI đọc được nội dung.</td></tr>
+            <tr><td>1</td><td><code>sap-analyze-function-spec</code></td><td>FS.md → INTAKE.md</td><td>Chuẩn hoá yêu cầu, đánh dấu field thiếu nguồn, liệt kê câu hỏi cần làm rõ.</td></tr>
+            <tr><td>2</td><td><code>sap-write-technical-spec</code></td><td>INTAKE.md → TECHNICAL_SPEC.md</td><td>Chọn pattern RAP managed/unmanaged thay vì CDS thuần.</td></tr>
+            <tr><td>2a</td><td><code>sap-ask-consultant</code></td><td>→ CDS/field nguồn theo phân hệ</td><td>Bên trong bước 2: dispatch tự động tới đúng agent tư vấn phân hệ (SD/FI/MM/...), kể cả nhiều phân hệ cùng lúc (module coupling) — hỏi "CDS view/field nào chuẩn cho nghiệp vụ này". KHÔNG tự đoán CDS view khi chưa hỏi domain expert.</td></tr>
+            <tr><td>2b</td><td><code>sap-ask-consultant</code></td><td>Danh sách object dự kiến → xác nhận</td><td>Bên trong bước 2: sau khi liệt kê xong field/object (Table + CDS + Behavior), gửi lại danh sách cụ thể cho <strong>cùng consultant</strong> xác nhận lần 2 trước khi chốt TECHNICAL_SPEC.md.</td></tr>
+            <tr><td>2c</td><td><code>sap-deployment-target</code></td><td>→ package deploy + rào chắn an toàn</td><td>Hỏi user deploy vào package nào (có sẵn hoặc tạo mới package Z) — bắt buộc, chạy 1 lần rồi tái sử dụng xuyên suốt. Từ đây tuyệt đối không tạo/sửa/xoá object ngoài Z/Y hoặc ngoài package đã xác nhận.</td></tr>
+            <tr><td>2.5*</td><td><code>sap-bootstrap-system-context</code></td><td>MCP ADT → system-context.md</td><td>(Tuỳ chọn) Hệ thống lạ, chưa biết quy ước đặt tên thật.</td></tr>
+            <tr><td>2.6</td><td><code>sap-cloud-dictionary</code></td><td>→ Domain/Data Element/Table</td><td>Cần persist dữ liệu mới (API tạo/sửa/xoá record) thì tạo Table + Data Element trước — tự kiểm tra reuse trước (Bước 0 của skill này) trước khi tạo mới.</td></tr>
+            <tr><td>3</td><td><code>sap-scaffold-rap</code></td><td>TECHNICAL_SPEC.md → src/</td><td>Sinh Table → CDS Interface/Reuse/Consumption → Behavior → Service Definition/Binding (RAP 3-layer đầy đủ).</td></tr>
+            <tr><td>4</td><td><code>sap-odata-service</code></td><td>→ service binding</td><td>Chọn V4/V2, đặt tên service (<code>_APIO4</code>/<code>ZAPI_*</code> cho machine-to-machine, <code>_O4</code>/<code>_O2</code> cho UI). Thay thế SEGW cũ? Dùng <code>sap-migrate-segw-to-rap</code> thay bước 3.</td></tr>
+            <tr><td>5</td><td><code>sap-authorization</code></td><td>→ DCL</td><td>Ai được gọi API — instance-based authorization, PFCG/Business role, IAM app.</td></tr>
+            <tr><td>6*</td><td><code>sap-rap-events</code></td><td>→ Event Mesh</td><td>(Tuỳ chọn) API cần publish event khi create/update cho hệ thống khác consume.</td></tr>
+            <tr><td>7*</td><td><code>sap-badi-enhancement</code></td><td>→ Cloud BAdI</td><td>(Tuỳ chọn) API cần cho phép customer/side-by-side mở rộng logic riêng.</td></tr>
+            <tr><td>8</td><td><code>sap-atc-review</code></td><td>src/ → ATC_REVIEW.md</td><td>Lint naming, released API, clean ABAP.</td></tr>
+            <tr><td>9</td><td><code>sap-unit-test</code> + <code>sap-cds-unit-test</code></td><td>src/ → *.testclasses.abap</td><td>Test method/action/validation (class thường) VÀ test CDS/EML qua Test Double Framework.</td></tr>
+            <tr><td>10</td><td><code>sap-finish-ticket</code></td><td>→ đóng ticket</td><td>Activate hết, ATC PASS, test xanh, transport, abapGit push.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>🅲️ Form chức năng (Fiori app CRUD cho end-user)</h3>
+      <p>Form luôn cần 1 API/RAP BO bên dưới để CRUD — làm <strong>toàn bộ bước 0-9 của quy trình API ở trên</strong> (bỏ qua bước 10 <code>sap-finish-ticket</code> — để dành đến cuối, sau khi UI xong), rồi tiếp tục:</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>#</th><th>Skill</th><th>Input → Output</th><th>Làm gì</th></tr></thead>
+          <tbody>
+            <tr><td>11</td><td><code>sapui5-fiori</code></td><td>Service binding → Fiori app</td><td>Fiori Elements (List Report + Object Page) từ annotation CDS/MDE có sẵn, hoặc Freestyle UI5 nếu cần UI tuỳ biến sâu hơn. Dùng Fiori Tools/Business Application Studio, deploy lên Launchpad.</td></tr>
+            <tr><td>12</td><td><code>sap-finish-ticket</code></td><td>→ đóng ticket</td><td>Giờ mới chạy — sau khi cả API lẫn UI đều xong: activate hết, ATC PASS, test xanh, transport, abapGit push.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>💡 <strong>Không có developer / chỉ cần thay đổi đơn giản?</strong> Bỏ qua toàn bộ quy trình trên, dùng <code>sap-key-user-toolkit</code> — key user tự thêm Custom Field, tạo Custom Business Object, viết Custom Logic (Cloud BAdI đơn giản), hoặc sửa giao diện qua Adaptation Transaction, hoàn toàn không cần ABAP developer.</p>
+    </section>
+
+    <div class="divider"></div>
+
     <!-- ===== ARCHITECTURE SECTION ===== -->
     <section id="architecture">
       <h2><span class="section-icon">🏗️</span> Kiến trúc hệ thống</h2>
@@ -2813,7 +3058,7 @@ java -jar cdata.jdbc.sapfieldglass.jar --license</code><button class="copy-btn" 
 <span class="dir">📦 sap-abap-agent/</span>
 <span class="branch">├──</span> <span class="highlight">.claude-plugin/</span>        <span class="file"> ← Manifest + metadata</span>
 <span class="branch">├──</span> <span class="highlight">agents/</span>                 <span class="file"> ← 28 agent definitions (.md)</span>
-<span class="branch">├──</span> <span class="highlight">skills/</span>                 <span class="file"> ← 46 skill implementations</span>
+<span class="branch">├──</span> <span class="highlight">skills/</span>                 <span class="file"> ← 48 skill implementations</span>
 <span class="branch">│</span>   <span class="branch">├──</span> <span class="highlight">sap-ask-consultant/</span>    <span class="file"> ← Routing engine (27 agents)</span>
 <span class="branch">│</span>   <span class="branch">├──</span> <span class="highlight">sap-btp-setup/</span>         <span class="file"> ← BTP connection manager</span>
 <span class="branch">│</span>   <span class="branch">├──</span> <span class="highlight">sap-cds-kb/</span>            <span class="file"> ← CDS view search (7,355 views)</span>
@@ -3074,7 +3319,7 @@ java -jar cdata.jdbc.sapfieldglass.jar --license</code><button class="copy-btn" 
       </div>
 
       <div class="footer">
-        <strong>SAP ABAP Agent</strong> &middot; v0.8.3 · 25 modules + MCP Notes/GUI/ADT<br>
+        <strong>SAP ABAP Agent</strong> &middot; v0.9.0 · 25 modules · 48 skills<br>
         <span style="font-size:12px;">Trang hướng dẫn này được tạo bởi StormShynn Coding Assistant</span>
       </div>
     </section>
@@ -3242,6 +3487,92 @@ java -jar cdata.jdbc.sapfieldglass.jar --license</code><button class="copy-btn" 
   const translations = {
     // --- sap-scaffold-cds-analytics addition (2026-07-12) ---
     "Sinh CDS Cube/Dimension/Text + Analytical Query khi cần báo cáo aggregate/multi-dimensional — ưu tiên build Analytical Query trên CDS/Cube đã released trước khi tự tạo Cube từ đầu.": "Generates CDS Cube/Dimension/Text views + an Analytical Query when the report needs aggregation/multiple dimensions — prioritizes building the Analytical Query on an already-released CDS/Cube before creating a custom Cube from scratch.",
+    // --- workflow-by-goal: sap-deployment-target 2c addition (2026-07-12) ---
+    "Bước 2c (": "Step 2c (",
+    " hỏi 1 lần duy nhất xem deploy vào package nào trên hệ thống thật (có sẵn hoặc tạo mới package Z), rồi tái sử dụng cho toàn bộ pipeline — tránh phải hỏi lại nhiều lần giữa chừng. Từ bước này trở đi, quy tắc cứng áp dụng xuyên suốt: ": " asks once which package to deploy into on the real system (existing or a newly created Z package), then reuses that answer for the entire pipeline — no need to ask again partway through. From this step onward, a hard rule applies throughout: ",
+    "không bao giờ tạo/sửa/xoá object ngoài namespace Z/Y hoặc ngoài package đã xác nhận": "never create/modify/delete an object outside the Z/Y namespace or outside the confirmed package",
+    "; chỗ nào cần thao tác thủ công (approve transport, đăng nhập, activate khi chưa nối MCP...) thì dừng lại, mô tả rõ việc cần làm, và chỉ tiếp tục sau khi có xác nhận từ người dùng.": "; wherever a manual action is needed (approving a transport, logging in, activating when MCP isn't connected...), stop, clearly describe what needs to be done, and only continue after the user confirms.",
+    "→ package deploy + rào chắn an toàn": "→ deployment package + safety guardrail",
+    "Hỏi user deploy vào package nào (có sẵn hoặc tạo mới package Z) — bắt buộc, chạy 1 lần rồi tái sử dụng xuyên suốt. Từ đây tuyệt đối không tạo/sửa/xoá object ngoài Z/Y hoặc ngoài package đã xác nhận.": "Asks the user which package to deploy into (existing or newly created Z package) — mandatory, asked once then reused throughout. From here on, absolutely no creating/modifying/deleting objects outside Z/Y or outside the confirmed package.",
+    "(Tuỳ chọn) Chỉ khi báo cáo cần bảng/field hoàn toàn mới (custom fact table), chưa có CDS nguồn nào dùng được — tự kiểm tra reuse trước (Bước 0 của skill này) trước khi tạo mới.": "(Optional) Only when the report needs an entirely new table/field (custom fact table) and no existing source CDS can be reused — checks for reuse first (this skill's Step 0) before creating anything new.",
+    "Cần persist dữ liệu mới (API tạo/sửa/xoá record) thì tạo Table + Data Element trước — tự kiểm tra reuse trước (Bước 0 của skill này) trước khi tạo mới.": "If new data needs to be persisted (the API creates/updates/deletes records), create the Table + Data Element first — checks for reuse first (this skill's Step 0) before creating anything new.",
+    // --- workflow-by-goal: sap-ask-consultant 2a/2b addition (2026-07-12) ---
+    "💡 Bước 2a/2b (": "💡 Steps 2a/2b (",
+    ") xuất hiện trong cả 3 quy trình dưới đây — đây là chỗ 2 \"AI\" trao đổi với nhau: 1 bên viết Technical Spec, 1 bên là chuyên gia nghiệp vụ theo phân hệ (SD/FI/MM/...). Mục đích: giảm lỗi chọn sai CDS view/field/object do chỉ dựa vào suy luận kỹ thuật thuần, không có góc nhìn nghiệp vụ thật — hỏi 1 lần để chọn nguồn, xác nhận lại 1 lần trước khi chốt.": ") appear in all 3 workflows below — this is where two \"AI\" roles talk to each other: one writes the Technical Spec, the other is the business-domain consultant for that module (SD/FI/MM/...). Purpose: reduce mistakes from picking the wrong CDS view/field/object based on pure technical reasoning with no real business input — ask once to pick the source, confirm once more before finalizing.",
+    "Chọn pattern: \"3-layer CDS\" (list/detail đơn giản) hay \"CDS Analytics\" (KPI/multi-dimensional).": "Chooses the pattern: \"3-layer CDS\" (simple list/detail) or \"CDS Analytics\" (KPI/multi-dimensional).",
+    "→ CDS/field nguồn theo phân hệ": "→ source CDS/field by module",
+    "Bên trong bước 2: dispatch tự động tới đúng agent tư vấn phân hệ (SD/FI/MM/...), kể cả nhiều phân hệ cùng lúc (module coupling) — hỏi \"CDS view/field nào chuẩn cho nghiệp vụ này\". KHÔNG tự đoán CDS view khi chưa hỏi domain expert.": "Inside step 2: automatically dispatches to the right module consultant agent (SD/FI/MM/...), including several modules at once (module coupling) — asks \"which CDS view/field is standard for this business process\". Never guesses a CDS view without asking the domain expert first.",
+    "Danh sách object dự kiến → xác nhận": "Draft object list → confirmation",
+    "Bên trong bước 2: sau khi liệt kê xong field/object, gửi lại danh sách cụ thể cho ": "Inside step 2: after drafting the field/object list, sends the concrete list back to the ",
+    "cùng consultant": "same consultant",
+    " xác nhận lần 2 — \"đúng nghiệp vụ chưa, thiếu/thừa field gì\" — trước khi chốt TECHNICAL_SPEC.md. Đây là bước 2 AI trao đổi với nhau để bắt lỗi sai mục đích trước khi scaffold code thật.": " for a second confirmation pass — \"is this right for the business process, is any field missing or extra\" — before finalizing TECHNICAL_SPEC.md. This is the step where two AI roles talk to each other to catch wrong-purpose mistakes before real code is scaffolded.",
+    "Chuẩn hoá yêu cầu, đánh dấu field thiếu nguồn, liệt kê câu hỏi cần làm rõ.": "Standardizes the requirement, flags fields missing a source, and lists questions that need clarification.",
+    "Chọn pattern RAP managed/unmanaged thay vì CDS thuần.": "Chooses the RAP managed/unmanaged pattern instead of plain CDS.",
+    "Bên trong bước 2: sau khi liệt kê xong field/object (Table + CDS + Behavior), gửi lại danh sách cụ thể cho ": "Inside step 2: after drafting the field/object list (Table + CDS + Behavior), sends the concrete list back to the ",
+    " xác nhận lần 2 trước khi chốt TECHNICAL_SPEC.md.": " for a second confirmation pass before finalizing TECHNICAL_SPEC.md.",
+    // --- workflow-by-goal flow diagram addition (2026-07-12) ---
+    "🅰️ Báo cáo": "🅰️ Report",
+    "🅱️ API": "🅱️ API",
+    "🅲️ Form chức năng": "🅲️ Functional Form",
+    "Rẽ nhánh theo mục tiêu đầu ra ▾": "Branches by output goal ▾",
+    "→ TECHNICAL_SPEC.md (gồm 2a/2b — ": "→ TECHNICAL_SPEC.md (includes 2a/2b — ",
+    " hỏi rồi xác nhận lại CDS nguồn)": " asks then re-confirms the source CDS)",
+    "Chọn package deploy + bật rào chắn an toàn Z/Y": "Chooses the deployment package + turns on the Z/Y safety guardrail",
+    "Dò hệ thống thật / tạo Domain-Data Element-Table nếu cần": "Probes the real system / creates Domain-Data Element-Table if needed",
+    "List/detail hoặc KPI/Cube": "List/detail or KPI/Cube",
+    "= toàn bộ nhánh API (bước 3-9), giữ bước 10 lại đến cuối": "= the entire API branch (steps 3-9), holding step 10 back until the end",
+    "Chạy sau cùng, khi cả API lẫn UI đều xong": "Runs last, once both the API and the UI are done",
+    "📊 Báo cáo (Fiori List/Analytical)": "📊 Report (Fiori List/Analytical)",
+    "🔌 API (OData V4)": "🔌 API (OData V4)",
+    "🖥️ Form (Fiori app CRUD)": "🖥️ Form (Fiori CRUD app)",
+    // --- workflow-by-goal section addition (2026-07-12) ---
+    "Báo cáo / API / Form": "Report / API / Form",
+    "Quy trình theo mục tiêu đầu ra: Báo cáo / API / Form": "Workflow by Output Goal: Report / API / Form",
+    "Cùng xuất phát từ 1 file FS.docx/Excel, nhưng đầu ra khác nhau (báo cáo, API, form Fiori) thì rẽ nhánh skill khác nhau ở giữa pipeline. Làm đúng theo thứ tự 1 trong 3 quy trình dưới đây — không bỏ bước (*) trừ khi ghi rõ \"tuỳ chọn\" — là ra đủ end-to-end, không cần tự suy luận thêm bước nào.": "Starting from the same FS.docx/Excel file, different outputs (report, API, Fiori form) branch into different skills partway through the pipeline. Follow one of the 3 workflows below in the exact order — don't skip a step (*) unless it's marked \"optional\" — and you'll get the full end-to-end result without having to figure out any extra steps yourself.",
+    "🅰️ Báo cáo (list/detail hoặc KPI dashboard)": "🅰️ Report (list/detail or KPI dashboard)",
+    "Convert Word/Excel sang Markdown để AI đọc được nội dung.": "Converts Word/Excel to Markdown so the AI can read the content.",
+    "Chuẩn hoá yêu cầu thành 8 mục cố định, đánh dấu field thiếu nguồn, liệt kê câu hỏi cần làm rõ.": "Standardizes the requirement into 8 fixed sections, flags fields missing a source, and lists questions that need clarification.",
+    "Chọn pattern: \"3-layer CDS\" (list/detail đơn giản) hay \"CDS Analytics\" (KPI/multi-dimensional); tìm CDS/Cube nguồn đã released.": "Chooses the pattern: \"3-layer CDS\" (simple list/detail) or \"CDS Analytics\" (KPI/multi-dimensional); finds an already-released source CDS/Cube.",
+    "(Tuỳ chọn) Hệ thống lạ, chưa biết quy ước đặt tên/field admin thật đang dùng.": "(Optional) Unfamiliar system — the real naming/admin-field conventions in use aren't known yet.",
+    "(Tuỳ chọn) Chỉ khi báo cáo cần bảng/field hoàn toàn mới (custom fact table), chưa có CDS nguồn nào dùng được.": "(Optional) Only when the report needs an entirely new table/field (custom fact table) and no existing source CDS can be reused.",
+    " hoặc ": " or ",
+    "List/detail đơn giản dùng ": "Simple list/detail uses ",
+    "; KPI/aggregate/dashboard dùng ": "; KPI/aggregate/dashboard uses ",
+    "→ field tính runtime": "→ calculated field at runtime",
+    "(Tuỳ chọn) Field tính toán phức tạp (gọi API, lookup, format đặc biệt) không viết được bằng CDS expression thuần.": "(Optional) Complex calculated fields (API calls, lookups, special formatting) that can't be written as a plain CDS expression.",
+    "Lint naming Z*, released API, clean ABAP.": "Lints Z* naming, released APIs, clean ABAP.",
+    "Test CDS view bằng Test Double Framework — mock data nguồn, không đâm vào DB thật.": "Tests the CDS view using the Test Double Framework — mocks the source data instead of hitting the real database.",
+    "→ đóng ticket": "→ close the ticket",
+    "Activate hết, ATC PASS, test xanh, transport sẵn sàng, abapGit push.": "Everything activated, ATC PASS, tests green, transport ready, abapGit pushed.",
+    "💡 Xem trên Fiori Elements (List Report/Analytical List Page) tự sinh từ CDS + annotation — ": "💡 View it in Fiori Elements (List Report/Analytical List Page) auto-generated from the CDS + annotations — ",
+    "không cần code UI riêng": "no separate UI code needed",
+    ", chỉ cần publish Service Definition/Binding ở bước 3 là đủ. Cần in PDF/xuất file thay vì xem online? Xem pattern ": ", just publish the Service Definition/Binding from step 3. Need to print a PDF/export a file instead of viewing it online? See the pattern ",
+    " trong ": " in ",
+    "🅱️ API (OData service cho hệ thống/app khác gọi, CRUD hoặc read-only)": "🅱️ API (OData service for other systems/apps to call, CRUD or read-only)",
+    "Giống hệt 3 bước đầu của quy trình Báo cáo — chọn pattern RAP managed/unmanaged thay vì CDS thuần.": "Identical to the first 3 steps of the Report workflow — chooses the RAP managed/unmanaged pattern instead of plain CDS.",
+    "(Tuỳ chọn) Hệ thống lạ, chưa biết quy ước đặt tên thật.": "(Optional) Unfamiliar system, the real naming convention isn't known yet.",
+    "Cần persist dữ liệu mới (API tạo/sửa/xoá record) thì tạo Table + Data Element trước.": "If new data needs to be persisted (the API creates/updates/deletes records), create the Table + Data Element first.",
+    "Sinh Table → CDS Interface/Reuse/Consumption → Behavior → Service Definition/Binding (RAP 3-layer đầy đủ).": "Generates Table → CDS Interface/Reuse/Consumption → Behavior → Service Definition/Binding (the full RAP 3-layer).",
+    "Chọn V4/V2, đặt tên service (": "Choose V4/V2, name the service (",
+    " cho machine-to-machine, ": " for machine-to-machine, ",
+    " cho UI). Thay thế SEGW cũ? Dùng ": " for UI). Replacing an old SEGW? Use ",
+    " thay bước 3.": " instead of step 3.",
+    "Ai được gọi API — instance-based authorization, PFCG/Business role, IAM app.": "Who's allowed to call the API — instance-based authorization, PFCG/Business role, IAM app.",
+    "(Tuỳ chọn) API cần publish event khi create/update cho hệ thống khác consume.": "(Optional) The API needs to publish an event on create/update for other systems to consume.",
+    "(Tuỳ chọn) API cần cho phép customer/side-by-side mở rộng logic riêng.": "(Optional) The API needs to let customers/side-by-side extensions add their own logic.",
+    "Lint naming, released API, clean ABAP.": "Lints naming, released APIs, clean ABAP.",
+    "Test method/action/validation (class thường) VÀ test CDS/EML qua Test Double Framework.": "Tests methods/actions/validations (plain classes) AND tests CDS/EML via the Test Double Framework.",
+    "Activate hết, ATC PASS, test xanh, transport, abapGit push.": "Everything activated, ATC PASS, tests green, transport, abapGit pushed.",
+    "🅲️ Form chức năng (Fiori app CRUD cho end-user)": "🅲️ Functional Form (Fiori CRUD app for end users)",
+    "Form luôn cần 1 API/RAP BO bên dưới để CRUD — làm ": "A Form always needs an API/RAP BO underneath for CRUD — do ",
+    "toàn bộ bước 0-9 của quy trình API ở trên": "all of steps 0-9 from the API workflow above",
+    " (bỏ qua bước 10 ": " (skip step 10 ",
+    " — để dành đến cuối, sau khi UI xong), rồi tiếp tục:": " — save it for the end, after the UI is done), then continue:",
+    "Fiori Elements (List Report + Object Page) từ annotation CDS/MDE có sẵn, hoặc Freestyle UI5 nếu cần UI tuỳ biến sâu hơn. Dùng Fiori Tools/Business Application Studio, deploy lên Launchpad.": "Fiori Elements (List Report + Object Page) from the existing CDS/MDE annotations, or Freestyle UI5 if deeper UI customization is needed. Use Fiori Tools/Business Application Studio, deploy to the Launchpad.",
+    "Giờ mới chạy — sau khi cả API lẫn UI đều xong: activate hết, ATC PASS, test xanh, transport, abapGit push.": "Only run now — after both the API and the UI are done: everything activated, ATC PASS, tests green, transport, abapGit pushed.",
+    "Không có developer / chỉ cần thay đổi đơn giản?": "No developer available / only need a simple change?",
+    " Bỏ qua toàn bộ quy trình trên, dùng ": " Skip the entire workflow above, use ",
+    " — key user tự thêm Custom Field, tạo Custom Business Object, viết Custom Logic (Cloud BAdI đơn giản), hoặc sửa giao diện qua Adaptation Transaction, hoàn toàn không cần ABAP developer.": " — the key user adds a Custom Field, creates a Custom Business Object, writes Custom Logic (simple Cloud BAdI), or adjusts the UI via an Adaptation Transaction, with no ABAP developer needed at all.",
     // --- sap-bootstrap-system-context / sap-cds-unit-test / sap-migrate-segw-to-rap addition (2026-07-12) ---
     "(Tuỳ chọn) Dò hệ thống ABAP thật qua MCP trước khi scaffold lần đầu trên 1 hệ thống lạ — lấy đúng quy ước đặt tên/field admin đang dùng thay vì đoán theo chuẩn chung.": "(Optional) Probes the real ABAP system via MCP before scaffolding for the first time on an unfamiliar system — captures the actual naming/admin-field conventions in use instead of guessing from generic standards.",
     "Test CDS view/RAP BO qua Test Double Framework (": "Tests a CDS view/RAP BO via the Test Double Framework (",

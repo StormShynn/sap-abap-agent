@@ -26,6 +26,15 @@ Tai lieu tham khao:
 > **Quan trong:** Trong ABAP Cloud, **moi** development object do customer tao ra **bat buoc** phai bat dau bang `Z` hoac `Y`. Day la quy dinh cua SAP, khong duoc dung tien to khac.
 >
 > Namespace `/prefix/` (VD: `/s4clean/`) chi duoc su dung neu da dang ky namespace voi SAP. Neu chua co namespace registered, dung `Z_` thay the.
+>
+> ⚠️ **Rao chan an toan (ap dung cho MOI thao tac tao/sua/xoa, khong chi luc dat ten):** object
+> KHONG bat dau bang `Z`/`Y` (hoac namespace `/registered/` cua customer) la object **chuan SAP**
+> — TUYET DOI KHONG tao/sua/xoa, ke ca khi user yeu cau truc tiep. Neu 1 yeu cau co ve dung cham
+> object ngoai Z/Y, DUNG lai va hoi ro user truoc khi lam gi tiep (xem chi tiet quy trinh + pham
+> vi package trong skill `sap-deployment-target`). Doc/SELECT/association toi object chuan qua
+> released API/CDS van OK — rao chan chi ap dung cho **tao moi/sua/xoa**. Co backstop ky thuat:
+> `hooks/zy_namespace_guard.py` (PreToolUse) tu dong chan goi tool DDIC/CDS/RAP create/update/delete
+> nham vao ten khong phai Z/Y.
 
 ### Gioi han ky tu & do dai ten
 

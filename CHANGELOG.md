@@ -6,6 +6,182 @@ Format dựa trên [Keep a Changelog](https://keepachangelog.com/) và [Semantic
 
 ---
 
+## [v0.9.2] — 2026-07-12
+
+### Changed
+- 🔙 **index.html: bo he thong tab** them o v0.9.1 (tab bar, `data-tab` attribute tren 47 section/
+  nav-link/nav-section, CSS `.tab-bar`/`.tab-btn`, JS chuyen tab) — quay lai trang scroll don nhu
+  truoc, theo phan hoi truc tiep cua nguoi dung. **Giu nguyen** toan bo noi dung da them cung dot
+  (section `workflow-by-goal` + so do flowchart 3 nhanh Bao cao/API/Form, hang `sap-ask-consultant`
+  2a/2b, hang `sap-deployment-target` 2c, dang ky `sap-scaffold-cds-analytics`, sua dem skill/
+  version cu, fix bug `<tr>` lap doi trong bang MCP Tools) — chi bo phan co che tab, khong bo noi
+  dung.
+- File `out/sap-abap-codegen-pkg/mo-hinh-ai-codegen.html` (rieng, ngoai git) cung da duoc khoi
+  phuc ve dung ban goc truoc do theo yeu cau tuong tu.
+
+### Notes
+- Da verify: HTML can bang the (0 loi qua checker Python `html.parser`), ca 2 script block con
+  lai hop le qua `node --check` (dung 2 block nhu truoc khi co tab — dung 1 block them cho JS tab
+  da bi xoa).
+
+---
+
+## [v0.9.1] — 2026-07-12
+
+### Added
+- 🗂️ **index.html: chia noi dung thanh 6 tab** (`tab-start`, `tab-usage`, `tab-consultant`,
+  `tab-skills`, `tab-pipeline`, `tab-reference`) thay vi 1 trang scroll dai lien tuc (47 section).
+  Tab bar moi o dau trang; sidebar/nav-link, hero CTA, ket qua search deu tu dong chuyen sang
+  dung tab roi moi scroll toi section (thay vi anchor jump vao 1 section dang bi an). Tab hien
+  tai duoc nho qua `localStorage`, deep-link qua `#section-id` van hoat dong (tu xac dinh tab
+  chua section do khi tai trang).
+- 📊 **Sơ đồ flowchart truc quan** cho 3 quy trinh Bao cao/API/Form trong `workflow-by-goal`:
+  than cay chung (buoc 0 → 2c) roi re 3 nhanh mau khac nhau (xanh la/Bao cao, xanh duong/API,
+  tim/Form), moi node la 1 the co ten skill + mo ta ngan, phan biet buoc bat buoc/tuy chon/
+  milestone bang style rieng — thay the bang chi doc bang text de hinh dung tong quan nhanh hon
+  (bang chi tiet van giu nguyen ben duoi de tra cuu).
+
+### Fixed
+- 🐛 **Bug co san (khong phai do phien nay gay ra), phat hien qua kiem tra HTML tu dong**: bang
+  "MCP Tools" co 1 the `<tr>` bi lap doi (dong ngay truoc row `sap_activate`), thieu `</tr>` dong
+  cho row truoc do — sua thanh 1 `<tr>` dung.
+- Header/footer/hero con ghi **"v0.8.3"** (3 cho) du plugin da len toi v0.9.0 tu lau — cap nhat
+  dong bo thanh version + so skill/agent hien tai (48 skill, 27 agent).
+
+### Notes
+- Da verify: chay `node --check` tren ca 3 script block (khong loi), tu viet 1 HTML tag-balance
+  checker (Python `html.parser`) quet toan bo file — 0 loi mismatch sau khi sua. Load thu object
+  `translations` qua `node`, spot-check nhieu entry moi deu resolve dung.
+- ⚠️ [Unverified] **KHONG the mo trang that trong trinh duyet de xac nhan bang mat** — Playwright
+  chua cai duoc trong moi truong nay (loi chung thuc SSL khi tai ve qua npm), nen moi kiem tra o
+  tren chi la kiem tra CAU TRUC (HTML/CSS/JS hop le), KHONG phai kiem tra hien thi/tuong tac that.
+  De nghi tu mo `index.html` (hoac ban GitHub Pages sau khi deploy) tren trinh duyet that de xac
+  nhan: (1) 6 tab chuyen dung, (2) sidebar/search/hero link tu dong nhay tab dung, (3) so do
+  flowchart hien thi dung ca 2 theme sang/toi va tren mobile, truoc khi coi la hoan tat.
+- Da giu nguyen toan bo noi dung/section cu (khong xoa gi) — chi them thuoc tinh `data-tab` +
+  CSS an/hien qua class, khong di chuyen/viet lai noi dung cac section da co.
+
+---
+
+## [v0.9.0] — 2026-07-12
+
+### Added
+- 🔒 **`hooks/zy_namespace_guard.py`** (PreToolUse) — backstop KY THUAT cho quy tac "khong tao/
+  sua/xoa object ngoai Z/Y" (`sap-clean-code`/`sap-deployment-target`): tu dong CHAN (khong chi
+  canh bao) bat ky tool call nao trong tinh (create/update/delete) x (domain/data element/table/
+  structure/view/behavior definition/metadata extension/service definition) — bao gom ca
+  `sap_create_domain`/`sap_create_data_element`/`sap_create_table` (native `sap-dict-bridge`) lan
+  `CreateDomain`/`CreateTable`/... (ADT MCP fork) — neu tham so ten object khong bat dau `Z`/`Y`
+  hoac `/namespace/` da dang ky. Fail-open tuyet doi: bat ky loi parse/khong nhan dien duoc field
+  ten deu cho qua (KHONG chan nham), dung chung triet ly voi `verify_nudge.py` da co.
+  Da test 8 case (block/allow/fail-open) qua stdin gia lap truoc khi wire vao `hooks.json`.
+
+### Notes
+- Nguoi dung dua 1 file hooks.json tham khao tu 1 plugin khac ("sc4sap") voi kien truc rat rong
+  (12 loai hook event, ~20 script Node.js: UserPromptSubmit keyword-detector, SubagentStart/Stop
+  tracking, PreCompact, SessionEnd...). **Khong copy nguyen** kien truc do — ly do: (1) toan bo
+  hook script hien co cua repo nay dung Python, dua them Node.js/`.mjs` se tao 2 runtime song
+  song khong can thiet; (2) da so cac hook event kia (UserPromptSubmit, SubagentStart/Stop,
+  PreCompact, SessionEnd, PermissionRequest) chua co nhu cau cu the, tu them vao se thanh "lan
+  man" (dung tu cua chinh nguoi dung) — chi rui ro moi ma khong giai quyet gap nao dang co that.
+  Chi lay 1 y tuong CO GIA TRI RO RANG va khop truc tiep voi rao chan da thiet ke o
+  `sap-deployment-target`/`sap-clean-code`: PreToolUse guard chan tao/sua/xoa object ngoai Z/Y —
+  chuyen the sang Python, tu viet logic rieng (KHONG copy code cua sc4sap, chi lay y tuong ve loai
+  hook event nen dung).
+- ⚠️ [Unverified] Da test ky script `zy_namespace_guard.py` bang stdin gia lap (8 case) va xac
+  nhan JSON hooks.json hop le — nhung CHUA the xac nhan Claude Code that su goi dung hook
+  PreToolUse voi hinh dang `tool_name`/`tool_input` nhu gia dinh cho MCP tool call that (repo nay
+  chua co vi du PreToolUse nao khac de doi chieu, chi co Stop/PostToolUse da chay that qua
+  `verify_nudge.py`). Nen tu xac nhan bang 1 lan goi tool MCP that (vd thu tao object ten sai
+  namespace) truoc khi tin tuong hoan toan vao backstop nay.
+
+---
+
+## [v0.8.9] — 2026-07-12
+
+### Added
+- 🆕 **sap-ask-before-guessing** (`skills/sap-ask-before-guessing`) — nguyen tac chung: khi thieu
+  thong tin de lam dung 1 hanh dong anh huong that len he thong SAP (tao/sua/xoa object, chon
+  CDS/package/pattern...), PHAI hoi lai user thay vi tu doan "phuong an hop ly". Tong quat hoa
+  vien co R4 cua `sap-routing-discipline` (von chi ap dung cho routing module) ra MOI diem quyet
+  dinh trong pipeline scaffold/deploy. Bom tu dong vao dau moi phien qua `hooks/hooks.json`
+  (SessionStart) — cung co che voi `sap-routing-discipline`, 2 hook command doc lap.
+
+### Notes
+- Nguoi dung hoi truc tiep "lam sao de tao rule chung cho Claude, cho nao khong ro thi phai hoi
+  lai het" — quyet dinh dung co che **bom qua SessionStart hook** (nhu `sap-routing-discipline`
+  co san) thay vi CLAUDE.md, vi hooks.json cua plugin nay ap dung MOI khi plugin duoc dung (bat
+  ke dang lam viec o project SAP nao), con CLAUDE.md dat trong repo plugin nay se KHONG duoc doc
+  khi plugin duoc cai vao du an cua nguoi dung khac. Neu muon 1 rule that su toan cuc (moi phien
+  Claude Code, khong lien quan SAP) thi phai dung `~/.claude/settings.json`/CLAUDE.md o may ca
+  nhan — khac pham vi voi hooks.json cua plugin nay (chua lam, ngoai pham vi cau hoi lan nay).
+- Da verify: JSON hooks.json hop le (`python -c "import json; json.load(...)"`), va lenh shell moi
+  chay thu that (gia lap `CLAUDE_PLUGIN_ROOT`) tra ve dung JSON `hookSpecificOutput` mong doi,
+  exit code 0.
+
+---
+
+## [v0.8.8] — 2026-07-12
+
+### Added
+- 🆕 **sap-deployment-target** (`skills/sap-deployment-target`) — skill moi, dung sau
+  `sap-write-technical-spec` truoc khi scaffold: (1) hoi user deploy vao package nao tren he thong
+  that (co san hoac tao moi package Z, hoi xac nhan ro rang truoc khi tao that); (2) rao chan an
+  toan xuyen suot pipeline — tuyet doi khong tao/sua/xoa object ngoai namespace Z/Y hoac ngoai
+  package da xac nhan; (3) gate cho moi buoc can thao tac thu cong (approve transport, dang nhap,
+  activate khi chua noi MCP...) — dung lai, mo ta ro viec can lam, chi tiep tuc sau khi user xac
+  nhan xong.
+
+### Fixed
+- `skills/sap-cloud-dictionary/SKILL.md`: thieu han **Buoc 0 (kiem tra reuse truoc khi tao moi)**
+  — chi co quy trinh tao Domain/Data Element/Table, khong bat buoc kiem tra Data Element chuan SAP
+  hoac object Z/Y co san (qua `sap-bootstrap-system-context`) truoc. Them Buoc 0 + cross-reference
+  `sap-deployment-target`.
+- `skills/sap-finish-ticket/SKILL.md` (Buoc 5): check "transport dung package" nhung khong doi
+  chieu voi quyet dinh package nao da duoc xac nhan voi user — sua thanh doi chieu ro voi
+  `sap-deployment-target`.
+- `skills/sap-clean-code/SKILL.md`: co quy tac Z/Y namespace nhung chua co phat bieu ro rang
+  "TUYET DOI KHONG tao/sua/xoa object chuan SAP" nhu 1 rao chan an toan doc lap — them doan canh
+  bao ro rang + tro toi `sap-deployment-target`.
+- `skills/sap-write-technical-spec/SKILL.md`: them cross-reference `sap-deployment-target` la
+  buoc bat buoc tiep theo sau khi TECHNICAL_SPEC.md hoan tat.
+- `index.html`: 3 quy trinh Bao cao/API/Form chua co buoc xac dinh package deploy + rao chan an
+  toan. Them hang **2c** (`sap-deployment-target`) vao ca 2 bang Bao cao va API (Form ke thua) +
+  1 doan giai thich muc dich ngay dau section. Sua lai 1 dict entry dich thuat rui ro (tu ngan
+  chung "bắt buộc" dat o do uu tien cao co the ghi de len cac cau khac chua dich trong toan bo
+  file 4000+ dong) — gop lai thanh 1 chuoi dai + duy nhat truoc khi them ban dich.
+
+### Notes
+- Phat hien tu phan hoi truc tiep cua nguoi dung: "xin thong tin package de deploy, tranh dung
+  standard SAP, cho nao thu cong thi hoi xac nhan roi moi lam tiep" — chua co co che nao trong
+  repo cover day du 3 y nay truoc ban nay.
+
+---
+
+## [v0.8.7] — 2026-07-12
+
+### Fixed
+- 🐛 **`skills/sap-write-technical-spec/SKILL.md` (Buoc 3)**: chi noi mo ho "hoi agent consultant
+  tuong ung" — khong bat buoc di qua routing engine `sap-ask-consultant`, nen co the bo sot
+  **module coupling** (ticket dung nhieu phan he cung luc, vd Sales Order can ca SD+FI) va de tu
+  chon/tu doan sai consultant. Sua: Buoc 3 diem 1 gio **bat buoc** dispatch qua `sap-ask-consultant`.
+- 🆕 **Them "xac nhan 2 chieu" vao cuoi Buoc 4**: sau khi liet ke xong object/field, phai gui lai
+  danh sach cho **cung consultant** xac nhan lan 2 truoc khi chot TECHNICAL_SPEC.md — bat loi chon
+  sai muc dich (grain CDS sai, thieu field nghiep vu, nham phan he) truoc khi scaffold code that,
+  thay vi phat hien sau khi da activate ton kem hon.
+- `index.html` (3 quy trinh Bao cao/API/Form them tu phien truoc): **thieu hoan toan buoc
+  `sap-ask-consultant`** — chi ghi tat "tim CDS/Cube nguon da released" ben trong step 2, khong
+  hien thi ro rang. Them 2 hang moi **2a** (dispatch chon CDS nguon) va **2b** (xac nhan lai danh
+  sach object) vao ca bang Bao cao va API (Form ke thua tu bang API) + 1 doan giai thich muc dich
+  ngay dau section.
+
+### Notes
+- Phat hien tu phan hoi truc tiep cua nguoi dung ve pipeline moi them — dung frontmatter cua
+  `sap-write-technical-spec` (da co san "hoi agent consultant" nhung ghi qua mo ho) lam co so de
+  sua chinh xac, khong doan lai tu dau.
+
+---
+
 ## [v0.8.6] — 2026-07-12
 
 ### Added

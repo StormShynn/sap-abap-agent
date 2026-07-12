@@ -62,14 +62,19 @@ Ghi lai cau tra loi + ly do trong TECHNICAL_SPEC.md.
 | Form CRUD save theo sequence custom | RAP Unmanaged | `sap-scaffold-rap --unmanaged` + ADR |
 | Tich hop he thong ngoai (inbound/outbound API) | RAP Unmanaged/Managed + service binding | `sap-scaffold-rap` |
 
-### Buoc 3: Chon CDS/API nguon (theo phan he)
+### Buoc 3: Chon CDS/API nguon (theo phan he) — BAT BUOC qua sap-ask-consultant
 
 Cho tung entity/field trong INTAKE muc 5.4:
 
-1. Xac dinh phan he (da ghi o INTAKE) -> hoi agent consultant tuong ung cua phan he do (vd
-   `sap-mm-consultant-cloud` cho MM, `sap-fi-consultant-cloud` cho FI...) hoac dung
-   `sap-docs-researcher` / skill `sap-cds-kb` de tim CDS view/API chuan khop nghiep vu.
-2. Uu tien CDS `I_*` (VDM interface) da released, khop field FS yeu cau.
+1. Xac dinh phan he (da ghi o INTAKE) -> dispatch qua skill `sap-ask-consultant` (routing engine —
+   KHONG tu chon 1 agent consultant thu cong bang doan tu ten module). Ly do bat buoc qua routing
+   engine thay vi tu chon: tu dong phat hien **module coupling** khi ticket dung nhieu phan he cung
+   luc (vd Sales Order dung ca SD+FI, Purchase Order dung ca MM+FI — xem bang coupling trong
+   `sap-ask-consultant`) va dispatch song song, tranh bo sot goc nhin 1 phan he. Cau hoi mau: "CDS
+   view/field nao chuan cho nghiep vu <trich muc 5.4 INTAKE>". Ket hop `sap-docs-researcher` /
+   skill `sap-cds-kb` de tra cuu ky thuat (field/association) sau khi da co huong tu consultant.
+2. Uu tien CDS `I_*` (VDM interface) da released, khop field FS yeu cau, theo dung goi y cua
+   consultant — KHONG tu doan CDS view khi consultant chua tra loi.
 3. **Verify released** cho dung version S/4HANA Cloud dang dung (SAP ra 4 ban/nam — ten/API doi
    theo release) — dung `sap-docs-researcher` (tool `sap_search_objects`) hoac View Browser trong
    Eclipse ADT.
@@ -90,6 +95,16 @@ Theo pattern da chon, liet ke (dung dung quy uoc trong skill `sap-clean-code`):
 - Metadata extension (Fiori): `.MDE`
 
 Checklist nay phai cover **TAT CA** field trong INTAKE muc 5.4.
+
+**Xac nhan 2 chieu (bat buoc, khong duoc bo qua)**: Sau khi liet ke xong object/field o tren, gui
+lai TOAN BO danh sach CDS/field/object du kien cho **cung consultant** da hoi o Buoc 3 (qua
+`sap-ask-consultant`, ghi ro day la buoc xac nhan tiep noi cho ticket dang lam, khong hoi lai tu
+dau) de hoi: "danh sach nay co dung y nghia nghiep vu <phan he> khong, co thieu/thua field nao so
+voi nghiep vu that khong". **Chi chot TECHNICAL_SPEC.md sau khi consultant xac nhan.** Day la buoc
+"2 AI trao doi voi nhau" (technical-spec-writer <-> module consultant) de bat loi chon sai muc
+dich — vd chon nham grain CDS (header thay vi item), thieu field bat buoc theo nghiep vu, dung
+nham CDS view khac phan he — TRUOC khi scaffold code that (sua sau khi da scaffold ton kem hon
+nhieu vi phai sua lai Table/CDS/Behavior da activate).
 
 ### Buoc 5: Dinh nghia behavior chi tiet (neu la RAP)
 
@@ -162,4 +177,8 @@ implementation in class zbp_<object> unique;
 - Skill `sap-odata-service` — OData V4/V2 patterns, RAP service binding quyet dinh.
 - Skill `sap-badi-enhancement` — Cloud BAdI patterns khi can custom logic.
 - Skill `sap-rap-events` — RAP business events cho event-driven architecture.
-- Agent consultant tuong ung phan he — tim CDS/API chuan.
+- Skill `sap-ask-consultant` — **bat buoc** dung o Buoc 3 (chon CDS/API nguon) va Buoc 4 (xac nhan
+  2 chieu) thay vi tu chon/tu doan agent consultant.
+- Skill `sap-deployment-target` — **buoc tiep theo bat buoc** sau khi TECHNICAL_SPEC.md hoan
+  tat: xac dinh package deploy tren he thong that + rao chan an toan, TRUOC khi chay
+  `sap-scaffold-rap`/`sap-scaffold-cds`/`sap-cloud-dictionary`.

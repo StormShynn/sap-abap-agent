@@ -55,7 +55,11 @@ tung test class. Bat ky test nao FAIL/khong chay duoc -> DUNG.
 
 ### Buoc 5: Transport check
 
-- Transport request dung package, dung mo ta (ticket ID trong text).
+- Transport request dung **package da xac nhan voi user o skill `sap-deployment-target`** (doi
+  chieu voi muc "Package deploy" trong TECHNICAL_SPEC.md) — KHONG phai package tu doan hoac package
+  chuan SAP. Neu TECHNICAL_SPEC.md chua co muc nay (ticket cu truoc khi co skill nay) — dung lai,
+  hoi user xac nhan package truoc khi release transport.
+- Dung mo ta (ticket ID trong text).
 - Khong lan object khong lien quan ticket nay (kiem tra object list trong transport khop voi
   TECHNICAL_SPEC.md).
 - Neu co ADR (`docs/decisions/`) cho quyet dinh kien truc — da tao chua.
@@ -103,3 +107,5 @@ Neu **NOT READY**: liet ke ro con thieu gi, khong dong ticket.
 - Buoc truoc: `sap-atc-review` (buoc 4), `sap-unit-test` (buoc 5).
 - Skill `sap-verification-before-completion` — nguyen tac bang chung chay that ap dung xuyen suot.
 - Skill `sap-scaffold-rap` — thu tu dependency activation.
+- Skill `sap-deployment-target` — noi package deploy duoc xac nhan voi user (Buoc 5 doi chieu lai
+  quyet dinh nay, khong tu doan package moi).
