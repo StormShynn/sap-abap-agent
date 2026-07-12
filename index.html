@@ -1656,16 +1656,20 @@ sap-btp-agent setup https://project1.s4hana.cloud.sap
       <div class="tree">
 <span class="dir">📦 sap-abap-agent/</span>
 <span class="branch">├──</span> <span class="highlight">.claude-plugin/</span>    <span class="file">   ← Manifest plugin Claude Code</span>
-<span class="branch">├──</span> <span class="highlight">commands/</span>              <span class="file">   ← /abap-scaffold, /sap-connect</span>
-<span class="branch">├──</span> <span class="highlight">skills/</span>                <span class="file">   ← abap-code-review, sap-btp-setup</span>
-<span class="branch">├──</span> <span class="highlight">hooks/</span>                 <span class="file">   ← Cảnh báo SELECT *</span>
-<span class="branch">├──</span> <span class="highlight">reference/</span>             <span class="file">   ← Tài liệu ABAP</span>
-<span class="branch">├──</span> <span class="highlight">mcp-server/</span>            <span class="file">   ← MCP server Node.js (multi-profile)</span>
-<span class="branch">│</span>   <span class="branch">├──</span> <span class="highlight">src/config/</span>    <span class="file">   ← paths, profile, store, secrets</span>
-<span class="branch">│</span>   <span class="branch">├──</span> <span class="highlight">src/sap/</span>       <span class="file">   ← auth (OAuth2), client (REST + auto-reconnect)</span>
-<span class="branch">│</span>   <span class="branch">├──</span> <span class="highlight">src/tools/</span>     <span class="file">   ← registry các tool MCP</span>
-<span class="branch">│</span>   <span class="branch">├──</span> <span class="highlight">src/cli/</span>       <span class="file">   ← wizard setup + quản lý profile</span>
-<span class="branch">│</span>   <span class="branch">└──</span> <span class="highlight">server.js</span>      <span class="file">   ← entry MCP server (stdio)</span>
+<span class="branch">├──</span> <span class="highlight">commands/</span>              <span class="file">   ← /sap-connect, /sync-skills</span>
+<span class="branch">├──</span> <span class="highlight">skills/</span>                <span class="file">   ← 41 skill (routing, BTP setup, CDS KB, codegen pipeline...)</span>
+<span class="branch">├──</span> <span class="highlight">agents/</span>                <span class="file">   ← 28 agent (.md) — 25 module consultant + researcher + daily learner + reviewer</span>
+<span class="branch">├──</span> <span class="highlight">hooks/</span>                 <span class="file">   ← Cảnh báo SELECT * + routing discipline (SessionStart)</span>
+<span class="branch">├──</span> <span class="highlight">reference/</span>
+<span class="branch">│</span>   <span class="branch">├──</span> <span class="highlight">modules/</span>       <span class="file">   ← 26 module knowledge base (8 module có 2-layer CORE+DEEP)</span>
+<span class="branch">│</span>   <span class="branch">├──</span> <span class="highlight">mcp-server/</span>    <span class="file">   ← MCP server Python (multi-profile)</span>
+<span class="branch">│</span>   <span class="branch">│</span>   <span class="branch">├──</span> <span class="highlight">sap_btp_agent/config/</span> <span class="file"> ← paths, profile, store, secrets</span>
+<span class="branch">│</span>   <span class="branch">│</span>   <span class="branch">├──</span> <span class="highlight">sap_btp_agent/sap/</span>    <span class="file"> ← auth (OAuth2), client (REST + auto-reconnect)</span>
+<span class="branch">│</span>   <span class="branch">│</span>   <span class="branch">├──</span> <span class="highlight">sap_btp_agent/tools/</span>  <span class="file"> ← registry các tool MCP</span>
+<span class="branch">│</span>   <span class="branch">│</span>   <span class="branch">├──</span> <span class="highlight">sap_btp_agent/cli/</span>    <span class="file"> ← wizard setup + quản lý profile</span>
+<span class="branch">│</span>   <span class="branch">│</span>   <span class="branch">└──</span> <span class="highlight">pyproject.toml</span>       <span class="file"> ← entry point <code>sap-btp-agent</code></span>
+<span class="branch">│</span>   <span class="branch">├──</span> <span class="highlight">scripts/</span>       <span class="file">   ← office_to_md, sync_skills, agent_home, cleanup_agent_home...</span>
+<span class="branch">│</span>   <span class="branch">└──</span> <span class="highlight">.vscode-extensions/</span> <span class="file"> ← VS Code extension tự đăng ký MCP server</span>
 <span class="branch">├──</span> <span class="file">index.html</span>              <span class="file">   ← Trang hướng dẫn này</span>
 <span class="branch">└──</span> <span class="file">README.md</span>               <span class="file">   ← Tổng quan dự án</span>
       </div>
@@ -1688,6 +1692,23 @@ sap-btp-agent setup https://project1.s4hana.cloud.sap
         <li><strong>macOS/Linux</strong>: AES-256-GCM, key derive từ <code>hostname + username</code></li>
         <li>File mode <code>0o600</code>, chỉ owner đọc/ghi</li>
       </ul>
+
+      <h3>Cấu hình (State của plugin — khác folder trên)</h3>
+      <div class="tree">
+<span class="dir">📂 %USERPROFILE%\.sap-abap-agent\</span>  <span class="file">(Windows)</span>
+<span class="dir">📂 ~/.sap-abap-agent/</span>              <span class="file">  (macOS/Linux)</span>
+<span class="branch">├──</span> <span class="highlight">memory/</span>       <span class="file">   ← sap-daily-learner: episodic/semantic/procedural</span>
+<span class="branch">├──</span> <span class="highlight">cache/</span>        <span class="file">   ← sap-context-tool-result-trim: cache output MCP (tự dọn qua 7 ngày)</span>
+<span class="branch">├──</span> <span class="highlight">sessions/</span>     <span class="file">   ← scaffold/FS working state theo ticket</span>
+<span class="branch">└──</span> <span class="highlight">handoff/</span>      <span class="file">   ← HANDOFF.md ban giao giữa các session</span>
+      </div>
+
+      <p><strong>Lưu ý</strong>: đây là 2 folder <strong>tách biệt</strong> tên gần giống nhau —
+      <code>.sap-btp-agent\</code> lưu profile kết nối SAP BTP (MCP server), còn
+      <code>.sap-abap-agent\</code> lưu state riêng của <strong>plugin Claude Code</strong>
+      (memory học tập, cache, session đang làm). Mặc định luôn ghi vào <code>%USERPROFILE%</code>
+      dù đang mở project SAP nào; override qua <code>SAP_ABAP_AGENT_HOME</code> khi dev/test
+      plugin. Chi tiết: <code>CONTRIBUTING.md</code>.</p>
     </section>
 
     <!-- ===== BIẾN MÔI TRƯỜNG ===== -->
@@ -2785,9 +2806,9 @@ java -jar cdata.jdbc.sapfieldglass.jar --license</code><button class="copy-btn" 
       <div class="tree">
 <span class="dir">📦 sap-abap-agent/</span>
 <span class="branch">├──</span> <span class="highlight">.claude-plugin/</span>        <span class="file"> ← Manifest + metadata</span>
-<span class="branch">├──</span> <span class="highlight">agents/</span>                 <span class="file"> ← 20 agent definitions (.md)</span>
-<span class="branch">├──</span> <span class="highlight">skills/</span>                 <span class="file"> ← 9 skill implementations</span>
-<span class="branch">│</span>   <span class="branch">├──</span> <span class="highlight">sap-ask-consultant/</span>    <span class="file"> ← Routing engine (20 agents)</span>
+<span class="branch">├──</span> <span class="highlight">agents/</span>                 <span class="file"> ← 28 agent definitions (.md)</span>
+<span class="branch">├──</span> <span class="highlight">skills/</span>                 <span class="file"> ← 41 skill implementations</span>
+<span class="branch">│</span>   <span class="branch">├──</span> <span class="highlight">sap-ask-consultant/</span>    <span class="file"> ← Routing engine (27 agents)</span>
 <span class="branch">│</span>   <span class="branch">├──</span> <span class="highlight">sap-btp-setup/</span>         <span class="file"> ← BTP connection manager</span>
 <span class="branch">│</span>   <span class="branch">├──</span> <span class="highlight">sap-cds-kb/</span>            <span class="file"> ← CDS view search (7,355 views)</span>
 <span class="branch">│</span>   <span class="branch">├──</span> <span class="highlight">sap-docs-research/</span>     <span class="file"> ← SAP Help + Community + API</span>
@@ -2796,10 +2817,9 @@ java -jar cdata.jdbc.sapfieldglass.jar --license</code><button class="copy-btn" 
 <span class="branch">│</span>   <span class="branch">├──</span> <span class="highlight">sap-key-user-toolkit/</span>  <span class="file"> ← Key User handbook</span>
 <span class="branch">│</span>   <span class="branch">├──</span> <span class="highlight">sap-daily-learner/</span>     <span class="file"> ← Hermes-like skill creation</span>
 <span class="branch">│</span>   <span class="branch">└──</span> <span class="highlight">sap-doc-to-md/</span>         <span class="file"> ← Convert Word/Excel → Markdown</span>
-<span class="branch">├──</span> <span class="highlight">reference/modules/</span>       <span class="file"> ← 19 module knowledge bases</span>
-<span class="branch">├──</span> <span class="highlight">commands/</span>               <span class="file"> ← /sap-connect command</span>
-<span class="branch">├──</span> <span class="highlight">hooks/</span>                  <span class="file"> ← SELECT * warning hook</span>
-<span class="branch">├──</span> <span class="highlight">.sap-abap-agent/</span>         <span class="file"> ← Learning progress tracker</span>
+<span class="branch">├──</span> <span class="highlight">reference/modules/</span>       <span class="file"> ← 26 module knowledge bases</span>
+<span class="branch">├──</span> <span class="highlight">commands/</span>               <span class="file"> ← /sap-connect, /sync-skills</span>
+<span class="branch">├──</span> <span class="highlight">hooks/</span>                  <span class="file"> ← SELECT * warning + routing discipline</span>
 <span class="branch">├──</span> <span class="file">index.html</span>               <span class="file"> ← Trang hướng dẫn này</span>
 <span class="branch">└──</span> <span class="file">README.md</span>                <span class="file"> ← Tổng quan dự án</span>
       </div>
@@ -3714,12 +3734,12 @@ java -jar cdata.jdbc.sapfieldglass.jar --license</code><button class="copy-btn" 
     'Manifest plugin Claude Code': 'Claude Code plugin manifest',
     'Cảnh báo SELECT *': 'SELECT * warning hook',
     'Tài liệu ABAP': 'ABAP documentation',
-    'MCP server Node.js (multi-profile)': 'MCP server (multi-profile)',
+    'MCP server Python (multi-profile)': 'MCP server (multi-profile)',
     'paths, profile, store, secrets': 'paths, profile, store, secrets',
     'auth (OAuth2), client (REST + auto-reconnect)': 'auth (OAuth2), client (REST + auto-reconnect)',
     'registry các tool MCP': 'MCP tool registry',
     'wizard setup + quản lý profile': 'setup wizard + profile management',
-    'entry MCP server (stdio)': 'MCP server entry (stdio)',
+    'entry point ': 'entry point ',
     'Trang hướng dẫn này': 'This guide page',
     'Tổng quan dự án': 'Project overview',
     'Cấu hình (User folder)': 'User config folder',
@@ -3918,7 +3938,7 @@ java -jar cdata.jdbc.sapfieldglass.jar --license</code><button class="copy-btn" 
     'Ki\u1ebfn tr\u00fac h\u1ec7 th\u1ed1ng': 'System Architecture',
     'C\u00e1ch \u0111\u1eb7t c\u00e2u h\u1ecfi': 'How to Ask Questions',
     'H\u1ecdc SAP m\u1ed7i ng\u00e0y': 'Learn SAP Daily',
-    '25 module consultants': '19 Module Consultants',
+    '25 module consultants': '25 Module Consultants',
     'Auto-scoring routing': 'Auto-Scoring Routing',
 
 
@@ -3927,13 +3947,11 @@ java -jar cdata.jdbc.sapfieldglass.jar --license</code><button class="copy-btn" 
     'Quiz MM cho t\u00f4i': 'Quiz me on MM',
 
     // --- Footer ---
-    '19 modules + 1 daily learner': '19 modules + 1 daily learner',
-    '19 modules + daily learner': '19 modules + daily learner',
     '27 agents': '27 agents',
 
     // --- Consultant System section ---
     'SAP Consultant System (25 modules + 1 daily learner)': 'SAP Consultant System (25 modules + 1 daily learner)',
-    'Danh s\u00e1ch 25 module consultants + 1 daily learner': 'List of 19 Module Consultants + 1 Daily Learner',
+    'Danh s\u00e1ch 25 module consultants + 1 daily learner': 'List of 25 Module Consultants + 1 Daily Learner',
     'V\u00ed d\u1ee5 routing': 'Routing Examples',
     'C\u00e2u h\u1ecfi': 'Question',
 
