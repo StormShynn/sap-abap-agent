@@ -1,6 +1,9 @@
 ﻿# Node
 node_modules/
 
+# VS Code extension build artifact (build lai qua vsce package, khong commit binary)
+*.vsix
+
 # Python
 __pycache__/
 *.py[cod]
@@ -23,10 +26,26 @@ nul
 # Machine-specific wrapper (chua duong dan tuyet doi)
 scripts/run_sync_skills.bat
 
+# Sync skills daemon runtime state (per-machine; *.log da duoc rule rieng o tren)
+.sap-abap-agent/sync_skills.lock
+
 # Personal learning progress (state rieng cua tung user, khong track)
 .sap-abap-agent/LEARNING_PROGRESS.md
 skills/sap-user-skills/*
 !skills/sap-user-skills/.gitkeep
+
+# Session handoff / scaffold working state (ca nhan, khong track)
+.sap-abap-agent/sessions/
+.sap-abap-agent/handoff/
+
+# Dev mirror cua sap-btp-agent profiles (chi khi dev bat SAP_BTP_AGENT_DEV_MIRROR)
+.sap-abap-agent/dev-mirror/
+
+# sap-daily-learner: memory 3 tang (episodic/semantic/procedural - ca nhan, khong track)
+.sap-abap-agent/memory/
+
+# sap-context-tool-result-trim: cache full output truoc khi mask (ca nhan, khong track)
+.sap-abap-agent/cache/
 
 # Env / secrets (duoc ma hoa nhung can than)
 .env

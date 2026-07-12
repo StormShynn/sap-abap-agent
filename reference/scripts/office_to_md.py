@@ -31,7 +31,12 @@ import markdownify
 import pandas as pd
 
 try:
-    from sap_btp_agent.config.paths import get_in_dir, get_out_dir
+    from sap_btp_agent.config.paths import (
+        get_in_dir,
+        get_out_dir,
+        mirror_write_bytes,
+        mirror_write_text,
+    )
 
     DEFAULT_INPUT_DIR = get_in_dir()
     DEFAULT_OUTPUT_DIR = get_out_dir()
@@ -45,6 +50,12 @@ except ImportError:
     REPO_DIR = Path(__file__).resolve().parent.parent.parent
     DEFAULT_INPUT_DIR = REPO_DIR / "in"
     DEFAULT_OUTPUT_DIR = REPO_DIR / "out"
+
+    def mirror_write_text(real_file: Path, content: str) -> None:  # noqa: ARG001
+        pass
+
+    def mirror_write_bytes(real_file: Path, content: bytes) -> None:  # noqa: ARG001
+        pass
 
 SUPPORTED_EXTENSIONS = {".docx", ".xlsx", ".xls"}
 
@@ -67,8 +78,11 @@ def convert_docx(input_path: Path, output_dir: Path):
         ext = _clean_extension(image.content_type or "")
         filename = f"image{counter['n']:02d}.{ext}"
         assets_dir.mkdir(parents=True, exist_ok=True)
-        with image.open() as src, open(assets_dir / filename, "wb") as dst:
-            dst.write(src.read())
+        with image.open() as src:
+            image_bytes = src.read()
+        with open(assets_dir / filename, "wb") as dst:
+            dst.write(image_bytes)
+        mirror_write_bytes(assets_dir / filename, image_bytes)
         return {"src": f"{assets_dir.name}/{filename}"}
 
     with input_path.open("rb") as f:
@@ -87,6 +101,7 @@ def convert_docx(input_path: Path, output_dir: Path):
     output_dir.mkdir(parents=True, exist_ok=True)
     out_path = output_dir / f"{input_path.stem}.md"
     out_path.write_text(md_text, encoding="utf-8")
+    mirror_write_text(out_path, md_text)
 
     warnings = [m.message for m in result.messages if m.type == "warning"]
     return out_path, counter["n"], warnings
@@ -112,6 +127,7 @@ def convert_xlsx(input_path: Path, output_dir: Path):
     output_dir.mkdir(parents=True, exist_ok=True)
     out_path = output_dir / f"{input_path.stem}.md"
     out_path.write_text(md_text, encoding="utf-8")
+    mirror_write_text(out_path, md_text)
     return out_path, len(sheets)
 
 

@@ -16,6 +16,7 @@ from .paths import (
     get_profile_dir,
     get_profiles_dir,
     get_registry_file,
+    mirror_write_text,
 )
 
 REGISTRY_VERSION = 1
@@ -50,7 +51,9 @@ def load_registry() -> dict[str, Any]:
 
 def _save_registry(reg: dict[str, Any]) -> None:
     file = get_registry_file()
-    file.write_text(json.dumps(reg, ensure_ascii=False, indent=2), encoding="utf-8")
+    content = json.dumps(reg, ensure_ascii=False, indent=2)
+    file.write_text(content, encoding="utf-8")
+    mirror_write_text(file, content)
     try:
         os_chmod(file, 0o600)
     except Exception:

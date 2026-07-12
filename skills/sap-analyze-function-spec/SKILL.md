@@ -34,7 +34,7 @@ FS lon (30+ trang, nhieu bang) khong the do full vao context 1 lan - context se 
 **filesystem-context** (xem skill `sap-context-tool-result-trim`):
 
 ```
-Session dir: <workspace>/.sap-abap-agent/sessions/<ticket>/
+Session dir: <agent-home>/sessions/<ticket>/
 ├── fs_full.md         # Toan bo FS convert sang markdown
 ├── chunks/            # 8 file, moi file la 1 section INTAKE
 │   ├── 01_thong_tin_tai_lieu.md
@@ -49,7 +49,16 @@ Session dir: <workspace>/.sap-abap-agent/sessions/<ticket>/
 └── intake.md          # Output cuoi - INTAKE chinh
 ```
 
-Trong `<workspace>` (thu muc user, KHONG phai repo plugin), tao session dir tren.
+`<agent-home>` KHONG phai project dang mo (plugin cai va dung tren bat ky project SAP nao) - la
+1 thu muc co dinh theo may, mac dinh `%USERPROFILE%\.sap-abap-agent\` (Windows) /
+`~/.sap-abap-agent/` (macOS/Linux), override qua `SAP_ABAP_AGENT_HOME`. Session dir =
+`<agent-home>/sessions/<ticket>`, resolve bang:
+```bash
+python "${CLAUDE_PLUGIN_ROOT}/reference/scripts/agent_home.py" sessions/<ticket>
+```
+Moi lenh Bash co the la 1 shell moi (shell state KHONG persist giua cac lan goi Bash) - lenh o
+Buoc 1 duoi day tu resolve lai trong CUNG 1 block, KHONG dua vao bien tu block nay.
+
 Neu user chi dinh ticket tu prompt (vd "ticket PROJECT_2024_Q1") -> dung ticket do; neu khong
 -> tao ticket tu ten file FS (vd FS_KH01.docx -> ticket KH01).
 
@@ -81,13 +90,15 @@ Ap dung pattern **context-decomposition**:
 - Moi chunk chi load khi can (default KHONG load len context chi moi summary).
 - Trong `summary.md`, ghi "Chi tiet section X: xem `chunks/0X_<ten>.md`".
 
-Lenh mau:
+Lenh mau (1 block duy nhat - cac bien chi dam bao ton tai trong cung 1 lan goi Bash nay):
 ```bash
-# Tu office_to_md.py sinh markdown -> in/<ticket>/fs_full.md
-python reference/scripts/office_to_md.py
+SESSION_DIR="$(python "${CLAUDE_PLUGIN_ROOT}/reference/scripts/agent_home.py" sessions/<ticket>)"
+IN_DIR="$(python -c "from sap_btp_agent.config.paths import get_in_dir; print(get_in_dir())")"
+# Tu office_to_md.py sinh markdown -> $IN_DIR/fs_full.md
+python "${CLAUDE_PLUGIN_ROOT}/reference/scripts/office_to_md.py"
 # Copy vao session
-New-Item -ItemType Directory -Path "<session-dir>" -Force
-Copy-Item "in/<ticket>/fs_full.md" -Destination "<session-dir>/fs_full.md"
+mkdir -p "$SESSION_DIR"
+cp "$IN_DIR/fs_full.md" "$SESSION_DIR/fs_full.md"
 ```
 
 ### Buoc 2: Phan loai noi dung vao 8 section INTAKE (tu summary + chunks)

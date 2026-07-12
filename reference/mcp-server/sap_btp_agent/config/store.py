@@ -9,7 +9,7 @@ import os
 from pathlib import Path
 from typing import Any
 
-from .paths import get_profile_config_file
+from .paths import get_profile_config_file, mirror_write_text
 from .profile import ensure_app_dir, get_current_active
 
 DEFAULT_CONFIG: dict[str, Any] = {
@@ -52,7 +52,9 @@ def save_config(profile_id: str | None, partial: dict[str, Any]) -> dict[str, An
     file.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
     current = load_config(pid) if file.exists() else {**DEFAULT_CONFIG}
     merged = {**current, **partial, "version": 1}
-    file.write_text(json.dumps(merged, ensure_ascii=False, indent=2), encoding="utf-8")
+    content = json.dumps(merged, ensure_ascii=False, indent=2)
+    file.write_text(content, encoding="utf-8")
+    mirror_write_text(file, content)
     try:
         os.chmod(file, 0o600)
     except Exception:

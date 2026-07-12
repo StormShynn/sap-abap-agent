@@ -6,6 +6,55 @@ Format dựa trên [Keep a Changelog](https://keepachangelog.com/) và [Semantic
 
 ---
 
+## [v0.8.3] — 2026-07-12
+
+### Fixed
+- 🏠 **State của plugin (memory/cache/sessions/handoff) chuyển từ project-relative sang
+  `%USERPROFILE%\.sap-abap-agent\`** — các skill `sap-daily-learner`, `sap-context-tool-result-trim`,
+  `sap-scaffold-context-summary`, `sap-analyze-function-spec`, `sap-routing-discipline`,
+  `sap-handoff` trước đây ghi `<workspace>/.sap-abap-agent/...`, chỉ đúng khi dev ngay trong repo
+  plugin (workspace tình cờ trùng plugin repo) — SAI khi plugin được cài thật và dùng trên 1
+  project SAP khác (sẽ ghi lộn state cá nhân vào repo của client). Thêm
+  `reference/scripts/agent_home.py` (tương đương `config/paths.py` của `sap_btp_agent`) để resolve
+  `%USERPROFILE%\.sap-abap-agent\` mặc định, override qua `SAP_ABAP_AGENT_HOME` khi dev/test trong
+  project.
+- 🔧 **Script invocation dùng `${CLAUDE_PLUGIN_ROOT}`** thay vì đường dẫn tương đối
+  (`reference/scripts/*.py`) trong các SKILL.md/command gọi `office_to_md.py`,
+  `lesson_card_add.py`, `lesson_card_retrieve.py`, `sap_naming_lint.py`, `check_released_api.py`,
+  `sync_skills.py` — đường dẫn tương đối chỉ đúng khi cwd là repo plugin (dev/test), sẽ báo lỗi
+  "file not found" khi plugin cài thật và Claude Code đang mở project khác.
+- Fix typo `sap-bap-agent` → `sap-abap-agent` trong `skills/sap-context-tool-result-trim/SKILL.md`.
+- 🐛 **`sync_skills.py`: `REPO_DIR` tính sai 1 cấp thư mục** (`Path(__file__).resolve().parent.parent`
+  trỏ vào `reference/` thay vì gốc repo, do file này nằm ở `reference/scripts/` chứ không phải
+  `scripts/`) — khiến daemon LUÔN báo "không phải git repo" và bỏ qua, kể cả khi chạy đúng trong
+  repo git thật (đã verify bằng cách chạy trực tiếp trước/sau fix). Tự-cập-nhật qua `/sync-skills`
+  hoặc daemon nền coi như không hoạt động cho tới bản này. Sửa thành `.parent.parent.parent` +
+  cập nhật các ví dụ đường dẫn trong docstring/help cho khớp; cũng fix `SyntaxWarning` do `\p`
+  trong docstring (chuyển sang raw string).
+- Shell variable không tồn tại xuyên các lần gọi Bash riêng biệt (`$MEMORY_ROOT` trong
+  `sap-daily-learner`, `$SESSION_DIR` trong `sap-analyze-function-spec`) — mỗi lệnh giờ tự
+  resolve lại qua command substitution lồng nhau thay vì dựa vào biến set ở lệnh trước. Tiện thể
+  fix luôn cmdlet PowerShell (`New-Item`/`Copy-Item`) lẫn trong code fence `bash` của
+  `sap-analyze-function-spec` (đổi sang `mkdir -p`/`cp` cho đúng Git Bash).
+
+### Added
+- 🧹 **`reference/scripts/cleanup_agent_home.py`** — dọn cache/log tích lũy trong `<agent-home>`
+  để tránh phình thư mục local: (1) xóa file trong `<agent-home>/cache/` cũ hơn N ngày (mặc định
+  7, đọc override từ `<agent-home>/cache/.retention` nếu có — đúng policy đã ghi trong
+  `sap-context-tool-result-trim/SKILL.md` nhưng trước đây chưa có code triển khai), rồi ép tổng
+  dung lượng dưới cap (mặc định 500MB, xóa tiếp từ file cũ nhất nếu còn vượt); (2) trim các dòng
+  cũ hơn N ngày trong `sync_skills.log`. Có `--dry-run` để xem trước, đã test thực tế cả 2 nhánh
+  (theo tuổi, theo dung lượng, đọc `.retention`, trim log).
+
+### Changed
+- `.gitignore`: thêm `.sap-abap-agent/memory/`, `.sap-abap-agent/cache/`,
+  `.sap-abap-agent/sync_skills.lock` (thiếu từ trước, phát sinh khi dev/test đặt
+  `SAP_ABAP_AGENT_HOME` trỏ vào project).
+- `CONTRIBUTING.md`: cập nhật mục "File không nên push lên repo" + thêm mục giải thích
+  `SAP_ABAP_AGENT_HOME` (khác `SAP_BTP_AGENT_HOME`/`SAP_BTP_AGENT_DEV_MIRROR` của `sap-btp-agent`).
+
+---
+
 ## [v0.7.0] — 2026-07-11
 
 ### Added

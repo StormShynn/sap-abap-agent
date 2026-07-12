@@ -66,7 +66,8 @@ Khi tool output (cds-kb-mcp, sap-docs, sap-btp-agent) > ~2K token (~8KB text):
 ### Tier 2.3 - Working memory cho long session
 
 Khi session > 10 turn lien quan cung 1 ticket/project:
-- Ap dung working memory: ghi summary vao `.sap-abap-agent/sessions/<ticket>/`.
+- Ap dung working memory: ghi summary vao `<agent-home>/sessions/<ticket>/` (`<agent-home>` =
+  `%USERPROFILE%\.sap-abap-agent\`, xem skill `sap-scaffold-context-summary`).
 - Skill `sap-analyze-function-spec`: tach FS thanh 8 chunks.
 - Skill `sap-scaffold-context-summary`: snapshot full source giua cac layer scaffold.
 

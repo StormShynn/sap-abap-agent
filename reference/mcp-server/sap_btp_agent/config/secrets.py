@@ -21,7 +21,7 @@ from typing import Any
 
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 
-from .paths import get_profile_secrets_file
+from .paths import get_profile_secrets_file, mirror_write_text
 from .profile import ensure_app_dir, get_current_active
 
 # === Key derive cho AES fallback =====================================
@@ -146,7 +146,9 @@ async def save_secrets(profile_id: str | None, secrets: dict[str, Any]) -> dict[
     file = get_profile_secrets_file(pid)
     file.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
     blob = _encrypt_string(json.dumps(secrets, ensure_ascii=False))
-    file.write_text(json.dumps(blob, ensure_ascii=False, indent=2), encoding="utf-8")
+    content = json.dumps(blob, ensure_ascii=False, indent=2)
+    file.write_text(content, encoding="utf-8")
+    mirror_write_text(file, content, sensitive=True)
     try:
         os.chmod(file, 0o600)
     except Exception:

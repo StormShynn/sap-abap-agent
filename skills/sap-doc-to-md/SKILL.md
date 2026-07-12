@@ -7,7 +7,7 @@ description: |
   Dung khi user dua duong dan 1 file .docx/.xlsx/.xls (hoac ca thu muc chua nhieu file)
   va can convert sang .md, hoac hoi cach chuyen doi tai lieu Word/Excel thanh Markdown.
   Ban don gian: dung cong cu `markitdown` da cai san cho .docx (KHONG giu anh minh hoa/
-  screenshot - chi con text + bang), va script reference/scripts/office_to_md.py cho
+  screenshot - chi con text + bang), va script "${CLAUDE_PLUGIN_ROOT}/reference/scripts/office_to_md.py" cho
   .xlsx/.xls (bat buoc, vi markitdown lam sai dinh dang ma so SAP nhu Material/Order).
   KHONG dung cho file .pdf/.pptx (chua duoc test voi skill nay).
 when_to_use: |
@@ -38,7 +38,7 @@ markitdown --help
 
 Neu chua co: `pip install "markitdown[all]"`.
 
-File `.xlsx`/`.xls` dung `reference/scripts/office_to_md.py`, can `mammoth`, `markdownify`,
+File `.xlsx`/`.xls` dung `"${CLAUDE_PLUGIN_ROOT}/reference/scripts/office_to_md.py"`, can `mammoth`, `markdownify`,
 `pandas`, `openpyxl` (`xlrd` neu co file `.xls`) — cai bang `pip install mammoth markdownify pandas openpyxl xlrd`.
 
 ## Quy trinh xu ly
@@ -55,7 +55,7 @@ File `.xlsx`/`.xls` dung `reference/scripts/office_to_md.py`, can `mammoth`, `ma
   ```bash
   python -c "from sap_btp_agent.config.paths import get_in_dir, get_out_dir; print(get_in_dir()); print(get_out_dir())"
   ```
-  `reference/scripts/office_to_md.py` da tu dong dung 2 ham nay lam default — chi can goi script
+  `"${CLAUDE_PLUGIN_ROOT}/reference/scripts/office_to_md.py"` da tu dong dung 2 ham nay lam default — chi can goi script
   khong tham so la doc/ghi dung cho vao `in/`/`out/` local, khong can tu tinh duong dan.
 - Input: duong dan file cu the user dua, hoac 1 thu muc (mac dinh: `in/` local o tren).
 - Output: mac dinh thu muc `out/` local o tren, giu nguyen ten file goc, chi doi duoi thanh `.md`.
@@ -76,7 +76,7 @@ File `.xlsx`/`.xls` dung `reference/scripts/office_to_md.py`, can `mammoth`, `ma
   hien chu thua `NaN` thay vi de trong). Dung script co san (da fix bang `dtype=str`) — khong
   tham so se tu dong doc/ghi dung `in/`/`out/` local:
   ```bash
-  python reference/scripts/office_to_md.py
+  python "${CLAUDE_PLUGIN_ROOT}/reference/scripts/office_to_md.py"
   ```
 
 Voi nhieu file: goi khong tham so nhu tren se tu convert het file trong `in/`; hoac lap lai lenh
@@ -92,7 +92,7 @@ Dung Read doc lai file `.md` vua tao va kiem tra:
 
 ### Buoc 4: Bao cao ket qua
 
-Neu file .docx co gia tri nghiep vu quan trong nam trong screenshot (phat hien o Buoc 3.2), hoi user co muon giu lai anh khong — neu co, dung `python reference/scripts/office_to_md.py` (khong tham so se tu dung `in/`/`out/` local; script nay tach anh that ra thu muc `<ten-file>_assets/` thay vi luoc bo) thay cho markitdown CLI don gian o Buoc 2.
+Neu file .docx co gia tri nghiep vu quan trong nam trong screenshot (phat hien o Buoc 3.2), hoi user co muon giu lai anh khong — neu co, dung `python "${CLAUDE_PLUGIN_ROOT}/reference/scripts/office_to_md.py"` (khong tham so se tu dung `in/`/`out/` local; script nay tach anh that ra thu muc `<ten-file>_assets/` thay vi luoc bo) thay cho markitdown CLI don gian o Buoc 2.
 
 ## Vi du
 
@@ -103,12 +103,12 @@ User: convert file FS moi vua dat vao thu muc in/ sang md
 
 ### Output
 ```text
-$ python reference/scripts/office_to_md.py
+$ python "${CLAUDE_PLUGIN_ROOT}/reference/scripts/office_to_md.py"
 Dang convert: <path_local>/in/ten-file-FS.docx
   -> <path_local>/out/ten-file-FS.md (642 dong, 340 dong bang du lieu)
 Luu y: section "Man hinh chuc nang" chi con vai dong `![](data:image/x-emf;base64...)`
 khong render duoc (anh bi cat bo) — neu can xem giao dien that, mo file .docx goc hoac
-yeu cau dung reference/scripts/office_to_md.py (giu anh) thay vi markitdown CLI don gian.
+yeu cau dung "${CLAUDE_PLUGIN_ROOT}/reference/scripts/office_to_md.py" (giu anh) thay vi markitdown CLI don gian.
 ```
 
 ## Luu y
@@ -117,9 +117,9 @@ yeu cau dung reference/scripts/office_to_md.py (giu anh) thay vi markitdown CLI 
   thuc te: markitdown/pandas tu suy dien kieu du lieu, lam mat so 0 dung dau va doi dinh dang
   so (vd `000000001234567890` -> `1234567890`, `1000` -> `1000.0`) — sai lech du lieu nghiep vu
   SAP (Material, Plant, Order deu la ma dang so co the co so 0 dung dau). Luon dung
-  `reference/scripts/office_to_md.py` cho `.xlsx`/`.xls`.
+  `"${CLAUDE_PLUGIN_ROOT}/reference/scripts/office_to_md.py"` cho `.xlsx`/`.xls`.
 - ⚠️ Ban `.docx` don gian (qua `markitdown`) khong giu anh minh hoa — neu can giu anh (vd
-  screenshot Fiori quan trong cho nghiep vu), dung `reference/scripts/office_to_md.py` thay the
+  screenshot Fiori quan trong cho nghiep vu), dung `"${CLAUDE_PLUGIN_ROOT}/reference/scripts/office_to_md.py"` thay the
   (dung mammoth + markdownify, trich xuat anh that ra `_assets/`, xem chi tiet trong docstring
   cua script).
 - 💡 markitdown con ho tro `.pdf`, `.pptx`, `.csv`, `.html`, `.msg`... neu can mo rong dung cho loai file khac (chua kiem chung trong skill nay).

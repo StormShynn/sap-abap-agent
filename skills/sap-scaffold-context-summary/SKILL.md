@@ -30,6 +30,13 @@ effort: low
 > Sau moi layer scaffold, TRUOC KHI qua layer tiep theo, phai compact full source thanh summary
 > + ghi ra cache file. Layer tiep theo chi load summary + reference, doc cache file chi tiet khi can.
 
+**Noi luu (`<agent-home>`)**: KHONG ghi vao project/workspace dang mo - `<agent-home>` la 1 thu
+muc co dinh theo may, mac dinh `%USERPROFILE%\.sap-abap-agent\` (Windows) / `~/.sap-abap-agent/`
+(macOS/Linux), override qua `SAP_ABAP_AGENT_HOME`. Lay duong dan da resolve bang:
+```bash
+python "${CLAUDE_PLUGIN_ROOT}/reference/scripts/agent_home.py" sessions/<ticket>/scaffold
+```
+
 AP dung 4 buoc theo thu tu, moi buoc la checkpoint:
 
 ### Buoc 1: Snapshot source objects da generate
@@ -37,7 +44,7 @@ AP dung 4 buoc theo thu tu, moi buoc la checkpoint:
 Voi moi object vua generate (table, CDS view, behavior, class, service) trong layer N:
 
 ```
-Ghi: <workspace>/.sap-abap-agent/sessions/<ticket>/scaffold/layer_<N>_<object>_<hash>.abap
+Ghi: <agent-home>/sessions/<ticket>/scaffold/layer_<N>_<object>_<hash>.abap
 ```
 
 `<hash>` = SHA1 8 char dau content. KHONG dung timestamp.
@@ -68,7 +75,7 @@ Cho moi object trong layer, summary luon theo schema:
 
 ### Buoc 3: Ghi session manifest
 
-Sau moi layer, ghi/cap nhat `sessions/<ticket>/scaffold/manifest.yaml`:
+Sau moi layer, ghi/cap nhat `<agent-home>/sessions/<ticket>/scaffold/manifest.yaml`:
 
 ```yaml
 ticket: <ticket_name>

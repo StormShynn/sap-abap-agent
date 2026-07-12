@@ -61,6 +61,14 @@ Trigger som o 70-80%, KHONG choi den 90%+ (chat luong compaction giam manh).
 
 ## Pattern trim cu the cho SAP MCPs
 
+**Noi luu cache (`<agent-home>`)**: KHONG ghi vao project/workspace dang mo (plugin co the cai
+va dung tren bat ky project nao) - `<agent-home>` la 1 thu muc co dinh theo may, mac dinh
+`%USERPROFILE%\.sap-abap-agent\` (Windows) / `~/.sap-abap-agent/` (macOS/Linux), override qua
+`SAP_ABAP_AGENT_HOME`. Lay duong dan da resolve (tu tao thu muc neu chua co) bang:
+```bash
+python "${CLAUDE_PLUGIN_ROOT}/reference/scripts/agent_home.py" cache/cds_kb
+```
+
 ### Pattern A - `get_cds_view` output (view 30+ field, sections=all)
 
 Giu lai:
@@ -80,7 +88,7 @@ Format output compact:
 ```
 [get_cds_view: I_SalesDocument - masked. View co 87 field, 12 association.
 Giu: 24 field co @Semantics + 12 association + metadata. Bo: 63 field technical.
-Full: .sap-abap-agent/cache/cds_kb/I_SalesDocument_<hash>.txt]
+Full: <agent-home>/cache/cds_kb/I_SalesDocument_<hash>.txt]
 ```
 
 Sau do neu can field cu the -> `grep @Semantics.amountCurrency <file-path>` de doc lai.
@@ -95,7 +103,7 @@ Mac dinh tool da tra 10-50 items, moi item co name + label + score. Trim theo:
 ```
 [search_cds: "overdue invoices" - masked. Top 5: I_ARClearing... (0.92),
 I_OpenCustomerInvoice... (0.88), ... 5 candidate tiep theo co trong file.
-Full: .sap-abap-agent/cache/cds_kb/search_overdue_<hash>.json]
+Full: <agent-home>/cache/cds_kb/search_overdue_<hash>.json]
 ```
 
 ### Pattern C - Batch ADT source pull (10+ class/include)
@@ -108,7 +116,7 @@ Full: .sap-abap-agent/cache/cds_kb/search_overdue_<hash>.json]
 
 - Giu: header (severity, check name, object), summary (X error / Y warning), 5 dong dau tien cua moi error.
 - Loai bo: stack trace trung lap, frame internal cua SAP standard, message body verbose (thay bang 1 dong "see full in <path>").
-- Ghi full log vao `.sap-abap-agent/cache/atc/<ticket>.log`.
+- Ghi full log vao `<agent-home>/cache/atc/<ticket>.log`.
 
 ## Quy trinh trim
 
@@ -127,7 +135,7 @@ Theo bang o muc "Observation masking" o tren.
 Ghi full output vao cache, tra compact summary trong context.
 
 ```
-Cache dir: <workspace>/.sap-abap-agent/cache/<mcp-name>/<object>_<hash>.{txt,json,log}
+Cache dir: <agent-home>/cache/<mcp-name>/<object>_<hash>.{txt,json,log}
 ```
 
 Hash = SHA1 cua 8 char dau noi dung (de detect duplicate). KHONG dung timestamp trong ten file
@@ -164,7 +172,7 @@ TransactionCurrency, CustomerPriceGroup, IncotermsClassification,
 Associations (12): _Item, _ScheduleLine, _Partner, _Address, _PricingElement,
 ... (con 8, xem cache)
 Top associations cho query: _Item (composition), _Partner (to-many).
-Full metadata + source: D:\__StormShyn\.sap-bap-agent\cache\cds_kb\I_SalesDocument_a3f8b21c.txt]
+Full metadata + source: C:\Users\<user>\.sap-abap-agent\cache\cds_kb\I_SalesDocument_a3f8b21c.txt]
 ```
 
 ## Quy tac quan trong
@@ -181,7 +189,7 @@ Full metadata + source: D:\__StormShyn\.sap-bap-agent\cache\cds_kb\I_SalesDocume
 
 - Skill `sap-cds-kb` - ap dung Pattern A, B cho output `get_cds_view`, `search_cds`.
 - Skill `sap-analyze-function-spec` - ap dung cho output `office_to_md.py` neu file FS > 30 trang
-  (ghi full text vao `.sap-abap-agent/cache/fs/<ticket>.md`, tra summary theo 8 section INTAKE).
+  (ghi full text vao `<agent-home>/cache/fs/<ticket>.md`, tra summary theo 8 section INTAKE).
 - Skill `sap-scaffold-rap`/`sap-scaffold-cds` - ap dung Pattern C khi pull batch source.
 - Skill `sap-atc-review` - ap dung Pattern D cho ATC log.
 - Skill `sap-systematic-debugging` - ap dung nguoc lai: GIU NGUYEN stack trace, error message,
@@ -190,7 +198,9 @@ Full metadata + source: D:\__StormShyn\.sap-bap-agent\cache\cds_kb\I_SalesDocume
 ## Luu y
 
 - ⚠️ Neu trong 3 turn gan nhat co error/debug dang active -> TAT masking, tra nguyen output.
-- 💡 Cache dir co the cleanup theo retention (xem `.sap-abap-agent/cache/.retention` policy):
-  mac dinh giu 7 ngay, toi da 500MB.
+- 💡 Cache dir tu cleanup theo retention (mac dinh giu 7 ngay, toi da 500MB - co the doi qua
+  `<agent-home>/cache/.retention`, JSON `{"days": N, "max_mb": N}`) bang
+  `python "${CLAUDE_PLUGIN_ROOT}/reference/scripts/cleanup_agent_home.py"` (them `--dry-run` de
+  xem truoc se xoa gi). Script nay cung don luon `sync_skills.log` cu hon N ngay.
 - 🔗 Khi masking, ghi vao `LEARNING_PROGRESS.md` (skill `sap-daily-learner`) de sau nay biet
   pattern nao ap dung duoc, pattern nao mat mat thong tin.

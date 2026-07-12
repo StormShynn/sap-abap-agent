@@ -15,8 +15,17 @@ He thong persistent memory cua skill nay duoc to chuc thanh 3 tang (theo pattern
 trong repo agent-skills-for-context-engineering). Mac dinh chi tang SEMANTIC la load len
 context; 2 tang con lai chi load theo nhu cau.
 
+**Noi luu (`<agent-home>`)**: KHONG phai project/workspace dang mo - plugin nay co the cai va
+dung tren bat ky project SAP nao, nen KHONG dung duong dan tuong doi. `<agent-home>` la 1 thu
+muc co dinh theo may: mac dinh `%USERPROFILE%\.sap-abap-agent\` (Windows) / `~/.sap-abap-agent/`
+(macOS/Linux), override qua `SAP_ABAP_AGENT_HOME` (vd khi dev/test plugin ngay trong repo).
+Lay duong dan da resolve (tu tao thu muc neu chua co) bang:
+```bash
+python "${CLAUDE_PLUGIN_ROOT}/reference/scripts/agent_home.py" memory
 ```
-<workspace>/.sap-abap-agent/memory/
+
+```
+<agent-home>/memory/
 ├── episodic/              # Tang 1 - lich su chat (append-only, log raw)
 │   ├── 2026-07/
 │   │   ├── 2026-07-11_session-001.md   # 1 file / session, gom chat + tool calls
@@ -43,7 +52,7 @@ context; 2 tang con lai chi load theo nhu cau.
 
 ## 1. Persistent Knowledge Store (tang SEMANTIC)
 
-### File chinh: `.sap-abap-agent/memory/semantic/LEARNING_PROGRESS.md`
+### File chinh: `<agent-home>/memory/semantic/LEARNING_PROGRESS.md`
 
 Cau truc (giu nguyen format hien tai, chi them metadata cho memory-tier):
 
@@ -95,10 +104,15 @@ tong hop lai toan bo skill (tranh "context collapse": ghi de/tom tat lai toan bo
 cu). Pattern tu ACE (arXiv 2510.04618) — merge tang dan (deterministic, append-or-skip-duplicate),
 khong bao gio wholesale-rewrite 1 file lesson.
 
-**Luu tru**: `.sap-abap-agent/memory/semantic/lessons/<MODULE>.jsonl` (1 file/module, moi dong 1
+**Luu tru**: `<agent-home>/memory/semantic/lessons/<MODULE>.jsonl` (1 file/module, moi dong 1
 lesson card). Script: `reference/scripts/lesson_card_add.py` (them, tu dong bo qua neu trung —
 Jaccard similarity >= 0.8 tren cung topic) va `reference/scripts/lesson_card_retrieve.py` (truy
-xuat top-K). `<memory-root>` trong 2 lenh duoi day = `.sap-abap-agent/memory/semantic`.
+xuat top-K). `<memory-root>` trong 2 lenh duoi day = `<agent-home>/memory/semantic`. Moi lenh
+Bash co the la 1 shell moi (shell state KHONG persist giua cac lan goi Bash) nen phai tu resolve
+`<memory-root>` ngay trong lenh, KHONG dua vao bien da set o lenh truoc:
+```bash
+python "${CLAUDE_PLUGIN_ROOT}/reference/scripts/agent_home.py" memory/semantic
+```
 
 **Khi nao extract 1 lesson card** (khong phai moi cau tra loi — chi khi co gia tri tai su dung):
 - Cau tra loi dai (>5 turn) VA co ket luan cu the (khong phai chi giai thich chung chung).
@@ -116,12 +130,15 @@ xuat top-K). `<memory-root>` trong 2 lenh duoi day = `.sap-abap-agent/memory/sem
 4. Goi:
    ```bash
    echo '{"module":"FI","topic":"acdoca","fact":"...","source_session":"<session_id>","valid_until":"2027-01-01"}' \
-     | python reference/scripts/lesson_card_add.py <memory-root>
+     | python "${CLAUDE_PLUGIN_ROOT}/reference/scripts/lesson_card_add.py" \
+       "$(python "${CLAUDE_PLUGIN_ROOT}/reference/scripts/agent_home.py" memory/semantic)"
    ```
 
 **Cach retrieve** (truoc khi tra loi cau hoi thuoc module da co lesson card):
 ```bash
-python reference/scripts/lesson_card_retrieve.py <memory-root> FI "cau hoi user" --top-k 5
+python "${CLAUDE_PLUGIN_ROOT}/reference/scripts/lesson_card_retrieve.py" \
+  "$(python "${CLAUDE_PLUGIN_ROOT}/reference/scripts/agent_home.py" memory/semantic)" \
+  FI "cau hoi user" --top-k 5
 ```
 Script tu dong: loai fact het han (`valid_until` da qua — khong tra ve), diem theo
 `0.5*keyword_overlap + 0.3*recency + 0.2*usage_frequency`, **bat buoc co it nhat 1 tu khoa trung**
@@ -239,7 +256,7 @@ PO can duoc phe duyet truoc khi gui supplier. Khong co workflow mac dinh.
 
 ## 4. Episodic tier - chat history
 
-File `<workspace>/.sap-abap-agent/memory/episodic/<YYYY-MM>/<YYYY-MM-DD>_session-<id>.md`
+File `<agent-home>/memory/episodic/<YYYY-MM>/<YYYY-MM-DD>_session-<id>.md`
 ghi lai session (user prompt, agent response, tool calls). Dinh dang append-only - KHONG sua
 sau khi ghi (dinh ly audit trail).
 

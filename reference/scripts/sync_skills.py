@@ -1,20 +1,20 @@
 #!/usr/bin/env python3
-"""
+r"""
 🔄 Skill Sync Daemon — SAP ABAP Agent
 ======================================
 Tu dong dong bo skills/agents moi nhat tu GitHub ve local.
 Chay ngam background, ho tro ca Windows, macOS, Linux.
 
 Cach dung:
-  python scripts/sync_skills.py                  # chay 1 lan
-  python scripts/sync_skills.py --daemon          # chay background (macOS/Linux)
-  python scripts/sync_skills.py --interval 300    # check moi 5 phut
+  python reference/scripts/sync_skills.py                  # chay 1 lan
+  python reference/scripts/sync_skills.py --daemon          # chay background (macOS/Linux)
+  python reference/scripts/sync_skills.py --interval 300    # check moi 5 phut
 
 Cai dat Task Scheduler (Windows):
-  Task Scheduler > Tao task moi > Trigger: Every 30 min > Action: python D:\path\scripts\sync_skills.py
+  Task Scheduler > Tao task moi > Trigger: Every 30 min > Action: python D:\path\reference\scripts\sync_skills.py
 
 Cai dat crontab (macOS/Linux):
-  */5 * * * * cd /path/to/sap-abap-agent && python scripts/sync_skills.py
+  */5 * * * * cd /path/to/sap-abap-agent && python reference/scripts/sync_skills.py
 """
 
 import os
@@ -27,7 +27,7 @@ from pathlib import Path
 from datetime import datetime
 
 # === CONFIG ===
-REPO_DIR = Path(__file__).resolve().parent.parent  # mac dinh: thu muc cha cua scripts/
+REPO_DIR = Path(__file__).resolve().parent.parent.parent  # mac dinh: repo root (file nay nam o reference/scripts/)
 DEFAULT_INTERVAL = 300  # 5 phut (giay)
 LOG_FILE = REPO_DIR / ".sap-abap-agent" / "sync_skills.log"
 LOCK_FILE = REPO_DIR / ".sap-abap-agent" / "sync_skills.lock"
@@ -211,10 +211,10 @@ Vi du:
   %(prog)s --dir /path/to/repo      # chi dinh thu muc repo
 
 Cai dat Task Scheduler (Windows):
-  Task Scheduler > Tao task > Trigger: moi 30 phut > Action: python scripts/sync_skills.py
+  Task Scheduler > Tao task > Trigger: moi 30 phut > Action: python reference/scripts/sync_skills.py
 
 Cai dat crontab (macOS/Linux):
-  */5 * * * * cd /path/to/sap-abap-agent && python scripts/sync_skills.py
+  */5 * * * * cd /path/to/sap-abap-agent && python reference/scripts/sync_skills.py
         """
     )
     parser.add_argument(

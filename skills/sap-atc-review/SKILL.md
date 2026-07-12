@@ -50,7 +50,7 @@ KHONG nam trong repo — xem skill `sap-doc-to-md` de biet duong dan day du):
 ### Buoc 1: Naming lint (tu dong)
 
 ```bash
-python reference/scripts/sap_naming_lint.py out/<ticket>/src/
+python "${CLAUDE_PLUGIN_ROOT}/reference/scripts/sap_naming_lint.py" out/<ticket>/src/
 ```
 
 Check theo skill `sap-clean-code`: table `ZTB*` (≤16 ky tu), interface view `ZI*`, reuse view
@@ -60,7 +60,7 @@ Check theo skill `sap-clean-code`: table `ZTB*` (≤16 ky tu), interface view `Z
 ### Buoc 2: Released API check (tu dong)
 
 ```bash
-python reference/scripts/check_released_api.py out/<ticket>/src/
+python "${CLAUDE_PLUGIN_ROOT}/reference/scripts/check_released_api.py" out/<ticket>/src/
 ```
 
 Check: khong dung `CL_GUI*` (tru class released), khong co `CALL TRANSACTION`/`CALL DIALOG`,
@@ -102,7 +102,8 @@ Neu co FAIL: dung, yeu cau user fix. Neu chi WARN: bao user, khong block.
 
 ## Reference
 
-- Scripts: `reference/scripts/sap_naming_lint.py`, `reference/scripts/check_released_api.py`.
+- Scripts: `${CLAUDE_PLUGIN_ROOT}/reference/scripts/sap_naming_lint.py`,
+  `${CLAUDE_PLUGIN_ROOT}/reference/scripts/check_released_api.py`.
 - Naming: skill `sap-clean-code`. Extensibility: skill `sap-extensibility`.
 - Released class check: skill `sap-released-classes` — danh muc class ABAP duoc release.
 - BAdI/Enhancement check: skill `sap-badi-enhancement` — Cloud BAdI patterns.

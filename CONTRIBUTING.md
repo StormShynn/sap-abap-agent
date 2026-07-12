@@ -506,12 +506,74 @@ claude --plugin-dir ./sap-abap-agent
 
 ### ⚠️ File không nên push lên repo
 
+State cá nhân của các skill (`sap-daily-learner` memory, `sap-context-tool-result-trim` cache,
+`sap-scaffold-context-summary`/`sap-analyze-function-spec`/`sap-handoff` sessions & handoff)
+**mặc định KHÔNG còn ghi vào project nữa** — ghi vào `%USERPROFILE%\.sap-abap-agent\` (xem mục
+"🏠 SAP_ABAP_AGENT_HOME" ngay dưới đây), nên bình thường không có gì để lo push nhầm. Các dòng
+dưới đây chỉ phát sinh trong project khi bạn tự đặt `SAP_ABAP_AGENT_HOME` trỏ vào đây để
+dev/test (đã có sẵn trong `.gitignore`):
+
 ```
-.sap-abap-agent/LEARNING_PROGRESS.md   # Progress cá nhân, mỗi user 1 bản riêng
+.sap-abap-agent/LEARNING_PROGRESS.md   # Path cu (da thay bang memory/semantic/LEARNING_PROGRESS.md)
 skills/sap-user-skills/                # Auto-created skills (cá nhân), KHÔNG push
+.sap-abap-agent/memory/                # sap-daily-learner: episodic/semantic/procedural
+.sap-abap-agent/cache/                 # sap-context-tool-result-trim: cache full output
+.sap-abap-agent/sessions/              # Handoff/scaffold working state (cá nhân)
+.sap-abap-agent/handoff/               # Handoff docs (cá nhân)
+.sap-abap-agent/sync_skills.lock       # Lock file của daemon sync_skills.py
+.sap-abap-agent/dev-mirror/            # Dev mirror của sap-btp-agent profiles (xem dưới)
 _*.py                                  # Script Python tạm (VD: _add_trans.py)
 nul                                    # File tạm trên Windows
 ```
+
+### 🏠 `SAP_ABAP_AGENT_HOME` cho state của plugin sap-abap-agent (khác `sap-btp-agent` bên dưới)
+
+Các skill kể trên ghi state cá nhân qua `reference/scripts/agent_home.py` — mặc định
+`%USERPROFILE%\.sap-abap-agent\` (Windows) / `~/.sap-abap-agent/` (macOS/Linux), **không phải**
+project đang mở: plugin có thể cài và dùng trên bất kỳ project SAP nào, nên project/workspace
+không phải là 1 vị trí ổn định để lưu state lâu dài (chỉ ổn định khi bạn đang dev ngay trong repo
+plugin này — lúc đó workspace tình cờ trùng plugin repo). Muốn dev/test ngay trong project này
+thay vì mở `%USERPROFILE%`:
+
+```powershell
+setx SAP_ABAP_AGENT_HOME "D:\__StormShyn\sap-abap-agent\.sap-abap-agent"
+```
+
+Khác với `SAP_BTP_AGENT_DEV_MIRROR` bên dưới (ghi thêm 1 bản, vẫn giữ bản chính ở
+`%USERPROFILE%`), `SAP_ABAP_AGENT_HOME` là **override hẳn** (không mirror) — khi đặt biến này,
+state chỉ ghi vào project, không ghi vào `%USERPROFILE%` nữa. Đừng đặt biến này khi dùng plugin
+thật (không phải dev/test) — end user thật không bao giờ đặt biến này nên hành vi của họ không đổi.
+
+Đây là cơ chế RIÊNG, KHÁC với `SAP_BTP_AGENT_HOME`/`SAP_BTP_AGENT_DEV_MIRROR` ngay dưới đây
+(dùng cho `sap-btp-agent` - MCP server kết nối SAP BTP, không liên quan skill/memory của plugin).
+
+### 🪞 Dev mirror cho `sap-btp-agent` (chỉ dành cho người đang build plugin này)
+
+Mặc định `sap-btp-agent` chỉ ghi profile vào `%USERPROFILE%\.sap-btp-agent\` (hoặc
+`SAP_BTP_AGENT_HOME` nếu bạn override) — đúng như hành vi end user thật sẽ gặp. Nếu bạn đang
+sửa code MCP server và muốn tiện xem `config.json`/`profiles.json` ngay trong project thay vì
+mở `%USERPROFILE%`, đặt thêm biến môi trường:
+
+```powershell
+setx SAP_BTP_AGENT_DEV_MIRROR "D:\__StormShyn\sap-abap-agent\.sap-abap-agent\dev-mirror"
+```
+
+Sau khi mở terminal/Claude Code mới, mọi lần ghi `config.json`/`profiles.json` sẽ được ghi
+**thêm** (không thay thế) một bản sao vào `.sap-abap-agent/dev-mirror/` bên trong project —
+hành vi ghi vào `%USERPROFILE%` vẫn giữ nguyên như cũ, chỉ là ghi thêm 1 chỗ nữa.
+
+`secrets.json` (client_secret/token đã mã hóa) **mặc định KHÔNG** được mirror dù có bật biến
+trên — muốn bật thêm (không khuyến khích, vì dữ liệu nhạy cảm nhân đôi chỗ lưu) thì đặt thêm
+`SAP_BTP_AGENT_DEV_MIRROR_SECRETS=1`.
+
+Cùng biến `SAP_BTP_AGENT_DEV_MIRROR` này cũng áp dụng cho `reference/scripts/office_to_md.py`
+(skill `sap-doc-to-md`): khi bật, file `.md` + ảnh trong `<ten-file>_assets/` sinh ra từ
+`in/`→`out/` sẽ được ghi thêm 1 bản vào `<mirror>/out/...` bên trong project — vẫn giữ nguyên
+`%USERPROFILE%\.sap-btp-agent\out\` là nơi ghi chính. Lưu ý tài liệu FS là dữ liệu nghiệp vụ
+khách hàng — chỉ bật mirror này khi đang test bằng tài liệu giả/không nhạy cảm.
+
+Biến `SAP_BTP_AGENT_DEV_MIRROR`/`SAP_BTP_AGENT_DEV_MIRROR_SECRETS` không bao giờ được đặt mặc
+định — end user cài plugin thật sự sẽ không bao giờ bật tính năng này, hành vi của họ không đổi.
 
 ### Hooks convention
 

@@ -1,6 +1,6 @@
 ﻿# SAP ABAP Agent (tieng Viet)
 
-[![Version](https://img.shields.io/badge/version-0.8.0-blue.svg)](CHANGELOG.md) [![Python](https://img.shields.io/badge/Python-3.10+-blue.svg)](https://python.org) [![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE) [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](CODE_OF_CONDUCT.md) [![Security Policy](https://img.shields.io/badge/Security-View_Policy-blue.svg)](SECURITY.md) [![Changelog](https://img.shields.io/badge/Changelog-%23ff69b4.svg)](CHANGELOG.md) [![CI/CD](https://github.com/StormShynn/sap-abap-agent/actions/workflows/deploy.yml/badge.svg)](https://github.com/StormShynn/sap-abap-agent/actions/workflows/deploy.yml) [![GitHub Pages](https://img.shields.io/github/deployments/StormShynn/sap-abap-agent/github-pages?label=GitHub%20Pages&logo=github)](https://stormshynn.github.io/sap-abap-agent/)
+[![Version](https://img.shields.io/badge/version-0.8.3-blue.svg)](CHANGELOG.md) [![Python](https://img.shields.io/badge/Python-3.10+-blue.svg)](https://python.org) [![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE) [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](CODE_OF_CONDUCT.md) [![Security Policy](https://img.shields.io/badge/Security-View_Policy-blue.svg)](SECURITY.md) [![Changelog](https://img.shields.io/badge/Changelog-%23ff69b4.svg)](CHANGELOG.md) [![CI/CD](https://github.com/StormShynn/sap-abap-agent/actions/workflows/deploy.yml/badge.svg)](https://github.com/StormShynn/sap-abap-agent/actions/workflows/deploy.yml) [![GitHub Pages](https://img.shields.io/github/deployments/StormShynn/sap-abap-agent/github-pages?label=GitHub%20Pages&logo=github)](https://stormshynn.github.io/sap-abap-agent/)
 
 Plugin Claude Code + MCP server tu dong ket noi **SAP BTP / S/4HANA Cloud** de thao tac
 ABAP (doc / tim / syntax-check / activate). Ho tro **multi-profile** -- moi project SAP
@@ -490,6 +490,12 @@ SAP_BTP_PROFILE=project1.s4hana.cloud.sap sap-btp-agent
 - **macOS/Linux**: **AES-256-GCM**, key derive tu `hostname + username`.
 - File mode `0o600`, chi owner doc/ghi.
 
+**Luu y**: `%USERPROFILE%\.sap-abap-agent\` (ten gan giong nhung KHAC folder tren) la noi luu
+state rieng cua **plugin Claude Code** (memory cua `sap-daily-learner`, cache cua
+`sap-context-tool-result-trim`, session/handoff dang lam do) - khong lien quan ket noi SAP BTP.
+Cache/log trong do tu don theo tuoi (mac dinh 7 ngay, xem
+`reference/scripts/cleanup_agent_home.py`). Chi tiet: `CONTRIBUTING.md` muc "SAP_ABAP_AGENT_HOME".
+
 ## Env
 
 - `SAP_BTP_PROFILE=<id>` -- khoa profile cho 1 lan chay (uu tien registry)
@@ -633,6 +639,9 @@ Trong Claude:
 
 ## Trang thai
 
-v0.8.0 -- **27 agents (25 modules + 1 researcher + 1 daily learner)** voi auto-scoring routing engine,
+v0.8.3 -- **27 agents (25 modules + 1 researcher + 1 daily learner)** voi auto-scoring routing engine,
 CDS KB, SAP Docs Research, ABAP Cloud clean code, extensibility, key user toolkit, Hermes-like self-improving learning.
-**Moi:** Fiori/UI5, CAP, CPI, SuccessFactors, BTP Admin consultants.
+**Moi:** Fiori/UI5, CAP, CPI, SuccessFactors, BTP Admin consultants; state cua plugin
+(`sap-daily-learner`, cache, session/handoff) chuyen tu project-relative sang
+`%USERPROFILE%\.sap-abap-agent\` dung, kem script tu don cache/log qua 7 ngay
+(xem CHANGELOG v0.8.3).
