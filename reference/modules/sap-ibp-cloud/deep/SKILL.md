@@ -7,6 +7,10 @@ model: haiku
 
 # IBP (Integrated Business Planning) — Deep Knowledge
 
+[Seed set — IBP la cloud service rieng, kien thuc duoi day ap dung cho SAP IBP for Supply Chain
+(2025+). Kiem cheo tren SAP Help/Ite o SAP Community truoc khi ap dung. Moi release quy co the
+thay doi planning area template / key figure / algorithm.]
+
 ## 1. Planning Areas chinh (Standard Templates)
 
 SAP IBP cung cap san cac planning area template cho tung module:
@@ -17,6 +21,16 @@ SAP IBP cung cap san cac planning area template cho tung module:
 | `SAP_DEMAND_DEFAULT` | Demand Planning | Historical Sales, Statistical Forecast, Final Forecast | Automatic (ETS) |
 | `SAP_SUPPLY_DEFAULT` | Supply Planning | Demand, Supply, Projected Stock, Shortage | Heuristic / Optimizer |
 | `SAP_INVENTORY_DEFAULT` | Inventory | Safety Stock, Cycle Stock, Service Level | Multi-echelon optimizer |
+
+### Tong quan muc dich tung planning area (bao gom Response)
+
+| Planning Area | Muc dich | Algorithm chinh |
+|--------------|----------|----------------|
+| S&OP | Can bang cung-cau, dieu phoi cross-functional | Heuristic / Optimizer |
+| Demand | Du bao nhu cau (time-series) | Statistical / ML / Demand Sensing |
+| Supply | Lap ke hoach cung ung (order-based) | Heuristic / Optimizer |
+| Inventory | Toi uu ton kho an toan (safety stock) | Optimizer (multi-echelon) |
+| Response | Phan ung nhanh voi bien dong cung-cau | Heuristic |
 
 ## 2. Loai Key Figures
 
@@ -68,7 +82,35 @@ IBP can master data `Product` + `Location` (va `Product-Location`) de chay:
 | Service Level | Ty le dap ung don hang dap ung SL target | Fill rate < 95% |
 | Supplier Delay | Nha cung cap cham giao hang | >=5 days late |
 
-## 7. Nguon tham khao
+## 7. Fiori apps & cong cu chinh
+
+| Cong cu | Muc dich | Giong |
+|---------|----------|-------|
+| **Excel Add-in** | Cong cu chinh de planner nhap/xem key figures | Excel-based planning |
+| **Planner Workspaces** | Fiori app cho S&OP, Demand, Supply review | Web-based planning board |
+| **Analytics - Advanced** | Phan tich du lieu planning | SAC-based analytics |
+| **Manage Forecast Models** | Cau hinh mo hinh du bao (AI/ML) | Machine Learning |
+| **IBP Administration Console** | Cau hinh planning area, key figure, user | Config UI chuyen dung |
+| **Alert Management** | Thiet lap canh bao Control Tower | Alert monitoring |
+
+## 8. Khai niem co ban
+
+| Khai niem | Mo ta |
+|-----------|-------|
+| **Planning Area** | Khong gian chua key figures + master data + logic |
+| **Key Figure** | Chi so do luong (Forecast, Sales, Inventory, Service Level) |
+| **Master Data Type** | Loai du lieu nen (Product, Location, Customer, Product-Location) |
+| **Time Profile** | Cau truc thoi gian (Year/Quarter/Month/Week/Day) |
+| **Version** | Plan version (Active / Simulation / What-If) |
+| **Algorithm** | Thuat toan planning (Statistical Forecast, Heuristic, Optimizer) |
+
+## 9. Huong mo rong
+
+- **Custom Key Figure**: Them key figure moi vao planning area (IBP in-app)
+- **Custom Master Data Type**: Them master data type moi (can SAP su dung hoac side-by-side)
+- **Side-by-side BTP**: Tinh toan planning phuc tap ben ngoai (ML models, optimization engine)
+
+## 10. Nguon tham khao
 
 - [SAP IBP Help Portal](https://help.sap.com/docs/SAP_INTEGRATED_BUSINESS_PLANNING)
 - [SAP IBP Algorithm Guide](https://help.sap.com/docs/SAP_INTEGRATED_BUSINESS_PLANNING/2cf21ae5b5b6491f862a1e88487e07e7)

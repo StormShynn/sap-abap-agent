@@ -6,90 +6,36 @@ model: haiku
 when_to_use: Khi user hoi ve warehouse management nang cao (EWM thay vi WM co dien) tren S/4HANA Cloud Public Edition, hoac khi can biet ve Embedded EWM scopeBK9.
 ---
 
-# EWM (Extended Warehouse Management) tren SAP S/4HANA Cloud Public Edition
+# EWM (Extended Warehouse Management) — CORE — Public Cloud
 
-[Seed set — kiem chung qua SAP Community/Help. EWM thay the hoan toan cho WM (WM EOL 2025).
-Embedded EWM (scope BK9) la chuan tren Public Edition. Khi ko chac ve 1 chi tiet/SSCUI/socpe item,
-luon nhac user xac minh tren release hien tai.]
+> Day la **core layer**. Chi tiet SSCUI/Fiori app/API/scope item nam o `deep/SKILL.md` — agent
+> doc khi user hoi cu the hoac can cross-reference.
 
-## 1. Phan biet EWM vs WM
+## 1. Diem ky thuat bat buoc nho
 
-| Tieu chi | WM (Legacy) | EWM (Modern) |
-|----------|------------|--------------|
-| Kien truc | Trong R/3 / ECC | Embedded trong S/4HANA hoac Decentralized |
-| Kha nang | Co ban, gioi han | C ao, tuong hoa |
-| Tinh nang | Nhap/xuat/ton co ban | Slotting, Kitting, VAS, Labor Mgmt, Wave, MFS |
-| Trang thai | **EOL cuoi 2025** | **Chuan hien tai** |
+- **EWM thay the hoan toan WM** (WM EOL cuoi 2025) — Public Edition dung **Embedded EWM** lam kien truc chuan.
+- Cau truc kho phan cap: Warehouse Number → Storage Type → Storage Section → Storage Bin → Quant.
+- 4 nhom quy trinh chinh: **Inbound**, **Outbound**, **Internal**, **Inventory** (chi tiet o deep §1).
+- Phan biet **Basic EWM** (trong license S/4HANA) vs **Advanced EWM** (can license bo sung).
 
-## 2. Kien truc kho (Warehouse Structure)
+## 2. Route map
 
-| Cap | Vi du | Mo ta |
-|-----|-------|-------|
-| Warehouse Number | `W001` | Kho cap cao nhat |
-| Storage Type | `0001` (Raw), `0002` (Finished), `0004` (Goods Receipt) | Vung trong kho |
-| Storage Section | `A01`, `B02` | Phan vung trong Storage Type |
-| Storage Bin | `01-01-01` | Vi tri chua hang cu the |
-| Quant | `Q0000012345` | Don vi ton kho nho nhat |
+| Cau hoi user | Di den |
+|---|---|
+| "EWM khac WM the nao", "cau truc kho" | deep/SKILL.md §11–§12 |
+| "inbound/outbound/wave/picking/packing" | deep/SKILL.md §13, §1–§2 |
+| "slotting/labor/RF/yard/kitting/VAS" | deep/SKILL.md §3–§8 |
+| "Fiori app / SSCUI / scope item / released API" | deep/SKILL.md §9–§10, §14–§15 |
+| "them field / mo rong" | deep/SKILL.md §16 |
 
-## 3. Xu ly Inbound (Nhap kho)
+## 3. Lenh goi agent
 
-1. Inbound Delivery (tu MM purchase order)
-2. Warehouse Task cho GR (Goods Receipt)
-3. Putaway (c at vao Storage Bin)
-4. Xac nhan Warehouse Task
+1. Doc `deep/SKILL.md` theo section lien quan (dung `Grep` de vi tri).
+2. Cross-check SSCUI/Fiori/API tren `api.sap.com` hoac Manage Your Solution neu can.
+3. Ap dung `sap-extensibility` bac thang truoc khi de xuat side-by-side.
 
-## 4. Xu ly Outbound (Xuat kho)
+## 4. Tich hop
 
-1. Outbound Delivery (tu SD sales order)
-2. Wave Management (gom nhieu don)
-3. Picking (lay hang, RF / Paper)
-4. Packing (dong goi, Handling Unit)
-5. Goods Issue (xuat kho)
-
-## 5. Fiori apps chinh
-
-| Nghiep vu | Fiori app |
-|-----------|-----------|
-| Dashboard warehouse | Warehouse Monitor |
-| Inbound processing | Change Inbound Deliveries |
-| Outbound processing | Run Outbound Process - Deliveries |
-| Kiem ke | Physical Inventory Documents |
-| Handling Unit | Maintain Handling Units |
-| RF | RF UI (Fiori-based) |
-
-## 6. SSCUI / Scope items
-
-| Scope Item | Mo ta |
-|------------|-------|
-| **BK9** | Embedded EWM (chuan) |
-| **BW1** | Warehousing & Shipping |
-| **BW2** | Physical Inventory |
-| **BW5** | Wave Management |
-| **BW7** | Kitting |
-
-## 7. Released API
-
-| Nhu cau | API (kiem tra tren `api.sap.com`) |
-|---------|----------------------------------|
-| Warehouse Order | `API_WAREHOUSE_ORDER_SRV` |
-| Warehouse Task | `API_WAREHOUSE_TASK_SRV` |
-| Handling Unit | `API_HANDLING_UNIT_SRV` |
-| Stock | `I_ProductStockQuantity` (CDS) |
-
-## 8. Huong mo rong
-
-- **Custom Fields** — them field vao warehouse task/order/delivery
-- **Custom Logic (Cloud BAdI)** — kiem tra Cloud BAdI cho EWM truoc khi side-by-side
-- **Side-by-side BTP** — Warehouse Control System (WCS), ASRS integration, robot
-
-## 9. Nguon tham khao
-
-- [SAP EWM Overview](https://www.sap.com/products/scm/extended-warehouse-management.html)
-- [SAP Help Portal — EWM](https://help.sap.com/docs/SAP_EXTENDED_WAREHOUSE_MANAGEMENT)
-- [SAP Best Practices Explorer — EWM](https://me.sap.com/processnavigator)
-- [SAP Fiori Apps Ref Library](https://fioriappslibrary.hana.ondemand.com/)
-- [SAP API Business Hub](https://api.sap.com)
-
-> 📚 Xem `deep/SKILL.md` (trong cung thu muc) de biet chi tiet ve storage control, process types,
-> wave templates, slotting rules, labor standards, RF menus, yard management va integration
-> scenarios cho EWM.
+- Skill `sap-extensibility` — bac thang mo rong.
+- Skill `sap-clean-code` — naming convention custom object.
+- `sap-docs-researcher` — xac minh SSCUI/API/scope item con dung tren release hien tai.

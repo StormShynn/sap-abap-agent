@@ -1,6 +1,6 @@
 ﻿# SAP ABAP Agent (tieng Viet)
 
-[![Version](https://img.shields.io/badge/version-0.7.0-blue.svg)](CHANGELOG.md) [![Python](https://img.shields.io/badge/Python-3.10+-blue.svg)](https://python.org) [![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE) [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](CODE_OF_CONDUCT.md) [![Security Policy](https://img.shields.io/badge/Security-View_Policy-blue.svg)](SECURITY.md) [![Changelog](https://img.shields.io/badge/Changelog-%23ff69b4.svg)](CHANGELOG.md) [![CI/CD](https://github.com/StormShynn/sap-abap-agent/actions/workflows/deploy.yml/badge.svg)](https://github.com/StormShynn/sap-abap-agent/actions/workflows/deploy.yml) [![GitHub Pages](https://img.shields.io/github/deployments/StormShynn/sap-abap-agent/github-pages?label=GitHub%20Pages&logo=github)](https://stormshynn.github.io/sap-abap-agent/)
+[![Version](https://img.shields.io/badge/version-0.8.0-blue.svg)](CHANGELOG.md) [![Python](https://img.shields.io/badge/Python-3.10+-blue.svg)](https://python.org) [![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE) [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](CODE_OF_CONDUCT.md) [![Security Policy](https://img.shields.io/badge/Security-View_Policy-blue.svg)](SECURITY.md) [![Changelog](https://img.shields.io/badge/Changelog-%23ff69b4.svg)](CHANGELOG.md) [![CI/CD](https://github.com/StormShynn/sap-abap-agent/actions/workflows/deploy.yml/badge.svg)](https://github.com/StormShynn/sap-abap-agent/actions/workflows/deploy.yml) [![GitHub Pages](https://img.shields.io/github/deployments/StormShynn/sap-abap-agent/github-pages?label=GitHub%20Pages&logo=github)](https://stormshynn.github.io/sap-abap-agent/)
 
 Plugin Claude Code + MCP server tu dong ket noi **SAP BTP / S/4HANA Cloud** de thao tac
 ABAP (doc / tim / syntax-check / activate). Ho tro **multi-profile** -- moi project SAP
@@ -9,9 +9,9 @@ co profile rieng (URL, tenant, secret), luu trong **folder user** tren may
 
 ## Noi bat
 
-- **🧠 SAP Consultant System (22 modules)**: Routing tu dong bang auto-scoring engine. 20 module
+- **🧠 SAP Consultant System (27 modules)**: Routing tu dong bang auto-scoring engine. 25 module
   consultants cho SD, FI, MM, CO, PP, QM, PM, WM, PS, HCM, BW, Basis, TM, TR, Ariba, CA, GTS, EHS,
-  IBP, EWM + Docs Researcher + Daily Learner.
+  IBP, EWM, Fiori/UI5, CAP, CPI, SuccessFactors, BTP Admin + Docs Researcher + Daily Learner.
 - **🔌 SAP BTP Connection**: `sap-btp-agent` — ket noi S/4HANA Cloud, doc/activate ABAP, multi-profile.
 - **📚 CDS Knowledge Base**: Tra cuu 7,355 CDS views released qua semantic search.
 - **📖 SAP Docs Research**: Tra cuu SAP Help, Community, API Hub, Fiori App Library.
@@ -39,7 +39,7 @@ sap-abap-agent/
 +-- .claude-plugin/            # Manifest plugin Claude Code
 +-- commands/                  # /sap-connect
 +-- skills/
-|   +-- sap-ask-consultant/    # 🧠 Auto-scoring routing engine (20 modules)
+|   +-- sap-ask-consultant/    # 🧠 Auto-scoring routing engine (25 modules)
 |   +-- sap-daily-learner/     # 📚 Daily SAP Learning — Hermes-like (self-improving)
 |   +-- sap-btp-setup/         # Setup & troubleshoot SAP BTP connection
 |   +-- sap-clean-code/        # ABAP Cloud naming conventions & clean code
@@ -64,7 +64,7 @@ sap-abap-agent/
 |   +-- sap-context-module-routing/     # Pattern 2-layer (CORE+DEEP) cho reference modules
 +-- agents/
 |   +-- abap-reviewer.md       # Review code ABAP Cloud
-|   +-- sap-ask-consultant dispatch toi 20 module consultants:
+|   +-- sap-ask-consultant dispatch toi 25 module consultants:
 |   |   +-- sap-sd-consultant-cloud   # Sales & Distribution
 |   |   +-- sap-fi-consultant-cloud   # Financial Accounting
 |   |   +-- sap-mm-consultant-cloud   # Materials Management
@@ -83,8 +83,13 @@ sap-abap-agent/
 |   |   +-- sap-ca-consultant-cloud   # Cross-Application Functions
 |   |   +-- sap-gts-consultant-cloud  # Global Trade Services
 |   |   +-- sap-ehs-consultant-cloud  # Environment, Health & Safety
-|   |   +-- **sap-ibp-consultant-cloud**    # 🆕 Supply Chain Planning (IBP)
-|   |   +-- **sap-ewm-consultant-cloud**    # 🆕 Extended Warehouse (EWM)
+|   |   |   +-- **sap-ibp-consultant-cloud**    # Supply Chain Planning (IBP)
+|   |   +-- **sap-ewm-consultant-cloud**    # Extended Warehouse (EWM)
+|   |   +-- **sap-fiori-consultant-cloud**  # 🆕 Fiori/UI5 (Fiori Elements, Adaptation)
+|   |   +-- **sap-cap-consultant-cloud**    # 🆕 CAP (Cloud Application Programming)
+|   |   +-- **sap-cpi-consultant-cloud**    # 🆕 CPI (Cloud Platform Integration)
+|   |   +-- **sap-successfactors-consultant-cloud** # 🆕 SuccessFactors (HXM Cloud)
+|   |   +-- **sap-btp-admin-consultant-cloud** # 🆕 BTP Admin (Platform Administration)
 |   |   +-- sap-docs-researcher       # CDS view & Docs Research
 +-- hooks/                   # Canh bao SELECT * (PostToolUse) + routing discipline (SessionStart)
 +-- reference/
@@ -293,7 +298,138 @@ Cach 2 — `supergateway`:
 > **Windows users**: Neu dung supergateway, co the can dung `supergateway.cmd` thay vi `supergateway`
 > hoac chi dinh duong dan tuyet doi.
 
-Sau khi cau hinh, AI se co them cac tool:
+### MCP server moi: tra cuu SAP Notes
+
+**mcp-sap-notes** — Tra cuu SAP Notes va KB articles truc tiep tu SAP Support Portal:
+
+```bash
+# Cai dat tu source
+git clone https://github.com/marianfoo/sap-mcp-servers.git
+cd sap-mcp-servers/packages/notes
+npm install
+npm run build
+
+# Dang ky MCP
+claude mcp add --transport stdio sap-notes -- node /abs/path/to/dist/mcp-server.js \
+  --env SAP_USERNAME=your@s-user.com --env SAP_PASSWORD=your_pass
+```
+
+| Tool | Mo ta |
+|------|-------|
+| `search` | Tim SAP Note theo keyword / error code / component |
+| `fetch` | Lay noi dung day du SAP Note + ABAP correction instructions |
+
+### MCP server moi: SAP GUI Automation (Windows)
+
+**mcp-sap-gui (kts982)** — Dieu khien SAP GUI for Windows qua MCP (57 tools):
+
+```bash
+# Cai dat bang uvx (khuyen dung)
+pip install uvx
+
+# Dang ky MCP
+claude mcp add --transport stdio sap-gui -- uvx mcp-sap-gui[screenshots] \
+  --read-only --allowed-transactions MM03 VA03 IW33
+```
+
+**Yeu cau**: Windows + SAP GUI + SAP GUI Scripting enabled (xem skill `mcp-sap-gui`).
+
+| Tool | Mo ta |
+|------|-------|
+| `sap_connect` | Ket noi SAP GUI |
+| `sap_run_transaction` | Mo transaction (/nMM03) |
+| `sap_read_field` | Doc gia tri field |
+| `sap_read_table` | Doc toan bo ALV/Grid table |
+
+### MCP server moi: ADT ABAP Development (3 lua chon)
+
+| Lua chon | Lenh cai dat | Phu hop |
+|----------|-------------|---------|
+| **SAP Official ADT** (VS Code) | Cai extension ADT → Settings → Enable ADT MCP Server | VS Code users, enterprise |
+| **ARC-1** (enterprise) | `npx arc-1@latest` | Team/doanh nghiep can security |
+| **mcp-abap-adt** (community) | `npx -y mcp-abap-adt` | Ca nhan, POC nhanh |
+
+```bash
+# ARC-1
+claude mcp add --transport stdio arc-1 -- npx -y arc-1@latest
+
+# mcp-abap-adt
+claude mcp add --transport stdio mcp-abap-adt -- npx -y mcp-abap-adt \
+  --env ADT_URL=https://my-system.s4hana.cloud.sap --env ADT_USER=user --env ADT_PASS=pass
+```
+
+### MCP server moi: SAP SuccessFactors (2 options)
+
+**sf-mcp (aiadiguru2025)** — Open-source MCP server cho SAP SuccessFactors OData API (62+ tools):
+
+```bash
+# Yeu cau: Python 3.10+, uv package manager
+git clone https://github.com/aiadiguru2025/sf-mcp.git
+cd sf-mcp
+uv sync
+
+# Dang ky MCP
+claude mcp add --transport stdio sf-mcp -- uv --directory /path/to/sf-mcp run main.py
+```
+
+| Tool | Mo ta |
+|------|-------|
+| `get_employee_info` | Tra cuu thong tin nhan vien theo ID |
+| `search_employees` | Tim nhan vien theo criteria (name, department...) |
+| `get_org_structure` | Lay so do to chuc cong ty |
+| `get_time_off_balance` | Kiem tra ngay nghi con lai cua nhan vien |
+| `get_role_permissions` | Kiem tra RBP permissions cua nhan vien |
+
+**Option 2: CData SF MCP** — Java-based, SQL read-only (can CData JDBC driver license):
+
+```bash
+claude mcp add --transport stdio sf-cdata -- java -jar /path/to/CDataMCP-jar-with-dependencies.jar /path/to/sap-successfactors.prp
+```
+
+### MCP server moi: SAP Concur Travel & Expense
+
+**CData SAP Concur MCP** — Query expense reports, travel requests, bookings, vendor data qua SQL:
+
+```bash
+# Yeu cau: Java 11+, Maven
+git clone https://github.com/CDataSoftware/sap-concur-mcp-server-by-cdata.git
+cd sap-concur-mcp-server-by-cdata
+mvn clean install
+
+# Dang ky MCP
+claude mcp add --transport stdio sap-concur -- java -jar /path/to/CDataMCP-jar-with-dependencies.jar /path/to/sap-concur.prp
+```
+
+| Tool | Mo ta |
+|------|-------|
+| `concur_get_tables` | Liet ke cac bang SAP Concur instance |
+| `concur_get_columns` | Liet ke columns cua 1 table |
+| `concur_run_query` | Thuc thi SQL SELECT query |
+
+### MCP server moi: SAP Fieldglass Services Procurement
+
+**CData SAP Fieldglass MCP** — Query contingent workforce, SoW, timesheets, invoices qua SQL:
+
+```bash
+# Yeu cau: Java 11+, Maven
+git clone https://github.com/CDataSoftware/sap-fieldglass-mcp-server-by-cdata.git
+cd sap-fieldglass-mcp-server-by-cdata
+mvn clean install
+
+# License JDBC Driver
+java -jar cdata.jdbc.sapfieldglass.jar --license
+
+# Dang ky MCP
+claude mcp add --transport stdio sap-fieldglass -- java -jar /path/to/CDataMCP-jar-with-dependencies.jar /path/to/sap-fieldglass.prp
+```
+
+| Tool | Mo ta |
+|------|-------|
+| `fieldglass_get_tables` | Liet ke cac bang SAP Fieldglass instance |
+| `fieldglass_get_columns` | Liet ke columns cua 1 table |
+| `fieldglass_run_query` | Thuc thi SQL SELECT query |
+
+_Sau khi cau hinh, AI se co them cac tool:_
 
 | Tool | Server | Mo ta |
 |------|--------|-------|
@@ -361,7 +497,7 @@ SAP_BTP_PROFILE=project1.s4hana.cloud.sap sap-btp-agent
 
 ## 🧠 SAP Consultant System (Auto-scoring Routing Engine)
 
-`skills/sap-ask-consultant/SKILL.md` la skill trung tam, dispatch cau hoi user toi **20 module
+`skills/sap-ask-consultant/SKILL.md` la skill trung tam, dispatch cau hoi user toi **25 module
 consultants + 1 researcher + 1 daily learner** bang co che **keyword scoring + parallel dispatch**.
 
 ### Cach hoat dong
@@ -383,9 +519,10 @@ consultants + 1 researcher + 1 daily learner** bang co che **keyword scoring + p
 | "hoi IBP: du bao doanh thu quy sau" | `sap-ibp-consultant-cloud` (Demand Planning) |
 | "EWM cau hinh wave management cho kho" | `sap-ewm-consultant-cloud` |
 | "IBP inventory optimization cho supply chain" | `sap-ibp-consultant-cloud` + `sap-mm-consultant-cloud` (coupling) |
-| "hoi IBP: du bao doanh thu quy sau" | `sap-ibp-consultant-cloud` (Demand Planning) |
-| "EWM cau hinh wave management cho kho" | `sap-ewm-consultant-cloud` |
-| "IBP inventory optimization cho supply chain" | `sap-ibp-consultant-cloud` + `sap-mm-consultant-cloud` (coupling) |
+| "Fiori app cho sales order" | `sap-fiori-consultant-cloud` + `sap-sd-consultant-cloud` (coupling) |
+| "CAP side-by-side extension cho S/4HANA" | `sap-cap-consultant-cloud` + `sap-btp-admin-consultant-cloud` |
+| "iFlow tich hop S/4HANA voi SAP SuccessFactors" | `sap-cpi-consultant-cloud` + `sap-successfactors-consultant-cloud` |
+| "BTP destination + Cloud Connector" | `sap-btp-admin-consultant-cloud` |
 
 ### Cac module da co
 
@@ -411,6 +548,11 @@ consultants + 1 researcher + 1 daily learner** bang co che **keyword scoring + p
 | 18 | `sap-ehs-consultant-cloud` | Environment, Health & Safety |
 | 19 🆕 | `sap-ibp-consultant-cloud` | **Supply Chain Planning (IBP)** |
 | 20 🆕 | `sap-ewm-consultant-cloud` | **Extended Warehouse Mgmt (EWM)** |
+| 21 🆕 | `sap-fiori-consultant-cloud` | **Fiori/UI5 (Fiori Elements, Adaptation, SAP Build)** |
+| 22 🆕 | `sap-cap-consultant-cloud` | **CAP (Cloud Application Programming Model)** |
+| 23 🆕 | `sap-cpi-consultant-cloud` | **CPI (Cloud Platform Integration / Integration Suite)** |
+| 24 🆕 | `sap-successfactors-consultant-cloud` | **SuccessFactors (HXM Cloud — EC, Recruiting, LMS)** |
+| 25 🆕 | `sap-btp-admin-consultant-cloud` | **BTP Admin (Platform; CF, Kyma, Destinations, Security)** |
 | — | `sap-docs-researcher` | CDS view & Docs Research |
 | — | `sap-daily-learner` | Daily SAP Learning, Hermes-like skill creation |
 
@@ -474,6 +616,10 @@ Trong Claude:
 - "Hoc SAP hom nay" -> `sap-daily-learner` (daily tip + learning path)
 - "Quiz MM cho toi" -> `sap-daily-learner` (trac nghiem MM)
 - "Cau hinh cost center va cash management" -> `sap-co-consultant-cloud` + `sap-tr-consultant-cloud`
+- "Fiori app cho sales order" -> `sap-fiori-consultant-cloud` + `sap-sd-consultant-cloud`
+- "CAP side-by-side extension cho S/4HANA" -> `sap-cap-consultant-cloud` + `sap-btp-admin-consultant-cloud`
+- "iFlow tich hop S/4HANA voi SuccessFactors" -> `sap-cpi-consultant-cloud` + `sap-successfactors-consultant-cloud`
+- "BTP destination + Cloud Connector" -> `sap-btp-admin-consultant-cloud`
 
 ## Loi thuong gap
 
@@ -487,6 +633,6 @@ Trong Claude:
 
 ## Trang thai
 
-v0.7.0 -- **22 agents (20 modules + 1 researcher + 1 daily learner)** voi auto-scoring routing engine,
+v0.8.0 -- **27 agents (25 modules + 1 researcher + 1 daily learner)** voi auto-scoring routing engine,
 CDS KB, SAP Docs Research, ABAP Cloud clean code, extensibility, key user toolkit, Hermes-like self-improving learning.
-**Moi:** IBP (Supply Chain Planning) + EWM (Extended Warehouse Management) consultants.
+**Moi:** Fiori/UI5, CAP, CPI, SuccessFactors, BTP Admin consultants.

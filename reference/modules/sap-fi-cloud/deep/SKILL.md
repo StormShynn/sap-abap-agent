@@ -33,7 +33,7 @@ mot so he thong khac; ACDOCA la mo hinh GL duy nhat.
 |---|---|
 | Hach toan but toan GL | Post General Journal Entry |
 | Tong quan chung tu / quy trinh AP | Display Process Flow – Accounts Payable |
-| Doi tac kinh doanh (khach hang/nha cung cap) | Manage Business Partner Master Data (Business Partner la model duy nhat) |
+| Doi tac kinh doanh (khach hang/nha cung cap) | Manage Business Partner Master Data (Business Partner la model duy nhat, khong co giao dich rieng kieu XD01/XK01) |
 | Clear tai khoan GL | Clear G/L Account |
 | Bao cao Balance Sheet / P&L | Balance Sheet & P&L Statement (drill duoc toi dong GL/khach hang/nha cung cap) |
 
@@ -51,7 +51,7 @@ cach doc bang truc tiep**, moi so lieu deu phai qua released API/CDS view API ho
 ## 4. Huong mo rong (extensibility) cho FI
 
 Ap dung bac thang trong `sap-extensibility` muc 2. Vi du cu the cho FI:
-- **Custom Fields and Logic** — them field vao journal entry line item / G/L account master / doi tuong chi phi, kem logic derive don gian.
+- **Custom Fields and Logic** (bac 1) — them field vao journal entry line item / G/L account master / doi tuong chi phi, kem logic derive don gian.
 - **Custom Business Objects** — hiem khi can cho FI (da so nhu cau la them field/logic vao doi tuong co san, khong phai tao doi tuong hoan toan moi).
 - **Custom Logic (Cloud BAdI)** — kiem tra danh muc Cloud BAdI cho hook hach toan/validation truoc khi ket luan can side-by-side.
 - Khi yeu cau nghe giong "can 1 rule validate luc hach toan" — kiem tra Custom Logic/Cloud BAdI truoc, khong mac dinh mo ta theo huong validation/substitution kieu cu.
@@ -70,3 +70,10 @@ Ap dung bac thang trong `sap-extensibility` muc 2. Vi du cu the cho FI:
 - [Ledger Configuration in SAP S/4HANA Public Edition — SAP Community](https://community.sap.com/t5/financial-management-blog-posts-by-sap/ledger-configuration-in-sap-s-4hana-public-edition-find-essential/ba-p/14250655)
 - [These Fiori apps will get your financial accounting on track](https://www.ibsolution.com/academy/blog_en/smart-enterprise/sap-s4hana/these-fiori-apps-will-get-your-financial-accounting-on-track)
 - SAP API Business Hub: `https://api.sap.com`
+
+## 7. Skill lien quan
+
+- Skill `sap-extensibility` — bac thang mo rong (uu tien bac 1, 2, 3 truoc side-by-side).
+- Skill `sap-clean-code` — naming convention cho custom FI object.
+- `sap-docs-researcher` — xac minh release cu the tren SAP Help/Community/API Hub.
+- Skill `sap-cds-kb` — tra cuu CDS view released (`I_JournalEntryItem`, `I_BusinessPartner`).

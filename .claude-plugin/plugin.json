@@ -1,8 +1,10 @@
 {
   "name": "sap-abap-agent",
   "displayName": "SAP ABAP Agent",
-  "version": "0.7.0",
-  "description": "Claude Code plugin for SAP S/4HANA Cloud Public Edition: 22 module consultants + daily learner (Hermes-like) with auto-scoring routing engine, CDS KB, SAP Docs Research, ABAP cloud connect, code review, clean code & extensibility.",
+  "version": "0.8.2",
+  "description": "Claude Code plugin for SAP S/4HANA Cloud Public Edition: 25 module consultants + 1 researcher + 1 daily learner (27 agents total) with auto-scoring routing engine, CDS KB, SAP Docs Research, ABAP cloud connect, code review, clean code & extensibility.",
+  "author": "StormShynn",
+  "license": "MIT",
   "keywords": [
     "sap",
     "abap",

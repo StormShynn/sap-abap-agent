@@ -236,12 +236,83 @@ Format dựa trên [Keep a Changelog](https://keepachangelog.com/) và [Semantic
 
 ---
 
+## [v0.8.0] — 2026-07-12
+
+### Added
+- 🆕 **SAP Fiori/UI5 Consultant** (`sap-fiori-consultant-cloud`) — Fiori Elements, Freestyle UI5,
+  Adaptation Project, Launchpad (Business Role/Catalog/Group), SAP Build Work Zone.
+- 🆕 **SAP CAP Consultant** (`sap-cap-consultant-cloud`) — Cloud Application Programming Model,
+  side-by-side extension tren BTP, CDS (CAP) vs ABAP CDS, deployment (CF/Kyma), Fiori annotation.
+- 🆕 **SAP CPI Consultant** (`sap-cpi-consultant-cloud`) — Cloud Platform Integration / Integration Suite,
+  iFlow architecture, adapter config (OData/SOAP/SFTP/AMQP), mapping (XPath/Groovy), API Management.
+- 🆕 **SAP SuccessFactors Consultant** (`sap-successfactors-consultant-cloud`) — Employee Central,
+  Recruiting, Performance & Goals, Compensation, LMS, CPI integration with S/4HANA.
+- 🆕 **SAP BTP Admin Consultant** (`sap-btp-admin-consultant-cloud`) — Cloud Foundry, Kyma, destinations,
+  Cloud Connector, XSUAA/IAS security, CI/CD, service marketplace, MTA deployment.
+- 📚 **Reference modules (CORE+DEEP 2-layer)** cho ca 5 agents: `sap-fiori-cloud`, `sap-cap-cloud`,
+  `sap-cpi-cloud`, `sap-successfactors-cloud`, `sap-btp-admin-cloud`.
+- 🔀 **Routing Engine update**: Them 5 agents moi vao keyword matrix + module coupling. Tong agent
+  tu 22 → 27 (25 module consultants + 1 researcher + 1 daily learner).
+- 📥 **Imported 11 skills from community repos**:
+  - **Từ likweitan/abap-skills (8 skills)**: `sap-released-classes` (catalog ABAP Cloud classes),
+    `sap-abap-sql` (ABAP SQL, AMDP, window functions), `sap-badi-enhancement` (Cloud BAdI),
+    `sap-authorization` (DCL, RAP authorization, IAM), `sap-cloud-migration` (ECC→S/4HANA migration),
+    `sap-odata-service` (RAP-based OData V4), `sap-rap-events` (RAP business events + Event Mesh),
+    `sap-steampunk` (BTP ABAP Environment infrastructure).
+  - **Từ secondsky/sap-skills (3 skills)**: `sap-btp-connectivity` (Cloud Connector, destination),
+    `sap-btp-best-practices` (BTP development conventions, MTA, CI/CD),
+    `sapui5-fiori` (SAPUI5, Fiori Elements, Fiori Tools).
+
+### Changed
+- `skills/sap-ask-consultant/SKILL.md`: Routing matrix mo rong them Fiori, CAP, CPI, SuccessFactors,
+  BTP Admin keywords & coupling.
+- Agents `sap-cap-consultant`, `sap-fiori-consultant`, `sap-cpi-consultant`, `sap-btp-admin-consultant`,
+  `sap-daily-learner`: Da wire them skills moi vao YAML frontmatter.
+- `.claude-plugin/plugin.json`: Bump version v0.7.0 → v0.8.0.
+
+## [v0.8.1] — 2026-07-12
+
+### Added
+- 🔌 **MCP Server: mcp-sap-notes** (`skills/mcp-sap-notes`) — Tra cuu SAP Notes va KB articles truc
+  tiep tu SAP Support Portal. 2 tools: `search` (keyword), `fetch` (full content + ABAP corrections).
+- 🔌 **MCP Server: mcp-sap-gui** (`skills/mcp-sap-gui`) — SAP GUI Scripting automation cho Windows.
+  57 tools: connection, navigation, field read/write, ALV/Grid/Tree tables, screenshots. Security:
+  read-only mode, transaction whitelist/blocklist, audit logging.
+- 🔌 **MCP Server: ADT MCP Integration** (`skills/mcp-sap-adt`) — 3 lua chon: SAP Official ADT MCP
+  (VS Code, zero-config), ARC-1 (enterprise, 3000+ tests), mcp-abap-adt (community, de su dung).
+  Tools: `abap_read_source`, `abap_search`, `abap_activate`, `abap_syntax_check`, `abap_atc_check`,
+  `abap_transport_*`, `abap_unit_test`.
+- 🧠 **Agent sap-docs-researcher updated**: Da wire them 6 MCP servers (cds-kb, mcp-sap-docs,
+  mcp-sap-notes, mcp-sap-gui, ARC-1, mcp-abap-adt) vao mo ta agent.
+
+### Changed
+- `README.md`: Them 3 section huong dan cai dat cho 3 MCP servers moi (sap-notes, sap-gui, ADT).
+- `agents/sap-docs-researcher.md`: Cap nhat danh sach 6 MCP servers, mo ta 6 toolsets day du.
+- `.claude-plugin/plugin.json`: Bump version v0.8.0 → v0.8.1.
+
+## [v0.8.2] — 2026-07-12
+
+### Added
+- 🔌 **MCP Server: mcp-sap-successfactors** (`skills/mcp-sap-successfactors`) — SAP SuccessFactors API
+  connector. 2 options: sf-mcp (open-source, 62+ tools: employee info, RBP security, Time Off, Hiring,
+  Position Management) + CData SF MCP (SQL-based read-only).
+- 🔌 **MCP Server: mcp-sap-concur** (`skills/mcp-sap-concur`) — CData SAP Concur Travel &amp; Expense
+  MCP Server. Query expense reports, travel requests, bookings, vendor data qua SQL.
+- 🔌 **MCP Server: mcp-sap-fieldglass** (`skills/mcp-sap-fieldglass`) — CData SAP Fieldglass Services
+  Procurement MCP Server. Query contingent workforce, SoW, timesheets, invoices qua SQL.
+- 🧠 **Agent sap-docs-researcher updated**: Da wire them 3 MCP servers moi vao YAML frontmatter
+  skills list + mo ta mo rong 9 MCP servers (tu 6).
+
+### Changed
+- `agents/sap-docs-researcher.md`: Them skills list, mo ta 9 MCP servers day du.
+- `.claude-plugin/plugin.json`: Bump version v0.8.1 → v0.8.2.
+
 ## [Unreleased]
 
 ### Planned
 - 🚀 **Thêm badges**: PRs welcome, GitHub stars
-- 🚀 **Thêm agents còn thiếu**: TM, TR, Ariba, CA, GTS, EHS agent files
-- 🚀 **Hoàn thiện reference modules**: Knowledge base cho 18 modules
+- 🚀 **Thêm agents còn thiếu**: SAP Concur, SAP Fieldglass
+- 🚀 **Hoàn thiện reference modules**: Knowledge base cho 25 modules
 
 ### ✅ Đã hoàn thành gần đây
 - ✅ **SECURITY.md**: Hướng dẫn báo cáo lỗi bảo mật

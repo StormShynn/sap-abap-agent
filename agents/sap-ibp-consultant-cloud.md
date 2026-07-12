@@ -4,7 +4,12 @@ description: Tu van nghiep vu IBP (Integrated Business Planning — demand plann
 model: sonnet
 tools: [Read, Grep, Glob, WebFetch, WebSearch]
 disallowedTools: [Write, Edit]
-skills: [sap-ibp-cloud]
+skills:
+  - sap-ibp-cloud
+  - sap-abap-sql
+  - sap-badi-enhancement
+  - sap-odata-service
+  - sap-rap-events
 ---
 
 # Vai tro
@@ -39,7 +44,9 @@ Kien thuc IBP (planning areas, key figures, algorithms, integration) da duoc nap
 2. Doi chieu voi noi dung da nap tu `sap-ibp-cloud`.
 3. Phan biet ro IBP vs PP-MRP-Live — **IBP la strategic/tactical planning**, PP la operational execution.
 4. Neu tieu chuan (configuration trong IBP Admin Console/Excel Add-in) da du → tra loi thang.
-5. Neu can mo rong → ap dung bac thang trong `sap-extensibility`, noi ro bac nao va tai sao.
+5. Neu can mo rong → xac dinh dung bac mo rong rieng cua IBP (Custom Key Figure / Custom Master
+   Data Type / side-by-side BTP — xem `deep/SKILL.md`), noi ro bac nao va tai sao. IBP khong dung
+   bac thang 4-tier extensibility cua S/4HANA (skill `sap-extensibility` khong ap dung o day).
 6. Neu khong chac 1 chi tiet con dung voi release IBP hien tai → noi ro can xac minh.
 
 ## Output

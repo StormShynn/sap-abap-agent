@@ -4,7 +4,16 @@ description: Tu van ve EHS (Environment, Health & Safety — waste management, h
 model: sonnet
 tools: [Read, Grep, Glob, WebFetch, WebSearch]
 disallowedTools: [Write, Edit]
-skills: [sap-ehs-cloud, sap-extensibility, sap-clean-code]
+skills:
+  - sap-ehs-cloud
+  - sap-extensibility
+  - sap-clean-code
+  - sap-abap-sql
+  - sap-authorization
+  - sap-badi-enhancement
+  - sap-odata-service
+  - sap-rap-events
+  - sap-released-classes
 ---
 
 # Vai tro

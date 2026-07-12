@@ -41,7 +41,7 @@ Doc cau hoi user, ap dung ma tran duoi day. Moi keyword co **weight** (1-3). Mod
 | **PP** | `sap-pp-consultant-cloud` | production order, MRP, BOM, routing, PP | sản xuất, work center, capacity, manufacturing, bill of materials | discrete, REM, repetitive, kanban, planning strategy, task list | ≥ 2 |
 | **QM** | `sap-qm-consultant-cloud` | inspection lot, quality certificate, non-conformance, QM | kiểm tra chất lượng, inspection plan, QC, quality inspection | supplier evaluation, sampling, certificate, non conformance, usage decision | ≥ 2 |
 | **PM** | `sap-pm-consultant-cloud` | maintenance order, work order, equipment, functional location, PM | bảo trì, maintenance plan, notification, spare parts, breakdown | corrective, preventive, refurbishment, asset management, technical object | ≥ 2 |
-| **WM** | `sap-wm-consultant-cloud` | warehouse, EWM, transfer order, putaway, WM | kho, stock placement, stock removal, picking, cycle counting, storage bin | storage type, warehouse order, yard management, RF, bin management | ≥ 2 |
+| **WM** | `sap-wm-consultant-cloud` | Stock Room Management, LE-WM, classic WM, legacy WM | kho don gian, WM co dien, he thong WM cu | batch stock, non-EWM, migrate WM len Cloud | ≥ 2 |
 | **PS** | `sap-ps-consultant-cloud` | project, WBS, network, milestone, PS | du an, project budget, settlement, resource-related billing, RRB | WBS element, availability control, project cost, milestone billing | ≥ 2 |
 | **HCM** | `sap-hcm-consultant-cloud` | employee, HR, org unit, position, payroll, HCM | nhan su, personnel, timesheet, cham cong, org structure | absence, recruiting, talent, organizational management, time recording | ≥ 2 |
 | **BW** | `sap-bw-consultant-cloud` | analytics, data warehouse, SAC, BW, BI | bao cao, query, analytical, reporting, dashboard, KPI | embedded analytics, CDS query, key figure, data extraction, planning | ≥ 2 |
@@ -54,6 +54,11 @@ Doc cau hoi user, ap dung ma tran duoi day. Moi keyword co **weight** (1-3). Mod
 | **EHS** | `sap-ehs-consultant-cloud` | environment, health, safety, hazardous substance, waste | moi truong, an toan, hoa chat, MSDS, incident | product safety, industrial hygiene, occupational health, disposal, PPE | ≥ 2 |
 | **IBP** 🆕 | `sap-ibp-consultant-cloud` | demand planning, supply planning, S&OP, inventory optimization, IBP | du bao, planning, control tower, forecast, cung cap, chuoi cung ung | safety stock, time-series, optimizer, heuristic, key figure, alert | ≥ 2 |
 | **EWM** 🆕 | `sap-ewm-consultant-cloud` | warehouse, EWM, inbound, outbound, picking, packing, wave, slotting | kho, warehouse order, RF, handling unit, yard, labor | kitting, VAS, cycle counting, putaway, replenishment, storage bin | ≥ 2 |
+| **Fiori/UI5** 🆕 | `sap-fiori-consultant-cloud` | Fiori, UI5, Fiori Elements, Adaptation Project, Launchpad | giao dien, frontend, UX, tile, semantic object | Fiori app, role, catalog, group, SAP Build, Work Zone | ≥ 2 |
+| **CAP** 🆕 | `sap-cap-consultant-cloud` | CAP, cloud application programming, CDS (CAP), extension, BTP dev | side-by-side, BTP, Node.js, Java, OData V4 | MTA, CF deploy, CAP project, srv, annotation | ≥ 2 |
+| **CPI** 🆕 | `sap-cpi-consultant-cloud` | CPI, iFlow, integration flow, adapter, interface | tich hop, integration, API management, mapping, message | SOAP, OData adapter, SFTP, Event Mesh, Groovy | ≥ 2 |
+| **SuccessFactors** 🆕 | `sap-successfactors-consultant-cloud` | SuccessFactors, SF, HXM, Employee Central, recruiting, talent | HR cloud, performance, compensation, LMS | MDF, business rule, integration SF, onboarding, CPI | ≥ 2 |
+| **BTP Admin** 🆕 | `sap-btp-admin-consultant-cloud` | BTP admin, CF, Cloud Foundry, Kyma, destination | cockpit, subaccount, Cloud Connector, XSUAA | role collection, service marketplace, MTA deploy, CI/CD | ≥ 2 |
 | **Research** | `sap-docs-researcher` | CDS view, SAP note, SAP Help | Fiori app, API hub, documentation, ABAP syntax | release note, clean core, community, tra cuu, feature matrix | ≥ 2 |
 | **Daily Learner** 🧠 | `sap-daily-learner` | hoc, learning, tip, hermes, quiz, progress | bai tap, lộ trình, track, tien do, on tap, practice | daily, skill, test, cau hoi, trac nghiem, study, beginner, advanced | ≥ 1 |
 
@@ -91,6 +96,11 @@ Neu user noi "hoi X" / "X tu van" / "nho X" voi X la ten module, dispatch module
 | **EHS** | `sap-mm-consultant-cloud`, `sap-pp-consultant-cloud`, `sap-wm-consultant-cloud` | Hoa chat = material (MM), safety in production (PP), kho hoa chat (WM) |
 | **IBP** 🆕 | `sap-sd-consultant-cloud`, `sap-pp-consultant-cloud`, `sap-mm-consultant-cloud` | S&OP can sales forecast (SD), supply planning (PP), procurement (MM) |
 | **EWM** 🆕 | `sap-mm-consultant-cloud`, `sap-sd-consultant-cloud`, `sap-pp-consultant-cloud`, `sap-tm-consultant-cloud` | Inbound (MM), outbound (SD), production supply (PP), yard (TM) |
+| **Fiori/UI5** 🆕 | `sap-cap-consultant-cloud`, `sap-btp-admin-consultant-cloud` | CAP + Fiori annotation, BTP Work Zone deployment |
+| **CAP** 🆕 | `sap-fiori-consultant-cloud`, `sap-btp-admin-consultant-cloud`, `sap-sd-consultant-cloud`, `sap-fi-consultant-cloud` | Fiori UI, CF/Kyma deploy, S/4HANA APIs |
+| **CPI** 🆕 | `sap-sd-consultant-cloud`, `sap-mm-consultant-cloud`, `sap-ariba-consultant-cloud`, `sap-successfactors-consultant-cloud` | S/4HANA APIs (SD/MM), Ariba Network, SF integration |
+| **SuccessFactors** 🆕 | `sap-hcm-consultant-cloud`, `sap-cpi-consultant-cloud`, `sap-co-consultant-cloud` | S/4HANA HCM core (PA/OM/time), CPI integration, cost center |
+| **BTP Admin** 🆕 | `sap-cap-consultant-cloud`, `sap-basis-consultant-cloud`, `sap-cpi-consultant-cloud`, `sap-fiori-consultant-cloud` | CAP deploy, S/4HANA system admin, CPI Cloud Connector, Work Zone |
 
 ### Buoc 4: Tong hop dispatch
 
@@ -98,8 +108,8 @@ Neu user noi "hoi X" / "X tu van" / "nho X" voi X la ten module, dispatch module
 - **1 agent**: dispatch duy nhat.
 - **≥2 agent**: dispatch **tat ca song song** trong 1 message.
 
-**Da co agent**: SD, FI, MM, CO, PP, QM, PM, WM, PS, HCM, BW, Basis, TM, TR, Ariba, CA, GTS, EHS, **IBP**, **EWM**, Research, **Daily Learner**
-**Tong cong**: 20 modules consultant + 1 researcher + 1 daily learner = **22 agents**.
+**Da co agent**: SD, FI, MM, CO, PP, QM, PM, WM, PS, HCM, BW, Basis, TM, TR, Ariba, CA, GTS, EHS, **IBP**, **EWM**, **Fiori/UI5**, **CAP**, **CPI**, **SuccessFactors**, **BTP Admin**, Research, **Daily Learner**
+**Tong cong**: 25 modules consultant + 1 researcher + 1 daily learner = **27 agents**.
 
 ## Quy trinh — Automated Routing Engine
 

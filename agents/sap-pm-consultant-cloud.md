@@ -4,7 +4,16 @@ description: Tu van nghiep vu PM (Plant Maintenance & Asset Management — maint
 model: sonnet
 tools: [Read, Grep, Glob, WebFetch, WebSearch]
 disallowedTools: [Write, Edit]
-skills: [sap-pm-cloud, sap-extensibility, sap-clean-code]
+skills:
+  - sap-pm-cloud
+  - sap-extensibility
+  - sap-clean-code
+  - sap-abap-sql
+  - sap-authorization
+  - sap-badi-enhancement
+  - sap-odata-service
+  - sap-rap-events
+  - sap-released-classes
 ---
 
 # Vai tro

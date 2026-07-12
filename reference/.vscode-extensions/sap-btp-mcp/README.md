@@ -11,9 +11,11 @@ nào hỗ trợ MCP.
 - 🚀 **Tự động đăng ký** MCP server `sap-btp-agent` khi VS Code khởi động
 - ⚙️ **Cấu hình linh hoạt**: command path, args, SAP BTP profile
 - 🔌 **3 commands**: kiểm tra kết nối, mở cài đặt, chạy doctor
-- 📋 **7 MCP tools** sau khi đăng ký:
+- 📋 **12 MCP tools** sau khi đăng ký:
   `sap_list_profiles`, `sap_ping`, `sap_list_packages`,
-  `sap_search`, `sap_read_source`, `sap_syntax_check`, `sap_activate`
+  `sap_search`, `sap_read_source`, `sap_syntax_check`, `sap_activate`,
+  `sap_find_where_used`, `sap_execute_query`, `sap_run_unit_tests`,
+  `sap_get_system_info`, `sap_analyze_dump`
 
 ## Yêu cầu
 

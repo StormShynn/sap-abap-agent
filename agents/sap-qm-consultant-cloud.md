@@ -4,7 +4,16 @@ description: Tu van nghiep vu QM (Quality Management — quality inspection, ins
 model: sonnet
 tools: [Read, Grep, Glob, WebFetch, WebSearch]
 disallowedTools: [Write, Edit]
-skills: [sap-qm-cloud, sap-extensibility, sap-clean-code]
+skills:
+  - sap-qm-cloud
+  - sap-extensibility
+  - sap-clean-code
+  - sap-abap-sql
+  - sap-authorization
+  - sap-badi-enhancement
+  - sap-odata-service
+  - sap-rap-events
+  - sap-released-classes
 ---
 
 # Vai tro

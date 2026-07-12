@@ -13,9 +13,11 @@ Cảm ơn bạn đã quan tâm đến việc đóng góp cho **SAP ABAP Agent**!
 - [Thêm Agent mới](#thêm-agent-mới)
 - [Cập nhật Routing Engine](#cập-nhật-routing-engine)
 - [Thêm Reference Module](#thêm-reference-module)
-- [Cập nhật Documentation](#cập-nhật-documentation)
 - [Yêu cầu về code](#yêu-cầu-về-code)
+  - [YAML Skills Format Convention](#yaml-skills-format-convention)
 - [Quy trình Pull Request](#quy-trình-pull-request)
+- [Ý tưởng đóng góp](#ý-tưởng-đóng-góp)
+- [Test local trước khi submit](#test-local-trước-khi-submit)
 - [Tài nguyên](#tài-nguyên)
 
 ---
@@ -159,7 +161,10 @@ description: |
   Càng chi tiết càng tốt cho routing.>
 model: sonnet
 tools: [Read, Grep, Glob, Write, Edit, WebFetch, WebSearch]
-skills: [<list-skill-liên-quan>]
+skills:
+  - <skill-1>
+  - <skill-2>
+  - <skill-3>
 ---
 ```
 
@@ -316,6 +321,34 @@ model: haiku
 - **Tables**: Dùng `|` pipe tables
 - **Code blocks**: Dùng ``` với language hint
 - **Line breaks**: 1 dòng trống giữa các section
+
+### YAML Skills Format Convention
+
+Danh sách skills trong YAML frontmatter của agent files **bắt buộc** dùng multi-line format (mỗi skill 1 dòng, thụt lề 2 spaces):
+
+```yaml
+# ✅ ĐÚNG — multi-line, 2 spaces indent
+skills:
+  - sap-sd-cloud
+  - sap-extensibility
+  - sap-clean-code
+  - sap-abap-sql
+
+# ❌ SAI — inline array (không được dùng)
+skills: [sap-sd-cloud, sap-extensibility, sap-clean-code, sap-abap-sql]
+```
+
+**Lý do:**
+- Dễ đọc hơn, đặc biệt khi danh sách skills dài (có agent tới 12 skills)
+- Dễ maintain hơn (thêm/bớt skill không cần chỉnh dấu phẩy)
+- Dễ diff trong code review (mỗi thay đổi là 1 dòng riêng)
+- Tuân thủ YAML best practices cho list items
+
+**Quy tắc:**
+- Thụt lề **2 spaces** (không dùng tab) — dấu `-` nằm ở vị trí indent 2
+- Mỗi skill 1 dòng: `  - <skill-name>` (space + dash + space + name)
+- Không dùng dấu phẩy, không dùng dấu ngoặc vuông
+- Giữ thứ tự: skill chính của module (VD: `sap-sd-cloud`) → skill chung (`sap-extensibility`, `sap-clean-code`) → skill kỹ thuật (`sap-abap-sql`, `sap-authorization`) → skill MCP nếu có
 
 ### Naming conventions
 

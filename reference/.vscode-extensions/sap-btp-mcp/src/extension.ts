@@ -1,5 +1,9 @@
 import * as vscode from 'vscode';
 
+function quoteForShell(value: string): string {
+    return /\s/.test(value) ? `"${value}"` : value;
+}
+
 export function activate(context: vscode.ExtensionContext) {
     const disposables: vscode.Disposable[] = [];
 
@@ -31,10 +35,13 @@ export function activate(context: vscode.ExtensionContext) {
     // Command: check connection
     disposables.push(
         vscode.commands.registerCommand('sapBtpMcp.checkConnection', async () => {
-            const command = vscode.workspace.getConfiguration('sapBtpMcp').get<string>('command', 'sap-btp-agent');
+            const config = vscode.workspace.getConfiguration('sapBtpMcp');
+            const command = config.get<string>('command', 'sap-btp-agent');
+            const profile = config.get<string>('profile', '');
             const terminal = vscode.window.createTerminal('SAP BTP');
             terminal.show();
-            terminal.sendText(`${command} connect`);
+            const profileArg = profile ? ` ${quoteForShell(profile)}` : '';
+            terminal.sendText(`${quoteForShell(command)} connect${profileArg}`);
         })
     );
 
@@ -48,9 +55,10 @@ export function activate(context: vscode.ExtensionContext) {
     // Command: run doctor
     disposables.push(
         vscode.commands.registerCommand('sapBtpMcp.runDoctor', async () => {
+            const command = vscode.workspace.getConfiguration('sapBtpMcp').get<string>('command', 'sap-btp-agent');
             const terminal = vscode.window.createTerminal('SAP Doctor');
             terminal.show();
-            terminal.sendText('python -m sap_btp_agent.doctor');
+            terminal.sendText(`${quoteForShell(command)} doctor`);
         })
     );
 

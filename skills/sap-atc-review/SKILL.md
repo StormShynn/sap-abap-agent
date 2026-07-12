@@ -104,4 +104,9 @@ Neu co FAIL: dung, yeu cau user fix. Neu chi WARN: bao user, khong block.
 
 - Scripts: `reference/scripts/sap_naming_lint.py`, `reference/scripts/check_released_api.py`.
 - Naming: skill `sap-clean-code`. Extensibility: skill `sap-extensibility`.
+- Released class check: skill `sap-released-classes` — danh muc class ABAP duoc release.
+- BAdI/Enhancement check: skill `sap-badi-enhancement` — Cloud BAdI patterns.
+- Authorization check: skill `sap-authorization` — DCL, instance-based auth review.
+- SQL+AMDP check: skill `sap-abap-sql` — ABAP SQL patterns & performance.
+- OData check: skill `sap-odata-service` — OData V4 service review.
 - Agent `abap-reviewer` — review sau/logic nghiep vu chi tiet hon.

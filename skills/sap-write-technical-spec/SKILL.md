@@ -158,4 +158,8 @@ implementation in class zbp_<object> unique;
 - Skill `sap-extensibility` — bac thang extensibility chung.
 - Skill `sap-clean-code` — quy uoc dat ten 3-layer CDS.
 - Skill `sap-scaffold-rap` / `sap-scaffold-cds` — buoc tiep theo.
+- Skill `sap-abap-sql` — ABAP SQL, window functions, AMDP cho quyet dinh kien truc.
+- Skill `sap-odata-service` — OData V4/V2 patterns, RAP service binding quyet dinh.
+- Skill `sap-badi-enhancement` — Cloud BAdI patterns khi can custom logic.
+- Skill `sap-rap-events` — RAP business events cho event-driven architecture.
 - Agent consultant tuong ung phan he — tim CDS/API chuan.

@@ -9,7 +9,7 @@ description = "MCP server tu dong ket noi SAP BTP (multi-profile) - rewrite Pyth
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }
-authors = [{ name = "StormShyn" }]
+authors = [{ name = "StormShynn" }]
 keywords = ["sap", "abap", "mcp", "btp", "s4hana"]
 dependencies = [
     "mcp>=1.0.0",

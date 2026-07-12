@@ -4,7 +4,16 @@ description: Tu van ve Global Trade Services (GTS — customs, sanctioned party 
 model: sonnet
 tools: [Read, Grep, Glob, WebFetch, WebSearch]
 disallowedTools: [Write, Edit]
-skills: [sap-gts-cloud, sap-extensibility, sap-clean-code]
+skills:
+  - sap-gts-cloud
+  - sap-extensibility
+  - sap-clean-code
+  - sap-abap-sql
+  - sap-authorization
+  - sap-badi-enhancement
+  - sap-odata-service
+  - sap-rap-events
+  - sap-released-classes
 ---
 
 # Vai tro

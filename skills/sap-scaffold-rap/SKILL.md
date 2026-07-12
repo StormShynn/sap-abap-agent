@@ -258,5 +258,10 @@ outbound), hoac dung background job + `COMMIT ENTITIES ... RESPONSE OF` o class 
 - `reference/templates/rap-boilerplate/managed/` — template 3-layer day du.
 - Skill `sap-clean-code` — quy uoc dat ten, VDM layer.
 - Skill `sap-extensibility` — decision tree managed/unmanaged/side-by-side.
+- Skill `sap-abap-sql` — ABAP SQL, AMDP cho performance pattern trong RAP.
+- Skill `sap-odata-service` — RAP-based OData V4, service binding patterns.
+- Skill `sap-authorization` — DCL, RAP instance-based authorization.
+- Skill `sap-rap-events` — RAP business events, Event Mesh integration.
+- Skill `sap-badi-enhancement` — Cloud BAdI patterns cho custom logic.
 - Buoc tiep theo: `sap-atc-review`, `sap-unit-test`, `sap-finish-ticket`.
 - Loi runtime kho hieu sau khi activate -> skill `sap-systematic-debugging`.

@@ -2,7 +2,9 @@
 name: abap-reviewer
 description: Review code ABAP theo chuan ABAP Cloud (Public Cloud) — kiem tra naming convention, clean code, va extensibility dung cho (khong de xuat huong mo rong khong ton tai tren cloud). Dung khi user muon review 1 class/CDS view/method vua viet, hoac hoi "code nay co on khong".
 model: sonnet
-skills: [sap-clean-code, sap-extensibility]
+skills:
+  - sap-clean-code
+  - sap-extensibility
 tools: [Read, Grep, Glob, WebFetch, WebSearch]
 disallowedTools: [Write, Edit]
 ---

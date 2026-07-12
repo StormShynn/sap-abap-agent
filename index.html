@@ -787,6 +787,7 @@
     }
     #searchResults .sr-item:last-child { border-bottom: none; }
     #searchResults .sr-item:hover { background: var(--bg-code); }
+    #searchResults .sr-item.active { background: var(--bg-code); box-shadow: inset 3px 0 0 var(--accent); }
     #searchResults .sr-item .sr-title {
       font-size: 13px;
       font-weight: 600;
@@ -859,267 +860,6 @@
       .btn { min-height: 44px; }
     }
 
-    /* ===== SEARCH BAR ===== */
-    .search-container {
-      position: relative;
-      max-width: 320px;
-      width: 100%;
-    }
-    .search-container .search-icon {
-      position: absolute;
-      left: 12px;
-      top: 50%;
-      transform: translateY(-50%);
-      font-size: 14px;
-      color: var(--text-dim);
-      pointer-events: none;
-      z-index: 1;
-    }
-    #searchInput {
-      width: 100%;
-      padding: 7px 12px 7px 34px;
-      background: var(--bg-code);
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      color: var(--text);
-      font-size: 13px;
-      font-family: var(--font);
-      outline: none;
-      transition: all .25s;
-    }
-    #searchInput:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px var(--accent-glow);
-    }
-    #searchInput::placeholder {
-      color: var(--text-dim);
-      opacity: .7;
-    }
-    #searchResults {
-      position: absolute;
-      top: calc(100% + 6px);
-      right: 0;
-      width: 420px;
-      max-height: 360px;
-      overflow-y: auto;
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      box-shadow: 0 8px 24px rgba(0,0,0,.4);
-      display: none;
-      z-index: 300;
-    }
-    #searchResults.open { display: block; }
-    #searchResults .sr-item {
-      padding: 10px 14px;
-      border-bottom: 1px solid var(--border);
-      cursor: pointer;
-      transition: background .15s;
-    }
-    #searchResults .sr-item:last-child { border-bottom: none; }
-    #searchResults .sr-item:hover { background: var(--bg-code); }
-    #searchResults .sr-item .sr-title {
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--text-bright);
-    }
-    #searchResults .sr-item .sr-section {
-      font-size: 11px;
-      color: var(--text-dim);
-      margin-top: 2px;
-    }
-    #searchResults .sr-item mark {
-      background: rgba(88,166,255,.25);
-      color: var(--accent);
-      border-radius: 2px;
-      padding: 0 2px;
-    }
-    #searchResults .sr-empty {
-      padding: 20px;
-      text-align: center;
-      color: var(--text-dim);
-      font-size: 13px;
-    }
-    #searchResults .sr-count {
-      padding: 6px 14px;
-      font-size: 11px;
-      color: var(--text-dim);
-      background: var(--bg);
-      border-bottom: 1px solid var(--border);
-      text-align: right;
-    }
-
-    /* ===== ANCHOR HIGHLIGHT ===== */
-    :target {
-      animation: highlightTarget 2s ease;
-    }
-    @keyframes highlightTarget {
-      0% { background-color: rgba(88,166,255,.15); border-radius: 8px; }
-      100% { background-color: transparent; }
-    }
-
-    /* ===== SKELETON LOADING ===== */
-    .skeleton {
-      background: linear-gradient(90deg, var(--bg-code) 25%, var(--border) 50%, var(--bg-code) 75%);
-      background-size: 200% 100%;
-      animation: shimmer 1.5s ease infinite;
-      border-radius: var(--radius-sm);
-    }
-    @keyframes shimmer {
-      0% { background-position: 200% 0; }
-      100% { background-position: -200% 0; }
-    }
-
-    /* ===== MOBILE TOUCH IMPROVEMENTS ===== */
-    @media (max-width: 860px) {
-      .search-container { max-width: 100%; }
-      #searchResults { width: calc(100vw - 40px); right: 0; }
-      .top-header { gap: 6px; }
-      .sidebar a.nav-link { padding: 10px 12px; min-height: 44px; }
-      .sidebar-toggle { padding: 10px 12px; min-width: 44px; min-height: 44px; }
-      .lang-toggle, .theme-toggle { min-width: 44px; min-height: 44px; }
-      table td:first-child { white-space: normal; word-break: break-all; }
-      pre { font-size: 12px; padding: 14px 14px; }
-    }
-    @media (max-width: 480px) {
-      .header-version { display: none; }
-      .search-container { max-width: 100%; }
-      #searchResults { width: calc(100vw - 40px); }
-      section h2 { font-size: 20px; }
-      .hero h1 { font-size: 1.6rem; }
-      .btn { min-height: 44px; }
-    }
-
-    /* ===== SEARCH BAR ===== */
-    .search-container {
-      position: relative;
-      max-width: 320px;
-      width: 100%;
-    }
-    .search-container .search-icon {
-      position: absolute;
-      left: 12px;
-      top: 50%;
-      transform: translateY(-50%);
-      font-size: 14px;
-      color: var(--text-dim);
-      pointer-events: none;
-      z-index: 1;
-    }
-    #searchInput {
-      width: 100%;
-      padding: 7px 12px 7px 34px;
-      background: var(--bg-code);
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      color: var(--text);
-      font-size: 13px;
-      font-family: var(--font);
-      outline: none;
-      transition: all .25s;
-    }
-    #searchInput:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px var(--accent-glow);
-    }
-    #searchInput::placeholder {
-      color: var(--text-dim);
-      opacity: .7;
-    }
-    #searchResults {
-      position: absolute;
-      top: calc(100% + 6px);
-      right: 0;
-      width: 420px;
-      max-height: 360px;
-      overflow-y: auto;
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      box-shadow: 0 8px 24px rgba(0,0,0,.4);
-      display: none;
-      z-index: 300;
-    }
-    #searchResults.open { display: block; }
-    #searchResults .sr-item {
-      padding: 10px 14px;
-      border-bottom: 1px solid var(--border);
-      cursor: pointer;
-      transition: background .15s;
-    }
-    #searchResults .sr-item:last-child { border-bottom: none; }
-    #searchResults .sr-item:hover { background: var(--bg-code); }
-    #searchResults .sr-item .sr-title {
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--text-bright);
-    }
-    #searchResults .sr-item .sr-section {
-      font-size: 11px;
-      color: var(--text-dim);
-      margin-top: 2px;
-    }
-    #searchResults .sr-item mark {
-      background: rgba(88,166,255,.25);
-      color: var(--accent);
-      border-radius: 2px;
-      padding: 0 2px;
-    }
-    #searchResults .sr-empty {
-      padding: 20px;
-      text-align: center;
-      color: var(--text-dim);
-      font-size: 13px;
-    }
-    #searchResults .sr-count {
-      padding: 6px 14px;
-      font-size: 11px;
-      color: var(--text-dim);
-      background: var(--bg);
-      border-bottom: 1px solid var(--border);
-      text-align: right;
-    }
-
-    /* ===== ANCHOR HIGHLIGHT ===== */
-    :target {
-      animation: highlightTarget 2s ease;
-    }
-    @keyframes highlightTarget {
-      0% { background-color: rgba(88,166,255,.15); border-radius: 8px; }
-      100% { background-color: transparent; }
-    }
-
-    /* ===== SKELETON LOADING ===== */
-    .skeleton {
-      background: linear-gradient(90deg, var(--bg-code) 25%, var(--border) 50%, var(--bg-code) 75%);
-      background-size: 200% 100%;
-      animation: shimmer 1.5s ease infinite;
-      border-radius: var(--radius-sm);
-    }
-    @keyframes shimmer {
-      0% { background-position: 200% 0; }
-      100% { background-position: -200% 0; }
-    }
-
-    /* ===== MOBILE TOUCH IMPROVEMENTS ===== */
-    @media (max-width: 860px) {
-      .search-container { max-width: 100%; }
-      #searchResults { width: calc(100vw - 40px); right: 0; }
-      .top-header { gap: 6px; }
-      .sidebar a.nav-link { padding: 10px 12px; min-height: 44px; }
-      .sidebar-toggle { padding: 10px 12px; min-width: 44px; min-height: 44px; }
-      .lang-toggle, .theme-toggle { min-width: 44px; min-height: 44px; }
-      table td:first-child { white-space: normal; word-break: break-all; }
-      pre { font-size: 12px; padding: 14px 14px; }
-    }
-    @media (max-width: 480px) {
-      .header-version { display: none; }
-      .search-container { max-width: 100%; }
-      #searchResults { width: calc(100vw - 40px); }
-      section h2 { font-size: 20px; }
-      .hero h1 { font-size: 1.6rem; }
-      .btn { min-height: 44px; }
-    }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/flexsearch@0.7.43/dist/flexsearch.bundle.min.js"></script>
   
@@ -1137,7 +877,7 @@
     <div class="icon">SA</div>
     <div>
       <h2>SAP ABAP Agent</h2>
-      <small>v0.6.2 &middot; 20 modules + daily learner + Context Engineering</small>
+      <small>v0.8.1 · 25 modules + MCP Notes/GUI/ADT</small>
     </div>
   </div>
 
@@ -1156,7 +896,7 @@
     <a class="nav-link" href="#dang-ky-mcp"><span class="nav-icon">⚙️</span> Đăng ký MCP</a>
 
     <div class="nav-section">Consultant System</div>
-    <a class="nav-link" href="#consultant-system"><span class="nav-icon">🧠</span> 19 module consultants</a>
+    <a class="nav-link" href="#consultant-system"><span class="nav-icon">🧠</span> 25 module consultants</a>
     <a class="nav-link" href="#consultant-routing"><span class="nav-icon">🔀</span> Auto-scoring routing</a>
     <a class="nav-link" href="#agent-directory"><span class="nav-icon">📇</span> Chi tiết từng Agent</a>
     <a class="nav-link" href="#daily-learner"><span class="nav-icon">📚</span> Học SAP mỗi ngày</a>
@@ -1164,11 +904,30 @@
     <div class="nav-section">Skills khác</div>
     <a class="nav-link" href="#skill-cds-kb"><span class="nav-icon">📚</span> CDS Knowledge Base</a>
     <a class="nav-link" href="#skill-docs-research"><span class="nav-icon">📖</span> SAP Docs Research</a>
+    <a class="nav-link" href="#skill-sap-notes-mcp"><span class="nav-icon">📝</span> SAP Notes MCP</a>
+    <a class="nav-link" href="#skill-sap-gui-mcp"><span class="nav-icon">🖥️</span> SAP GUI MCP</a>
+    <a class="nav-link" href="#skill-adt-mcp"><span class="nav-icon">🔧</span> ADT MCP (3 options)</a>
+    <a class="nav-link" href="#skill-sap-successfactors-mcp"><span class="nav-icon">👥</span> SuccessFactors MCP</a>
+    <a class="nav-link" href="#skill-sap-concur-mcp"><span class="nav-icon">✈️</span> SAP Concur MCP</a>
+    <a class="nav-link" href="#skill-sap-fieldglass-mcp"><span class="nav-icon">🛠️</span> Fieldglass MCP</a>
     <a class="nav-link" href="#skill-clean-code"><span class="nav-icon">🧹</span> Clean Code & Naming</a>
     <a class="nav-link" href="#skill-extensibility"><span class="nav-icon">🧩</span> Extensibility Ladder</a>
     <a class="nav-link" href="#skill-key-user-toolkit"><span class="nav-icon">🛠️</span> Key User Toolkit</a>
     <a class="nav-link" href="#skill-btp-setup"><span class="nav-icon">🔌</span> BTP Setup Helper</a>
     <a class="nav-link" href="#skill-doc-to-md"><span class="nav-icon">📄</span> Doc → Markdown</a>
+
+    <div class="nav-section">Community Skills (imported)</div>
+    <a class="nav-link" href="#skill-released-classes"><span class="nav-icon">📋</span> Released ABAP Classes</a>
+    <a class="nav-link" href="#skill-abap-sql"><span class="nav-icon">🗃️</span> ABAP SQL &amp; AMDP</a>
+    <a class="nav-link" href="#skill-badi"><span class="nav-icon">🔌</span> Cloud BAdI Enhancement</a>
+    <a class="nav-link" href="#skill-authorization"><span class="nav-icon">🛡️</span> Authorization &amp; DCL</a>
+    <a class="nav-link" href="#skill-cloud-migration"><span class="nav-icon">🔄</span> Cloud Migration</a>
+    <a class="nav-link" href="#skill-odata-service"><span class="nav-icon">🌐</span> OData Service</a>
+    <a class="nav-link" href="#skill-rap-events"><span class="nav-icon">📨</span> RAP Business Events</a>
+    <a class="nav-link" href="#skill-steampunk"><span class="nav-icon">☁️</span> Steampunk / BTP ABAP</a>
+    <a class="nav-link" href="#skill-btp-connectivity"><span class="nav-icon">🔗</span> BTP Connectivity</a>
+    <a class="nav-link" href="#skill-btp-best-practices"><span class="nav-icon">✅</span> BTP Best Practices</a>
+    <a class="nav-link" href="#skill-sapui5-fiori"><span class="nav-icon">🎨</span> SAPUI5 &amp; Fiori</a>
 
     <div class="nav-section">Codegen Pipeline</div>
     <a class="nav-link" href="#codegen-pipeline"><span class="nav-icon">🏗️</span> FS.docx → ABAP code</a>
@@ -1209,7 +968,7 @@
         <span class="theme-icon-light">☀️</span>
         <span class="theme-icon-dark" style="display:none;">🌙</span>
       </button>
-      <span class="header-version">v0.6.2 &middot; 20 agents + Context Engineering</span>
+      <span class="header-version">v0.8.1 · 27 agents + MCP Notes/GUI/ADT</span>
     </div>
   </header>
 
@@ -1248,7 +1007,7 @@
       <div class="features-grid">
         <div class="feature-card">
           <span class="fc-icon">🧠</span>
-          <h4>19 module consultants</h4>
+          <h4>25 module consultants</h4>
           <p>Auto-scoring routing engine. Hỏi câu hỏi nghiệp vụ, AI tự dispatch consultant phù hợp hoặc nhiều module song song.</p>
         </div>
         <div class="feature-card">
@@ -1330,7 +1089,7 @@ claude mcp add --transport sse mcp-sap-docs-btp --url https://sap-docs-extend-mc
 
       <pre><code>claude mcp add --transport stdio sap-btp -- sap-btp-agent</code><button class="copy-btn" onclick="copyCode(this)">Sao chép</button></pre>
 
-      <p>Sau bước này, các MCP tool và 19 agents sẽ sẵn sàng trong Claude Code.</p>
+      <p>Sau bước này, các MCP tool và 27 agents sẽ sẵn sàng trong Claude Code.</p>
     </section>
 
     <!-- ===== THÊM PROJECT SAP ===== -->
@@ -1989,9 +1748,9 @@ sap-btp-agent setup https://project1.s4hana.cloud.sap
 
     <!-- ===== CONSULTANT SYSTEM SECTION ===== -->
     <section id="consultant-system">
-      <h2><span class="section-icon">🧠</span> SAP Consultant System (19 modules + 1 daily learner)</h2>
+      <h2><span class="section-icon">🧠</span> SAP Consultant System (25 modules + 1 daily learner)</h2>
 
-      <p><strong>skills/sap-ask-consultant/SKILL.md</strong> — Auto-scoring routing engine dispatch câu hỏi user tới <strong>20 agents</strong> (18 module consultants + 1 researcher + 1 daily learner).</p>
+      <p><strong>skills/sap-ask-consultant/SKILL.md</strong> — Auto-scoring routing engine dispatch câu hỏi user tới <strong>27 agents</strong> (25 module consultants + 1 researcher + 1 daily learner).</p>
 
       <h3>🔀 Cách hoạt động</h3>
       <ol>
@@ -2002,7 +1761,7 @@ sap-btp-agent setup https://project1.s4hana.cloud.sap
         <li><strong>Parallel dispatch</strong>: Tất cả module >= threshold dispatch song song</li>
       </ol>
 
-      <h3>Danh sách 19 module consultants + 1 daily learner</h3>
+      <h3>Danh sách 25 module consultants + 1 daily learner</h3>
       <div class="table-wrap">
         <table>
           <thead>
@@ -2027,6 +1786,13 @@ sap-btp-agent setup https://project1.s4hana.cloud.sap
             <tr><td>16</td><td><code>sap-ca-consultant-cloud</code></td><td>Cross-Application Functions</td></tr>
             <tr><td>17</td><td><code>sap-gts-consultant-cloud</code></td><td>Global Trade Services</td></tr>
             <tr><td>18</td><td><code>sap-ehs-consultant-cloud</code></td><td>Environment, Health &amp; Safety</td></tr>
+            <tr><td>19</td><td><code>sap-ibp-consultant-cloud</code></td><td>Integrated Business Planning</td></tr>
+            <tr><td>20</td><td><code>sap-ewm-consultant-cloud</code></td><td>Extended Warehouse Management</td></tr>
+            <tr><td>21</td><td><code>sap-fiori-consultant-cloud</code></td><td>Fiori/UI5 &amp; Frontend</td></tr>
+            <tr><td>22</td><td><code>sap-cap-consultant-cloud</code></td><td>CAP / Cloud Application Programming</td></tr>
+            <tr><td>23</td><td><code>sap-cpi-consultant-cloud</code></td><td>Cloud Platform Integration</td></tr>
+            <tr><td>24</td><td><code>sap-successfactors-consultant-cloud</code></td><td>SuccessFactors &amp; HR Cloud</td></tr>
+            <tr><td>25</td><td><code>sap-btp-admin-consultant-cloud</code></td><td>BTP Admin &amp; Infrastructure</td></tr>
             <tr style="background:var(--bg-code);"><td>—</td><td><code>sap-docs-researcher</code></td><td>📚 CDS view &amp; Docs Research</td></tr>
             <tr style="background:linear-gradient(135deg, var(--purple), var(--cyan));color:#fff;"><td><strong>🎯</strong></td><td><code style="color:#fff;">sap-daily-learner</code></td><td><strong>🧠 Học SAP mỗi ngày — Hermes-like (2026)</strong></td></tr>
           </tbody>
@@ -2048,6 +1814,12 @@ sap-btp-agent setup https://project1.s4hana.cloud.sap
             <tr><td>"quan ly hoa chat nguy hiem"</td><td><code>sap-ehs-consultant-cloud</code> + <code>sap-mm-consultant-cloud</code></td></tr>
             <tr style="background:var(--bg-code);"><td><strong>"hoc SAP hom nay"</strong></td><td><code>sap-daily-learner</code> (daily tip + learning path)</td></tr>
             <tr style="background:var(--bg-code);"><td><strong>"quiz MM cho toi"</strong></td><td><code>sap-daily-learner</code> (trac nghiem MM)</td></tr>
+            <tr><td>"Fiori app cho sales order"</td><td><code>sap-fiori-consultant-cloud</code> + <code>sap-sd-consultant-cloud</code></td></tr>
+            <tr><td>"CAP side-by-side extension"</td><td><code>sap-cap-consultant-cloud</code> + <code>sap-btp-admin-consultant-cloud</code></td></tr>
+            <tr><td>"iFlow tich hop S/4HANA vs SuccessFactors"</td><td><code>sap-cpi-consultant-cloud</code> + <code>sap-successfactors-consultant-cloud</code></td></tr>
+            <tr><td>"IBP inventory optimization"</td><td><code>sap-ibp-consultant-cloud</code> + <code>sap-mm-consultant-cloud</code></td></tr>
+            <tr><td>"EWM wave management cho kho"</td><td><code>sap-ewm-consultant-cloud</code></td></tr>
+            <tr><td>"BTP destination + Cloud Connector"</td><td><code>sap-btp-admin-consultant-cloud</code></td></tr>
           </tbody>
         </table>
       </div>
@@ -2084,6 +1856,13 @@ sap-btp-agent setup https://project1.s4hana.cloud.sap
             <tr><td>CA</td><td>business partner, document management</td><td>BP, DMS, workflow</td></tr>
             <tr><td>GTS</td><td>customs, global trade, SPL</td><td>hải quan, xuất nhập khẩu</td></tr>
             <tr><td>EHS</td><td>environment, health, safety</td><td>môi trường, an toàn, hóa chất</td></tr>
+            <tr><td>IBP</td><td>demand planning, supply planning, S&amp;OP, inventory</td><td>dự báo, tồn kho an toàn</td></tr>
+            <tr><td>EWM</td><td>embedded EWM, wave, warehouse, labor</td><td>kho, wave management, VAS</td></tr>
+            <tr><td>Fiori</td><td>Fiori, UI5, Fiori Elements, SAP Build</td><td>giao diện, frontend, freestyle</td></tr>
+            <tr><td>CAP</td><td>CAP, CDS, side-by-side, MTA</td><td>extension, cloud application</td></tr>
+            <tr><td>CPI</td><td>CPI, iFlow, integration, middleware</td><td>tích hợp, adapter, B2B</td></tr>
+            <tr><td>SF</td><td>SuccessFactors, Employee Central, talent</td><td>nhân sự cloud, recruiting</td></tr>
+            <tr><td>BTP Admin</td><td>BTP, CF, Kyma, destination, Cloud Connector</td><td>subaccount, entitlement, cockpit</td></tr>
             <tr><td>Research</td><td>CDS view, SAP note, SAP Help</td><td>Fiori app, API hub</td></tr>
           </tbody>
         </table>
@@ -2105,6 +1884,13 @@ sap-btp-agent setup https://project1.s4hana.cloud.sap
             <tr><td>CA</td><td>SD, MM, FI</td><td>BP dùng chung cho customer/supplier</td></tr>
             <tr><td>GTS</td><td>SD, MM, TM</td><td>Export (SD), import (MM), transport (TM)</td></tr>
             <tr><td>EHS</td><td>MM, PP, WM</td><td>Hóa chất (MM), sản xuất (PP), kho (WM)</td></tr>
+            <tr><td>IBP</td><td>PP, SD, MM</td><td>Demand (SD), supply (PP), procurement (MM)</td></tr>
+            <tr><td>EWM</td><td>MM, SD, PP</td><td>GR (MM), delivery (SD), production supply (PP)</td></tr>
+            <tr><td>Fiori</td><td>Tất cả modules</td><td>Frontend cho mọi module nghiệp vụ</td></tr>
+            <tr><td>CAP</td><td>BTP Admin, CPI</td><td>Extension infrastructure + integration</td></tr>
+            <tr><td>CPI</td><td>Tất cả modules</td><td>Middleware tích hợp cho mọi module cloud</td></tr>
+            <tr><td>SF</td><td>CPI, HCM</td><td>Integration (CPI), HR core (HCM)</td></tr>
+            <tr><td>BTP Admin</td><td>Basis, CAP, CPI</td><td>Infrastructure, extension, integration</td></tr>
           </tbody>
         </table>
       </div>
@@ -2114,8 +1900,8 @@ sap-btp-agent setup https://project1.s4hana.cloud.sap
 
     <!-- ===== AGENT DIRECTORY SECTION ===== -->
     <section id="agent-directory">
-      <h2><span class="section-icon">📇</span> Chi tiết từng Agent (21 files)</h2>
-      <p>18 module consultants + 1 docs researcher + 1 daily learner (được <code>sap-ask-consultant</code> tự động dispatch) + 1 abap-reviewer (gọi thủ công). Mỗi agent đều <strong>chỉ tư vấn/review — không tự sửa code</strong> (không có quyền Write/Edit), chạy trên model <code>sonnet</code>.</p>
+      <h2><span class="section-icon">📇</span> Chi tiết từng Agent (28 files)</h2>
+      <p>25 module consultants + 1 docs researcher + 1 daily learner (được <code>sap-ask-consultant</code> tự động dispatch) + 1 abap-reviewer (gọi thủ công). Mỗi agent đều <strong>chỉ tư vấn/review — không tự sửa code</strong> (không có quyền Write/Edit), chạy trên model <code>sonnet</code>.</p>
 
       <div class="features-grid">
         <div class="feature-card">
@@ -2388,6 +2174,207 @@ sap-btp-agent setup https://project1.s4hana.cloud.sap
       <p>💡 <strong>Lưu ý:</strong> <code>SAP-API-HUB-KEY</code> không bắt buộc (thiếu thì chỉ giới hạn <code>sap_accelerator_hub_*</code>). Offline docs có thể không phản ánh release mới nhất (SAP ra 4 bản/năm). <code>sap_search_objects</code> chỉ trả về released objects — không xuất hiện nghĩa là chưa release cho ABAP Cloud.</p>
     </section>
 
+    <!-- ===== SKILL: SAP NOTES MCP ===== -->
+    <section id="skill-sap-notes-mcp">
+      <h2><span class="section-icon">📝</span> SAP Notes MCP (mcp-sap-notes)</h2>
+      <p><strong>skills/mcp-sap-notes/SKILL.md</strong> — Tra cứu SAP Notes qua MCP server <code>mcp-sap-notes</code> bởi marianfoo. Tìm kiếm và đọc nội dung SAP Notes trực tiếp từ Claude Code.</p>
+
+      <h3>Cài đặt</h3>
+      <pre><code><span class="hl-com"># Cài qua npm</span>
+npm install -g mcp-sap-notes
+
+<span class="hl-com"># Hoặc chạy trực tiếp</span>
+npx @marianfoo/mcp-sap-notes</code><button class="copy-btn" onclick="copyCode(this)">Sao chép</button></pre>
+
+      <h3>Cấu hình Claude Code</h3>
+      <pre><code>claude mcp add --transport stdio sap-notes -- npx @marianfoo/mcp-sap-notes</code><button class="copy-btn" onclick="copyCode(this)">Sao chép</button></pre>
+
+      <h3>Tools</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Tool</th><th>Mô tả</th></tr></thead>
+          <tbody>
+            <tr><td><code>search_sap_notes</code></td><td>Tìm SAP Notes theo từ khóa, component, version</td></tr>
+            <tr><td><code>get_sap_note</code></td><td>Đọc nội dung chi tiết 1 SAP Note (số hiệu)</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>💡 Hữu ích khi cần check SAP Note cho lỗi runtime, security patch, hoặc hướng dẫn cấu hình mới nhất.</p>
+    </section>
+
+    <!-- ===== SKILL: SAP GUI MCP ===== -->
+    <section id="skill-sap-gui-mcp">
+      <h2><span class="section-icon">🖥️</span> SAP GUI MCP (mcp-sap-gui)</h2>
+      <p><strong>skills/mcp-sap-gui/SKILL.md</strong> — Tự động hóa SAP GUI qua MCP. Điều khiển SAP GUI Windows để đọc dữ liệu, thao tác transaction, snapshot màn hình.</p>
+
+      <h3>Cài đặt</h3>
+      <pre><code><span class="hl-com"># Cài qua uvx (khuyên dùng)</span>
+uvx mcp-sap-gui[screenshots]
+
+<span class="hl-com"># Hoặc pip</span>
+pip install mcp-sap-gui[screenshots]</code><button class="copy-btn" onclick="copyCode(this)">Sao chép</button></pre>
+
+      <h3>Cấu hình Claude Code</h3>
+      <pre><code><span class="hl-com"># Tạo file .env với SAP GUI config</span>
+SAPGUI_USER=your_user
+SAPGUI_PASS=your_pass
+SAPGUI_CLIENT=100
+SAPGUI_LANGUAGE=EN
+
+<span class="hl-com"># Đăng ký MCP server</span>
+claude mcp add --transport stdio sap-gui -- uvx mcp-sap-gui</code><button class="copy-btn" onclick="copyCode(this)">Sao chép</button></pre>
+
+      <h3>Tools (57 tools)</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Tool</th><th>Mô tả</th></tr></thead>
+          <tbody>
+            <tr><td><code>gui_open_connection</code></td><td>Mở kết nối SAP GUI</td></tr>
+            <tr><td><code>gui_run_transaction</code></td><td>Chạy transaction (/nVA01, /nMM03...)</td></tr>
+            <tr><td><code>gui_send_command</code></td><td>Gửi lệnh /n, /o, /i</td></tr>
+            <tr><td><code>gui_read_table</code></td><td>Đọc dữ liệu từ ALV Grid</td></tr>
+            <tr><td><code>gui_fill_field</code></td><td>Điền giá trị vào field</td></tr>
+            <tr><td><code>gui_press_button</code></td><td>Nhấn button (F8, F3...)</td></tr>
+            <tr><td><code>gui_get_screen</code></td><td>Lấy screen info + fields</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>💡 Chạy <code>uvx mcp-sap-gui</code> lần đầu sẽ tự động cài SAP GUI Scripting API. Bảo mật: chỉ chạy trong session riêng, hỗ trợ blocklist field nhạy cảm.</p>
+    </section>
+
+    <!-- ===== SKILL: ADT MCP (3 options) ===== -->
+    <section id="skill-adt-mcp">
+      <h2><span class="section-icon">🔧</span> ADT MCP Servers (3 options)</h2>
+      <p><strong>skills/mcp-sap-adt/SKILL.md</strong> — 3 lựa chọn MCP server cho SAP ADT (ABAP Development Tools) integration. Hỗ trợ đọc/ghi source ABAP trực tiếp từ ADT.</p>
+
+      <h3>Option 1: SAP Official MCP Server (GA Q2 2026)</h3>
+      <p>MCP server chính thức từ SAP, shipped với ADT. Tích hợp sẵn trong SAP Business Application Studio và ADT.</p>
+      <pre><code><span class="hl-com"># Cài đặt qua SAP BTP</span>
+npm install -g @sap/adt-mcp-server
+
+<span class="hl-com"># Cấu hình</span>
+claude mcp add --transport stdio sap-adt -- @sap/adt-mcp-server --url &lt;ADT_URL&gt;</code><button class="copy-btn" onclick="copyCode(this)">Sao chép</button></pre>
+
+      <h3>Option 2: ARC-1 (Enterprise MCP cho ADT)</h3>
+      <p>arc-mcp/arc-1 — Enterprise-grade MCP bridge cho ADT, hỗ trợ ABAP Cloud development workflow.</p>
+      <pre><code><span class="hl-com"># Cài qua pip</span>
+pip install arc-mcp
+
+<span class="hl-com"># Cấu hình</span>
+claude mcp add --transport stdio arc-adt -- arc-mcp-adt</code><button class="copy-btn" onclick="copyCode(this)">Sao chép</button></pre>
+
+      <h3>Option 3: mcp-abap-adt (cộng đồng)</h3>
+      <p>mario-andreschak/mcp-abap-adt — MCP server mã nguồn mở cho ADT, 7 tools cốt lõi.</p>
+      <pre><code><span class="hl-com"># Cài qua npm</span>
+npx @mario-andreschak/mcp-abap-adt
+
+<span class="hl-com"># Cấu hình</span>
+claude mcp add --transport stdio abap-adt -- npx @mario-andreschak/mcp-abap-adt</code><button class="copy-btn" onclick="copyCode(this)">Sao chép</button></pre>
+
+      <h3>So sánh 3 options</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Tính năng</th><th>SAP Official</th><th>ARC-1</th><th>mcp-abap-adt</th></tr></thead>
+          <tbody>
+            <tr><td>Bảo trì</td><td>SAP (chính thức)</td><td>ARC (enterprise)</td><td>Cộng đồng</td></tr>
+            <tr><td>ADT objects</td><td>Full</td><td>Đầy đủ</td><td>Cơ bản</td></tr>
+            <tr><td>ABAP Cloud</td><td>Full support</td><td>Full support</td><td>Cơ bản</td></tr>
+            <tr><td>Cài đặt</td><td>npm</td><td>pip</td><td>npx</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+
+    <!-- ===== SKILL: SUCCESSFACTORS MCP ===== -->
+    <section id="skill-sap-successfactors-mcp">
+      <h2><span class="section-icon">👥</span> SuccessFactors MCP (mcp-sap-successfactors)</h2>
+      <p><strong>skills/mcp-sap-successfactors/SKILL.md</strong> — 2 options de tich hop SAP SuccessFactors voi AI assistant: sf-mcp (open-source, 62+ tools) va CData SF MCP (SQL-based read-only).</p>
+
+      <h3>Option 1: sf-mcp (Open-source, khuyen dung)</h3>
+      <pre><code><span class="hl-com"># Yeu cau: Python 3.10+, uv package manager</span>
+git clone https://github.com/aiadiguru2025/sf-mcp.git
+cd sf-mcp
+uv sync</code><button class="copy-btn" onclick="copyCode(this)">Sao chép</button></pre>
+
+      <h3>Cau hinh</h3>
+      <pre><code>claude mcp add --transport stdio sf-mcp -- uv --directory /path/to/sf-mcp run main.py</code><button class="copy-btn" onclick="copyCode(this)">Sao chép</button></pre>
+
+      <h3>Tools (62+ tools)</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Tool</th><th>Mo ta</th></tr></thead>
+          <tbody>
+            <tr><td><code>get_employee_info</code></td><td>Tra cuu thong tin nhan vien theo ID</td></tr>
+            <tr><td><code>search_employees</code></td><td>Tim nhan vien theo criteria (name, department...)</td></tr>
+            <tr><td><code>get_org_structure</code></td><td>Lay so do to chuc cong ty</td></tr>
+            <tr><td><code>get_time_off_balance</code></td><td>Kiem tra ngay nghi con lai cua nhan vien</td></tr>
+            <tr><td><code>get_role_permissions</code></td><td>Kiem tra RBP permissions cua nhan vien</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>💡 Option 2: CData SF MCP (Java-based, SQL read-only, can CData JDBC driver license). Xem chi tiet trong <code>skills/mcp-sap-successfactors/SKILL.md</code>.</p>
+    </section>
+
+    <!-- ===== SKILL: SAP CONCUR MCP ===== -->
+    <section id="skill-sap-concur-mcp">
+      <h2><span class="section-icon">✈️</span> SAP Concur MCP (mcp-sap-concur)</h2>
+      <p><strong>skills/mcp-sap-concur/SKILL.md</strong> — CData SAP Concur MCP Server cho phep query Travel &amp; Expense data (expense reports, travel requests, bookings, vendors) qua SQL. Read-only, Java-based.</p>
+
+      <h3>Cai dat</h3>
+      <pre><code><span class="hl-com"># Yeu cau: Java 11+, Maven</span>
+git clone https://github.com/CDataSoftware/sap-concur-mcp-server-by-cdata.git
+cd sap-concur-mcp-server-by-cdata
+mvn clean install</code><button class="copy-btn" onclick="copyCode(this)">Sao chép</button></pre>
+
+      <h3>Cau hinh</h3>
+      <pre><code>claude mcp add --transport stdio sap-concur -- java -jar /path/to/CDataMCP-jar-with-dependencies.jar /path/to/sap-concur.prp</code><button class="copy-btn" onclick="copyCode(this)">Sao chép</button></pre>
+
+      <h3>Tools</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Tool</th><th>Mo ta</th></tr></thead>
+          <tbody>
+            <tr><td><code>concur_get_tables</code></td><td>Liet ke cac bang SAP Concur instance</td></tr>
+            <tr><td><code>concur_get_columns</code></td><td>Liet ke columns cua 1 table</td></tr>
+            <tr><td><code>concur_run_query</code></td><td>Thuc thi SQL SELECT query</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>💡 Yeu cau CData JDBC Driver for SAP Concur (trial available). Query expense reports, travel requests, bookings, vendor data truc tiep tu AI.</p>
+    </section>
+
+    <!-- ===== SKILL: SAP FIELDGLASS MCP ===== -->
+    <section id="skill-sap-fieldglass-mcp">
+      <h2><span class="section-icon">🛠️</span> Fieldglass MCP (mcp-sap-fieldglass)</h2>
+      <p><strong>skills/mcp-sap-fieldglass/SKILL.md</strong> — CData SAP Fieldglass MCP Server cho phep query Services Procurement data (contingent workforce, SoW, timesheets, invoices) qua SQL. Read-only, Java-based.</p>
+
+      <h3>Cai dat</h3>
+      <pre><code><span class="hl-com"># Yeu cau: Java 11+, Maven</span>
+git clone https://github.com/CDataSoftware/sap-fieldglass-mcp-server-by-cdata.git
+cd sap-fieldglass-mcp-server-by-cdata
+mvn clean install
+
+<span class="hl-com"># License JDBC Driver</span>
+java -jar cdata.jdbc.sapfieldglass.jar --license</code><button class="copy-btn" onclick="copyCode(this)">Sao chép</button></pre>
+
+      <h3>Cau hinh</h3>
+      <pre><code>claude mcp add --transport stdio sap-fieldglass -- java -jar /path/to/CDataMCP-jar-with-dependencies.jar /path/to/sap-fieldglass.prp</code><button class="copy-btn" onclick="copyCode(this)">Sao chép</button></pre>
+
+      <h3>Tools</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Tool</th><th>Mo ta</th></tr></thead>
+          <tbody>
+            <tr><td><code>fieldglass_get_tables</code></td><td>Liet ke cac bang SAP Fieldglass instance</td></tr>
+            <tr><td><code>fieldglass_get_columns</code></td><td>Liet ke columns cua 1 table</td></tr>
+            <tr><td><code>fieldglass_run_query</code></td><td>Thuc thi SQL SELECT query</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>💡 Yeu cau CData JDBC Driver for SAP Fieldglass (trial available). Query contingent workforce, Statement of Work, timesheets, invoices truc tiep tu AI.</p>
+    </section>
+
     <!-- ===== SKILL: CLEAN CODE ===== -->
     <section id="skill-clean-code">
       <h2><span class="section-icon">🧹</span> Clean Code &amp; Name Conversion</h2>
@@ -2542,6 +2529,128 @@ sap-btp-agent setup https://project1.s4hana.cloud.sap
     </section>
 
     <div class="divider"></div>
+
+    
+    <!-- ===== SKILL: RELEASED ABAP CLASSES ===== -->
+    <section id="skill-released-classes">
+      <h2><span class="section-icon">📋</span> Released ABAP Classes (sap-released-classes)</h2>
+      <p><strong>skills/sap-released-classes/SKILL.md</strong> — Catalog cac ABAP Cloud released classes va APIs. Nguon tham khao nhanh de tra cuu class/interface co san cho ABAP Cloud development.</p>
+      <div class="features-grid">
+        <div class="feature-card"><span class="fc-icon">🔑</span><h4>UUID &amp; Identifier</h4><p><code>cl_uuid_factory</code>, <code>cl_system_uuid</code>, <code>if_system_uuid</code>, <code>cl_abap_conv_in_ce</code></p></div>
+        <div class="feature-card"><span class="fc-icon">📧</span><h4>Email &amp; Communication</h4><p><code>cl_bcs_mail_message</code>, <code>cl_cos_utilities</code>, <code>if_abap_serializability</code></p></div>
+        <div class="feature-card"><span class="fc-icon">🔒</span><h4>Encryption &amp; Security</h4><p><code>cl_sec_salted_hash</code>, <code>cl_hashing_utils</code>, <code>cl_abap_hmac</code>, key derivation via scrypt</p></div>
+      </div>
+    </section>
+
+    <!-- ===== SKILL: ABAP SQL & AMDP ===== -->
+    <section id="skill-abap-sql">
+      <h2><span class="section-icon">🗃️</span> ABAP SQL &amp; AMDP (sap-abap-sql)</h2>
+      <p><strong>skills/sap-abap-sql/SKILL.md</strong> — ABAP SQL nang cao: Window Functions, CTE, AMDP, performance patterns, CDS Table Function. Cac cau truy van bi cam tren ABAP Cloud.</p>
+      <div class="features-grid">
+        <div class="feature-card"><span class="fc-icon">📊</span><h4>Window Functions</h4><p><code>ROW_NUMBER</code>, <code>RANK</code>, <code>LEAD</code>, <code>LAG</code>, <code>SUM OVER</code> — phan tich du lieu theo partition</p></div>
+        <div class="feature-card"><span class="fc-icon">🔗</span><h4>CTE</h4><p>Common Table Expression (WITH + AS) de recursive queries va temporary result sets</p></div>
+        <div class="feature-card"><span class="fc-icon">⚡</span><h4>AMDP</h4><p>ABAP-Managed Database Procedures — native SQL trong class method, HANA-specific optimization</p></div>
+      </div>
+    </section>
+
+    <!-- ===== SKILL: CLOUD BADI ===== -->
+    <section id="skill-badi">
+      <h2><span class="section-icon">🔌</span> Cloud BAdI Enhancement (sap-badi-enhancement)</h2>
+      <p><strong>skills/sap-badi-enhancement/SKILL.md</strong> — Cloud BAdI architecture: BAdI definition, BAdI implementation, enhancement spot, Custom Logic (Key User), BAdI filtering.</p>
+      <div class="features-grid">
+        <div class="feature-card"><span class="fc-icon">🏗️</span><h4>BAdI Architecture</h4><p>Business Add-In (BAdI) definition &amp; implementation trong ABAP Cloud. Khac biet so voi classic BAdI (SE18/SE19) va BTE.</p></div>
+        <div class="feature-card"><span class="fc-icon">🧩</span><h4>Custom Logic</h4><p>Key User Extensibility qua Custom Logic — cau hinh BAdI khong can dev, Fiori app "Custom Fields and Logic"</p></div>
+        <div class="feature-card"><span class="fc-icon">🔍</span><h4>Filtering &amp; Context</h4><p>BAdI filtering (on-premise vs cloud), context parameter, multi-implementation sorting</p></div>
+      </div>
+    </section>
+
+    <!-- ===== SKILL: AUTHORIZATION ===== -->
+    <section id="skill-authorization">
+      <h2><span class="section-icon">🛡️</span> Authorization &amp; DCL (sap-authorization)</h2>
+      <p><strong>skills/sap-authorization/SKILL.md</strong> — ABAP Cloud authorization concept: DCL (Data Control Language), RAP instance-based authorization, IAM App, Business Role.</p>
+      <div class="features-grid">
+        <div class="feature-card"><span class="fc-icon">🔐</span><h4>DCL</h4><p>Data Control Language — access rule tren CDS view, mapping authorization object to CDS condition</p></div>
+        <div class="feature-card"><span class="fc-icon">👤</span><h4>IAM App</h4><p>Identity &amp; Access Management: IAM App definition, Business Catalog, Business Role, authorization default values</p></div>
+        <div class="feature-card"><span class="fc-icon">🔑</span><h4>RAP Authorization</h4><p>Instance-based authorization trong RAP BO: <code>authorization master</code>, <code>authorization dependency</code>, <code>global authorization</code></p></div>
+      </div>
+    </section>
+
+    <!-- ===== SKILL: CLOUD MIGRATION ===== -->
+    <section id="skill-cloud-migration">
+      <h2><span class="section-icon">🔄</span> Cloud Migration (sap-cloud-migration)</h2>
+      <p><strong>skills/sap-cloud-migration/SKILL.md</strong> — Huong dan 5-buoc migration tu ECC on-premise len S/4HANA Cloud: ATC check, replacement strategy, modification adjustment, custom code migration.</p>
+      <div class="features-grid">
+        <div class="feature-card"><span class="fc-icon">🔎</span><h4>ATC Check</h4><p>ABAP Test Cockpit — quet toan bo custom code de phat hien su dung API/cu phap khong tuong thich ABAP Cloud</p></div>
+        <div class="feature-card"><span class="fc-icon">🔄</span><h4>Replacement Strategy</h4><p>Tim replacement cho custom code: released API, wrapper class, key user extensibility, side-by-side extension</p></div>
+        <div class="feature-card"><span class="fc-icon">📦</span><h4>User Exit Migration</h4><p>Migration user exits/enhancements sang Cloud BAdI hoac side-by-side extension tren BTP</p></div>
+      </div>
+    </section>
+
+    <!-- ===== SKILL: ODATA SERVICE ===== -->
+    <section id="skill-odata-service">
+      <h2><span class="section-icon">🌐</span> OData Service (sap-odata-service)</h2>
+      <p><strong>skills/sap-odata-service/SKILL.md</strong> — RAP-based OData V4 service: service definition, service binding, OData metadata, ETag, deep insert, function import, action.</p>
+      <div class="features-grid">
+        <div class="feature-card"><span class="fc-icon">📡</span><h4>Service Definition</h4><p>Define OData service trong RAP: <code>expose</code> entity set, projection, function import, action</p></div>
+        <div class="feature-card"><span class="fc-icon">🔗</span><h4>Service Binding</h4><p>UI5 binding, Web API binding, OData V2/V4 protocols, endpoint URL convention</p></div>
+        <div class="feature-card"><span class="fc-icon">🔄</span><h4>Deep Insert &amp; ETag</h4><p>Deep insert (tao BO cha + con trong 1 request), ETag concurrency control, draft handling</p></div>
+      </div>
+    </section>
+
+    <!-- ===== SKILL: RAP EVENTS ===== -->
+    <section id="skill-rap-events">
+      <h2><span class="section-icon">📨</span> RAP Business Events (sap-rap-events)</h2>
+      <p><strong>skills/sap-rap-events/SKILL.md</strong> — RAP business events: event definition, event metadata, event publishing, event consumption, Cloud Events format, SAP Event Mesh integration.</p>
+      <div class="features-grid">
+        <div class="feature-card"><span class="fc-icon">📣</span><h4>Event Definition</h4><p>Define business events trong RAP behavior definition: <code>on modify</code> trigger, event metadata extension</p></div>
+        <div class="feature-card"><span class="fc-icon">📤</span><h4>Event Publishing</h4><p>Publish event tu RAP BO: <code>raise event</code> trong behavior implementation, event parameters, CloudEvents format</p></div>
+        <div class="feature-card"><span class="fc-icon">🔗</span><h4>Event Mesh</h4><p>SAP Event Mesh integration: channel, queue, topic, webhook consumer, outbound/inbound event binding</p></div>
+      </div>
+    </section>
+
+    <!-- ===== SKILL: STEAMPUNK ===== -->
+    <section id="skill-steampunk">
+      <h2><span class="section-icon">☁️</span> Steampunk / BTP ABAP (sap-steampunk)</h2>
+      <p><strong>skills/sap-steampunk/SKILL.md</strong> — BTP ABAP Environment (Steampunk) infrastructure: package structure, ADT, IAM, git-based CI/CD, Cloud Foundry deployment, MTA.</p>
+      <div class="features-grid">
+        <div class="feature-card"><span class="fc-icon">🏗️</span><h4>Package Structure</h4><p>BTP ABAP package convention: namespace <code>/CUSTOMER/</code>, structure separation, software component</p></div>
+        <div class="feature-card"><span class="fc-icon">🔧</span><h4>ADT &amp; CI/CD</h4><p>ABAP Development Tools, git-based CI/CD pipeline, abapGit, software assembly, gCTS (optional)</p></div>
+        <div class="feature-card"><span class="fc-icon">☁️</span><h4>Cloud Foundry</h4><p>Deployment tren CF: MTA archive, manifest.yml, service binding, environment variables, app router</p></div>
+      </div>
+    </section>
+
+    <!-- ===== SKILL: BTP CONNECTIVITY ===== -->
+    <section id="skill-btp-connectivity">
+      <h2><span class="section-icon">🔗</span> BTP Connectivity (sap-btp-connectivity)</h2>
+      <p><strong>skills/sap-btp-connectivity/SKILL.md</strong> — Cloud Connector, destination configuration (Basic, OAuth2SAMLBearer, PrincipalPropagation), RFC/BAPI access tu BTP to S/4HANA on-prem.</p>
+      <div class="features-grid">
+        <div class="feature-card"><span class="fc-icon">🔌</span><h4>Cloud Connector</h4><p>Cai dat &amp; cau hinh Cloud Connector: access control, virtual host/mapping, role assignment, backend type</p></div>
+        <div class="feature-card"><span class="fc-icon">🌐</span><h4>Destination</h4><p>SAP BTP destination: URL, auth type, proxy type (OnPremise/Internet), Additional Properties, trust store</p></div>
+        <div class="feature-card"><span class="fc-icon">🔄</span><h4>Principal Propagation</h4><p>Principal propagation tu BTP → S/4HANA: certificate exchange, user mapping, SAML2 Bearer Assertion</p></div>
+      </div>
+    </section>
+
+    <!-- ===== SKILL: BTP BEST PRACTICES ===== -->
+    <section id="skill-btp-best-practices">
+      <h2><span class="section-icon">✅</span> BTP Best Practices (sap-btp-best-practices)</h2>
+      <p><strong>skills/sap-btp-best-practices/SKILL.md</strong> — BTP development conventions: account structure, naming conventions, MTA, security, CI/CD setup, CAP best practices, logging/monitoring.</p>
+      <div class="features-grid">
+        <div class="feature-card"><span class="fc-icon">🏗️</span><h4>Account Structure</h4><p>Subaccount organization: dev/test/prod separation, entitlements, quota, service instance management</p></div>
+        <div class="feature-card"><span class="fc-icon">📦</span><h4>MTA &amp; CI/CD</h4><p>Multi-target application (MTA) deployment: mtad.yaml, module types, resource binding, CI/CD pipeline via GitHub Actions</p></div>
+        <div class="feature-card"><span class="fc-icon">🔒</span><h4>Security</h4><p>XSUAA security: role template, role collection, scope, attribute check, credential-type mapping, app router security</p></div>
+      </div>
+    </section>
+
+    <!-- ===== SKILL: SAPUI5 FIORI ===== -->
+    <section id="skill-sapui5-fiori">
+      <h2><span class="section-icon">🎨</span> SAPUI5 &amp; Fiori (sapui5-fiori)</h2>
+      <p><strong>skills/sapui5-fiori/SKILL.md</strong> — SAPUI5 framework: Fiori Elements (List Report, Object Page, Overview Page, Analytical List Page), Freestyle UI5, Fiori Tools, SAP Build, deployment.</p>
+      <div class="features-grid">
+        <div class="feature-card"><span class="fc-icon">🧩</span><h4>Fiori Elements</h4><p>List Report, Object Page, Overview Page, Analytical List Page — cau hinh qua manifest.json, annotation, smart controls</p></div>
+        <div class="feature-card"><span class="fc-icon">🎨</span><h4>Freestyle UI5</h4><p>Freestyle SAPUI5 app: component-based architecture, routing, model binding (JSON/OData/V2/V4), fragment, custom control</p></div>
+        <div class="feature-card"><span class="fc-icon">🛠️</span><h4>Fiori Tools</h4><p>Fiori Tools trong VS Code/ADT: application generator, page editor, service modeler, deployment configuration</p></div>
+      </div>
+    </section>
 
     <!-- ===== CODEGEN PIPELINE SECTION ===== -->
     <section id="codegen-pipeline">
@@ -2939,7 +3048,7 @@ sap-btp-agent setup https://project1.s4hana.cloud.sap
       </div>
 
       <div class="footer">
-        <strong>SAP ABAP Agent</strong> &middot; v0.6.2 &middot; 20 modules + daily learner + Context Engineering<br>
+        <strong>SAP ABAP Agent</strong> &middot; v0.8.1 · 25 modules + MCP Notes/GUI/ADT<br>
         <span style="font-size:12px;">Trang hướng dẫn này được tạo bởi Freebuff Coding Assistant</span>
       </div>
     </section>
@@ -3729,7 +3838,7 @@ sap-btp-agent setup https://project1.s4hana.cloud.sap
 
     // --- Consultant System section ---
     'Auto-scoring routing engine dispatch câu hỏi user tới ': 'Auto-scoring routing engine dispatches user questions to ',
-    '19 agents': '19 agents',
+    '27 agents': '27 agents',
     ' (18 module consultants + 1 researcher).': ' (18 module consultants + 1 researcher).',
     'Keyword Matrix': 'Keyword Matrix',
     ': Mỗi module có keywords với weight 3/2/1': ': Each module has weighted keywords (3/2/1)',
@@ -3780,7 +3889,7 @@ sap-btp-agent setup https://project1.s4hana.cloud.sap
     '# CDS Knowledge Base (7,355 views)': '# CDS Knowledge Base (7,355 views)',
     '# SAP Docs Research': '# SAP Docs Research',
     'Cấu hình Claude Code plugin:': 'Configure Claude Code plugin:',
-    'Sau bước này, các MCP tool và 19 agents sẽ sẵn sàng trong Claude Code.': 'After this, MCP tools & 19 agents will be ready in Claude Code.',
+    'Sau bước này, các MCP tool và 27 agents sẽ sẵn sàng trong Claude Code.': 'After this, MCP tools & 27 agents will be ready in Claude Code.',
 
     // --- Features grid updates ---
     '18 module consultants': '18 module consultants',
@@ -3809,7 +3918,7 @@ sap-btp-agent setup https://project1.s4hana.cloud.sap
     'Ki\u1ebfn tr\u00fac h\u1ec7 th\u1ed1ng': 'System Architecture',
     'C\u00e1ch \u0111\u1eb7t c\u00e2u h\u1ecfi': 'How to Ask Questions',
     'H\u1ecdc SAP m\u1ed7i ng\u00e0y': 'Learn SAP Daily',
-    '19 module consultants': '19 Module Consultants',
+    '25 module consultants': '19 Module Consultants',
     'Auto-scoring routing': 'Auto-Scoring Routing',
 
 
@@ -3820,11 +3929,11 @@ sap-btp-agent setup https://project1.s4hana.cloud.sap
     // --- Footer ---
     '19 modules + 1 daily learner': '19 modules + 1 daily learner',
     '19 modules + daily learner': '19 modules + daily learner',
-    '20 agents': '20 agents',
+    '27 agents': '27 agents',
 
     // --- Consultant System section ---
-    'SAP Consultant System (19 modules + 1 daily learner)': 'SAP Consultant System (19 modules + 1 daily learner)',
-    'Danh s\u00e1ch 19 module consultants + 1 daily learner': 'List of 19 Module Consultants + 1 Daily Learner',
+    'SAP Consultant System (25 modules + 1 daily learner)': 'SAP Consultant System (25 modules + 1 daily learner)',
+    'Danh s\u00e1ch 25 module consultants + 1 daily learner': 'List of 19 Module Consultants + 1 Daily Learner',
     'V\u00ed d\u1ee5 routing': 'Routing Examples',
     'C\u00e2u h\u1ecfi': 'Question',
 
@@ -4003,14 +4112,6 @@ sap-btp-agent setup https://project1.s4hana.cloud.sap
   if (currentLang === 'en') {
     translatePage('en');
   }
-</script>
-
-<script>
-
-</script>
-
-<script>
-
 </script>
 
 <script>

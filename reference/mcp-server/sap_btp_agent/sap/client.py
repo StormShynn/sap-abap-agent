@@ -301,7 +301,8 @@ class SapClient:
         Neu khong co dump_id, lay top dump gan nhat.
         """
         if dump_id:
-            return await self.get(f"/sap/bc/adt/runtime/dumps/{dump_id}")
+            from urllib.parse import quote
+            return await self.get(f"/sap/bc/adt/runtime/dumps/{quote(dump_id, safe='')}")
         return await self.get(
             "/sap/bc/adt/runtime/dumps",
             query={"maxResults": str(top)},
