@@ -160,6 +160,18 @@ Luu y: size limit xstring ~2GB nhung Fiori nen gioi han <100MB de responsive; au
 attachment phai check field nhu cac field khac (Plant, PurchasingOrganization...); can nhieu
 PDF/version cho 1 BO -> them field `version` vao table.
 
+### 8. Managed BO co draft/lock can ETag — thieu LastChangedAt se loi luc save
+
+[Unverified — ghi nhan qua tim kiem community, chua tu kiem chung truc tiep] Mot so RAP scaffold
+tool cong dong tung thieu field `LastChangedAt` trong table sinh ra, gay loi khi behavior khai
+`etag master LastChangedAt` cho optimistic locking. Template `ztb_object.tabl.xml` da co san 4
+field admin chuan (`CreatedBy`/`CreatedAt`/`LastChangedBy`/`LastChangedAt`, tro dung data element
+SAP release-san `ABP_CREATION_USER`/`ABP_CREATION_TSTMPL`/`ABP_LOCINST_LASTCHANGE_USER`/
+`ABP_LOCINST_LASTCHANGE_TSTMPL` — xem chi tiet & alternative CDS Table Entity trong skill
+`sap-cloud-dictionary`) — luon kiem tra table sinh ra CO DU 4 field nay TRUOC khi khai
+`etag master LastChangedAt;` trong BDEF R, dac biet neu table duoc sinh boi tool/AI khac ngoai
+quy trinh nay.
+
 ### Buoc 10: Bao user
 
 Liet ke file da tao + xac nhan da activate tung buoc (Buoc 2-9). Nhac chay `sap-atc-review`, tao
@@ -263,5 +275,7 @@ outbound), hoac dung background job + `COMMIT ENTITIES ... RESPONSE OF` o class 
 - Skill `sap-authorization` — DCL, RAP instance-based authorization.
 - Skill `sap-rap-events` — RAP business events, Event Mesh integration.
 - Skill `sap-badi-enhancement` — Cloud BAdI patterns cho custom logic.
-- Buoc tiep theo: `sap-atc-review`, `sap-unit-test`, `sap-finish-ticket`.
+- Skill `sap-bootstrap-system-context` — do he thong that truoc khi scaffold neu chua quen quy
+  uoc dat ten cua du an nay (goi truoc Buoc 1 khi can).
+- Buoc tiep theo: `sap-atc-review`, `sap-unit-test`/`sap-cds-unit-test`, `sap-finish-ticket`.
 - Loi runtime kho hieu sau khi activate -> skill `sap-systematic-debugging`.

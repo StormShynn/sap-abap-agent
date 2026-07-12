@@ -86,6 +86,20 @@ class SapClient:
         return await self._request("POST", path, body=body, query=query,
                                    headers=headers, is_json=is_json)
 
+    async def put(self, path: str, body: Any = None, *,
+                  query: dict[str, Any] | None = None,
+                  headers: dict[str, str] | None = None,
+                  is_json: bool = True) -> Any:
+        return await self._request("PUT", path, body=body, query=query,
+                                   headers=headers, is_json=is_json)
+
+    async def delete(self, path: str, *,
+                     query: dict[str, Any] | None = None,
+                     headers: dict[str, str] | None = None,
+                     is_json: bool = True) -> Any:
+        return await self._request("DELETE", path, query=query,
+                                   headers=headers, is_json=is_json)
+
     async def _request(self, method: str, path: str, *,
                        body: Any = None, query: dict[str, Any] | None = None,
                        headers: dict[str, str] | None = None,
@@ -197,6 +211,16 @@ class SapClient:
 
                     if method == "GET":
                         resp = await ac.get(url, headers=req_headers)
+                    elif method == "PUT":
+                        json_body = body if (body is not None and "Content-Type" in headers
+                                             and "json" in headers["Content-Type"]) else None
+                        data_body = body if json_body is None else None
+                        if json_body is not None:
+                            resp = await ac.put(url, headers=req_headers, json=json_body)
+                        else:
+                            resp = await ac.put(url, headers=req_headers, data=data_body)
+                    elif method == "DELETE":
+                        resp = await ac.delete(url, headers=req_headers)
                     else:
                         json_body = body if (body is not None and "Content-Type" in headers
                                              and "json" in headers["Content-Type"]) else None

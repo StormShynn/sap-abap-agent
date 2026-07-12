@@ -100,25 +100,24 @@ package allowlist, read-only mode, deploy central (BTP/Docker).
 
 ## Lua chon 3: mcp-abap-adt (Community, De su dung) 👥
 
-MCP server cong dong pho bien nhat, de cai dat va su dung.
+Co **2 fork** chinh cua MCP server cong dong cho ADT:
+
+| Fork | Tac gia | Dac diem |
+|------|---------|----------|
+| **mario-andreschak/mcp-abap-adt** | `mario-andreschak` | Original — 9 read-only tools: doc ABAP code, activate, search. De dung, POC nhanh. |
+| **fr0ster/mcp-abap-adt** (khuyen dung) | `fr0ster` | **Full CRUD**: tao Domain, Data Element, Database Table, CDS View, RAP artifacts. Auth destination-based, nhieu transport mode. Version 8.x. |
+
+---
+
+### Option A: mario-andreschak/mcp-abap-adt (read-only)
 
 **Repository**: `https://github.com/mario-andreschak/mcp-abap-adt`
 
-### Installation
-
 ```bash
-# Khong can clone - chay truc tiep
 npx -y mcp-abap-adt
-
-# Hoac tu source
-git clone https://github.com/mario-andreschak/mcp-abap-adt.git
-cd mcp-abap-adt
-npm install
-npm run build
 ```
 
-### Cau hinh (Claude Code)
-
+**Cau hinh (Claude Code):**
 ```json
 {
   "mcpServers": {
@@ -136,23 +135,80 @@ npm run build
 }
 ```
 
-### Tools
+**Tools:** `GetProgram`, `GetClass`, `GetFunctionGroup`, `GetCDSView`, `GetTable`, `GetRAPBehaviorDef`, `GetRAPServiceDef`, `ActivateObject`, `SearchObjects`.
+
+---
+
+### Option B: fr0ster/mcp-abap-adt (Full CRUD)
+
+**Repository**: `https://github.com/fr0ster/mcp-abap-adt`
+
+Full CRUD MCP server cho ADT: tao Domain, Data Element, Database Table, CDS View, RAP Behavior, v.v.
+
+📌 **Cap nhat thuc te trong repo nay**: sau khi thu wiring option nay, du an da chuyen sang tu xay
+**`sap-dict-bridge`** (`reference/mcp-server/sap_btp_agent/bridge_server.py`) — tai su dung cookie
+auth co san cua `sap-btp-agent` thay vi can basic auth/config `.env` rieng nhu duoi day. Xem skill
+`sap-cloud-dictionary` (Buoc 8) de dung ban native nay. Noi dung Option B duoi day van giu lai lam
+tham khao neu muon dung ban goc cua `fr0ster`.
+
+#### Cai dat
+
+```bash
+npm install -g @mcp-abap-adt/core
+npm install -g @mcp-abap-adt/configurator   # (optional) config tool
+```
+
+#### Cau hinh .env file
+
+Tao file `.env` (vd: `mcp-abap-adt.env`) voi thong tin SAP ADT:
+```ini
+SAP_URL=https://my-system.s4hana.cloud.sap
+SAP_CLIENT=100
+SAP_AUTH_TYPE=basic
+SAP_USERNAME=username@domain.com
+SAP_PASSWORD=your-password
+SAP_LANGUAGE=EN
+SAP_SYSTEM_TYPE=cloud       # cloud | onprem | legacy
+```
+
+#### Cau hinh YAML (optional)
+
+Tao file `mcp-abap-adt-config.yaml`:
+```yaml
+transport: stdio
+exposition: readonly,high    # high = Create*, Update*High (dictionary CRUD)
+system-type: cloud
+```
+
+**Handler sets:**
+| Set | Mo ta | Tools |
+|-----|-------|-------|
+| `readonly` | Doc, lock, validate | GetClass, GetTable, GetCDSView, Lock/Unlock... |
+| `high` | Tao/sua an toan | **CreateDomain**, **CreateDataElement**, **CreateTable**, Update*High |
+| `low` | Nguy hiem (can than) | ActivateObject, Delete*, Update*Low |
+| `compact` | Facade object_type | `CreateObject`, `GetObject`, `UpdateObject`, `DeleteObject` |
+
+#### Dang ky voi Claude Code
+
+```bash
+claude mcp add --transport stdio --scope project mcp-abap-adt-dict -- npx -y @mcp-abap-adt/core --env-path=mcp-abap-adt.env --conf=mcp-abap-adt-config.yaml
+```
+
+#### Tools tao Dictionary
 
 | Tool | Mo ta |
 |------|-------|
-| `GetProgram` | Doc ABAP program source |
-| `GetClass` | Doc ABAP class |
-| `GetFunctionGroup` | Doc function group |
-| `GetCDSView` | Doc CDS view definition |
-| `GetTable` | Doc DDIC table structure |
-| `GetRAPBehaviorDef` | Doc RAP behavior definition |
-| `GetRAPServiceDef` | Doc RAP service definition |
-| `ActivateObject` | Activate ABAP object |
-| `SearchObjects` | Tim object theo ten/pattern |
+| `CreateDomain` | Tao Domain ABAP Cloud (`define domain ...`) |
+| `CreateDataElement` | Tao Data Element (`define data element ...`) |
+| `CreateTable` | Tao Database Table (`define table ...`) |
+| `CreateView` | Tao CDS View (`define view entity ...`) |
+| `CreateBehaviorDef` | Tao RAP Behavior Definition |
+| `Get*` (nhieu loai) | Doc source code |
+| `ActivateObject` | Activate + transport |
 
-**Uu diem**: De cai nhat (1 lenh), nhieu tool cho RAP/CDS, active cong dong.
+**Uu diem**: Full CRUD (khong chi read), tao duoc dictionary objects truc tiep, nhieu transport mode (stdio/http/SSE), handler co the filter theo level (readonly/high/low).
 
-**Nhuoc diem**: Can env config, khong co audit/security mac dinh.
+**Nhuoc diem**: Can cai them npm global package, can .env config.
 
 ---
 

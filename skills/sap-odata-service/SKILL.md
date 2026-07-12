@@ -68,6 +68,8 @@ SEGW van duoc ho tro tren ABAP Cloud nhung **khong phai la chuan cua ABAP Cloud*
 
 **Khuyen nghi**: Luon dung RAP-based OData V4 cho project moi. Chi dung SEGW khi can backward compatibility voi OData V2 client cu.
 
+Da co SEGW project can nang cap len RAP? Dung skill `sap-migrate-segw-to-rap` — reverse-engineer Data Model + logic DPC_EXT sang RAP thay vi tu scaffold lai tu dau.
+
 ## 3. Service Expose Patterns
 
 ```abap

@@ -87,3 +87,5 @@ ENDCLASS.
 - Test framework: ABAP Unit trong Eclipse ADT (`Ctrl+Shift+F10`).
 - Skill `sap-clean-code` — clean code convention.
 - Skill `sap-atc-review` — check test coverage sau khi sinh test.
+- Skill `sap-cds-unit-test` — test CDS view/RAP BO qua Test Double Framework (mock data nguon,
+  khong dam vao DB that) khi can test join/association/aggregation hoac EML.

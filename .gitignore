@@ -50,6 +50,7 @@ skills/sap-user-skills/*
 # Env / secrets (duoc ma hoa nhung can than)
 .env
 .env.local
+mcp-abap-adt-*.env
 
 # Other
 in/

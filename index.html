@@ -2723,15 +2723,19 @@ java -jar cdata.jdbc.sapfieldglass.jar --license</code><button class="copy-btn" 
             <tr><td>0</td><td><code>sap-doc-to-md</code></td><td>FS.docx → FS.md</td><td>Convert Word sang Markdown (bảng/heading giữ nguyên) để AI đọc được nội dung FS.</td></tr>
             <tr><td>1</td><td><code>sap-analyze-function-spec</code></td><td>FS.md → INTAKE.md</td><td>Chuẩn hoá yêu cầu thành 8 mục cố định, đánh dấu field thiếu "Nguồn", liệt kê câu hỏi cần làm rõ (mục 6), đánh giá mức rủi ro (Tiny/Normal/High-risk).</td></tr>
             <tr><td>2</td><td><code>sap-write-technical-spec</code></td><td>INTAKE.md → TECHNICAL_SPEC.md</td><td>Áp decision tree chọn pattern (class thường / 3-layer CDS / RAP managed / RAP unmanaged), tìm CDS-API nguồn qua agent consultant phân hệ, liệt kê object cần tạo + test plan.</td></tr>
+            <tr><td>2.5</td><td><code>sap-bootstrap-system-context</code></td><td>MCP ADT → system-context.md (cache)</td><td>(Tuỳ chọn) Dò hệ thống ABAP thật qua MCP trước khi scaffold lần đầu trên 1 hệ thống lạ — lấy đúng quy ước đặt tên/field admin đang dùng thay vì đoán theo chuẩn chung.</td></tr>
+            <tr><td>2.6</td><td><code>sap-cloud-dictionary</code></td><td>TECHNICAL_SPEC.md → Domain/Data Element/Table</td><td>Tạo Domain, Data Element, Database Table (hoặc CDS Table Entity) bằng cú pháp source-code ABAP Cloud (<code>define domain/data element/table</code>) trước khi scaffold CDS/RAP ở bước sau.</td></tr>
             <tr><td>3a</td><td><code>sap-scaffold-rap</code></td><td>TECHNICAL_SPEC.md → src/ (RAP)</td><td>Sinh skeleton RAP 3-layer (I→R→C) khi pattern cần CRUD — kèm 7 gotcha BDEF đã verify thực tế (comment syntax, field control, numbering UUID, action con...).</td></tr>
             <tr><td>3b</td><td><code>sap-scaffold-cds</code></td><td>TECHNICAL_SPEC.md → src/ (CDS)</td><td>Sinh CDS view (interface/consumption/MDE) khi pattern chỉ-read — kèm annotation reference + 6 gotcha activate CDS.</td></tr>
+            <tr><td>3c</td><td><code>sap-scaffold-cds-analytics</code></td><td>TECHNICAL_SPEC.md → src/ (Analytics)</td><td>Sinh CDS Cube/Dimension/Text + Analytical Query khi cần báo cáo aggregate/multi-dimensional — ưu tiên build Analytical Query trên CDS/Cube đã released trước khi tự tạo Cube từ đầu.</td></tr>
             <tr><td>4</td><td><code>sap-atc-review</code></td><td>src/ → ATC_REVIEW.md</td><td>Lint naming Z*, released API, clean ABAP, test coverage — kèm bảng anti-rationalization (bắt lỗi "cắt góc").</td></tr>
             <tr><td>5</td><td><code>sap-unit-test</code></td><td>src/ → *.clas.testclasses.abap</td><td>Sinh ABAP Unit test class cho method/action/validation đã scaffold.</td></tr>
+            <tr><td>5b</td><td><code>sap-cds-unit-test</code></td><td>src/ → *.clas.testclasses.abap (CDS)</td><td>Test CDS view/RAP BO qua Test Double Framework (<code>CL_CDS_TEST_ENVIRONMENT</code>...) khi cần mock data nguồn thay vì đâm vào DB thật.</td></tr>
           </tbody>
         </table>
       </div>
 
-      <p>🔗 Skill phụ trợ <code>sap-virtual-element</code> (calculated field trong CDS) dùng bổ sung ở bước 3 khi cần field tính runtime. Quy ước đặt tên & bậc thang extensibility dùng chung với <a href="#skill-clean-code">Clean Code &amp; Naming</a> / <a href="#skill-extensibility">Extensibility Ladder</a>.</p>
+      <p>🔗 Skill phụ trợ <code>sap-virtual-element</code> (calculated field trong CDS) dùng bổ sung ở bước 3 khi cần field tính runtime. Quy ước đặt tên & bậc thang extensibility dùng chung với <a href="#skill-clean-code">Clean Code &amp; Naming</a> / <a href="#skill-extensibility">Extensibility Ladder</a>. 🔗 Có sẵn SEGW OData V2 cần nâng cấp? Dùng <code>sap-migrate-segw-to-rap</code> để reverse-engineer sang RAP thay vì scaffold lại từ đầu.</p>
     </section>
 
     <div class="divider"></div>
@@ -2789,6 +2793,8 @@ java -jar cdata.jdbc.sapfieldglass.jar --license</code><button class="copy-btn" 
 <span class="dir">│  sap_activate  sap_find_where_used                     │</span>
 <span class="dir">│  sap_execute_query  sap_run_unit_tests                 │</span>
 <span class="dir">│  sap_get_system_info  sap_analyze_dump                 │</span>
+<span class="dir">│  sap_create_domain  sap_create_data_element            │</span>
+<span class="dir">│  sap_create_table  (sap-cloud-dictionary)              │</span>
 <span class="dir">└─────────────────────────────────────────────────────────┘</span>
       </div>
 
@@ -2807,7 +2813,7 @@ java -jar cdata.jdbc.sapfieldglass.jar --license</code><button class="copy-btn" 
 <span class="dir">📦 sap-abap-agent/</span>
 <span class="branch">├──</span> <span class="highlight">.claude-plugin/</span>        <span class="file"> ← Manifest + metadata</span>
 <span class="branch">├──</span> <span class="highlight">agents/</span>                 <span class="file"> ← 28 agent definitions (.md)</span>
-<span class="branch">├──</span> <span class="highlight">skills/</span>                 <span class="file"> ← 41 skill implementations</span>
+<span class="branch">├──</span> <span class="highlight">skills/</span>                 <span class="file"> ← 46 skill implementations</span>
 <span class="branch">│</span>   <span class="branch">├──</span> <span class="highlight">sap-ask-consultant/</span>    <span class="file"> ← Routing engine (27 agents)</span>
 <span class="branch">│</span>   <span class="branch">├──</span> <span class="highlight">sap-btp-setup/</span>         <span class="file"> ← BTP connection manager</span>
 <span class="branch">│</span>   <span class="branch">├──</span> <span class="highlight">sap-cds-kb/</span>            <span class="file"> ← CDS view search (7,355 views)</span>
@@ -3234,6 +3240,14 @@ java -jar cdata.jdbc.sapfieldglass.jar --license</code><button class="copy-btn" 
   const htmlEl = document.documentElement;
 
   const translations = {
+    // --- sap-scaffold-cds-analytics addition (2026-07-12) ---
+    "Sinh CDS Cube/Dimension/Text + Analytical Query khi cần báo cáo aggregate/multi-dimensional — ưu tiên build Analytical Query trên CDS/Cube đã released trước khi tự tạo Cube từ đầu.": "Generates CDS Cube/Dimension/Text views + an Analytical Query when the report needs aggregation/multiple dimensions — prioritizes building the Analytical Query on an already-released CDS/Cube before creating a custom Cube from scratch.",
+    // --- sap-bootstrap-system-context / sap-cds-unit-test / sap-migrate-segw-to-rap addition (2026-07-12) ---
+    "(Tuỳ chọn) Dò hệ thống ABAP thật qua MCP trước khi scaffold lần đầu trên 1 hệ thống lạ — lấy đúng quy ước đặt tên/field admin đang dùng thay vì đoán theo chuẩn chung.": "(Optional) Probes the real ABAP system via MCP before scaffolding for the first time on an unfamiliar system — captures the actual naming/admin-field conventions in use instead of guessing from generic standards.",
+    "Test CDS view/RAP BO qua Test Double Framework (": "Tests a CDS view/RAP BO via the Test Double Framework (",
+    ") khi cần mock data nguồn thay vì đâm vào DB thật.": ") when you need to mock the source data instead of hitting the real database.",
+    " 🔗 Có sẵn SEGW OData V2 cần nâng cấp? Dùng ": " 🔗 Already have a SEGW OData V2 service that needs upgrading? Use ",
+    " để reverse-engineer sang RAP thay vì scaffold lại từ đầu.": " to reverse-engineer it into RAP instead of scaffolding from scratch.",
     // --- Full-page untranslated sweep (auto-detected + translated, 2026-07-11) ---
     // Placed first so exact full-segment matches win before any shorter existing
     // entry below can partially mutate a substring inside them.

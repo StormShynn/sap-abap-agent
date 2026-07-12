@@ -6,6 +6,125 @@ Format dựa trên [Keep a Changelog](https://keepachangelog.com/) và [Semantic
 
 ---
 
+## [v0.8.6] — 2026-07-12
+
+### Added
+- 📚 Ghi nhan chinh thuc trong CHANGELOG cho cong viec cua session song song (skill
+  `sap-cloud-dictionary`, MCP server native **`sap-dict-bridge`** —
+  `reference/mcp-server/sap_btp_agent/bridge_server.py` + `tools/dictionary.py`, 3 tool
+  `sap_create_domain`/`sap_create_data_element`/`sap_create_table`, `client.py` them
+  `put()`/`delete()` cho ADT REST workflow lock→PUT source→activate→unlock) — truoc day chua co
+  entry rieng du code/skill da ton tai tu v0.8.4-0.8.5.
+
+### Fixed
+- `README.md`, `index.html`: Dem "45 skill implementations" thieu `sap-cloud-dictionary` (chi tinh
+  skill cua session nay, quen skill cua session kia) — sua thanh **46** (dung tong so thu muc that
+  trong `skills/`, tru `sap-user-skills` la placeholder rong).
+- `README.md`: Them `sap-cloud-dictionary` vao cau truc thu muc `skills/` (thieu hoan toan).
+- `index.html`: Them hang "2.6" (`sap-cloud-dictionary`) vao bang pipeline, them 2 dong
+  `sap_create_domain`/`sap_create_data_element`/`sap_create_table` vao so do MCP tools.
+- `skills/sap-cloud-dictionary/SKILL.md` (Buoc 8): Bang MCP server tao dictionary chi liet ke
+  `fr0ster/mcp-abap-adt`/ARC-1/SAP Official — **thieu `sap-dict-bridge`** (server native da duoc
+  xay dung thuc te trong chinh repo nay, thay the huong fr0ster ban dau). Them dong moi + danh dau
+  khuyen dung.
+- `skills/mcp-sap-adt/SKILL.md`: Them ghi chu o Option B (fr0ster) rang du an nay da chuyen sang
+  `sap-dict-bridge` native — tranh nguoi doc tuong fr0ster van la huong dang dung thuc te.
+- 🐛 **`reference/mcp-server/sap_btp_agent/tools/dictionary.py` (`_build_table_ddl`)**: tham so
+  `fields[].key` truoc day chi quyet dinh co them `not null` hay khong, **KHONG** tu them tu khoa
+  `key` vao truoc ten field trong DDL sinh ra — 2 field mac dinh (`"key client"`, `"key uuid"`)
+  chay dung chi vi chu "key " da go san trong chuoi `name`, khong phai nho tham so `key`. Goi tool
+  voi field moi kieu `{"name": "order_id", "key": "true"}` (dung theo mo ta tham so trong schema)
+  truoc day se ra field **khong phai key** ma khong bao loi. Da sua: chuan hoa bo tien to "key "
+  neu co san trong `name` roi tu quyet dinh them lai dua vao `key`, nen ca 2 kieu goi (ten da go
+  san "key "/ten thuong + flag `key`) deu ra dung. Da verify qua goi `_build_table_ddl` truc tiep
+  voi ca 2 kieu input, doi chieu DDL sinh ra dung nhu mong doi (xem `sap-cloud-dictionary` Buoc 8).
+  Test script thu cong truoc day (`scripts/test_dict_bridge.py`) chi cover Domain + Data Element,
+  chua cover Table nen khong bat duoc bug nay — script nay da bi don dep (xem muc duoi), chua co
+  unit test tu dong rieng cho `sap_create_table`.
+
+### Cleanup
+- Da xac nhan `scripts/setup_mcp_fr0ster.py` la du dinh don dep (khong phai giu lam fallback) va
+  don triet de toan bo dau vet huong fr0ster ban dau, gom ca phan NGOAI repo (khong nam trong git):
+  - Go dang ky 2 MCP server chet o user scope (`mcp-abap-adt-my428100`, `mcp-abap-adt-my440301` —
+    ca 2 deu bao "✘ Failed to connect" vi `.env` chua bao gio duoc dien SAP_USERNAME/PASSWORD that,
+    xac nhan script cu tung chay nhung chua hoan tat setup).
+  - Xoa `mcp-abap-adt.env` trong 2 profile folder + `mcp-abap-adt-config.yaml` dung chung tai
+    `%USERPROFILE%\.sap-btp-agent\`.
+  - `scripts/setup_mcp_fr0ster.py` va `scripts/test_dict_bridge.py` da khong con trong repo (thu
+    muc `scripts/` da duoc don, co ve do chinh session song song tu xoa khi hoi tu).
+
+---
+
+## [v0.8.5] — 2026-07-12
+
+### Added
+- 🆕 **sap-bootstrap-system-context** (`skills/sap-bootstrap-system-context`) — Do he thong ABAP
+  that qua MCP ADT (`mcp-sap-adt`) truoc khi scaffold lan dau tren 1 he thong la, lay dung quy uoc
+  dat ten/field admin dang dung thay vi doan theo chuan chung. Ghi cache vao
+  `<agent-home>/cache/system-context/` (het han 7 ngay). Dong co: chinh phien lam viec truoc do da
+  doan sai ten data element + paradigm DDIC vi khong kiem tra truoc.
+- 🆕 **sap-cds-unit-test** (`skills/sap-cds-unit-test`) — Test CDS view/RAP BO bang CDS Test Double
+  Framework (`CL_CDS_TEST_ENVIRONMENT`, `CL_OSQL_TEST_ENVIRONMENT`,
+  `CL_BOTD_TXBUFDBL_BO_TEST_ENV`/`CL_BOTD_MOCKEMLAPI_BO_TEST_ENV`) — mock data nguon thay vi dam
+  vao DB that. Bo sung cho `sap-unit-test` (von chi test method/class thuong).
+- 🆕 **sap-migrate-segw-to-rap** (`skills/sap-migrate-segw-to-rap`) — Quy trinh reverse-engineer 1
+  SEGW OData V2 project da co sang RAP OData V4: doc Data Model + custom logic trong DPC_EXT, map
+  bang sang RAP behavior/action, huong dan dual-maintenance truoc khi tat SEGW.
+
+### Changed
+- `skills/sap-unit-test/SKILL.md`, `skills/sap-scaffold-rap/SKILL.md`,
+  `skills/sap-odata-service/SKILL.md`: Them cross-reference toi 3 skill moi.
+- `README.md`, `index.html`: Dang ky 3 skill moi (cau truc thu muc, bang pipeline hang 2.5/5b,
+  dem "45 skill implementations", ban dich EN).
+- `.claude-plugin/plugin.json`: Bump version v0.8.4 → v0.8.5.
+
+### Notes
+- Ca 3 skill deu tu research GitHub (arc-1 skills: `generate-rap-service-researched`,
+  `generate-cds-unit-test`, `migrate-segw-to-rap`, `bootstrap-system-context`) — chuyen the sang
+  ngu canh/quy uoc cua repo nay, KHONG copy nguyen code (chua verify code goc cua arc-1). Cu phap
+  CDS Test Double Framework trong `sap-cds-unit-test` co nguon SAP Help Portal + SAP Community rieng
+  (xem muc Nguon tham khao trong skill), KHONG tu arc-1.
+
+---
+
+## [v0.8.4] — 2026-07-12
+
+### Added
+- 🆕 **sap-scaffold-cds-analytics** (`skills/sap-scaffold-cds-analytics`) — Sinh CDS Cube/
+  Dimension/Text + Analytical Query cho bao cao embedded analytics (aggregate/multi-dimensional).
+  Uu tien build Analytical Query tren CDS/Cube da released (theo huong dan co san trong
+  `reference/modules/sap-bw-cloud/SKILL.md`) truoc khi tu tao Cube tu dau. Tu danh dau ro tinh
+  trang "seed set" — noi dung tong hop tu tai lieu SAP, chua activate thu trong ADT that.
+
+### Fixed
+- 🐛 **`reference/templates/rap-boilerplate/managed/ztb_object.tabl.xml`**: Template table truoc
+  day thieu han phan field list (`DD03P_TABLE`) — chi co header (`DD02V`/`DD09L`), khong du de tao
+  table that co field. Bo sung field list mau (client/UUID key/business field + 4 field admin
+  CreatedBy/CreatedAt/LastChangedBy/LastChangedAt tro dung data element chuan SAP
+  `ABP_CREATION_USER`/`ABP_CREATION_TSTMPL`/`ABP_LOCINST_LASTCHANGE_USER`/
+  `ABP_LOCINST_LASTCHANGE_TSTMPL`).
+- `skills/sap-scaffold-rap/SKILL.md`: Them gotcha #8 — nhac kiem tra table co du 4 field admin
+  truoc khi khai `etag master LastChangedAt` trong BDEF (thieu se loi luc save cho managed BO co
+  draft/lock).
+
+### Changed
+- `README.md`: Them `sap-scaffold-cds-analytics` vao cau truc thu muc `skills/`.
+- `index.html`: Them dong 3c vao bang pipeline "Buoc nao lam gi", cap nhat dem "42 skill
+  implementations", them ban dich EN cho mo ta skill moi.
+- `.claude-plugin/plugin.json`: Bump version v0.8.3 → v0.8.4.
+
+### Notes
+- Phien nay phat hien co 1 session Claude Code khac chay song song sua cung repo (them
+  `skills/sap-cloud-dictionary`, cap nhat `skills/mcp-sap-adt/SKILL.md`, wiring MCP server
+  `fr0ster/mcp-abap-adt` qua `.mcp.json`/`scripts/setup_mcp_fr0ster.py`) — cac thay doi do KHONG
+  nam trong entry nay, se duoc ghi nhan rieng khi session do hoan tat.
+- Da xoa 1 skill nhap nham `sap-scaffold-ddic` (dung cu phap DD01V/DD04V XML kieu on-premise) sau
+  khi phat hien `skills/sap-cloud-dictionary` (cua session song song) dung dung cu phap ABAP Cloud
+  (`define domain`/`define data element`/`define table`) — tranh 2 skill trung chuc nang, giu ban
+  dung hon.
+
+---
+
 ## [v0.8.3] — 2026-07-12
 
 ### Fixed

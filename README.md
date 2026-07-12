@@ -13,6 +13,9 @@ co profile rieng (URL, tenant, secret), luu trong **folder user** tren may
   consultants cho SD, FI, MM, CO, PP, QM, PM, WM, PS, HCM, BW, Basis, TM, TR, Ariba, CA, GTS, EHS,
   IBP, EWM, Fiori/UI5, CAP, CPI, SuccessFactors, BTP Admin + Docs Researcher + Daily Learner.
 - **🔌 SAP BTP Connection**: `sap-btp-agent` — ket noi S/4HANA Cloud, doc/activate ABAP, multi-profile.
+- **🧱 DDIC Dictionary Bridge**: `sap-dict-bridge` MCP server (`sap_create_domain`/`sap_create_data_element`/
+  `sap_create_table`) — tao Domain/Data Element/Table truc tiep qua cookie auth cua `sap-btp-agent`
+  (xem skill `sap-cloud-dictionary`).
 - **📚 CDS Knowledge Base**: Tra cuu 7,355 CDS views released qua semantic search.
 - **📖 SAP Docs Research**: Tra cuu SAP Help, Community, API Hub, Fiori App Library.
 - **🔒 Process Discipline**: SessionStart hook ep routing truoc khi tra loi,
@@ -50,11 +53,16 @@ sap-abap-agent/
 |   +-- sap-doc-to-md/         # Convert Word/Excel sang Markdown (markitdown)
 |   +-- sap-analyze-function-spec/  # FS.docx -> INTAKE.md (buoc 1 codegen pipeline)
 |   +-- sap-write-technical-spec/   # INTAKE.md -> TECHNICAL_SPEC.md (buoc 2)
+|   +-- sap-cloud-dictionary/       # Tao Domain/Data Element/Database Table ABAP Cloud (DDIC)
+|   +-- sap-bootstrap-system-context/ # Do he thong that qua MCP truoc khi scaffold (optional, buoc 2.5)
 |   +-- sap-scaffold-rap/           # TECHNICAL_SPEC.md -> RAP 3-layer skeleton (buoc 3)
 |   +-- sap-scaffold-cds/           # -> CDS view skeleton, pattern read-only (buoc 3)
+|   +-- sap-scaffold-cds-analytics/ # -> Cube/Dimension/Text + Analytical Query (embedded analytics)
 |   +-- sap-virtual-element/        # Calculated field trong CDS view
 |   +-- sap-atc-review/             # Lint naming/released-API/clean-ABAP (buoc 4)
 |   +-- sap-unit-test/              # Sinh ABAP Unit test class (buoc 5)
+|   +-- sap-cds-unit-test/          # Test CDS view/RAP BO qua Test Double Framework (buoc 5)
+|   +-- sap-migrate-segw-to-rap/    # Reverse-engineer SEGW OData V2 sang RAP OData V4
 |   +-- sap-finish-ticket/          # Checklist dong ticket - activation/ATC/test/transport (buoc 6)
 |   +-- sap-verification-before-completion/  # Bang chung chay that truoc khi bao "xong"
 |   +-- sap-systematic-debugging/   # Debug runtime co he thong (ST22/SAT/breakpoint)
