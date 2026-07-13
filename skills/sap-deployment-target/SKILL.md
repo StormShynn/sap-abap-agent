@@ -35,12 +35,18 @@ Hoi thang, KHONG tu doan:
 > "Ticket nay se tao object tren package nao? (ten package co san trong he thong, hoac go 'tao
 > moi' de toi de xuat 1 package Z rieng cho ticket nay)"
 
-### Buoc 2a: Neu user cho ten package co san — xac minh that
+### Buoc 2a: Neu user cho ten package co san — xac minh (tuy che do tich hop)
 
-- Dung MCP ADT (`SearchObjects`/tuong duong, xem skill `mcp-sap-adt`) kiem tra package **ton tai
-  that** va **thuoc namespace customer** (khong phai package chuan SAP — vd khong bat dau `SAP*`).
-- Neu package KHONG ton tai hoac la package chuan SAP -> BAO user, KHONG tu tao/tu doi huong sang
-  package khac, hoi lai ten khac.
+- **Co MCP ADT ket noi** (xem skill `mcp-sap-adt`): dung `SearchObjects`/tuong duong kiem tra
+  package **ton tai that** va **thuoc namespace customer** (khong phai package chuan SAP — vd
+  khong bat dau `SAP*`). Neu KHONG ton tai hoac la package chuan SAP -> BAO user, KHONG tu tao/tu
+  doi huong sang package khac, hoi lai ten khac.
+- **Khong co MCP** (vd workflow abapgit clone-ve-local: scaffold ra file abapGit tinh de user tu
+  import/pull, khong co ket noi ADT song) -> KHONG the tu verify remote. Hoi user xac nhan truc
+  tiep: *"Package `<ten>` co that tren he thong va thuoc namespace customer (khong phai package
+  chuan SAP), dung khong?"* — ghi ro trong TECHNICAL_SPEC.md la "user xac nhan, chua verify tu
+  dong qua MCP" de `sap-finish-ticket` biet ma doi chieu lai khi co co hoi that (luc user
+  pull/activate qua abapGit).
 - Neu hop le -> ghi vao TECHNICAL_SPEC.md muc "Package deploy", tiep tuc scaffold.
 
 ### Buoc 2b: Neu user chua co / muon tao moi
@@ -50,8 +56,15 @@ Hoi thang, KHONG tu doan:
 2. **Hoi xac nhan ro rang** truoc khi tao that: "Tao package `<ten de xuat>` — '<mo ta>' — xac
    nhan? (co/khong/doi ten khac)". CHI tao sau khi user xac nhan — KHONG tu tao package ma khong
    hoi.
-3. Sau khi user xac nhan -> tao qua MCP ADT (neu MCP dang dung ho tro tao package) hoac huong dan
-   user tu tao thu cong trong ADT (New -> ABAP Package), ghi ten package vao TECHNICAL_SPEC.md.
+3. Sau khi user xac nhan ->
+   - **Co MCP ho tro tao package** -> tao qua MCP ADT, ghi ten package vao TECHNICAL_SPEC.md.
+   - **Khong co MCP** -> huong dan user tu tao thu cong trong ADT (New -> ABAP Package). Neu
+     workflow la abapgit clone-ve-local: nhac user **con phai** tu lien ket package moi voi 1
+     repo abapGit (New Online/Offline Repository trong ADT/Eclipse tro vao package do) roi clone
+     ve local, va cho biet duong dan local that su. Claude chi ghi file scaffold vao
+     `out/<ticket>/src/` (staging) — KHONG tu doan hay ghi thang vao thu muc repo abapGit that
+     cua user tru khi duoc cho duong dan ro rang. Ghi ten package + duong dan local (neu co) vao
+     TECHNICAL_SPEC.md.
 
 ### Buoc 3: Rao chan an toan (ap dung xuyen suot tu day den sap-finish-ticket)
 
@@ -68,6 +81,11 @@ Hoi thang, KHONG tu doan:
   `*create*/*update*/*delete*` DDIC/CDS/RAP (vd `sap_create_table`, `CreateDomain`...) neu tham
   so ten khong bat dau `Z`/`Y`/`/namespace/` — day la lop bao ve ky thuat bo sung, KHONG thay the
   ky luat hoi user o tren (hook fail-open khi khong chac chan, van can lam dung Buoc 1-3).
+- **Gioi han cua backstop ky thuat**: hook tren chi chan duoc goi **tool MCP** dang
+  create/update/delete DDIC (vd `sap_create_table`, `CreateDomain`) — KHONG chan duoc Claude
+  dung `Write` de ghi file abapGit local (`.tabl.xml`, `package.devc.xml`...). O che do
+  khong-MCP/abapgit-local, ky luat hoi-xac-nhan Buoc 1-3 la tuyen phong thu DUY NHAT, khong co
+  lop ky thuat nao do phia sau — cang phai lam nghiem, khong duoc rut gon.
 
 ### Buoc 4: Khi co buoc bat buoc thu cong (khong tu dong hoa duoc qua MCP)
 
