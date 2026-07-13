@@ -1,0 +1,21 @@
+{
+  "name": "sap-abap-agent",
+  "owner": {
+    "name": "StormShynn"
+  },
+  "description": "Self-hosted marketplace for the SAP ABAP Agent Claude Code plugin.",
+  "plugins": [
+    {
+      "name": "sap-abap-agent",
+      "source": "./",
+      "displayName": "SAP ABAP Agent",
+      "description": "Claude Code plugin for SAP S/4HANA Cloud Public Edition: 25 module consultants + 1 researcher + 1 daily learner (27 agents total) with auto-scoring routing engine, CDS KB, SAP Docs Research, ABAP cloud connect, code review, clean code & extensibility.",
+      "author": {
+        "name": "StormShynn"
+      },
+      "repository": "https://github.com/StormShynn/sap-abap-agent",
+      "license": "MIT",
+      "keywords": ["sap", "abap", "s4hana", "cloud", "consultant"]
+    }
+  ]
+}

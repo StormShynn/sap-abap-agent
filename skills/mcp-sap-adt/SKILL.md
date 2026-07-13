@@ -1,6 +1,10 @@
 ---
 name: mcp-sap-adt
-description: Huong dan cai dat va su dung ADT MCP servers — 3 lua chon: (1) SAP Official ADT MCP for VS Code (zero-config, built-in), (2) ARC-1 (enterprise, secure-by-default), (3) mcp-abap-adt (community, de su dung). Cho phep AI doc ABAP code, activate, syntax-check, manage transport, chay ATC.
+description: |
+  Huong dan cai dat va su dung ADT MCP servers — 3 lua chon: (1) SAP Official ADT MCP for VS
+  Code (zero-config, built-in), (2) ARC-1 (enterprise, secure-by-default), (3) mcp-abap-adt
+  (community, de su dung). Cho phep AI doc ABAP code, activate, syntax-check, manage transport,
+  chay ATC.
 when_to_use: |
   "cai dat ADT MCP server", "SAP official MCP", "ARC-1 MCP", "mcp-abap-adt",
   "ket noi ABAP ADT qua MCP", "tool ADT MCP", "doc ABAP code tu AI".

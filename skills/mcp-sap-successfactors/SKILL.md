@@ -1,6 +1,9 @@
 ---
 name: mcp-sap-successfactors
-description: Huong dan cai dat va su dung MCP servers cho SAP SuccessFactors — 2 options: sf-mcp (open-source, 62+ tools) va CData SuccessFactors MCP (SQL-based read-only). Tra cuu Employee Central, RBP security, Time Off, Hiring, Position Management.
+description: |
+  Huong dan cai dat va su dung MCP servers cho SAP SuccessFactors — 2 options: sf-mcp
+  (open-source, 62+ tools) va CData SuccessFactors MCP (SQL-based read-only). Tra cuu Employee
+  Central, RBP security, Time Off, Hiring, Position Management.
 when_to_use: |
   "cai dat SuccessFactors MCP", "tra cuu nhan vien tu Claude", "SF employee data",
   "SuccessFactors API integration", "sf-mcp setup".
