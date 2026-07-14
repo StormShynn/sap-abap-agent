@@ -33,6 +33,14 @@ Format dựa trên [Keep a Changelog](https://keepachangelog.com/) và [Semantic
   - Thêm **Auto-Skill Creation Engine** — 4 điều kiện kích hoạt (features grid)
   - Mở rộng Hermes-like Features table (thêm Memory Consolidation + Training Data Export)
   - Mở rộng User Commands (thêm `onboard`, `tip`, `hom qua chung ta noi gi`)
+- 🌐 **English translations cho Daily Learner section** — thêm ~40+ translation entries cho Module
+  Knowledge Matrix, Daily Tip Templates, Progressive Learning Paths, Auto-Skill Creation Engine,
+  User Commands, Hermes Features table — tất cả nội dung mới đã có EN translations.
+- 🔖 **Version badge cập nhật** — v0.9.2 → v0.9.3 tại 3 vị trí (sidebar logo, header, footer)
+- 🐛 **Fix bug scroll sai section** — xoá `<span id="daily-learner">` còn sót từ tái cấu trúc
+  (anchor cũ nằm trước "Cách đặt câu hỏi", khiến link `#daily-learner` scroll sai chỗ)
+- 🧹 **Dọn dẹp file tạm** — xoá `reorganize.ps1`, `add_daily_learner.py`,
+  `add_daily_learner_translations.py`, `index.html.bak`
 
 ### Notes
 - Tổng số section giữ nguyên: 47 section IDs (không thêm/bớt), chỉ thay đổi thứ tự và bổ sung nội

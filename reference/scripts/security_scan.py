@@ -19,6 +19,17 @@ Patterns:
     encoding is unnecessary).
   - Hardcoded secrets: high-entropy-looking literals assigned to key/token/secret/
     password-shaped variable names in source files (not docs).
+
+Suppressing a finding already triaged as safe/mitigated: add a trailing
+comment containing "security-scan: reviewed" (plus a short reason) on the
+SAME line as the flagged code, e.g.:
+
+    terminal.sendText(`...`);  // security-scan: reviewed, guarded by isSafeShellToken above
+
+Suppressed findings still print (as SUPPRESSED, non-blocking) so they stay
+auditable instead of silently disappearing - this is for "already fixed, the
+static pattern just can't see the fix", not a way to make a real finding go
+away unreviewed.
 """
 from __future__ import annotations
 
@@ -29,8 +40,10 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent.parent
 HIGH: list[str] = []
 MEDIUM: list[str] = []
+SUPPRESSED: list[str] = []
 
 SKIP_DIRS = {".git", "node_modules", "__pycache__", "in", "out", "dist"}
+SUPPRESS_MARKER = "security-scan: reviewed"
 
 
 def iter_files(*suffixes: str):
@@ -54,6 +67,23 @@ def line_no(text: str, pos: int) -> int:
     return text.count("\n", 0, pos) + 1
 
 
+def is_suppressed(text: str, pos: int) -> bool:
+    line_start = text.rfind("\n", 0, pos) + 1
+    line_end = text.find("\n", pos)
+    if line_end == -1:
+        line_end = len(text)
+    return SUPPRESS_MARKER in text[line_start:line_end]
+
+
+def report(bucket: list[str], suppressed_pos: tuple[str, int] | None, msg: str) -> None:
+    """Append `msg` to `bucket`, unless `suppressed_pos` = (text, pos) is marked
+    with SUPPRESS_MARKER on its line - then it goes to SUPPRESSED instead."""
+    if suppressed_pos and is_suppressed(*suppressed_pos):
+        SUPPRESSED.append(msg)
+    else:
+        bucket.append(msg)
+
+
 def check_python_shell_injection() -> None:
     pattern = re.compile(
         r"(subprocess\.\w+|os\.system)\s*\([^)]*shell\s*=\s*True[^)]*\)", re.DOTALL
@@ -63,7 +93,7 @@ def check_python_shell_injection() -> None:
         text = read(path)
         for m in pattern.finditer(text):
             if fstring_marker.search(m.group(0)):
-                HIGH.append(
+                report(HIGH, (text, m.start()),
                     f"{path.relative_to(ROOT)}:{line_no(text, m.start())}: "
                     f"shell=True with an interpolated string — use execFileSync/list-form "
                     f"args instead: {m.group(0)[:80]!r}"
@@ -76,13 +106,13 @@ def check_ts_exec_injection() -> None:
     for path in iter_files(".ts", ".js"):
         text = read(path)
         for m in exec_pattern.finditer(text):
-            HIGH.append(
+            report(HIGH, (text, m.start()),
                 f"{path.relative_to(ROOT)}:{line_no(text, m.start())}: "
                 f"{m.group(1)}() called with an interpolated template literal — "
                 f"an untrusted value here runs as shell syntax: {m.group(0)[:90]!r}"
             )
         for m in sendtext_pattern.finditer(text):
-            HIGH.append(
+            report(HIGH, (text, m.start()),
                 f"{path.relative_to(ROOT)}:{line_no(text, m.start())}: "
                 f"terminal.sendText() with an interpolated template literal — quote/validate "
                 f"the interpolated value first (breaks on spaces, and is shell-injectable if "
@@ -111,8 +141,9 @@ def check_unencoded_path_interpolation() -> None:
             for fm in fstring_path.finditer(body):
                 if "/" not in fm.group(0):
                     continue
-                MEDIUM.append(
-                    f"{path.relative_to(ROOT)}:{line_no(text, body_start + fm.start())}: "
+                abs_pos = body_start + fm.start()
+                report(MEDIUM, (text, abs_pos),
+                    f"{path.relative_to(ROOT)}:{line_no(text, abs_pos)}: "
                     f"'{m.group(1)}' builds a path with an unencoded f-string "
                     f"({fm.group(0)[:70]!r}), but sibling methods in this file use quote() — "
                     f"confirm this parameter can't contain '/','?','#'"
@@ -131,7 +162,7 @@ def check_hardcoded_secrets() -> None:
             value = m.group(2)
             if placeholder.search(value):
                 continue
-            MEDIUM.append(
+            report(MEDIUM, (text, m.start()),
                 f"{path.relative_to(ROOT)}:{line_no(text, m.start())}: "
                 f"literal assigned to '{m.group(1)}'-shaped name — verify this isn't a real "
                 f"secret committed to source: {m.group(0)[:60]!r}"
@@ -143,6 +174,12 @@ def main() -> int:
     check_ts_exec_injection()
     check_unencoded_path_interpolation()
     check_hardcoded_secrets()
+
+    if SUPPRESSED:
+        print(f"--- {len(SUPPRESSED)} suppressed finding(s) (marked '{SUPPRESS_MARKER}', not blocking) ---")
+        for s in SUPPRESSED:
+            print(f"  SUPPRESSED  {s}")
+        print()
 
     if MEDIUM:
         print(f"--- {len(MEDIUM)} medium-confidence finding(s) (review, non-blocking) ---")

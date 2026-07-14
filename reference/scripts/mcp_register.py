@@ -67,22 +67,28 @@ def run_claude_add(
     command: str | None = None,
     args: list[str] | None = None,
     env: dict[str, str] | None = None,
+    scope: str = "user",
 ) -> bool:
     if not claude_available():
         return False
-    cmd = ["claude", "mcp", "add", "--transport", transport]
-    if transport in ("sse", "http", "ws"):
-        if url:
-            cmd.extend(["--url", url])
-    else:
-        if command:
-            cmd.append("--")
-            cmd.append(command)
-            if args:
-                cmd.extend(args)
+    # Real syntax (verified via `claude mcp add --help`): `claude mcp add
+    # [options] <name> <commandOrUrl> [args...]` - <name> is always
+    # positional (there is no --name flag), there is no --url flag (the URL
+    # is <commandOrUrl>), and -e/--env must come BEFORE the `--` separator -
+    # after it, it would be passed as a literal arg to the subprocess itself.
+    cmd = ["claude", "mcp", "add", "--transport", transport, "--scope", scope]
     if env:
         for k, v in env.items():
             cmd.extend(["--env", f"{k}={v}"])
+    cmd.append(name)
+    if transport in ("sse", "http", "ws"):
+        if url:
+            cmd.append(url)
+    elif command:
+        cmd.append("--")
+        cmd.append(command)
+        if args:
+            cmd.extend(args)
     try:
         subprocess.run(cmd, check=True)
         return True
@@ -99,12 +105,13 @@ def build_mcp_json_entry(entry: dict) -> dict | None:
         if not url:
             return None
         return {"type": transport, "url": url}
-    cmd_parts = cfg.get("command", "").strip().split()
-    if not cmd_parts:
+    command = cfg.get("command", "").strip()
+    if not command:
         return None
-    result: dict[str, Any] = {"type": "stdio", "command": cmd_parts[0]}
-    if len(cmd_parts) > 1:
-        result["args"] = cmd_parts[1:]
+    result: dict[str, Any] = {"type": "stdio", "command": command}
+    args = cfg.get("args")
+    if args:
+        result["args"] = list(args)
     env = cfg.get("env", {})
     if env:
         result["env"] = env
@@ -151,10 +158,11 @@ def register_auto(entry: dict, registered: set[str]) -> str:
         return "skip"
 
     command = cfg.get("command", "")
+    args = cfg.get("args")
     env = cfg.get("env", {})
     if claude_available():
         ok = run_claude_add(
-            name, transport, command=command, env=env if env else None
+            name, transport, command=command, args=args, env=env if env else None
         )
         return "ok" if ok else "error"
     return "skip"
@@ -169,10 +177,11 @@ def register_prompt(entry: dict, registered: set[str]) -> str:
     cfg = entry.get("config", {})
     transport = entry["transport"]
     command = cfg.get("command", "")
+    args = cfg.get("args")
 
     env = prompt_env_vars(entry)
     if claude_available():
-        ok = run_claude_add(name, transport, command=command, env=env if env else None)
+        ok = run_claude_add(name, transport, command=command, args=args, env=env if env else None)
         return "ok" if ok else "error"
     return "skip"
 
@@ -260,9 +269,17 @@ def main() -> int:
     registered = get_registered_servers()
 
     # --- Xay dung .mcp.json ---
-    print("\n--- Generating .mcp.json ---")
+    # CHI core + docs-remote: day la file se commit vao git, dung chung cho
+    # het moi nguoi cai plugin nay. adt-alternative la cac lua chon THAY THE
+    # nhau (khong nen bundle ca 3 cung luc), va product-specific/adt-alternative
+    # co the can credential rieng tung nguoi (vd ADT_USER/ADT_PASS) - khong
+    # duoc bake vao file dung chung, du la placeholder rong hay gia tri that.
+    print("\n--- Generating .mcp.json (core + docs-remote only) ---")
     mcp_config: dict[str, Any] = {"mcpServers": {}}
+    bundled_categories = {"core", "docs-remote"}
     for entry in servers:
+        if entry["category"] not in bundled_categories:
+            continue
         cfg = build_mcp_json_entry(entry)
         if cfg:
             mcp_config["mcpServers"][entry["name"]] = cfg

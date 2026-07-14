@@ -1,5 +1,5 @@
 {
-  "_comment": "Known MCP servers documented across this plugin's skills/README. Edit this list when a skill starts (or stops) documenting a `claude mcp add ...` command. Consumed by mcp_status.py and mcp_register.py.",
+  "_comment": "Known MCP servers documented across this plugin's skills/README. Edit this list when a skill starts (or stops) documenting a `claude mcp add ...` command. Consumed by mcp_status.py and mcp_register.py. The 'core' + 'docs-remote' category entries' config blocks are bundled directly in ../../.mcp.json (auto-registered for anyone who installs this plugin, zero per-user config needed) - keep those two in sync by hand if either changes. 'adt-alternative' and 'product-specific' entries stay opt-in via mcp_register.py, since they need a per-user choice (which ADT alternative) or per-user credentials/license files that can't be shared in a bundled config.",
   "servers": [
     {
       "name": "sap-btp",
