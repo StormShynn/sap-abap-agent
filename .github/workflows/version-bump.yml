@@ -41,7 +41,7 @@ jobs:
           echo "---------------------------------------"
 
           BUMP="patch"
-          if echo "$MESSAGES" | grep -qiE '^[a-z]+(\([^)]*\))?!:|BREAKING CHANGE'; then
+          if echo "$MESSAGES" | grep -qE '^[a-zA-Z]+(\([^)]*\))?!:' || echo "$MESSAGES" | grep -qE '^BREAKING CHANGE:'; then
             BUMP="major"
           elif echo "$MESSAGES" | grep -qiE '^feat(\([^)]*\))?:'; then
             BUMP="minor"
