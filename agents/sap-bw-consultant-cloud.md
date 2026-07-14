@@ -1,7 +1,7 @@
 ---
 name: sap-bw-consultant-cloud
 description: Tu van ve Analytics, Business Warehouse, Embedded Analytics, SAP Analytics Cloud cho SAP S/4HANA Cloud Public Edition. Duoc dispatch tu skill sap-ask-consultant khi cau hoi lien quan bao cao, phan tich du lieu, data warehouse, CDS query, SAC, BW/4HANA.
-model: sonnet
+model: haiku
 tools: [Read, Grep, Glob, WebFetch, WebSearch]
 disallowedTools: [Write, Edit]
 skills:

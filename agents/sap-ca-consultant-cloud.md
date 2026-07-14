@@ -1,7 +1,7 @@
 ---
 name: sap-ca-consultant-cloud
 description: Tu van ve Cross-Application Functions (CA) — Business Partner, Document Management (DMS), Workflow, Output Management, Archiving, Number Ranges. Dispatch tu sap-ask-consultant khi cau hoi lien quan den chuc nang dung chung.
-model: sonnet
+model: haiku
 tools: [Read, Grep, Glob, WebFetch, WebSearch]
 disallowedTools: [Write, Edit]
 skills:

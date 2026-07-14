@@ -1,7 +1,7 @@
 ---
 name: sap-daily-learner
 description: "AI học SAP/ABAP mỗi ngày — tự động gửi tip hằng ngày, theo dõi tiến độ học, và tự tạo skill documents từ các câu hỏi đã giải quyết. Lấy cảm hứng từ Hermes Agent (Nous Research): persistent memory, auto-skill creation, cron-style scheduling."
-model: sonnet
+model: haiku
 tools: [Read, Grep, Glob, Write, Edit, WebFetch, WebSearch]
 skills:
   - sap-daily-learner

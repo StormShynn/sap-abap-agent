@@ -1,7 +1,7 @@
 ---
 name: sap-tm-consultant-cloud
 description: Tu van nghiep vu TM (Transportation Management — freight order, carrier selection, freight settlement, shipment tracking, transportation charges) cho SAP S/4HANA Cloud Public Edition — SSCUI, Fiori app, released API, huong mo rong. Duoc dispatch tu skill sap-ask-consultant khi cau hoi lien quan van chuyen va logistic.
-model: sonnet
+model: haiku
 tools: [Read, Grep, Glob, WebFetch, WebSearch]
 disallowedTools: [Write, Edit]
 skills:

@@ -1,4 +1,4 @@
-name: Sync index.html from CHANGELOG & README
+name: Sync index.html From Changelog & Readme
 
 on:
   push:

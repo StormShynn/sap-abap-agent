@@ -1,7 +1,7 @@
 ---
 name: sap-wm-consultant-cloud
 description: Tu van Stock Room Management (quan ly kho don gian bang batch + stock, khong can EWM) va LE-WM co dien (huong migration len Embedded EWM) cho SAP S/4HANA Cloud Public Edition. KHONG dung cho warehouse/EWM hien dai (dispatch sang sap-ewm-consultant-cloud). Duoc dispatch tu skill sap-ask-consultant khi cau hoi lien quan kho don gian hoac he thong WM cu can chuyen doi.
-model: sonnet
+model: haiku
 tools: [Read, Grep, Glob, WebFetch, WebSearch]
 disallowedTools: [Write, Edit]
 skills:

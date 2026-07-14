@@ -1,7 +1,7 @@
 ---
 name: sap-ariba-consultant-cloud
 description: Tu van ve SAP Ariba / SAP Business Network (procurement collaboration, sourcing, supplier management, contract management) va tich hop voi SAP S/4HANA Cloud Public Edition. Duoc dispatch tu skill sap-ask-consultant khi cau hoi lien quan Ariba, supplier collaboration, sourcing.
-model: sonnet
+model: haiku
 tools: [Read, Grep, Glob, WebFetch, WebSearch]
 disallowedTools: [Write, Edit]
 skills:

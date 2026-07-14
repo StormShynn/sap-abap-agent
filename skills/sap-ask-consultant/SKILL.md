@@ -79,6 +79,12 @@ Neu user noi "hoi X" / "X tu van" / "nho X" voi X la ten module, dispatch module
 
 ### Buoc 3: Xu ly module coupling (dispatch nhom)
 
+**Dieu kien dispatch** (tranh dispatch thua, ton token): module coupling KHONG tu dong dispatch
+toan bo danh sach duoi day. Chi dispatch module ghep cap neu module do **cung dat score >= 1**
+tren Keyword Matrix (Buoc 1) — tuc cau hoi user co it nhat 1 tu khoa lien quan module do. Neu
+module ghep cap dat 0 diem (khong co tu khoa lien quan trong cau hoi), KHONG dispatch — chi neu
+ten trong output o muc "Co the hoi them" (xem Buoc 4).
+
 | Module A | Module coupling | Ly do |
 |----------|----------------|-------|
 | **CO** | `sap-fi-consultant-cloud` | CO lam viec tren ACDOCA (FI document) |
@@ -106,7 +112,11 @@ Neu user noi "hoi X" / "X tu van" / "nho X" voi X la ten module, dispatch module
 
 - **0 agent**: hoi lai user.
 - **1 agent**: dispatch duy nhat.
-- **≥2 agent**: dispatch **tat ca song song** trong 1 message.
+- **2-3 agent**: dispatch **tat ca song song** trong 1 message.
+- **>3 agent** (hiem gap, thuong do nhieu module coupling cung dat score sau Buoc 3): dispatch
+  **top 3 theo score cao nhat**, cac module con lai KHONG dispatch — chi liet ke ten trong output
+  ("Co the hoi them: <module>") de user tu quyet dinh hoi tiep, tranh chay song song qua nhieu
+  agent cho 1 cau hoi.
 
 **Da co agent**: SD, FI, MM, CO, PP, QM, PM, WM, PS, HCM, BW, Basis, TM, TR, Ariba, CA, GTS, EHS, **IBP**, **EWM**, **Fiori/UI5**, **CAP**, **CPI**, **SuccessFactors**, **BTP Admin**, Research, **Daily Learner**
 **Tong cong**: 25 modules consultant + 1 researcher + 1 daily learner = **27 agents**.
@@ -116,8 +126,8 @@ Neu user noi "hoi X" / "X tu van" / "nho X" voi X la ten module, dispatch module
 1. **Phan tich cau hoi user**: normalize (lowercase, loai bo dau), trich xuat keyword.
 2. **Tinh score tung module** theo Keyword Matrix o Buoc 1.
 3. **Kiem tra explicit mention** (Buoc 2).
-4. **Ap dung module coupling** (Buoc 3).
-5. **Tong hop danh sach agent can dispatch** (Buoc 4).
+4. **Ap dung module coupling co dieu kien** (Buoc 3) — chi giu module coupling nao cung dat score >= 1.
+5. **Tong hop danh sach agent can dispatch, cap toi da 3** (Buoc 4) — du ra chuyen thanh goi y.
 6. **Dispatch** song song.
 7. **Tong hop cau tra loi**: 1 agent → nguyen van; ≥2 agent → 1 doan tong hop + tung agent.
 8. **Goi y buoc tiep theo**: `abap-reviewer`, `sap-docs-researcher`, `sap-daily-learner` (cho cau hoi hoc tap).
@@ -127,6 +137,7 @@ Neu user noi "hoi X" / "X tu van" / "nho X" voi X la ten module, dispatch module
 ```
 🧭 Tu van: <danh sach agent da goi> | Auto-routing: <diem score tung module>
 [neu ≥2 agent: doan tong hop ngan truoc]
+[neu bi cap o Buoc 4: them dong "Co the hoi them: <module bi cap>"]
 ### SD
 ...
 ### FI

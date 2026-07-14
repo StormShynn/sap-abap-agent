@@ -19,7 +19,22 @@ context; 2 tang con lai chi load theo nhu cau.
 dung tren bat ky project SAP nao, nen KHONG dung duong dan tuong doi. `<agent-home>` la 1 thu
 muc co dinh theo may: mac dinh `%USERPROFILE%\.sap-abap-agent\` (Windows) / `~/.sap-abap-agent/`
 (macOS/Linux), override qua `SAP_ABAP_AGENT_HOME` (vd khi dev/test plugin ngay trong repo).
-Lay duong dan da resolve (tu tao thu muc neu chua co) bang:
+**Buoc 0 - khoi tao (BAT BUOC truoc khi doc file):**
+```bash
+python "${CLAUDE_PLUGIN_ROOT}/reference/scripts/bootstrap_memory.py"
+```
+Script idempotent: lan dau tao toan bo cay memory + LEARNING_PROGRESS.md + knowledge_graph.jsonl; cac lan sau chi skip, KHONG ghi de du lieu dang co.
+
+Khi can them folder/file rieng (vd them skill-moi/ hoac notes/<concept>.md), truyen lap lai:
+```bash
+python "${CLAUDE_PLUGIN_ROOT}/reference/scripts/bootstrap_memory.py" \
+  --ensure-dir memory/semantic/notes/custom \
+  --ensure-file memory/semantic/notes/<concept>.md="# ghi chu"
+```
+Chi chap nhan duong dan tuong doi nam trong <agent-home>; tuy doi (`C:/Windows/...`) hoac
+escape (`../`) se bi tu choi voi exit code 1.
+
+Lay duong dan da resolve bang:
 ```bash
 python "${CLAUDE_PLUGIN_ROOT}/reference/scripts/agent_home.py" memory
 ```
@@ -342,6 +357,8 @@ Cross-module integration patterns:
 
 ## 9. Review Checklist
 
+- [ ] `bootstrap_memory.py` da chay (Buoc 0) truoc khi doc semantic tier - tranh loi
+      "Failed to check existing learning progress and knowledge graph" khi first-run
 - [ ] `LEARNING_PROGRESS.md` duoc tao/tim thay (semantic tier)
 - [ ] `memory/procedural/skills/` (alias `skills/sap-user-skills/`) ton tai
 - [ ] Chi load semantic tier default; episodic/procedural chi load khi user hoi

@@ -1,7 +1,7 @@
 ---
 name: sap-docs-researcher
 description: Chuyen tra cuu CDS view, SAP Help, SAP Community, SAP Accelerator Hub, SAP Fiori App Library, Clean Core Objects, va ABAP syntax features. Su dung MCP servers (cds-kb, mcp-sap-docs, mcp-sap-notes, ARC-1, mcp-abap-adt, mcp-sap-concur, mcp-sap-fieldglass) de tra cuu nhanh, khong can duyet web thu cong. MCP setup guides (mcp-sap-gui, mcp-sap-adt, mcp-sap-successfactors) nam o reference/mcp-guides/ (khong con la skill rieng). Duoc dispatch tu skill sap-ask-consultant khi user can tra cuu tai lieu hoac CDS view.
-model: sonnet
+model: haiku
 tools: [Read, Grep, Glob, WebFetch, WebSearch]
 disallowedTools: [Write, Edit]
 skills:

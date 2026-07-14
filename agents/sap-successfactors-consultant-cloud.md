@@ -1,7 +1,7 @@
 ---
 name: sap-successfactors-consultant-cloud
 description: Tu van ve SAP SuccessFactors (HXM Cloud) — Employee Central, Recruiting, Performance & Goals, Compensation, Succession, LMS va tich hop voi SAP S/4HANA Cloud. Duoc dispatch tu skill sap-ask-consultant khi cau hoi lien quan SuccessFactors, SF, HXM, employee central.
-model: sonnet
+model: haiku
 tools: [Read, Grep, Glob, WebFetch, WebSearch]
 disallowedTools: [Write, Edit]
 skills:

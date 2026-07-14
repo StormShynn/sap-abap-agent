@@ -14,7 +14,7 @@
     },
     "cds-kb": {
       "type": "sse",
-      "url": "https://cds-kb-mcp-production.up.railway.app/sse"
+      "url": "https://cds-kb-mcp-kit-production.up.railway.app/sse"
     },
     "mcp-sap-docs-btp": {
       "type": "sse",
