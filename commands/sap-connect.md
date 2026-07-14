@@ -48,13 +48,25 @@ sap-btp-agent connect
 sap-btp-agent connect project1.s4hana.cloud.sap
 ```
 
-## Dang ky MCP server voi Claude Code
+## Dang ky MCP servers voi Claude Code (1 lan duy nhat)
 
-Dung lenh `claude mcp add` (Claude Code khong con dung file `mcp_servers.json`):
-
+Sau khi setup profile, chay lenh nay de dang ky TOAN BO MCP servers:
 ```bash
-claude mcp add --transport stdio sap-btp -- sap-btp-agent
+sap-btp-agent mcp-setup
 ```
+Hoac setup wizard se tu hoi khi ban tao profile moi.
+
+Cac server duoc dang ky tu dong (bat buoc):
+- `sap-btp` — ket noi chinh den SAP BTP
+- `sap-dict-bridge` — tao Domain/DataElement/Table
+- `cds-kb` — tra cuu 7,355 CDS views
+- `mcp-sap-docs-btp` — tra cuu SAP Help / API Hub
+
+Cac server ADT alternative (tuy chon, can Node.js):
+- `arc-1`, `mcp-abap-adt` — se hoi ban truoc khi dang ky
+
+Cac server product-specific (can cai dat thu cong):
+- `sap-notes`, `sap-gui`, `sf-mcp`, `sf-cdata`, `sap-concur`, `sap-fieldglass`
 
 Sau khi cau hinh nhieu profile, Claude se co cac tool:
 

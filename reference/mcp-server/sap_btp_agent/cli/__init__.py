@@ -61,6 +61,8 @@ def main() -> None:
     elif cmd == "doctor":
         from ..doctor import main as run_doctor
         run_doctor()
+    elif cmd == "mcp-setup":
+        _cmd_mcp_setup()
     else:
         print(f"  ❌ Unknown command: {cmd}")
         _show_help()
@@ -74,6 +76,7 @@ def _show_help() -> None:
     print("  Commands:")
     print("    setup [URL]            Thêm project SAP mới (wizard)")
     print("    connect [profile-id]   Test kết nối profile")
+    print("    mcp-setup              Đăng ký MCP servers với Claude Code")
     print("    profiles list          Liệt kê tất cả profile")
     print("    profiles use <id>      Chọn profile active")
     print("    profiles show          Xem chi tiết profile active")
@@ -85,6 +88,7 @@ def _show_help() -> None:
     print()
     print("  Examples:")
     print("    sap-btp-agent setup https://xxx.s4hana.cloud.sap")
+    print("    sap-btp-agent mcp-setup")
     print("    sap-btp-agent connect")
     print("    sap-btp-agent profiles list")
     print("    sap-btp-agent doctor")
@@ -260,6 +264,8 @@ async def _wizard_setup(url: str) -> None:
     print()
     info("Ban co the kiem tra ket noi bang: sap-btp-agent connect")
     print()
+    if ask("Dang ky MCP servers voi Claude Code ngay?", default="y").lower() in ("", "y", "yes"):
+        _cmd_mcp_setup()
 
 
 # ===== CONNECT =====================================================
@@ -390,6 +396,93 @@ def _cmd_reset() -> None:
         ok("Da xoa tat ca du lieu.")
     else:
         info("Huy lenh reset.")
+
+
+# ===== MCP SETUP ===================================================
+
+def _cmd_mcp_setup() -> None:
+    """Dang ky toan bo MCP servers voi Claude Code (bat buoc + tuy chon)."""
+    header("MCP Server Setup — Dang ky MCP servers voi Claude Code")
+
+    import shutil
+    import subprocess
+
+    claude_path = shutil.which("claude")
+    if not claude_path:
+        warn("Khong tim thay 'claude' trong PATH.")
+        info("Hay cai Claude Code truoc, roi chay lai: sap-btp-agent mcp-setup")
+        info("Download: https://claude.ai/download")
+        return
+
+    def _register(name: str, transport: str, *,
+                  url: str | None = None, cmd: str | None = None,
+                  args: list[str] | None = None,
+                  env: dict[str, str] | None = None) -> bool:
+        """Goi claude mcp add, tra True neu thanh cong."""
+        cli = [claude_path, "mcp", "add", "--transport", transport]
+        if transport in ("sse", "http", "ws"):
+            if url:
+                cli.extend(["--url", url])
+        else:
+            if cmd:
+                cli.append("--")
+                cli.append(cmd)
+                if args:
+                    cli.extend(args)
+        if env:
+            for k, v in env.items():
+                if v:
+                    cli.extend(["--env", f"{k}={v}"])
+        try:
+            subprocess.run(cli, check=True)
+            return True
+        except subprocess.CalledProcessError:
+            return False
+
+    # --- Core servers (bat buoc) ---
+    header("Core servers (bat buoc)")
+    ok("Dang ky sap-btp...")
+    _register("sap-btp", "stdio", cmd="sap-btp-agent")
+    ok("Dang ky sap-dict-bridge...")
+    _register("sap-dict-bridge", "stdio", cmd="python",
+              args=["-m", "sap_btp_agent.bridge_server"])
+
+    # --- Remote SSE servers (bat buoc - chi can URL) ---
+    header("Remote servers (bat buoc)")
+    ok("Dang ky cds-kb...")
+    _register("cds-kb", "sse",
+              url="https://cds-kb-mcp-production.up.railway.app/sse")
+    ok("Dang ky mcp-sap-docs-btp...")
+    sap_hub_key = os.environ.get("SAP_API_HUB_KEY", "")
+    _register("mcp-sap-docs-btp", "sse",
+              url="https://sap-docs-extend-mcp.cfapps.ap21.hana.ondemand.com/sse",
+              env={"SAP-API-HUB-KEY": sap_hub_key} if sap_hub_key else None)
+
+    # --- ADT alternatives (tuy chon) ---
+    header("ADT alternatives (tuy chon)")
+    if ask("Dang ky arc-1 (Enterprise ADT MCP)?", default="y").lower() in ("", "y", "yes"):
+        _register("arc-1", "stdio", cmd="npx", args=["-y", "arc-1@latest"])
+    if ask("Dang ky mcp-abap-adt (community read-only)?", default="n").lower() in ("y", "yes"):
+        adt_url = ask("ADT URL (VD: https://xxx.s4hana.cloud.sap)")
+        adt_user = ask("ADT username")
+        adt_pass = ask("ADT password", secret=True)
+        _register("mcp-abap-adt", "stdio", cmd="npx", args=["-y", "mcp-abap-adt"],
+                  env={"ADT_URL": adt_url, "ADT_USER": adt_user,
+                       "ADT_PASS": adt_pass, "ADT_CLIENT": "100"})
+
+    # --- Product-specific servers (manual) ---
+    header("Product-specific servers (can cai dat them)")
+    info("Cac server sau can cai dat thu cong. Xem skill doc huong dan chi tiet:")
+    print("  - sap-notes:    skills/mcp-sap-notes/SKILL.md")
+    print("  - sap-gui:      skills/mcp-sap-gui/SKILL.md")
+    print("  - sf-mcp:       skills/mcp-sap-successfactors/SKILL.md")
+    print("  - sf-cdata:     skills/mcp-sap-successfactors/SKILL.md")
+    print("  - sap-concur:   skills/mcp-sap-concur/SKILL.md")
+    print("  - sap-fieldglass: skills/mcp-sap-fieldglass/SKILL.md")
+    print()
+
+    ok("Hoan tat! Khoi dong lai Claude Code de nhan server moi.")
+    info("Kiem tra bang: claude mcp list")
 
 
 # ===== Helpers =====================================================
