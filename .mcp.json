@@ -1,0 +1,24 @@
+{
+  "mcpServers": {
+    "sap-btp": {
+      "type": "stdio",
+      "command": "sap-btp-agent"
+    },
+    "sap-dict-bridge": {
+      "type": "stdio",
+      "command": "python",
+      "args": [
+        "-m",
+        "sap_btp_agent.bridge_server"
+      ]
+    },
+    "cds-kb": {
+      "type": "sse",
+      "url": "https://cds-kb-mcp-production.up.railway.app/sse"
+    },
+    "mcp-sap-docs-btp": {
+      "type": "sse",
+      "url": "https://sap-docs-extend-mcp.cfapps.ap21.hana.ondemand.com/sse"
+    }
+  }
+}
