@@ -117,7 +117,7 @@ sap-abap-agent/
 Yeu cau: **Python >= 3.10**. **Khong can clone repo** -- chi can tai 1 file `.whl` va `pip install`:
 
 ```bash
-pip install https://github.com/StormShynn/sap-abap-agent/releases/download/mcp-server-v0.3.0/sap_abap_agent_mcp-0.3.0-py3-none-any.whl
+pip install https://github.com/StormShynn/sap-abap-agent/releases/download/mcp-server-v0.9.3/sap_abap_agent_mcp-0.9.3-py3-none-any.whl
 ```
 
 (Hoac tai file `.whl` ve truoc roi `pip install duong-dan-file.whl` neu may khong co internet luc chay lenh.)
@@ -125,14 +125,14 @@ pip install https://github.com/StormShynn/sap-abap-agent/releases/download/mcp-s
 Tren Windows, cai them extra `win-dpapi` de ma hoa secrets bang DPAPI (them `[win-dpapi]` ngay sau ten file, truoc phan mo rong `.whl`):
 
 ```bash
-pip install "sap_abap_agent_mcp-0.3.0-py3-none-any.whl[win-dpapi]"
+pip install "sap_abap_agent_mcp-0.9.3-py3-none-any.whl[win-dpapi]"
 ```
 
 Neu muon dung Cookie-based auth kieu **tu mo browser dang nhap** (khong can F12 copy tay), cai them extra `playwright`
 va download browser binary:
 
 ```bash
-pip install "sap_abap_agent_mcp-0.3.0-py3-none-any.whl[playwright]"
+pip install "sap_abap_agent_mcp-0.9.3-py3-none-any.whl[playwright]"
 playwright install chromium
 ```
 
