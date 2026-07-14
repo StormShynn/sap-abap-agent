@@ -1,0 +1,172 @@
+{
+  "_comment": "Known MCP servers documented across this plugin's skills/README. Edit this list when a skill starts (or stops) documenting a `claude mcp add ...` command. Consumed by mcp_status.py and mcp_register.py.",
+  "servers": [
+    {
+      "name": "sap-btp",
+      "category": "core",
+      "transport": "stdio",
+      "envVars": [],
+      "doc": "commands/sap-connect.md",
+      "description": "Main sap-btp-agent server: profiles, search, read source, activate",
+      "config": {
+        "command": "sap-btp-agent",
+        "args": [],
+        "env": {}
+      }
+    },
+    {
+      "name": "sap-dict-bridge",
+      "category": "core",
+      "transport": "stdio",
+      "envVars": [],
+      "doc": "skills/sap-cloud-dictionary/SKILL.md",
+      "description": "DDIC create (Domain/DataElement/Table) via sap-btp-agent's cookie auth",
+      "config": {
+        "command": "python",
+        "args": ["-m", "sap_btp_agent.bridge_server"],
+        "env": {}
+      }
+    },
+    {
+      "name": "cds-kb",
+      "category": "docs-remote",
+      "transport": "sse",
+      "envVars": [],
+      "doc": "README.md",
+      "description": "Remote CDS view knowledge base (7,355 views)",
+      "url": "https://cds-kb-mcp-production.up.railway.app/sse",
+      "config": {
+        "url": "https://cds-kb-mcp-production.up.railway.app/sse"
+      }
+    },
+    {
+      "name": "mcp-sap-docs-btp",
+      "category": "docs-remote",
+      "transport": "sse",
+      "envVars": ["SAP-API-HUB-KEY"],
+      "doc": "README.md",
+      "description": "Remote SAP Docs / API Hub / Help Portal search",
+      "url": "https://sap-docs-extend-mcp.cfapps.ap21.hana.ondemand.com/sse",
+      "config": {
+        "url": "https://sap-docs-extend-mcp.cfapps.ap21.hana.ondemand.com/sse",
+        "env": {}
+      }
+    },
+    {
+      "name": "arc-1",
+      "category": "adt-alternative",
+      "transport": "stdio",
+      "envVars": [],
+      "doc": "skills/mcp-sap-adt/SKILL.md",
+      "description": "Enterprise ADT MCP (XSUAA, audit log) - alternative to sap-btp",
+      "config": {
+        "command": "npx",
+        "args": ["-y", "arc-1@latest"],
+        "env": {}
+      }
+    },
+    {
+      "name": "mcp-abap-adt",
+      "category": "adt-alternative",
+      "transport": "stdio",
+      "envVars": ["ADT_URL", "ADT_USER", "ADT_PASS", "ADT_CLIENT"],
+      "doc": "skills/mcp-sap-adt/SKILL.md",
+      "description": "Community read-only ADT MCP (mario-andreschak) - needs its own basic auth",
+      "config": {
+        "command": "npx",
+        "args": ["-y", "mcp-abap-adt"],
+        "env": {
+          "ADT_URL": "",
+          "ADT_USER": "",
+          "ADT_PASS": "",
+          "ADT_CLIENT": "100"
+        }
+      }
+    },
+    {
+      "name": "mcp-abap-adt-dict",
+      "category": "adt-alternative",
+      "transport": "stdio",
+      "envVars": [],
+      "doc": "skills/mcp-sap-adt/SKILL.md",
+      "description": "Full-CRUD ADT MCP (fr0ster) - superseded by sap-dict-bridge, kept for reference",
+      "config": {
+        "command": "npx",
+        "args": ["-y", "@mcp-abap-adt/core"],
+        "env": {}
+      }
+    },
+    {
+      "name": "sap-notes",
+      "category": "product-specific",
+      "transport": "stdio",
+      "envVars": ["SAP_USERNAME", "SAP_PASSWORD"],
+      "doc": "skills/mcp-sap-notes/SKILL.md",
+      "description": "SAP Notes / KBA lookup (can clone + build)",
+      "config": {
+        "install_hint": "git clone https://github.com/marianfoo/sap-mcp-servers.git; cd packages/notes; npm install; npm run build; claude mcp add --transport stdio sap-notes -- node /abs/path/to/sap-mcp-servers/packages/notes/dist/mcp-server.js",
+        "env": {}
+      }
+    },
+    {
+      "name": "sap-gui",
+      "category": "product-specific",
+      "transport": "stdio",
+      "envVars": [],
+      "doc": "skills/mcp-sap-gui/SKILL.md",
+      "description": "SAP GUI Scripting automation (Windows, SAP GUI required)",
+      "config": {
+        "install_hint": "pip install uvx (neu chua co); claude mcp add --transport stdio sap-gui -- uvx mcp-sap-gui[screenshots] --read-only --allowed-transactions MM03 VA03 IW33",
+        "env": {}
+      }
+    },
+    {
+      "name": "sf-mcp",
+      "category": "product-specific",
+      "transport": "stdio",
+      "envVars": ["SF_API_URL", "SF_API_KEY"],
+      "doc": "skills/mcp-sap-successfactors/SKILL.md",
+      "description": "SuccessFactors (open-source, 62+ tools)",
+      "config": {
+        "install_hint": "git clone https://github.com/aiadiguru2025/sf-mcp.git; cd sf-mcp; uv sync; claude mcp add --transport stdio sf-mcp -- uv --directory /path/to/sf-mcp run main.py",
+        "env": {}
+      }
+    },
+    {
+      "name": "sf-cdata",
+      "category": "product-specific",
+      "transport": "stdio",
+      "envVars": [],
+      "doc": "skills/mcp-sap-successfactors/SKILL.md",
+      "description": "SuccessFactors (CData SQL-based, read-only - can JDBC license)",
+      "config": {
+        "install_hint": "Tai CData JDBC driver + MCP jar tu CData; claude mcp add --transport stdio sf-cdata -- java -jar /path/to/CDataMCP-jar-with-dependencies.jar /path/to/.env/sap-successfactors.prp",
+        "env": {}
+      }
+    },
+    {
+      "name": "sap-concur",
+      "category": "product-specific",
+      "transport": "stdio",
+      "envVars": [],
+      "doc": "skills/mcp-sap-concur/SKILL.md",
+      "description": "Concur Travel & Expense (CData SQL-based - can JDBC license)",
+      "config": {
+        "install_hint": "Tai CData JDBC driver + MCP jar tu CData; claude mcp add --transport stdio sap-concur -- java -jar /path/to/CDataMCP-jar-with-dependencies.jar /path/to/.env/sap-concur.prp",
+        "env": {}
+      }
+    },
+    {
+      "name": "sap-fieldglass",
+      "category": "product-specific",
+      "transport": "stdio",
+      "envVars": [],
+      "doc": "skills/mcp-sap-fieldglass/SKILL.md",
+      "description": "Fieldglass Services Procurement (CData SQL-based - can JDBC license)",
+      "config": {
+        "install_hint": "Tai CData JDBC driver + MCP jar tu CData; claude mcp add --transport stdio sap-fieldglass -- java -jar /path/to/CDataMCP-jar-with-dependencies.jar /path/to/.env/sap-fieldglass.prp",
+        "env": {}
+      }
+    }
+  ]
+}
