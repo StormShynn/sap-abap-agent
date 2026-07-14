@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
@@ -1672,6 +1672,31 @@ SAP_BTP_PROFILE=project1.s4hana.cloud.sap sap-btp-agent</code><button class="cop
       <p>Test plugin cục bộ (không cần cài vào marketplace):</p>
 
       <pre><code>claude --plugin-dir ./sap-abap-agent</code><button class="copy-btn" onclick="copyCode(this)">Sao chép</button></pre>
+    </section>
+
+    <!-- ===== CẬP NHẬT ===== -->
+    <section id="cap-nhat">
+      <h2><span class="section-icon">🔄</span> Cập nhật</h2>
+
+      <p>Có 2 cơ chế cập nhật tự động — chạy 1 lệnh là xong:</p>
+
+      <div class="features-grid">
+        <div class="feature-card" style="border-left:3px solid var(--green);">
+          <span class="fc-icon">🤖</span>
+          <h4>Auto (CI/CD)</h4>
+          <p>Mỗi lần push code mới vào <code>main</code>, GitHub Actions tự động: bump version trong <code>plugin.json</code> → build wheel <code>.whl</code> → tạo GitHub Release → tạo git tag <code>vX.Y.Z</code>. Claude Code marketplace thấy tag mới → tự nhắc bạn cập nhật plugin.</p>
+        </div>
+        <div class="feature-card" style="border-left:3px solid var(--accent);">
+          <span class="fc-icon">⬇️</span>
+          <h4>Local update (1 lệnh)</h4>
+          <p>Chạy script update để tải wheel mới nhất + pip install + git pull plugin:</p>
+          <pre style="margin:8px 0 0;font-size:12px;"><code style="background:none;padding:0;color:var(--text);"># Windows (PowerShell)
+.\reference\scripts\update.ps1
+
+# Linux / macOS
+bash reference/scripts/update.sh</code></pre>
+        </div>
+      </div>
     </section>
 
     <div class="divider"></div>

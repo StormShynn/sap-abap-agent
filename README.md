@@ -635,6 +635,20 @@ Trong Claude:
 - "iFlow tich hop S/4HANA voi SuccessFactors" -> `sap-cpi-consultant-cloud` + `sap-successfactors-consultant-cloud`
 - "BTP destination + Cloud Connector" -> `sap-btp-admin-consultant-cloud`
 
+## Cap nhat
+
+Tu dong (CI/CD): moi lan push code vao `main`, GitHub Actions bump version trong `plugin.json`, tao git tag `vX.Y.Z` — Claude Code marketplace tu dong phat hien va nhac ban cap nhat plugin.
+
+Local (1 lenh):
+```bash
+# Windows (PowerShell)
+.\reference\scripts\update.ps1
+
+# Linux / macOS
+bash reference/scripts/update.sh
+```
+Script tu dong: git pull plugin → tai wheel `.whl` moi nhat tu GitHub Release → `pip install --upgrade`.
+
 ## Loi thuong gap
 
 | Loi                                 | Cach sua                                                  |
