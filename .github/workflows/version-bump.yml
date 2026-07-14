@@ -1,0 +1,74 @@
+name: Auto Version Bump
+
+# Tu dong tang "version" trong .claude-plugin/plugin.json sau moi push vao main,
+# de Claude Code (marketplace/plugin update mechanism) nhan ra ban moi.
+on:
+  push:
+    branches: ["main"]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: "version-bump"
+  cancel-in-progress: false
+
+jobs:
+  bump-version:
+    # Chan vong lap: bo qua neu commit nay chinh la commit bump do workflow tao ra
+    if: >-
+      github.actor != 'github-actions[bot]' &&
+      !contains(github.event.head_commit.message, '[skip version-bump]')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Determine bump type from commit messages
+        id: bump
+        run: |
+          BEFORE="${{ github.event.before }}"
+          AFTER="${{ github.event.after }}"
+          if [[ "$BEFORE" =~ ^0+$ ]]; then
+            MESSAGES=$(git log -1 --format='%s%n%b' "$AFTER")
+          else
+            MESSAGES=$(git log "$BEFORE..$AFTER" --format='%s%n%b')
+          fi
+          echo "----- commits trong lan push nay -----"
+          echo "$MESSAGES"
+          echo "---------------------------------------"
+
+          BUMP="patch"
+          if echo "$MESSAGES" | grep -qiE '^[a-z]+(\([^)]*\))?!:|BREAKING CHANGE'; then
+            BUMP="major"
+          elif echo "$MESSAGES" | grep -qiE '^feat(\([^)]*\))?:'; then
+            BUMP="minor"
+          fi
+          echo "Bump type: $BUMP"
+          echo "type=$BUMP" >> "$GITHUB_OUTPUT"
+
+      - name: Bump version in plugin.json
+        id: version
+        run: |
+          CURRENT=$(jq -r '.version' .claude-plugin/plugin.json)
+          IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT"
+          case "${{ steps.bump.outputs.type }}" in
+            major) MAJOR=$((MAJOR + 1)); MINOR=0; PATCH=0 ;;
+            minor) MINOR=$((MINOR + 1)); PATCH=0 ;;
+            *)     PATCH=$((PATCH + 1)) ;;
+          esac
+          NEW_VERSION="$MAJOR.$MINOR.$PATCH"
+          echo "Bumping $CURRENT -> $NEW_VERSION"
+          jq --arg v "$NEW_VERSION" '.version = $v' .claude-plugin/plugin.json > /tmp/plugin.json
+          mv /tmp/plugin.json .claude-plugin/plugin.json
+          echo "new=$NEW_VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .claude-plugin/plugin.json
+          git commit -m "chore: bump version to ${{ steps.version.outputs.new }} [skip version-bump]"
+          git push
