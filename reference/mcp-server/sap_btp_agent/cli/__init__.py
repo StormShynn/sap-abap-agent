@@ -120,7 +120,7 @@ async def _wizard_setup(url: str) -> None:
     print("  3. Bearer token                 — Token co san (nhap tay)")
     print("  4. Cookie-based                 — SAP session cookies + web popup re-auth")
 
-    auth_choice = ask("Chon (1-4)", default="1")
+    auth_choice = ask("Chon (1-4)", default="4")
     auth_modes = {"1": "oauth2", "2": "password", "3": "bearer", "4": "cookie"}
     auth_mode = auth_modes.get(auth_choice, "oauth2")
     info(f"Auth mode: {auth_mode}")
@@ -154,7 +154,7 @@ async def _wizard_setup(url: str) -> None:
         password = ask("Password", secret=True)
         client_id = ask("Client ID")
         region = ask("Region", default="eu10")
-        service = ask("Service type (s4hc / btp / onprem)", default="s4hc")
+        service = ask("Service type (s4hc_(private) / s4hc_(public) / onprem)", default="s4hc_(public)")
 
         config_data.update({
             "clientId": client_id,
@@ -170,7 +170,7 @@ async def _wizard_setup(url: str) -> None:
     elif auth_mode == "bearer":
         token = ask("Bearer Token", secret=True)
         region = ask("Region", default="eu10")
-        service = ask("Service type (s4hc / btp / onprem)", default="s4hc")
+        service = ask("Service type (s4hc_(private) / s4hc_(public) / onprem)", default="s4hc_(public)")
 
         config_data.update({
             "region": region,
@@ -214,7 +214,7 @@ async def _wizard_setup(url: str) -> None:
             cookies = _parse_cookie_string(cookie_str)
 
         region = ask("Region", default="eu10")
-        service = ask("Service type (s4hc / btp / onprem)", default="s4hc")
+        service = ask("Service type (s4hc_(private) / s4hc_(public) / onprem)", default="s4hc_(public)")
 
         # Cache cookies trong secrets
         secrets_data["cookies"] = cookies

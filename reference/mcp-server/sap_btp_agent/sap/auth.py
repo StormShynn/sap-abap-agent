@@ -358,10 +358,25 @@ async def web_login_auto(ctx: dict[str, Any]) -> ReauthResult:
         login_url = f"{base_url.rstrip('/')}/sap/bc/adt/core/discovery"
         await page.goto(login_url)
 
-        try:
-            await page.wait_for_url("**/sap/bc/adt/**", timeout=300_000)
-            await page.wait_for_timeout(2000)
-        except Exception:
+        print("  👉 Vui long dang nhap trong cua so trinh duyet (cho toi 5 phut)...")
+
+        # Cho user dang nhap that su: poll session cookie xuat hien, KHONG dung
+        # wait_for_url("**/sap/bc/adt/**") vi URL vua goto() da khop pattern nay
+        # ngay lap tuc (chua he dang nhap), khien code chay tiep qua som.
+        important = {"MYSAPSSO2", "SAP_SESSIONID", "sap-contextid", "sap-usercontext"}
+        deadline = time.monotonic() + 300  # 5 phut, dong bo voi timeout cu
+        logged_in = False
+        while time.monotonic() < deadline:
+            current = {c["name"] for c in await context.cookies()}
+            if important & current:
+                logged_in = True
+                break
+            await page.wait_for_timeout(1000)
+
+        if logged_in:
+            # Cho request/redirect cuoi cung (sau submit form) hoan tat truoc khi doc cookie
+            await page.wait_for_timeout(1500)
+        else:
             print("  ⏰ Timeout cho login. Lay cookies hien tai...")
 
         cookies_raw = await context.cookies()
