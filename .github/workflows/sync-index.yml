@@ -1,0 +1,81 @@
+name: Sync index.html from CHANGELOG & README
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - "CHANGELOG.md"
+      - "README.md"
+      - "agents/*.md"
+      - "skills/*/SKILL.md"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: "sync-index"
+  cancel-in-progress: true
+
+jobs:
+  sync:
+    if: >-
+      github.actor != 'github-actions[bot]' &&
+      !contains(github.event.head_commit.message, '[skip sync-index]')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Extract version from CHANGELOG
+        id: version
+        run: |
+          VERSION=$(grep -oP '^## \[v?\K[^\]]+' CHANGELOG.md | head -1)
+          echo "version=v$VERSION" >> "$GITHUB_OUTPUT"
+          echo "latest version: v$VERSION"
+
+      - name: Count agents
+        id: agents
+        run: |
+          COUNT=$(ls -1 agents/*.md 2>/dev/null | wc -l)
+          echo "count=$COUNT" >> "$GITHUB_OUTPUT"
+          echo "agents: $COUNT"
+
+      - name: Count skills (exclude placeholder)
+        id: skills
+        run: |
+          TOTAL=$(ls -d skills/*/ 2>/dev/null | wc -l)
+          PLACEHOLDER=0
+          [ -d "skills/sap-user-skills" ] && PLACEHOLDER=1
+          COUNT=$((TOTAL - PLACEHOLDER))
+          echo "count=$COUNT" >> "$GITHUB_OUTPUT"
+          echo "skills: $COUNT"
+
+      - name: Sync version + counts into index.html
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          AGENTS="${{ steps.agents.outputs.count }}"
+          SKILLS="${{ steps.skills.outputs.count }}"
+
+          echo "Syncing: version=$VERSION agents=$AGENTS skills=$SKILLS"
+
+          # Sidebar line
+          sed -i "s/v[0-9]\+\.[0-9]\+\.[0-9]\+ · [0-9]\+ agents · [0-9]\+ skills/${VERSION} · ${AGENTS} agents · ${SKILLS} skills/g" index.html
+
+          # Also update "25 modules + N skills" / "N modules · N skills" patterns
+          sed -i "s/v[0-9]\+\.[0-9]\+\.[0-9]\+ · [0-9]\+ modules · [0-9]\+ skills/${VERSION} · ${AGENTS} agents · ${SKILLS} skills/g" index.html
+          sed -i "s/v[0-9]\+\.[0-9]\+\.[0-9]\+ · [0-9]\+ modules + [0-9]\+ skills/${VERSION} · ${AGENTS} agents · ${SKILLS} skills/g" index.html
+
+      - name: Commit and push
+        run: |
+          if git diff --quiet index.html; then
+            echo "No changes to index.html"
+          else
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add index.html
+            git commit -m "chore: sync index.html version/counts from CHANGELOG/README [skip sync-index]"
+            git push
+          fi

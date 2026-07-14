@@ -104,11 +104,24 @@ jobs:
                   s/sap_abap_agent_mcp-$OLD_VERSION-py3-none-any\.whl/sap_abap_agent_mcp-$NEW_VERSION-py3-none-any.whl/g" \
             README.md
 
+      - name: Sync version into index.html
+        run: |
+          VERSION="v${{ steps.version.outputs.new }}"
+          AGENTS=$(ls -1 agents/*.md 2>/dev/null | wc -l)
+          SKILLS=$(ls -d skills/*/ 2>/dev/null | wc -l)
+          [[ -d skills/sap-user-skills ]] && SKILLS=$((SKILLS - 1))
+
+          echo "Syncing index.html: version=$VERSION agents=$AGENTS skills=$SKILLS"
+
+          sed -i "s/v[0-9]\+\.[0-9]\+\.[0-9]\+ · [0-9]\+ agents · [0-9]\+ skills/${VERSION} · ${AGENTS} agents · ${SKILLS} skills/g" index.html
+          sed -i "s/v[0-9]\+\.[0-9]\+\.[0-9]\+ · [0-9]\+ modules · [0-9]\+ skills/${VERSION} · ${AGENTS} agents · ${SKILLS} skills/g" index.html
+          sed -i "s/v[0-9]\+\.[0-9]\+\.[0-9]\+ · [0-9]\+ modules + [0-9]\+ skills/${VERSION} · ${AGENTS} agents · ${SKILLS} skills/g" index.html
+
       - name: Commit and push
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add .claude-plugin/plugin.json
+          git add .claude-plugin/plugin.json index.html
           if [[ "${{ steps.changes.outputs.mcp }}" == "true" ]]; then
             git add reference/mcp-server/pyproject.toml \
                      reference/mcp-server/sap_btp_agent/cli/__init__.py \
