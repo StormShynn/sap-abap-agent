@@ -1,6 +1,6 @@
 ﻿# SAP ABAP Agent (tieng Viet)
 
-[![Version](https://img.shields.io/badge/version-0.8.3-blue.svg)](CHANGELOG.md) [![Python](https://img.shields.io/badge/Python-3.10+-blue.svg)](https://python.org) [![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE) [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](CODE_OF_CONDUCT.md) [![Security Policy](https://img.shields.io/badge/Security-View_Policy-blue.svg)](SECURITY.md) [![Changelog](https://img.shields.io/badge/Changelog-%23ff69b4.svg)](CHANGELOG.md) [![CI/CD](https://github.com/StormShynn/sap-abap-agent/actions/workflows/deploy.yml/badge.svg)](https://github.com/StormShynn/sap-abap-agent/actions/workflows/deploy.yml) [![GitHub Pages](https://img.shields.io/github/deployments/StormShynn/sap-abap-agent/github-pages?label=GitHub%20Pages&logo=github)](https://stormshynn.github.io/sap-abap-agent/)
+[![Version](https://img.shields.io/badge/version-1.3.3-blue.svg)](CHANGELOG.md) [![Python](https://img.shields.io/badge/Python-3.10+-blue.svg)](https://python.org) [![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE) [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](CODE_OF_CONDUCT.md) [![Security Policy](https://img.shields.io/badge/Security-View_Policy-blue.svg)](SECURITY.md) [![Changelog](https://img.shields.io/badge/Changelog-%23ff69b4.svg)](CHANGELOG.md) [![CI/CD](https://github.com/StormShynn/sap-abap-agent/actions/workflows/deploy.yml/badge.svg)](https://github.com/StormShynn/sap-abap-agent/actions/workflows/deploy.yml) [![GitHub Pages](https://img.shields.io/github/deployments/StormShynn/sap-abap-agent/github-pages?label=GitHub%20Pages&logo=github)](https://stormshynn.github.io/sap-abap-agent/)
 
 Plugin Claude Code + MCP server tu dong ket noi **SAP BTP / S/4HANA Cloud** de thao tac
 ABAP (doc / tim / syntax-check / activate). Ho tro **multi-profile** -- moi project SAP
@@ -9,7 +9,7 @@ co profile rieng (URL, tenant, secret), luu trong **folder user** tren may
 
 ## Noi bat
 
-- **🧠 SAP Consultant System (27 modules)**: Routing tu dong bang auto-scoring engine. 25 module
+- **🧠 SAP Consultant System (28 agents)**: Routing tu dong bang auto-scoring engine. 25 module
   consultants cho SD, FI, MM, CO, PP, QM, PM, WM, PS, HCM, BW, Basis, TM, TR, Ariba, CA, GTS, EHS,
   IBP, EWM, Fiori/UI5, CAP, CPI, SuccessFactors, BTP Admin + Docs Researcher + Daily Learner.
 - **🔌 SAP BTP Connection**: `sap-btp-agent` — ket noi S/4HANA Cloud, doc/activate ABAP, multi-profile.
@@ -661,9 +661,9 @@ Script tu dong: git pull plugin → tai wheel `.whl` moi nhat tu GitHub Release 
 
 ## Trang thai
 
-v0.8.3 -- **27 agents (25 modules + 1 researcher + 1 daily learner)** voi auto-scoring routing engine,
+v1.3.3 -- **28 agents (25 modules + 1 researcher + 1 daily learner + 1 reviewer)** voi auto-scoring routing engine,
 CDS KB, SAP Docs Research, ABAP Cloud clean code, extensibility, key user toolkit, Hermes-like self-improving learning.
 **Moi:** Fiori/UI5, CAP, CPI, SuccessFactors, BTP Admin consultants; state cua plugin
 (`sap-daily-learner`, cache, session/handoff) chuyen tu project-relative sang
 `%USERPROFILE%\.sap-abap-agent\` dung, kem script tu don cache/log qua 7 ngay
-(xem CHANGELOG v0.8.3).
+(xem CHANGELOG v1.3.3).
