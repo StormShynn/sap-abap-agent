@@ -130,6 +130,13 @@ jobs:
           git commit -m "chore: bump version to ${{ steps.version.outputs.new }} [skip version-bump]"
           git push
 
+      - name: Tag plugin version
+        run: |
+          PLUGIN_VERSION="v${{ steps.version.outputs.new }}"
+          git tag "$PLUGIN_VERSION"
+          git push origin "$PLUGIN_VERSION"
+          echo "Tagged plugin: $PLUGIN_VERSION"
+
   release-mcp-server:
     needs: bump-version
     if: needs.bump-version.outputs.mcp_changed == 'true'
