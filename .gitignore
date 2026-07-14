@@ -44,7 +44,7 @@ skills/sap-user-skills/*
 # sap-daily-learner: memory 3 tang (episodic/semantic/procedural - ca nhan, khong track)
 .sap-abap-agent/memory/
 
-# sap-context-tool-result-trim: cache full output truoc khi mask (ca nhan, khong track)
+# sap-context-tool-result-trim (reference/process/): cache full output truoc khi mask (ca nhan, khong track)
 .sap-abap-agent/cache/
 
 # Env / secrets (duoc ma hoa nhung can than)

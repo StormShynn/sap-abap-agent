@@ -66,6 +66,19 @@ biet, tu cac skill/README trong plugin nay).
   process VS Code, khong ghi ra file config tinh nao de doc duoc. Kiem tra
   qua VS Code Chat: go `@mcp`.
 
+## Cong cu lien quan (ngoai plugin nay)
+
+Skill nay + `mcp_register.py` chi doc/dang ky server theo danh sach da biet cua
+rieng plugin sap-abap-agent — khong co lenh bat/tat 1 server rieng le (Claude
+Code CLI cung khong co, chi co `claude plugin enable/disable` cho ca plugin).
+Neu ban dung nhieu coding agent (Claude Code, Claude Desktop, Codex CLI, Gemini
+CLI...) va muon 1 UI trung tam de bat/tat tung MCP server cho tung tool ma
+khong sua tay `.claude.json`/`.mcp.json`, xem thu
+[mcp-switch](https://github.com/StormShynn/mcp-switch) — cong cu desktop rieng
+cua tac gia plugin nay (Tauri + Rust + React), dung 1 store SSOT
+(`~/.mcp-switch/store.json`) roi ghi lai config native cua tung tool. Doc lap
+hoan toan voi plugin nay, khong bat buoc phai cai.
+
 ## Cap nhat inventory
 
 Khi 1 skill moi bat dau (hoac ngung) doc huong dan `claude mcp add ...`, sua

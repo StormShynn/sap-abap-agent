@@ -1,21 +1,11 @@
----
-name: sap-context-module-routing
-description: |
-  Pattern 2-layer cho reference/modules: tach thanh CORE (luôn load khi dispatch module) + DEEP
-  (chi load khi agent can chi tiet SSCUI/API/Fiori/gotcha). Giam context token khi 18 module
-  consultant duoc dispatch song song (sap-ask-consultant).
-  Dung khi refactor reference/modules/sap-[module]-cloud/SKILL.md hien tai (da co full content)
-  thanh 2 file: SKILL.md (core) + deep/SKILL.md (full cu).
-  KHONG dung cho module moi chua co content (viet core truc tiep tu dau).
-when_to_use: |
-  "tach module thanh core+deep", "context module consultant dang phinh",
-  "refactor reference module FI/MM/SD sang 2 layer".
-argument-hint: "[ten-module]"
-model: haiku
-effort: low
----
-
 # SAP Context Module Routing - 2-layer cho reference modules
+
+**Dung o dau**: tai lieu huong dan cho TAC GIA PLUGIN khi can tach 1 module moi trong
+`reference/modules/` thanh core+deep (khong phai nhu cau nghiep vu hang ngay cua consultant).
+Da chuyen tu `skills/` sang day vi khong tu trigger qua ngon ngu tu nhien - neu ban (tac gia
+plugin) muon ap dung lai quy trinh nay cho 1 module chua tach, hay yeu cau Claude doc truc tiep
+file nay (vd "doc reference/process/sap-context-module-routing.md roi tach module BW theo dung
+pattern").
 
 ## Ly do
 
@@ -71,7 +61,7 @@ Agent duoc chi dinh load `deep/SKILL.md` nhu the nao:
 
 ### Buoc 4: Tich hop (CORE §4)
 
-Liet ke cac skill lien quan (`sap-extensibility`, `sap-clean-code`, `sap-docs-researcher`,
+Liet ke cac skill lien quan (`sap-extensibility`, `sap-clean-code`, `sap-docs-research`,
 `sap-cds-kb`) de agent biet phoi hop.
 
 ### Buoc 5: Move file cu + ghi file moi
@@ -118,5 +108,5 @@ load deep khi user hoi cu the ve SSCUI/API/Fiori.
 ## Luu y
 
 - ⚠️ KHONG tu y sua DEEP file khi tach — chi move + ghi CORE moi.
-- 💡 Ap dung lan luot cho 17 module con lai (uu tien: FI, MM, SD, CO vi hay duoc dispatch).
+- 💡 Ap dung lan luot cho cac module con lai (uu tien: nhung module hay duoc dispatch).
 - 🔗 Track progress tach module trong `LEARNING_PROGRESS.md` (skill `sap-daily-learner`).

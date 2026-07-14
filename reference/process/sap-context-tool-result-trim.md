@@ -1,20 +1,10 @@
----
-name: sap-context-tool-result-trim
-description: |
-  Quy tac trim/compact output cua MCP tools (cds-kb, sap-docs, sap-btp-agent) truoc khi dua vao context,
-  theo ky thuat observation-masking cua context-engineering. Dung khi output MCP tool > ~2K token
-  (mot CDS view definition, batch source code, danh sach 20+ items, raw ATClog) va con phai xu ly
-  them nhieu buoc tiep theo.
-  KHONG dung cho output nho (<2K) - tra nguyen de khong mat thong tin.
-when_to_use: |
-  "trim output cds-kb", "output search_cds qua dai", "view definition dai qua",
-  "compact ATClog", "context dang phinh vi MCP tra nhieu".
-argument-hint: "[mcp-tool-output-can-trim]"
-model: haiku
-effort: low
----
-
 # SAP Context Tool-Result Trim - Compact output MCP truoc khi vao context
+
+**Dung o dau**: ky thuat noi bo, khong tu trigger qua tu khoa nua (da chuyen tu `skills/` sang day)
+— duoc ap dung boi: `skills/sap-cds-kb` (Pattern A/B), `skills/sap-analyze-function-spec` (FS lon),
+`skills/sap-scaffold-rap`/`skills/sap-scaffold-cds` (Pattern C), `skills/sap-atc-review` (Pattern D),
+va nhac toi trong Tier 2.2 cua noi dung `sap-routing-discipline` (bom qua SessionStart hook). Khi
+1 trong cac skill do can ap dung ky thuat trim, chung se tro (`Read`) truc tiep den file nay.
 
 ## Khi nao dung
 

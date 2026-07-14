@@ -37,7 +37,7 @@ Hoi thang, KHONG tu doan:
 
 ### Buoc 2a: Neu user cho ten package co san — xac minh (tuy che do tich hop)
 
-- **Co MCP ADT ket noi** (xem skill `mcp-sap-adt`): dung `SearchObjects`/tuong duong kiem tra
+- **Co MCP ADT ket noi** (xem `reference/mcp-guides/mcp-sap-adt.md`): dung `SearchObjects`/tuong duong kiem tra
   package **ton tai that** va **thuoc namespace customer** (khong phai package chuan SAP — vd
   khong bat dau `SAP*`). Neu KHONG ton tai hoac la package chuan SAP -> BAO user, KHONG tu tao/tu
   doi huong sang package khac, hoi lai ten khac.

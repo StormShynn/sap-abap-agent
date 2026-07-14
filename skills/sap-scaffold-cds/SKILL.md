@@ -38,10 +38,10 @@ skill `sap-doc-to-md` de biet duong dan day du).
 
 Neu build tren du lieu standard SAP (khong phai `ztb_*` custom):
 1. Tim CDS base theo phan he — hoi agent consultant tuong ung (vd `sap-mm-consultant-cloud`) hoac
-   `sap-docs-researcher` / skill `sap-cds-kb`. Uu tien `I_*` (VDM interface) da released, khop
+   `sap-docs-research` / skill `sap-cds-kb`. Uu tien `I_*` (VDM interface) da released, khop
    nghiep vu + field FS yeu cau.
 2. **Verify released** cho dung version Cloud dang dung (catalog KHONG tu noi released) — dung
-   `sap-docs-researcher` hoac View Browser trong Eclipse ADT.
+   `sap-docs-research` hoac View Browser trong Eclipse ADT.
 3. Neu chua released hoac thieu field -> tim nguon chinh thong (`api.sap.com`/`help.sap.com`).
    `ZI_*` cua ta `select from` view base do; KHONG tu bia ten view standard.
 

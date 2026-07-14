@@ -8,7 +8,6 @@ skills:
   - sap-fiori-cloud
   - sap-extensibility
   - sap-clean-code
-  - sapui5-fiori
   - sap-btp-connectivity
   - sap-abap-sql
   - sap-authorization

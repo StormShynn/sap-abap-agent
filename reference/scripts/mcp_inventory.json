@@ -57,7 +57,7 @@
       "category": "adt-alternative",
       "transport": "stdio",
       "envVars": [],
-      "doc": "skills/mcp-sap-adt/SKILL.md",
+      "doc": "reference/mcp-guides/mcp-sap-adt.md",
       "description": "Enterprise ADT MCP (XSUAA, audit log) - alternative to sap-btp",
       "config": {
         "command": "npx",
@@ -70,7 +70,7 @@
       "category": "adt-alternative",
       "transport": "stdio",
       "envVars": ["ADT_URL", "ADT_USER", "ADT_PASS", "ADT_CLIENT"],
-      "doc": "skills/mcp-sap-adt/SKILL.md",
+      "doc": "reference/mcp-guides/mcp-sap-adt.md",
       "description": "Community read-only ADT MCP (mario-andreschak) - needs its own basic auth",
       "config": {
         "command": "npx",
@@ -88,7 +88,7 @@
       "category": "adt-alternative",
       "transport": "stdio",
       "envVars": [],
-      "doc": "skills/mcp-sap-adt/SKILL.md",
+      "doc": "reference/mcp-guides/mcp-sap-adt.md",
       "description": "Full-CRUD ADT MCP (fr0ster) - superseded by sap-dict-bridge, kept for reference",
       "config": {
         "command": "npx",
@@ -113,7 +113,7 @@
       "category": "product-specific",
       "transport": "stdio",
       "envVars": [],
-      "doc": "skills/mcp-sap-gui/SKILL.md",
+      "doc": "reference/mcp-guides/mcp-sap-gui.md",
       "description": "SAP GUI Scripting automation (Windows, SAP GUI required)",
       "config": {
         "install_hint": "pip install uvx (neu chua co); claude mcp add --transport stdio sap-gui -- uvx mcp-sap-gui[screenshots] --read-only --allowed-transactions MM03 VA03 IW33",
@@ -125,7 +125,7 @@
       "category": "product-specific",
       "transport": "stdio",
       "envVars": ["SF_API_URL", "SF_API_KEY"],
-      "doc": "skills/mcp-sap-successfactors/SKILL.md",
+      "doc": "reference/mcp-guides/mcp-sap-successfactors.md",
       "description": "SuccessFactors (open-source, 62+ tools)",
       "config": {
         "install_hint": "git clone https://github.com/aiadiguru2025/sf-mcp.git; cd sf-mcp; uv sync; claude mcp add --transport stdio sf-mcp -- uv --directory /path/to/sf-mcp run main.py",
@@ -137,7 +137,7 @@
       "category": "product-specific",
       "transport": "stdio",
       "envVars": [],
-      "doc": "skills/mcp-sap-successfactors/SKILL.md",
+      "doc": "reference/mcp-guides/mcp-sap-successfactors.md",
       "description": "SuccessFactors (CData SQL-based, read-only - can JDBC license)",
       "config": {
         "install_hint": "Tai CData JDBC driver + MCP jar tu CData; claude mcp add --transport stdio sf-cdata -- java -jar /path/to/CDataMCP-jar-with-dependencies.jar /path/to/.env/sap-successfactors.prp",

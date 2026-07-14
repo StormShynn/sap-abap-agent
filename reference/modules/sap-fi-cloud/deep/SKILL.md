@@ -75,5 +75,5 @@ Ap dung bac thang trong `sap-extensibility` muc 2. Vi du cu the cho FI:
 
 - Skill `sap-extensibility` — bac thang mo rong (uu tien bac 1, 2, 3 truoc side-by-side).
 - Skill `sap-clean-code` — naming convention cho custom FI object.
-- `sap-docs-researcher` — xac minh release cu the tren SAP Help/Community/API Hub.
+- `sap-docs-research` — xac minh release cu the tren SAP Help/Community/API Hub.
 - Skill `sap-cds-kb` — tra cuu CDS view released (`I_JournalEntryItem`, `I_BusinessPartner`).

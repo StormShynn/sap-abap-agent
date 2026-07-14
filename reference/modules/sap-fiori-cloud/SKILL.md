@@ -1,6 +1,6 @@
 ---
 name: sap-fiori-cloud
-description: Kien thuc SAP Fiori / UI5 — Fiori Elements, Freestyle UI5, Adaptation Project, Launchpad, SAP Build. Dung khi user hoi ve Fiori app, giao dien UI5, tuy chinh Fiori tren Public Cloud.
+description: Kien thuc SAP Fiori / UI5 — Fiori Elements, Freestyle UI5, Adaptation Project, Launchpad, SAP Build, Fiori Tools/BAS. Dung khi user hoi ve Fiori app, giao dien UI5, tuy chinh Fiori tren Public Cloud.
 effort: low
 model: haiku
 ---
@@ -21,8 +21,8 @@ model: haiku
 | "annotation / them field UI" | deep §3 CDS Annotation |
 | "Launchpad / role / catalog" | deep §4 Launchpad Config |
 | "SAP Build / low-code UI" | deep §5 SAP Build |
-| "UI5 custom control / freestyle" | deep §6 UI5 development |
-
+| "Fiori Tools / BAS setup" | deep §6 Fiori Tools (BAS) |
+| "UI5 custom control / freestyle" | deep §7 Freestyle UI5 |
 ## 3. Lenh goi agent
 1. Doc `deep/SKILL.md` theo section lien quan (dung `Grep` de vi tri).
 2. Cross-check Fiori ID/API tren Fiori Apps Library / api.sap.com neu can.

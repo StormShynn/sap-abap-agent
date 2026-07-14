@@ -11,7 +11,7 @@ co profile rieng (URL, tenant, secret), luu trong **folder user** tren may
 
 - **🧠 SAP Consultant System (28 agents)**: Routing tu dong bang auto-scoring engine. 25 module
   consultants cho SD, FI, MM, CO, PP, QM, PM, WM, PS, HCM, BW, Basis, TM, TR, Ariba, CA, GTS, EHS,
-  IBP, EWM, Fiori/UI5, CAP, CPI, SuccessFactors, BTP Admin + Docs Researcher + Daily Learner.
+  IBP, EWM, Fiori/UI5, CAP, CPI, SuccessFactors, BTP Admin + Docs Researcher + Daily Learner + Reviewer.
 - **🔌 SAP BTP Connection**: `sap-btp-agent` — ket noi S/4HANA Cloud, doc/activate ABAP, multi-profile.
 - **🧱 DDIC Dictionary Bridge**: `sap-dict-bridge` MCP server (`sap_create_domain`/`sap_create_data_element`/
   `sap_create_table`) — tao Domain/Data Element/Table truc tiep qua cookie auth cua `sap-btp-agent`
@@ -42,7 +42,7 @@ sap-abap-agent/
 +-- .claude-plugin/            # Manifest plugin Claude Code
 +-- commands/                  # /sap-connect
 +-- skills/
-|   +-- sap-ask-consultant/    # 🧠 Auto-scoring routing engine (25 modules)
+|   +-- sap-ask-consultant/    # 🧠 Auto-scoring routing engine (28 agents)
 |   +-- sap-daily-learner/     # 📚 Daily SAP Learning — Hermes-like (self-improving)
 |   +-- sap-btp-setup/         # Setup & troubleshoot SAP BTP connection
 |   +-- sap-clean-code/        # ABAP Cloud naming conventions & clean code
@@ -53,56 +53,54 @@ sap-abap-agent/
 |   +-- sap-doc-to-md/         # Convert Word/Excel sang Markdown (markitdown)
 |   +-- sap-analyze-function-spec/  # FS.docx -> INTAKE.md (buoc 1 codegen pipeline)
 |   +-- sap-write-technical-spec/   # INTAKE.md -> TECHNICAL_SPEC.md (buoc 2)
-|   +-- sap-cloud-dictionary/       # Tao Domain/Data Element/Database Table ABAP Cloud (DDIC)
-|   +-- sap-bootstrap-system-context/ # Do he thong that qua MCP truoc khi scaffold (optional, buoc 2.5)
+|   +-- sap-cloud-dictionary/       # Tao Domain/Data Element/Database Table (DDIC)
+|   +-- sap-bootstrap-system-context/ # Do he thong that qua MCP truoc khi scaffold
 |   +-- sap-scaffold-rap/           # TECHNICAL_SPEC.md -> RAP 3-layer skeleton (buoc 3)
 |   +-- sap-scaffold-cds/           # -> CDS view skeleton, pattern read-only (buoc 3)
-|   +-- sap-scaffold-cds-analytics/ # -> Cube/Dimension/Text + Analytical Query (embedded analytics)
+|   +-- sap-scaffold-cds-analytics/ # -> Cube/Dimension/Text + Analytical Query
 |   +-- sap-virtual-element/        # Calculated field trong CDS view
 |   +-- sap-atc-review/             # Lint naming/released-API/clean-ABAP (buoc 4)
 |   +-- sap-unit-test/              # Sinh ABAP Unit test class (buoc 5)
-|   +-- sap-cds-unit-test/          # Test CDS view/RAP BO qua Test Double Framework (buoc 5)
-|   +-- sap-migrate-segw-to-rap/    # Reverse-engineer SEGW OData V2 sang RAP OData V4
-|   +-- sap-finish-ticket/          # Checklist dong ticket - activation/ATC/test/transport (buoc 6)
-|   +-- sap-verification-before-completion/  # Bang chung chay that truoc khi bao "xong"
-|   +-- sap-systematic-debugging/   # Debug runtime co he thong (ST22/SAT/breakpoint)
-|   +-- sap-routing-discipline/     # Bom qua SessionStart hook - ep check routing truoc khi tra loi
-|   +-- sap-context-tool-result-trim/  # Trim/compact MCP tool output (observation masking)
-|   +-- sap-scaffold-context-summary/   # Compact giua cac layer scaffold 3-layer
-|   +-- sap-context-module-routing/     # Pattern 2-layer (CORE+DEEP) cho reference modules
+|   +-- sap-cds-unit-test/          # Test CDS view/RAP BO (buoc 5)
+|   +-- sap-migrate-segw-to-rap/    # Reverse-engineer SEGW -> RAP
+|   +-- sap-finish-ticket/          # Checklist dong ticket (buoc 6)
+|   +-- sap-verification-before-completion/  # Bang chung chay that
+|   +-- sap-systematic-debugging/   # Debug runtime co he thong
+|   +-- sap-routing-discipline/     # SessionStart hook - ep check routing
+|   +-- sap-mcp-status/             # Audit MCP server registration
+|   +-- ... (12 skills khac: mcp-sap-notes, mcp-sap-concur, mcp-sap-fieldglass,
+|   |       sap-released-classes, sap-abap-sql, sap-badi-enhancement,
+|   |       sap-authorization, sap-odata-service, sap-rap-events,
+|   |       sap-cloud-migration, sap-btp-connectivity, sap-btp-best-practices)
 +-- agents/
-|   +-- abap-reviewer.md       # Review code ABAP Cloud
-|   +-- sap-ask-consultant dispatch toi 25 module consultants:
-|   |   +-- sap-sd-consultant-cloud   # Sales & Distribution
-|   |   +-- sap-fi-consultant-cloud   # Financial Accounting
-|   |   +-- sap-mm-consultant-cloud   # Materials Management
-|   |   +-- sap-co-consultant-cloud   # Controlling
-|   |   +-- sap-pp-consultant-cloud   # Production Planning
-|   |   +-- sap-qm-consultant-cloud   # Quality Management
-|   |   +-- sap-pm-consultant-cloud   # Plant Maintenance
-|   |   +-- sap-wm-consultant-cloud   # Warehouse Management
-|   |   +-- sap-ps-consultant-cloud   # Project Systems
-|   |   +-- sap-hcm-consultant-cloud  # Human Capital Management
-|   |   +-- sap-bw-consultant-cloud   # Analytics / BW
-|   |   +-- sap-basis-consultant-cloud# Basis / Technical Admin
-|   |   +-- sap-tm-consultant-cloud   # Transportation Management
-|   |   +-- sap-tr-consultant-cloud   # Treasury & Cash Management
-|   |   +-- sap-ariba-consultant-cloud# Procurement Collaboration
-|   |   +-- sap-ca-consultant-cloud   # Cross-Application Functions
-|   |   +-- sap-gts-consultant-cloud  # Global Trade Services
-|   |   +-- sap-ehs-consultant-cloud  # Environment, Health & Safety
-|   |   |   +-- **sap-ibp-consultant-cloud**    # Supply Chain Planning (IBP)
-|   |   +-- **sap-ewm-consultant-cloud**    # Extended Warehouse (EWM)
-|   |   +-- **sap-fiori-consultant-cloud**  # 🆕 Fiori/UI5 (Fiori Elements, Adaptation)
-|   |   +-- **sap-cap-consultant-cloud**    # 🆕 CAP (Cloud Application Programming)
-|   |   +-- **sap-cpi-consultant-cloud**    # 🆕 CPI (Cloud Platform Integration)
-|   |   +-- **sap-successfactors-consultant-cloud** # 🆕 SuccessFactors (HXM Cloud)
-|   |   +-- **sap-btp-admin-consultant-cloud** # 🆕 BTP Admin (Platform Administration)
+|   +-- sap-ask-consultant/    # Auto-scoring routing — dispatch toi 28 agents:
+|   |   +-- 25 module consultants (SD, FI, MM, CO, PP, QM, PM, WM, PS, HCM,
+|   |   |   BW, Basis, TM, TR, Ariba, CA, GTS, EHS, IBP, EWM, Fiori, CAP,
+|   |   |   CPI, SuccessFactors, BTP Admin)
 |   |   +-- sap-docs-researcher       # CDS view & Docs Research
-+-- hooks/                   # Canh bao SELECT * (PostToolUse) + routing discipline (SessionStart)
+|   |   +-- sap-daily-learner         # Daily SAP Learning (Hermes-like)
+|   |   +-- abap-reviewer             # Review code ABAP Cloud
+|   +-- sap-btp-admin-consultant-cloud  # BTP Platform Administration
+|   +-- sap-cap-consultant-cloud        # CAP (Cloud Application Programming)
++-- hooks/                   # Canh bao SELECT * (PostToolUse) + routing (SessionStart)
 +-- reference/
     +-- modules/             # Kien thuc module cho tung consultant
     |   +-- sap-[module]-cloud/SKILL.md
+    |   +-- sap-steampunk-cloud/SKILL.md
+    +-- process/             # Context engineering (da chuyen tu skills/)
+    |   +-- sap-context-tool-result-trim.md   # Observation masking
+    |   +-- sap-scaffold-context-summary.md   # Compact giua cac layer scaffold
+    |   +-- sap-context-module-routing.md     # 2-layer core+deep routing
+    +-- mcp-guides/          # MCP setup reference (da chuyen tu skills/)
+    |   +-- mcp-sap-adt.md              # ADT MCP (3 options)
+    |   +-- mcp-sap-gui.md              # SAP GUI Automation
+    |   +-- mcp-sap-successfactors.md   # SuccessFactors MCP
+    |   +-- mcp-sap-cdata-setup.md      # CData MCP common setup
+    +-- scripts/             # Lint, validate, cleanup, update
+    |   +-- agent_home.py, check_service_type.py, cleanup_agent_home.py,
+    |   +-- mcp_common.py, mcp_status.py, mcp_inventory.json,
+    |   +-- validate_plugin.py, sync_skills.py, office_to_md.py,
+    |   +-- security_scan.py, update.ps1, update.sh, ...
     +-- mcp-server/          # MCP server Python (multi-profile)
         +-- sap_btp_agent/
         |   +-- config/        # paths, profile (registry), store, secrets
@@ -190,7 +188,7 @@ Wizard se tu sinh profile id tu hostname (`project1.s4hana.cloud.sap`) va hoi ph
 
    Sau khi co cookie, tu dong re-auth qua browser popup (hoac Playwright) moi lan session het han (401).
 
-Sau do hoi them Region, service type.
+Sau do hoi them Region, service type (s4hc_(private) / s4hc_(public) / btp / onprem).
 
 Thong tin duoc luu rieng trong `profiles/<id>/`:
 
@@ -226,6 +224,14 @@ sap-btp-agent connect project1.s4hana.cloud.sap  # test 1 profile cu the
 ```
 
 ## Dang ky MCP voi Claude Code
+
+> **Quan ly nhieu MCP server cung luc?** Cac phan duoi day huong dan `claude mcp add`
+> tung server rieng le. Neu ban dung nhieu coding agent (Claude Code, Claude Desktop,
+> Codex CLI, Gemini CLI...) va muon 1 cho bat/tat MCP server cho tat ca thay vi sua tay
+> tung file config, xem thu [mcp-switch](https://github.com/StormShynn/mcp-switch) —
+> desktop app (Tauri + Rust) rieng cua tac gia plugin nay, dung 1 store trung tam
+> (`~/.mcp-switch/store.json`) roi ghi lai config native cua tung tool khi ban bat/tat.
+> Doc lap voi plugin nay, khong bat buoc.
 
 `sap-btp-agent` goi khong co argument se chay MCP stdio server (`sap_btp_agent/server.py`), serve cac tool
 ben duoi qua JSON-RPC. Da test end-to-end (initialize -> tools/list -> tools/call) truoc khi cong bo.
@@ -340,7 +346,7 @@ claude mcp add --transport stdio sap-gui -- uvx mcp-sap-gui[screenshots] \
   --read-only --allowed-transactions MM03 VA03 IW33
 ```
 
-**Yeu cau**: Windows + SAP GUI + SAP GUI Scripting enabled (xem skill `mcp-sap-gui`).
+**Yeu cau**: Windows + SAP GUI + SAP GUI Scripting enabled (xem `reference/mcp-guides/mcp-sap-gui.md`).
 
 | Tool | Mo ta |
 |------|-------|
@@ -512,7 +518,7 @@ Cache/log trong do tu don theo tuoi (mac dinh 7 ngay, xem
 ## 🧠 SAP Consultant System (Auto-scoring Routing Engine)
 
 `skills/sap-ask-consultant/SKILL.md` la skill trung tam, dispatch cau hoi user toi **25 module
-consultants + 1 researcher + 1 daily learner** bang co che **keyword scoring + parallel dispatch**.
+consultants + 1 researcher + 1 daily learner + 1 reviewer** bang co che **keyword scoring + parallel dispatch**.
 
 ### Cach hoat dong
 
@@ -667,3 +673,4 @@ CDS KB, SAP Docs Research, ABAP Cloud clean code, extensibility, key user toolki
 (`sap-daily-learner`, cache, session/handoff) chuyen tu project-relative sang
 `%USERPROFILE%\.sap-abap-agent\` dung, kem script tu don cache/log qua 7 ngay
 (xem CHANGELOG v1.3.3).
+

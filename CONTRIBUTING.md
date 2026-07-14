@@ -506,8 +506,8 @@ claude --plugin-dir ./sap-abap-agent
 
 ### ⚠️ File không nên push lên repo
 
-State cá nhân của các skill (`sap-daily-learner` memory, `sap-context-tool-result-trim` cache,
-`sap-scaffold-context-summary`/`sap-analyze-function-spec`/`sap-handoff` sessions & handoff)
+State cá nhân của các skill (`sap-daily-learner` memory, `reference/process/sap-context-tool-result-trim.md` cache,
+`reference/process/sap-scaffold-context-summary.md`/`sap-analyze-function-spec`/`sap-handoff` sessions & handoff)
 **mặc định KHÔNG còn ghi vào project nữa** — ghi vào `%USERPROFILE%\.sap-abap-agent\` (xem mục
 "🏠 SAP_ABAP_AGENT_HOME" ngay dưới đây), nên bình thường không có gì để lo push nhầm. Các dòng
 dưới đây chỉ phát sinh trong project khi bạn tự đặt `SAP_ABAP_AGENT_HOME` trỏ vào đây để
@@ -517,7 +517,7 @@ dev/test (đã có sẵn trong `.gitignore`):
 .sap-abap-agent/LEARNING_PROGRESS.md   # Path cu (da thay bang memory/semantic/LEARNING_PROGRESS.md)
 skills/sap-user-skills/                # Auto-created skills (cá nhân), KHÔNG push
 .sap-abap-agent/memory/                # sap-daily-learner: episodic/semantic/procedural
-.sap-abap-agent/cache/                 # sap-context-tool-result-trim: cache full output
+.sap-abap-agent/cache/                 # reference/process/sap-context-tool-result-trim.md: cache full output
 .sap-abap-agent/sessions/              # Handoff/scaffold working state (cá nhân)
 .sap-abap-agent/handoff/               # Handoff docs (cá nhân)
 .sap-abap-agent/sync_skills.lock       # Lock file của daemon sync_skills.py

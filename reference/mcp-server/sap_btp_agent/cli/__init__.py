@@ -1,4 +1,4 @@
-﻿"""CLI entry point: sap-btp-agent setup / connect / profiles / reset.
+"""CLI entry point: sap-btp-agent setup / connect / profiles / reset.
 
 Usage:
   sap-btp-agent                              Chay MCP stdio server (khong argument)
@@ -27,9 +27,27 @@ from ..config.profile import (
     upsert_profile,
 )
 from ..config.secrets import save_secrets
-from ..config.store import save_config
+from ..config.store import (
+    SERVICE_TYPE_DEFAULT,
+    SERVICE_TYPES,
+    normalize_service_type,
+    save_config,
+)
 from .prompt import ask, header, info, ok, warn
+def _ask_service() -> str:
+    """Hoi service type voi schema moi (s4hc_(private)/s4hc_(public)/btp/onprem).
 
+    Tuong thich nguoc: neu user nhap gia tri cu ("s4hc") thi tu dong anh xa
+    sang gia tri moi tuong ung. Validate ngay khi nhap de tranh config sai.
+    """
+    opts = " / ".join(SERVICE_TYPES)
+    raw = ask(f"Service type ({opts})", default=SERVICE_TYPE_DEFAULT)
+    while True:
+        try:
+            return normalize_service_type(raw)
+        except ValueError as err:
+            print(f"  -> {err}")
+            raw = ask(f"Service type ({opts})", default=SERVICE_TYPE_DEFAULT)
 
 def main() -> None:
     """Entry point: sap-btp-agent <command> [args...]
@@ -141,7 +159,7 @@ async def _wizard_setup(url: str) -> None:
         client_secret = ask("Client Secret", secret=True)
         scope = ask("Scope (de trong neu khong can)", default="")
         region = ask("Region", default="eu10")
-        service = ask("Service type (s4hc / btp / onprem)", default="s4hc")
+        service = _ask_service()
 
         config_data.update({
             "clientId": client_id,
@@ -158,7 +176,7 @@ async def _wizard_setup(url: str) -> None:
         password = ask("Password", secret=True)
         client_id = ask("Client ID")
         region = ask("Region", default="eu10")
-        service = ask("Service type (s4hc_(private) / s4hc_(public) / onprem)", default="s4hc_(public)")
+        service = _ask_service()
 
         config_data.update({
             "clientId": client_id,
@@ -174,7 +192,7 @@ async def _wizard_setup(url: str) -> None:
     elif auth_mode == "bearer":
         token = ask("Bearer Token", secret=True)
         region = ask("Region", default="eu10")
-        service = ask("Service type (s4hc_(private) / s4hc_(public) / onprem)", default="s4hc_(public)")
+        service = _ask_service()
 
         config_data.update({
             "region": region,
@@ -218,7 +236,7 @@ async def _wizard_setup(url: str) -> None:
             cookies = _parse_cookie_string(cookie_str)
 
         region = ask("Region", default="eu10")
-        service = ask("Service type (s4hc_(private) / s4hc_(public) / onprem)", default="s4hc_(public)")
+        service = _ask_service()
 
         # Cache cookies trong secrets
         secrets_data["cookies"] = cookies
@@ -510,3 +528,6 @@ def _load_cookies_from_file(filepath: str) -> dict[str, str]:
 
 if __name__ == "__main__":
     main()
+
+
+

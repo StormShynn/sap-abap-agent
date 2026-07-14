@@ -71,15 +71,15 @@ Cho tung entity/field trong INTAKE muc 5.4:
    engine thay vi tu chon: tu dong phat hien **module coupling** khi ticket dung nhieu phan he cung
    luc (vd Sales Order dung ca SD+FI, Purchase Order dung ca MM+FI — xem bang coupling trong
    `sap-ask-consultant`) va dispatch song song, tranh bo sot goc nhin 1 phan he. Cau hoi mau: "CDS
-   view/field nao chuan cho nghiep vu <trich muc 5.4 INTAKE>". Ket hop `sap-docs-researcher` /
+   view/field nao chuan cho nghiep vu <trich muc 5.4 INTAKE>". Ket hop `sap-docs-research` /
    skill `sap-cds-kb` de tra cuu ky thuat (field/association) sau khi da co huong tu consultant.
 2. Uu tien CDS `I_*` (VDM interface) da released, khop field FS yeu cau, theo dung goi y cua
    consultant — KHONG tu doan CDS view khi consultant chua tra loi.
 3. **Verify released** cho dung version S/4HANA Cloud dang dung (SAP ra 4 ban/nam — ten/API doi
-   theo release) — dung `sap-docs-researcher` (tool `sap_search_objects`) hoac View Browser trong
+   theo release) — dung `sap-docs-research` (tool `sap_search_objects`) hoac View Browser trong
    Eclipse ADT.
 4. Neu view **chua released** hoac **thieu field** -> tra `api.sap.com`/`help.sap.com`, hoi
-   `sap-docs-researcher`. Neu van khong co -> ghi `[Unverified]` va dua vao "can lam ro".
+   `sap-docs-research`. Neu van khong co -> ghi `[Unverified]` va dua vao "can lam ro".
 5. Ghi vao TECHNICAL_SPEC: CDS base + released state + nguon. KHONG bia ten view/field.
 
 ### Buoc 4: Liet ke object can tao

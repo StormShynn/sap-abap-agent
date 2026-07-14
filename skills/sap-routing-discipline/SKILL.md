@@ -31,7 +31,7 @@ API, Fiori app cu the ma kien thuc chung khong co.
 | R5 | "Da biet dap an tu kien thuc chung" | Agent chuyen sau co SSCUI/API/Fiori app cu the - kien thuc chung khong co |
 | R6 | "Context dang phinh, rut gon di" | Xem Tier 2 routing rules ben duoi TRUOC khi compact |
 | R7 | "Module consultant load full SKILL.md luon" | Module FI da tach 2-layer (core+deep), chi load deep khi user hoi chi tiet - xem Tier 2 |
-| R8 | "Output MCP tool nho, tra nguyen" | Neu >2K token, ap dung skill `sap-context-tool-result-trim` (masking) truoc khi paste vao context |
+| R8 | "Output MCP tool nho, tra nguyen" | Neu >2K token, doc `reference/process/sap-context-tool-result-trim.md` va ap dung masking truoc khi paste vao context |
 
 ## Tier 2 routing rules (CONTEXT-INJECTION - ngon ngu tu context-optimization)
 
@@ -49,7 +49,7 @@ theo mac dinh. Chi load DEEP layer (`deep/SKILL.md`) khi:
 - Agent phai cross-check voi SAP Help / API Hub.
 
 Module FI da tach (xem `reference/modules/sap-fi-cloud/SKILL.md` core + `deep/SKILL.md`). 17
-module con lai se tach lan luot theo skill `sap-context-module-routing`.
+module con lai se tach lan luot theo `reference/process/sap-context-module-routing.md`.
 
 Khi dispatch nhieu module song song (vd SD + FI + CO), **tong token** = tong CORE layers (nho)
 + chi module nao load DEEP (neu can). Truoc day: tong FULL SKILL.md cua 3 module (~600 lines).
@@ -58,7 +58,7 @@ Khi dispatch nhieu module song song (vd SD + FI + CO), **tong token** = tong COR
 
 Khi tool output (cds-kb-mcp, sap-docs, sap-btp-agent) > ~2K token (~8KB text):
 1. KHONG paste full vao context.
-2. Ap dung skill `sap-context-tool-result-trim` (Pattern A/B/C/D tuy tool).
+2. Doc `reference/process/sap-context-tool-result-trim.md` va ap dung (Pattern A/B/C/D tuy tool).
 3. Chi paste compact summary + path den cache file.
 4. **KHONG** them "trim applied at <timestamp>" vao summary (rule KV-cache stable prefix -
    timestamp se pha cache hit rate).
@@ -67,9 +67,9 @@ Khi tool output (cds-kb-mcp, sap-docs, sap-btp-agent) > ~2K token (~8KB text):
 
 Khi session > 10 turn lien quan cung 1 ticket/project:
 - Ap dung working memory: ghi summary vao `<agent-home>/sessions/<ticket>/` (`<agent-home>` =
-  `%USERPROFILE%\.sap-abap-agent\`, xem skill `sap-scaffold-context-summary`).
+  `%USERPROFILE%\.sap-abap-agent\`, xem `reference/process/sap-scaffold-context-summary.md`).
 - Skill `sap-analyze-function-spec`: tach FS thanh 8 chunks.
-- Skill `sap-scaffold-context-summary`: snapshot full source giua cac layer scaffold.
+- `reference/process/sap-scaffold-context-summary.md`: snapshot full source giua cac layer scaffold.
 
 ### Tier 2.4 - Memory tier routing
 
@@ -89,9 +89,9 @@ Khi user hoi ve "lich su" / "hom qua" / "truoc do":
 
 - Skill `sap-ask-consultant` - noi thuc hien scoring & dispatch that su (Tier 2.1 routing rule).
 - Skill `sap-atc-review` - cung dung format bang vien co nay (R1-R7) cho tang code review.
-- Skill `sap-context-tool-result-trim` - Pattern A/B/C/D cho masking (Tier 2.2).
-- Skill `sap-context-module-routing` - pattern tach module 2-layer (Tier 2.1).
-- Skill `sap-scaffold-context-summary` - snapshot giua cac layer scaffold (Tier 2.3).
+- `reference/process/sap-context-tool-result-trim.md` - Pattern A/B/C/D cho masking (Tier 2.2).
+- `reference/process/sap-context-module-routing.md` - pattern tach module 2-layer (Tier 2.1).
+- `reference/process/sap-scaffold-context-summary.md` - snapshot giua cac layer scaffold (Tier 2.3).
 - Skill `sap-daily-learner` - memory tier loading (Tier 2.4).
 - `hooks/hooks.json` (SessionStart) - co che bom noi dung file nay vao dau phien. File nay
   phai on dinh (khong them timestamp, khong dynamic data) de giu KV-cache hit rate cao.

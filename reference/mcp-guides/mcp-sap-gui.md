@@ -1,20 +1,7 @@
----
-name: mcp-sap-gui
-description: |
-  Huong dan cai dat va su dung mcp-sap-gui MCP server (kts982) — SAP GUI Scripting automation
-  cho Windows. Cho phep AI assistant dieu khien SAP GUI truc tiep: mo transaction, doc/ghi
-  field, thao tac bang ALV, tree, grid; blocking sensitive transactions, read-only mode, audit
-  logging.
-when_to_use: |
-  "cai dat mcp-sap-gui", "SAP GUI automation qua MCP", "mo transaction tu Claude",
-  "doc du lieu tu SAP GUI bang AI", "cau hinh SAP GUI Scripting".
-argument-hint: "[cau hoi ve cai dat / su dung mcp-sap-gui]"
-effort: low
-model: haiku
-tools: [Read]
----
-
 # mcp-sap-gui — SAP GUI Automation MCP Server
+
+**Dung o dau**: agent `sap-docs-researcher` (khai bao `skills: [..., mcp-sap-gui, ...]`) —
+doc file nay khi user can cai dat/dung SAP GUI Scripting automation qua MCP.
 
 ## Tong quan
 

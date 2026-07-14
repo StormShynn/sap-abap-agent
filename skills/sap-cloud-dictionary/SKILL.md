@@ -248,7 +248,7 @@ Khi tao moi dictionary object tren ABAP Cloud, **bat buoc gan vao transport requ
 **Dung MCP tools de tao + activate + transport:**
 Neu dung MCP server (`fr0ster/mcp-abap-adt`, `ARC-1`), cac tool se tu dong:
 - Lock object → tao → activate → unlock → gan transport.
-- Xem skill `mcp-sap-adt` de biet chi tiet.
+- Xem `reference/mcp-guides/mcp-sap-adt.md` de biet chi tiet.
 
 ### Buoc 7: Deploy qua abapGit
 
@@ -285,7 +285,7 @@ Neu da cai dat MCP server, co the tao truc tiep tu AI:
 | MCP Server | Tools tao dictionary | Cach dung |
 |------------|---------------------|-----------|
 | **`sap-dict-bridge`** (khuyen dung — native cua repo nay) | `sap_create_domain`, `sap_create_data_element`, `sap_create_table` | Tai su dung cookie auth co san cua `sap-btp-agent` (khong can basic auth/config rieng nhu fr0ster). Dang ky: `claude mcp add --transport stdio sap-dict-bridge -- python -m sap_btp_agent.bridge_server`. Test: `python scripts/test_dict_bridge.py [profile_id]`. |
-| `fr0ster/mcp-abap-adt` | `CreateDomain`, `CreateDataElement`, `CreateTable` | Prompt: "Tao domain + data element + table". [Da thu trong du an nay roi thay bang `sap-dict-bridge` o tren de tai su dung cookie auth co san — xem skill `mcp-sap-adt` lua chon 4 neu van muon dung ban goc.] |
+| `fr0ster/mcp-abap-adt` | `CreateDomain`, `CreateDataElement`, `CreateTable` | Prompt: "Tao domain + data element + table". [Da thu trong du an nay roi thay bang `sap-dict-bridge` o tren de tai su dung cookie auth co san — xem `reference/mcp-guides/mcp-sap-adt.md` neu van muon dung ban goc.] |
 | `ARC-1` | `abap_create_object` | Prompt + XML payload |
 | SAP Official ADT MCP | Qua extension ADT MCP | Zero-config trong VS Code ADT |
 
@@ -378,12 +378,12 @@ VD: `abap.dec( 16, 2 )` = 14 so nguyen + 2 so thap phan.
   tren he thong that.
 - Skill `sap-bootstrap-system-context` — do he thong that de biet object Z/Y nao da co san (dung
   o Buoc 0).
-- Skill `mcp-sap-adt` — cai dat MCP server de tao dictionary tu dong.
+- `reference/mcp-guides/mcp-sap-adt.md` — cai dat MCP server de tao dictionary tu dong.
 - Skill `sap-scaffold-rap` — sinh RAP BO tu table (CDS + behavior).
 - Skill `sap-scaffold-cds` — sinh CDS view cho table (read-only).
 - Skill `sap-clean-code` — naming conventions, clean code ABAP.
 - Skill `sap-extensibility` — rang buoc ABAP Cloud, clean core.
-- Skill `sap-steampunk` — package structure, ADT setup, deploy tren BTP.
+- Agent `sap-btp-admin-consultant-cloud` (`reference/modules/sap-steampunk-cloud`) — package structure, ADT setup, deploy tren BTP (Steampunk).
 - Skill `sap-abap-sql` — ABAP SQL, query table da tao.
 - SAP ABAP Keyword Documentation (Cloud): `https://help.sap.com/doc/abapdocu_cp_index_htm/CLOUD/en-US/index.html`
 - SAP DEFINE TABLE: `https://help.sap.com/doc/abapdocu_cp_index_htm/CLOUD/en-US/abenddl_define_table.htm`

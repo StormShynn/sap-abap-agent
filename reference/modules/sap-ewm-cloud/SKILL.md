@@ -27,4 +27,4 @@ model: haiku
 Doc `deep/SKILL.md` theo section lien quan (`Grep` de vi tri) → cross-check SSCUI/Fiori/API tren `api.sap.com` hoac Manage Your Solution neu can → ap dung `sap-extensibility` bac thang truoc khi de xuat side-by-side.
 
 ## 4. Tich hop
-Skill lien quan: `sap-extensibility`, `sap-clean-code`, `sap-docs-researcher`.
+Skill lien quan: `sap-extensibility`, `sap-clean-code`, `sap-docs-research`.

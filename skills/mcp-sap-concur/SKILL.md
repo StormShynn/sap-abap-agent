@@ -21,70 +21,21 @@ qua SQL, su dung CData JDBC Driver cho SAP Concur. **Read-only**, Java-based.
 
 ## Cai dat
 
-### Yeu cau
+Co che cai dat/cau hinh (driver JDBC, file `.prp`, dang ky MCP, 3-tool pattern) giong het moi
+connector CData khac — xem huong dan chung: `reference/mcp-guides/mcp-sap-cdata-setup.md`.
 
-- Java 11+
-- Maven (de build)
-- CData JDBC Driver for SAP Concur (download + license)
+Rieng cho Concur:
 
-### Buoc 1: Clone & build
-
-```bash
-git clone https://github.com/CDataSoftware/sap-concur-mcp-server-by-cdata.git
-cd sap-concur-mcp-server-by-cdata
-mvn clean install
-```
-
-### Buoc 2: Tao .prp config file
-
-Tao file `sap-concur.prp`:
-
-```properties
-# Connection string (lay tu CData JDBC utility)
-connection.string = "JDBC URL cua SAP Concur..."
-
-# Driver path
-driver.path = "/path/to/cdata.jdbc.concur.jar"
-
-# Tables cho phep truy van
-tables = *
-```
-
-### Buoc 3: Cau hinh MCP
-
-```json
-{
-  "mcpServers": {
-    "sap-concur": {
-      "command": "java",
-      "args": [
-        "-jar",
-        "/path/to/CDataMCP-jar-with-dependencies.jar",
-        "/path/to/sap-concur.prp"
-      ]
-    }
-  }
-}
-```
-
-### Environment variables (qua JDBC connection string)
-
-```env
-# OAuth2 credentials
-OAuthClientId=your_client_id
-OAuthClientSecret=your_client_secret
-# Hoac: Basic Auth
-User=your_username
-Password=your_password
-```
+| | |
+|---|---|
+| Driver JDBC | `cdata.jdbc.concur.jar` |
+| File `.prp` | `sap-concur.prp` |
+| Server name goi y | `sap-concur` |
 
 ## Tools
 
-| Tool | Mo ta |
-|------|-------|
-| `concur_get_tables` | Liet ke tat ca bang trong SAP Concur instance |
-| `concur_get_columns` | Liet ke columns cua 1 table |
-| `concur_run_query` | Thuc thi SQL SELECT query |
+3 tools SQL chuan cua CData (chi tiet trong shared doc o tren): `concur_get_tables`,
+`concur_get_columns`, `concur_run_query`.
 
 ## Cac bang pho bien
 
@@ -113,3 +64,4 @@ Password=your_password
 - Repository: `https://github.com/CDataSoftware/sap-concur-mcp-server-by-cdata`
 - CData JDBC Driver: `https://www.cdata.com/drivers/concur/download/jdbc`
 - CData MCP Official: `https://www.cdata.com/drivers/concur/mcp/`
+- Cai dat CData MCP tong quat: `reference/mcp-guides/mcp-sap-cdata-setup.md`

@@ -10,7 +10,8 @@ model: haiku
 [Seed set — kiem chung qua SAP Community/Help. **Luu y**: SAP S/4HANA Cloud Public Edition co the
 dung **Transportation Management (TM) embedded** trong S/4HANA hoac **TM side-by-side** tren BTP.
 Scope item chinh la **BPL** (Transportation Management). Kiem tra tren Best Practices Explorer
-cho release hien tai.]
+cho release hien tai. Dung ket hop voi skill `sap-extensibility` (bac thang extensibility chung)
+va `sap-clean-code` (dat ten).]
 
 ## 1. Cau hinh (SSCUI)
 

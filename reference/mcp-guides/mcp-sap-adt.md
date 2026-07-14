@@ -1,20 +1,8 @@
----
-name: mcp-sap-adt
-description: |
-  Huong dan cai dat va su dung ADT MCP servers — 3 lua chon: (1) SAP Official ADT MCP for VS
-  Code (zero-config, built-in), (2) ARC-1 (enterprise, secure-by-default), (3) mcp-abap-adt
-  (community, de su dung). Cho phep AI doc ABAP code, activate, syntax-check, manage transport,
-  chay ATC.
-when_to_use: |
-  "cai dat ADT MCP server", "SAP official MCP", "ARC-1 MCP", "mcp-abap-adt",
-  "ket noi ABAP ADT qua MCP", "tool ADT MCP", "doc ABAP code tu AI".
-argument-hint: "[cai dat SAP Official / ARC-1 / mcp-abap-adt]"
-effort: low
-model: haiku
-tools: [Read, WebFetch]
----
-
 # ADT MCP Servers — 3 lua chon cho ABAP Development
+
+**Dung o dau**: agent `sap-docs-researcher` (khai bao `skills: [..., mcp-sap-adt, ...]`), va cac
+skill `sap-bootstrap-system-context`, `sap-cloud-dictionary`, `sap-deployment-target` (dan chieu
+bang ten khi user can chon/cai dat 1 trong 3 lua chon ADT MCP server ben duoi).
 
 ## Lua chon 1: SAP Official ADT MCP (VS Code Extension) 🏆
 
@@ -36,14 +24,13 @@ Day la giai phap **chinh thong** va **zero-config** nhat.
 | `Read ABAP Class / Program / CDS` | Doc source code |
 | `Activate ABAP Object` | Activate object |
 | `Syntax Check` | Kiem tra syntax |
-| `Run ATC Check` | Chay ATC check |
 | `Search ABAP Objects` | Tim object theo ten |
 | `Transport Management` | Quan ly transport request |
 | `Run ABAP Unit Tests` | Chay unit test |
 | `Debug ABAP` | Debugging support |
 
 **Uu diem**: Khong can cau hinh MCP JSON, SAP tu dong quan ly authentication (single sign-on),
-tuong thich hoan toan voi ABAP Cloud.
+tuong hoa hoan toan voi ABAP Cloud.
 
 **Nhuoc diem**: Chi dung duoc trong VS Code ADT.
 

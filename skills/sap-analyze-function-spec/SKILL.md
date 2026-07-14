@@ -31,7 +31,7 @@ tools: [Bash, Read, Write, Glob, Grep]
 
 FS lon (30+ trang, nhieu bang) khong the do full vao context 1 lan - context se phinh
 (killed co hon 50K token), dan den mat attention o cac phan quan trong. Ap dung pattern
-**filesystem-context** (xem skill `sap-context-tool-result-trim`):
+**filesystem-context** (xem `reference/process/sap-context-tool-result-trim.md`):
 
 ```
 Session dir: <agent-home>/sessions/<ticket>/

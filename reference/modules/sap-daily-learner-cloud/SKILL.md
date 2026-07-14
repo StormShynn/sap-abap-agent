@@ -1,5 +1,5 @@
 ---
-name: sap-daily-learner
+name: sap-daily-learner-cloud
 description: Kien thuc nền tảng ve học tập SAP — lộ trình chứng chỉ, tai liệu học, SAP Learning Hub, SAP Community, SAP Certification paths, SAP Best Practices, SAP UCC, SAP learning he thong (SAP Learning System, SAP Cloud Appliance Library). Dung khi user hoi ve cách hoc SAP, chung chi, tai lieu hoc tap, SAP learning resources.
 effort: medium
 model: haiku

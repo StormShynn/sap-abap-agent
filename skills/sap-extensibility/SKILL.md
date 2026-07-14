@@ -32,9 +32,9 @@ Uu tien bac cao nhat phu hop yeu cau — cang xuong duoi cang phuc tap va cang n
 2. **Key User Extensibility (in-app, khong can dev)**:
    - *Custom Fields and Logic* — them 1 field vao business object/report/Fiori UI chuan, co the kem logic don gian.
    - *Custom Business Objects* — tao 1 business object hoan toan moi (bang rieng, UI rieng, tu dong co OData API) ma khong can dev.
-   - *Custom Logic (Cloud BAdI)* — cac diem mo rong SAP da cong bo san cho key user.
+   - *Custom Logic (Cloud BAdI)* — key user dung BAdI SAP da release san (khong tu tao BAdI definition), viet logic bang cu phap rut gon ABAP for Key Users. Co che Cloud BAdI + goc nhin Developer: skill `sap-badi-enhancement`; thao tac tung buoc cho key user: skill `sap-key-user-toolkit` §3.2.
    - *Adaptation Transactions* — an/di chuyen/doi nhan field tren Fiori app co san.
-3. **Developer Extensibility (on-stack)** — **chi co tren 3-system landscape**; dev ABAP ngay trong tenant dev cua he thong core, van chi dung released API/extension point, khong sua duoc object chuan.
+3. **Developer Extensibility (on-stack)** — **chi co tren 3-system landscape**; dev ABAP ngay trong tenant dev cua he thong core (vi du: tao class implement 1 Cloud BAdI definition da released — xem skill `sap-badi-enhancement`), van chi dung released API/extension point, khong sua duoc object chuan.
 4. **Side-by-side tren BTP** — he thong/runtime rieng (thuong la BTP ABAP Environment, dung RAP). Chi goi nguoc lai core qua released API — KHONG co extension point nao ma in-app chua co san.
 
 **Nguyen tac fail-fast**: neu 1 yeu cau khong khop bac nao trong 4 bac tren — DUNG bia ra 1 cach lam khong ton tai. Xac dinh xem yeu cau thuc su thuoc bac nao va de xuat dung bac do; neu khong bac nao dap ung, noi thang la chua lam duoc.
@@ -55,7 +55,7 @@ di theo cay quyet dinh nay (thu tu uu tien tren xuong):
 Object X can dung nhung xac minh la KHONG released / khong ton tai
    │
    ├─① Co RELEASED ALTERNATIVE khong? (view/API khac tra ve cung du lieu)
-   │      → tra cuu qua sap-docs-researcher / skill sap-cds-kb / agent consultant phan he
+   │      → tra cuu qua sap-docs-research / skill sap-cds-kb / agent consultant phan he
    │      → co → DUNG cai released. Xong.
    │
    ├─② Co STANDARD OData/SOAP API (whitelist Public Cloud) khong?

@@ -117,17 +117,14 @@ jobs:
 
 ### Destination Pattern
 
-```yaml
-# BTP Cockpit -> Destination
-Name: S4HANA-API
-Type: HTTP
-URL: https://mytenant.s4hana.cloud.sap
-ProxyType: Internet
-Authentication: OAuth2ClientCredentials
-clientId: sb-xxx
-clientSecret: xxx
-tokenServiceURL: https://<tenant>.authentication.<region>.hana.ondemand.com/oauth/token
-```
+Cau hinh chi tiet destination (HTTP Internet/OnPremise, RFC, LDAP), Cloud Connector,
+cac loai authentication, principal propagation, troubleshooting: xem skill
+`sap-btp-connectivity`.
+
+Best-practice khi dung destination trong app (bo sung, khong lap lai cau hinh):
+- Dat ten destination theo convention o muc 2 (`<SYSTEM>-<CONTEXT>`, VD `S4HANA-SalesOrder`).
+- Uu tien `OAuth2ClientCredentials` cho S/4HANA Cloud; khong hardcode credential trong
+  code — luon goi qua ten destination de tach config khoi source.
 
 ### App Router Configuration
 

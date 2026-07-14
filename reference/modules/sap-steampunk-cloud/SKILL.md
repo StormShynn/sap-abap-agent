@@ -1,12 +1,8 @@
 ---
-name: sap-steampunk
-description: Huong dan SAP BTP ABAP Environment (Steampunk) — infrastructure, ADT setup, IAM, package structure, deployment, CI/CD, git integration, API consumption, database.
-when_to_use: |
-  "BTP ABAP Environment Steampunk", "lam viec voi Steampunk", "ADT connect Steampunk",
-  "package structure tren Steampunk", "deployment ABAP BTP", "CI/CD ABAP environment".
-argument-hint: "[cau hoi ve BTP ABAP Environment / Steampunk]"
+name: sap-steampunk-cloud
+description: Kien thuc SAP BTP ABAP Environment (Steampunk) — infrastructure, ADT setup, IAM, package structure, deployment, CI/CD, git integration, API consumption, database. Doc them khi agent BTP Admin can chi tiet ve ABAP Environment / Steampunk infrastructure.
 effort: medium
-model: sonnet
+model: haiku
 ---
 
 # SAP BTP ABAP Environment (Steampunk)
@@ -163,7 +159,20 @@ DATA(lo_response) = lo_client->execute( ).
 | `standard` | 10 dev users, 10000 ABAP objects | $300-500/month |
 | `premium` | Unlimited users, objects | Custom pricing |
 
-## Nguon tham khao
+## 11. Tich hop voi skill/agent khac
+
+- So huu boi agent `sap-btp-admin-consultant-cloud` (BTP Platform Administration) — dispatch tu
+  `sap-ask-consultant` khi cau hoi lien quan BTP admin/CF/Kyma; agent doc file nay them khi cau hoi
+  cu the ve ABAP Environment / Steampunk infrastructure.
+- `sap-extensibility` — bac thang extensibility chung (Custom Fields/Custom Business Objects/Cloud
+  BAdI) van ap dung khi lam viec voi RAP tren ABAP Environment.
+- `sap-clean-code` — naming convention Z/Y cho package, CDS view, class khi viet code tren Steampunk.
+- `sap-cap-consultant-cloud` — de phan biet Steampunk (ABAP-native, chay thuan ABAP tren BTP) vs CAP
+  (Node.js/Java, side-by-side) khi tu van kien truc extension tren BTP.
+- `sap-abap-sql`, `sap-authorization`, `sap-rap-events` — kien thuc RAP/CDS/AMDP/authorization dung
+  chung khi viet code ABAP tren Steampunk.
+
+## 12. Nguon tham khao
 
 - SAP Help: BTP ABAP Environment
 - SAP Community: BTP Steampunk Node

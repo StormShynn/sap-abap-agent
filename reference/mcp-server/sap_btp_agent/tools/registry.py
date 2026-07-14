@@ -211,7 +211,7 @@ async def _handle_ping(args: dict[str, Any] | None) -> str:
         "profile": profile_id,
         "btpUrl": client.config.get("btpUrl"),
         "tenant": client.config.get("tenant"),
-        "service": client.config.get("service"),
+        "service": client.config.get("service"),   # service type: s4hc_(private) | s4hc_(public) | btp | onprem
         "authMode": client.config.get("authMode"),
         "me": me,
     })

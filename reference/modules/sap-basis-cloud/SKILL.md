@@ -9,7 +9,8 @@ model: haiku
 
 [Seed set — kiem chung qua SAP Community/Help (xem Nguon tham khao). Luu y: Public Cloud Basis
 khac xa on-premise. Nhieu tac vu Basis truyen thong (kernel update, DB admin, STMS...) KHONG
-the lam tren Cloud — SAP tu quan ly.]
+the lam tren Cloud — SAP tu quan ly. Dung ket hop voi skill `sap-extensibility` (bac thang
+extensibility chung) va `sap-clean-code` (dat ten) khi lien quan toi custom object.]
 
 ## 1. Van hanh he thong Public Cloud
 

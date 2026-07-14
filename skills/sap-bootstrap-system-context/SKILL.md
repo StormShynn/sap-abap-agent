@@ -32,14 +32,14 @@ scaffold khac chay, giam rui ro doan sai lap lai.
   `sap-cloud-dictionary` lan dau tren 1 he thong/package chua quen.
 - ✅ Nghi ngo quy uoc dat ten du an khac chuan chung (vd prefix theo ma khach hang thay vi `Z`).
 - ❌ Da co cache system-context con moi (< 7 ngay, xem Buoc 4) — dung lai, khong do lai.
-- ❌ Khong co MCP ADT nao duoc cau hinh — bao user cai 1 trong 4 lua chon o skill `mcp-sap-adt`
+- ❌ Khong co MCP ADT nao duoc cau hinh — bao user cai 1 trong 3 lua chon o `reference/mcp-guides/mcp-sap-adt.md`
   truoc.
 
 ## Quy trinh
 
 ### Buoc 1: Xac nhan MCP ADT san sang
 
-Kiem tra 1 trong 4 lua chon MCP tu skill `mcp-sap-adt` da ket noi (SAP Official / ARC-1 /
+Kiem tra 1 trong 3 lua chon MCP tu `reference/mcp-guides/mcp-sap-adt.md` da ket noi (SAP Official / ARC-1 /
 mcp-abap-adt / fr0ster fork). Neu chua — dung lai, huong dan user cai dat truoc khi tiep tuc.
 
 ### Buoc 2: Sample object Z*/Y* co san trong package muc tieu
@@ -78,4 +78,4 @@ file nay o Buoc 0 cua chung neu con moi, bo qua neu qua han hoac khong co.
   chung (`sap-clean-code`) thay vi bia ra "quy uoc thuc te" tu 0 object mau.
 - 🔗 Buoc tiep theo: `sap-scaffold-rap`, `sap-scaffold-cds`, `sap-scaffold-cds-analytics`,
   `sap-cloud-dictionary` — cac skill nay nen doc cache o day lam Buoc 0 neu con moi.
-- 🔗 Dung chung MCP da cau hinh o skill `mcp-sap-adt`.
+- 🔗 Dung chung MCP da cau hinh o `reference/mcp-guides/mcp-sap-adt.md`.

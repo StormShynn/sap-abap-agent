@@ -127,6 +127,8 @@ def build_report(project_root: Path) -> int:
     print("  - servers from a DIFFERENT plugin (e.g. hana-cli) -> claude plugin list / claude mcp list")
     print("  - VS Code-extension-registered servers            -> VS Code Chat: type @mcp")
     print("Use mcp_register.py to register what's actually automatable from 'not registered' above.")
+    print("No per-server enable/disable here (Claude Code CLI doesn't have one either) - for a cross-tool")
+    print("toggle UI (Claude Code/Desktop, Codex, Gemini CLI...), see https://github.com/StormShynn/mcp-switch")
     print("-" * 72)
     return 0
 

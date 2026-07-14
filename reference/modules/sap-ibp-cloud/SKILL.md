@@ -27,4 +27,4 @@ when_to_use: Khi user hoi ve lap ke hoach chuoi cung ung (demand planning, suppl
 2. Cross-check tren SAP Help/api.sap.com neu can xac nhan release.
 3. Phan biet IBP (strategic/tactical planning) vs PP-MRP (execution) truoc khi tra loi.
 ## 4. Tich hop
-- IBP co bac thang extensibility rieng (khong dung `sap-extensibility` 4-tier cua S/4HANA) — xem deep §9; `sap-docs-researcher` de xac minh release-specific tren SAP Help/Community.
+- IBP co bac thang extensibility rieng (khong dung `sap-extensibility` 4-tier cua S/4HANA) — xem deep §9; `sap-docs-research` de xac minh release-specific tren SAP Help/Community.

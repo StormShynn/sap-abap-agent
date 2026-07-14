@@ -6,7 +6,7 @@ RAP object whose name is NOT in the Z/Y customer namespace (or a registered
 Covers the object-creation tools this repo documents/ships:
   - sap-dict-bridge (reference/mcp-server/sap_btp_agent/tools/dictionary.py):
     sap_create_domain, sap_create_data_element, sap_create_table
-  - ADT MCP forks documented in skills/mcp-sap-adt/SKILL.md:
+  - ADT MCP forks documented in reference/mcp-guides/mcp-sap-adt.md:
     CreateDomain, CreateDataElement, CreateTable, CreateStructure, CreateView,
     CreateBehaviorDef(inition), CreateMetadataExtension, CreateServiceDefinition
   - Same tools prefixed Update*/Delete* (modifying/deleting an existing object

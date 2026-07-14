@@ -3,7 +3,7 @@
 thu muc local qua thoi gian.
 
 Hai muc tieu doc lap:
-  1. Cache cua skill `sap-context-tool-result-trim` (<agent-home>/cache/**, xem agent_home.py):
+  1. Cache cua `reference/process/sap-context-tool-result-trim.md` (<agent-home>/cache/**, xem agent_home.py):
      xoa file cu hon N ngay (mac dinh 7 - dung dung policy da ghi trong SKILL.md), doc config
      tu `<agent-home>/cache/.retention` (JSON: {"days": N, "max_mb": N}) neu co. Sau khi xoa
      theo tuoi, neu tong dung luong con lai van vuot cap (mac dinh 500MB) thi xoa tiep tu file

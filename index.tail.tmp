@@ -1,0 +1,952 @@
+﻿
+    // --- Header ---
+    '📘 Hướng dẫn sử dụng': '📘 User Guide',
+    'Chuyển đổi giao diện': 'Toggle theme',
+
+    // --- Hero ---
+    'Đã kết nối & sẵn sàng': 'Connected & ready',
+    'cho Claude Code': 'for Claude Code',
+    'Plugin Claude Code + MCP Server tự động kết nối SAP BTP / S/4HANA Cloud để thao tác ABAP — đọc, tìm, syntax-check, activate. Hỗ trợ ': '',
+    'multi-profile': 'multi-profile',
+    ' cho nhiều project SAP cùng lúc.': ' — read, search, syntax-check, activate ABAP objects via Claude Code + MCP Server. Supports multiple SAP projects simultaneously.',
+    '⚡ Bắt đầu cài đặt': '⚡ Start Installation',
+    '➕ Thêm project SAP': '➕ Add SAP Project',
+    '📂 GitHub': '📂 GitHub',
+
+    // --- Intro section ---
+    '🏠 Giới thiệu': '🏠 Introduction',
+    'SAP ABAP Agent': 'SAP ABAP Agent',
+    ' là plugin dành cho ': ' is a ',  // partial
+    // Full sentences handled below
+
+    // --- Features section ---
+    '✨ Tính năng nổi bật': '✨ Key Features',
+    'Thêm project chỉ 1 lệnh': 'One-Command Setup',
+    'sap-btp-agent setup <URL>': 'sap-btp-agent setup <URL>',
+    ' — wizard tự sinh profile, hỏi thông tin OAuth2 và lưu cấu hình.': ' — auto-generates profile, prompts for OAuth2 info, saves config.',
+    'Chuyển qua lại giữa nhiều project SAP trong cùng một phiên Claude bằng tham số ': 'Switch between SAP projects within one Claude session using the ',
+    'profile': 'profile',
+    'Tự động refresh token': 'Auto Refresh Token',
+    'OAuth2 token tự động refresh khi hết hạn, không lo gián đoạn công việc.': 'OAuth2 tokens auto-refresh on expiry — no interruption.',
+    'Secret được mã hóa': 'Encrypted Secrets',
+    'DPAPI (Windows) hoặc AES-256-GCM (macOS/Linux). File mode ': 'DPAPI (Windows) or AES-256-GCM (macOS/Linux). File mode ',
+    '0o600': '0o600',
+
+    // --- Installation ---
+    '📦 Cài đặt': '📦 Installation',
+    'Yêu cầu': 'Requirements',
+    'Claude Code': 'Claude Code',
+    ' (Anthropic CLI)': '',
+    'Tài khoản SAP BTP / S/4HANA Cloud với OAuth2 client': 'SAP BTP / S/4HANA Cloud account with OAuth2 client',
+    'Các bước cài đặt': 'Setup Steps',
+    'Clone repository và cài dependencies:': 'Clone the repo and install dependencies:',
+    '# Clone & cài MCP Server': '# Clone & install MCP Server',
+    '# Kiểm tra': '# Verify',
+    'Sao chép': 'Copy',
+    'Đăng ký MCP server với Claude Code:': 'Register MCP server with Claude Code:',
+    'Sau bước này, các MCP tool như ': 'After this step, MCP tools like ',
+    'sap_ping': 'sap_ping',
+    'sap_search': 'sap_search',
+    'sap_list_packages': 'sap_list_packages',
+    '... sẽ xuất hiện trong Claude Code.': '... will appear in Claude Code.',
+
+    // --- Add Project ---
+    '➕ Thêm project SAP mới': '➕ Add New SAP Project',
+    'Cách nhanh nhất — truyền URL trực tiếp:': 'Quickest way — pass URL directly:',
+    'Wizard sẽ tự sinh profile ID từ hostname (vd: ': 'Wizard auto-generates profile ID from the hostname (e.g. ',
+    ') và hỏi:': ') and prompts for:',
+    'OAuth2 ': '',
+    'client_id': 'client_id',
+    ' + ': ' + ',
+    'client_secret': 'client_secret',
+    ' (hoặc username/password, hoặc bearer token)': ' (or username/password, or bearer token)',
+    'Region, service type (s4hc_(private) / s4hc_(public) / btp / onprem)': 'Region, service type (s4hc_(private) / s4hc_(public) / btp / onprem)',
+    'Thông tin được lưu riêng trong thư mục profile:': 'Info is saved in the profile directory:',
+    'Thêm project thứ 2, thứ 3...': 'Adding 2nd, 3rd project...',
+    ' cũng dễ dàng:': ' is just as easy:',
+    'Mỗi project có profile riêng, secret riêng (mã hóa độc lập).': 'Each project has its own profile and independently encrypted secrets.',
+
+    // --- Profile Management ---
+    '👥 Quản lý nhiều profile': '👥 Multi-Profile Management',
+    'Liệt kê tất cả profile (': 'List all profiles (',
+    ' = active)': ' = active)',
+    'Chọn profile active': 'Set active profile',
+    'Xem chi tiết profile đang dùng': 'Show active profile details',
+    'Xóa một profile': 'Remove a profile',
+    '⚠️ Xóa tất cả (cẩn thận!)': '⚠️ Delete everything (careful!)',
+    'Chọn profile trong MCP tools': 'Selecting Profile in MCP Tools',
+    'Mỗi MCP tool đều có tham số ': 'Each MCP tool has a ',
+    ' (để trống = dùng profile active):': ' parameter (empty = use active profile):',
+    'Chạy nhiều instance cùng lúc': 'Running Multiple Instances',
+    'Đặt env ': 'Set the ',
+    ' trước mỗi lần chạy:': ' env var before each run:',
+
+    // --- Test Connection ---
+    '🔌 Kiểm tra kết nối': '🔌 Test Connection',
+    '# Test profile active': '# Test active profile',
+    '# Test một profile cụ thể': '# Test a specific profile',
+
+    // --- OAuth2 ---
+    '🔐 OAuth2 — Kết nối SAP BTP': '🔐 OAuth2 — SAP BTP Connection',
+    'SAP ABAP Agent hỗ trợ ': 'SAP ABAP Agent supports ',
+    '3 chế độ xác thực OAuth2': '3 OAuth2 authentication modes',
+    ' để kết nối SAP BTP / S/4HANA Cloud. Tùy vào cấu hình tenant, bạn chọn chế độ phù hợp.': 'for SAP BTP / S/4HANA Cloud. Choose based on your tenant config.',
+    'Dùng ': 'Uses ',
+    '. Phù hợp cho M2M automation, không cần user tương tác.': '. Ideal for M2M automation — no user interaction needed.',
+    'Password Grant': 'Password Grant',
+    'username': 'username',
+    'password': 'password',
+    '. Phù hợp khi bạn có tài khoản SAP BTP cá nhân.': '. Suitable when you have a personal SAP BTP account.',
+    'Bearer Token': 'Bearer Token',
+    'Dùng token có sẵn (nhập tay). Phù hợp cho testing hoặc token ngắn hạn.': 'Use a pre-obtained token (manual entry). Good for testing or short-lived tokens.',
+    'Luồng hoạt động': 'How It Works',
+    'Khi bạn gọi một MCP tool (vd ': 'When you call an MCP tool (e.g. ',
+    '), hệ thống tự động:': '), the system auto:',
+    'Kiểm tra token trong bộ nhớ (memory cache)': 'Checks token in memory cache',
+    'Nếu hết hạn → kiểm tra secret đã mã hóa trong ': 'Expired → checks encrypted secret in ',
+    'Nếu còn hạn → dùng lại (tránh gọi OAuth2 liên tục)': 'Still valid → reuse (avoid repeated OAuth2 calls)',
+    'Nếu hết hạn → gọi OAuth2 endpoint để lấy token mới': 'Expired → calls OAuth2 endpoint for fresh token',
+    'Tự động lưu ': 'Auto-saves ',
+    ' + ': ' + ',
+    ' vào secrets.json': ' to secrets.json',
+    'Token được refresh ': 'Token auto-refreshes ',
+    '30 giây': '30 seconds',
+    ' trước khi hết hạn (': ' before expiry (',
+    ')': ')',
+    'Cấu hình OAuth2 Client trên SAP BTP': 'Configuring OAuth2 Client on SAP BTP',
+    'Trước khi setup, bạn cần tạo OAuth2 client trên SAP BTP cockpit:': 'Before setup, create an OAuth2 client in SAP BTP Cockpit:',
+    'Đăng nhập SAP BTP Cockpit': 'Log in to SAP BTP Cockpit',
+    ' → vào ': ' → go to ',
+    'Subaccount': 'Subaccount',
+    ' của bạn': '',
+    'Vào menu ': 'Go to menu ',
+    'Security > OAuth2 Client': 'Security > OAuth2 Client',
+    ' (hoặc API Clients trong các phiên bản mới)': ' (or API Clients in newer versions)',
+    'Tạo client mới với Grant Type = ': 'Create new client with Grant Type = ',
+    'Client Credentials': 'Client Credentials',
+    'Ghi lại ': 'Save your ',
+    ' và ': ' and ',
+    'Client ID': 'Client ID',
+    'Client Secret': 'Client Secret',
+    'Nếu dùng ': 'If using ',
+    'IAS (Identity Authentication)': 'IAS (Identity Authentication)',
+    ', lưu ý token URL là ': ', note the token URL is ',
+    ' thay vì ': ' instead of ',
+    'Wizard Setup chi tiết': 'Detailed Wizard Setup',
+    'Khi chạy ': 'When running ',
+    ', wizard sẽ hỏi từng thông tin:': ', the wizard will prompt for each detail:',
+    'Token URL & Xử lý các hệ thống khác nhau': 'Token URL & Different Systems',
+    'Mỗi hệ thống SAP có endpoint OAuth2 khác nhau. Agent tự động xác định dựa trên URL gốc, nhưng bạn có thể override nếu cần:': 'Each SAP system has a different OAuth2 endpoint. The agent auto-detects from the base URL, but you can override if needed:',
+    'Hệ thống': 'System',
+    'Token URL mặc định': 'Default Token URL',
+    'Ghi chú': 'Notes',
+    'Mặc định cho hầu hết S/4HANA Cloud': 'Default for most S/4HANA Cloud instances',
+    'Identity Authentication Service': 'Identity Authentication Service',
+    'Override trong ': 'Override in ',
+    'secrets.json': 'secrets.json',
+    'Sửa ': 'Edit ',
+    'tokenUrl': 'tokenUrl',
+    ' theo ý muốn': ' as needed',
+    'Override Token URL thủ công': 'Manual Token URL Override',
+    'Nếu gặp lỗi ': 'If you get a ',
+    '404 /oauth/token': '404 /oauth/token',
+    ', bạn có thể sửa trực tiếp file secrets.json:': ', you can edit the secrets.json file directly:',
+    'Token Lifecycle & Auto-Refresh': 'Token Lifecycle & Auto-Refresh',
+    'Agent quản lý vòng đời token hoàn toàn tự động:': 'The agent manages the token lifecycle automatically:',
+    '🔄 Tự động refresh': '🔄 Auto Refresh',
+    'Token được cache trong bộ nhớ. Khi còn ': 'Token is cached in memory. When ',
+    ' trước khi hết hạn, agent tự động gọi OAuth2 endpoint để lấy token mới — bạn không cần làm gì cả.': ' before expiry, the agent auto-calls the OAuth2 endpoint for a new token — no action needed.',
+    '💾 Lưu token an toàn': '💾 Secure Token Storage',
+    'Token mới + ': 'New token + ',
+    ' + ': ' + ',
+    'expiresAt': 'expiresAt',
+    ' được lưu vào ': ' are saved to ',
+    'secrets.json': '',
+    ' đã mã hóa': ' (encrypted)',
+    '. Khi restart agent, token được phục hồi từ file mà không cần xác thực lại.': '. On restart, tokens are restored from file without re-authentication.',
+    '🔐 Mã hóa đa nền tảng': '🔐 Cross-Platform Encryption',
+    'Windows:': 'Windows:',
+    ' DPAPI (gắn với tài khoản Windows)': ' DPAPI (bound to Windows account)',
+    'macOS/Linux:': 'macOS/Linux:',
+    ' AES-256-GCM, key derive từ ': ' AES-256-GCM, key derived from ',
+    'hostname + username': 'hostname + username',
+    ' qua scrypt': ' via scrypt',
+
+    // --- MCP Registration ---
+    '⚙️ Đăng ký MCP với Claude Code': '⚙️ MCP Registration with Claude Code',
+    'Thêm vào file ': 'Add to your ',
+    ' (Windows: ': ' (Windows: ',
+    '):': ') file:',
+    'Mở Claude Code với plugin:': 'Launch Claude Code with the plugin:',
+
+    // --- MCP Tools ---
+    '🛠️ MCP Tools': '🛠️ MCP Tools',
+    'Sau khi đăng ký, các tool sau sẽ xuất hiện trong Claude Code. Mỗi tool đều có tham số ': 'After registration, these tools appear in Claude Code. Each tool has a ',
+    ' (để trống = dùng profile active).': ' parameter (empty = active profile).',
+    'Mô tả': 'Description',
+    'Tham số chính': 'Key Parameters',
+    'Liệt kê các profile đã cấu hình': 'List configured profiles',
+    'Test kết nối profile': 'Test profile connection',
+    'Liệt kê package ABAP': 'List ABAP packages',
+    'Tìm object ABAP theo tên': 'Search ABAP objects by name',
+    'Đọc source code (class, program, include...)': 'Read source code (class, program, include...)',
+    'Syntax check (không activate)': 'Syntax check (no activation)',
+    'Activate object (transport local)': 'Activate object (local transport)',
+    'Tìm nơi sử dụng object ABAP (where-used)': 'Find where-used for ABAP objects',
+    'Truy vấn dữ liệu bảng / CDS view': 'Query table / CDS view data',
+    'Chạy ABAP Unit tests': 'Run ABAP Unit tests',
+    'Lấy thông tin hệ thống SAP (version, profile...)': 'Get SAP system info (version, profile...)',
+    'Phân tích ST22 runtime dump': 'Analyze ST22 runtime dump',
+    'Ví dụ prompt trong Claude Code:': 'Example prompts in Claude Code:',
+
+    // --- CLI Commands ---
+    '⌨️ Lệnh CLI': '⌨️ CLI Commands',
+    'Thêm project SAP mới (wizard)': 'Add new SAP project (wizard)',
+    'Test kết nối profile active': 'Test active profile connection',
+    'Test kết nối một profile cụ thể': 'Test a specific profile',
+    'Liệt kê tất cả profile': 'List all profiles',
+    'Xem chi tiết profile active': 'Show active profile details (continued)',
+    '⚠️ Xóa tất cả dữ liệu': '⚠️ Delete all data',
+    'Xem trợ giúp': 'Show help',
+    'Tips:': 'Tip:',
+    ' Bạn có thể dùng lệnh ': ' You can use the ',
+    ' ngay trong Claude Code để được hướng dẫn từng bước.': ' command in Claude Code for step-by-step guidance.',
+
+    // --- Directory Structure ---
+    '📁 Cấu trúc thư mục': '📁 Directory Structure',
+    'Project': 'Project',
+    'Manifest plugin Claude Code': 'Claude Code plugin manifest',
+    'Cảnh báo SELECT *': 'SELECT * warning hook',
+    'Tài liệu ABAP': 'ABAP documentation',
+    'MCP server Python (multi-profile)': 'MCP server (multi-profile)',
+    'paths, profile, store, secrets': 'paths, profile, store, secrets',
+    'auth (OAuth2), client (REST + auto-reconnect)': 'auth (OAuth2), client (REST + auto-reconnect)',
+    'registry các tool MCP': 'MCP tool registry',
+    'wizard setup + quản lý profile': 'setup wizard + profile management',
+    'entry point ': 'entry point ',
+    'Trang hướng dẫn này': 'This guide page',
+    'Tổng quan dự án': 'Project overview',
+    'Cấu hình (User folder)': 'User config folder',
+    'Registry (danh sách + active)': 'Registry (list + active)',
+    'URL, tenant, client_id...': 'URL, tenant, client_id...',
+    'Secret đã mã hóa': 'Encrypted secrets',
+    'Windows:': 'Windows:',
+    ' secrets mã hóa bằng DPAPI (gắn với tài khoản Windows)': ' secrets encrypted via DPAPI (Windows account-bound)',
+    'macOS/Linux:': 'macOS/Linux:',
+    ' AES-256-GCM, key derive từ ': ' AES-256-GCM, key derived from ',
+    'hostname + username': 'hostname + username',
+    'File mode ': 'File mode ',
+    ', chỉ owner đọc/ghi': ', owner read/write only',
+
+    // --- Environment Variables ---
+    '🌐 Biến môi trường': '🌐 Environment Variables',
+    '— Khóa profile cho 1 lần chạy (ưu tiên hơn registry)': '— Pin profile for a single run (overrides registry)',
+    '— Đổi thư mục cấu hình (test, multi-tenant)': '— Override config directory (testing, multi-tenant)',
+
+    // --- Troubleshooting ---
+    '⚠️ Lỗi thường gặp': '⚠️ Troubleshooting',
+    '❌ 401 Unauthorized': '❌ 401 Unauthorized',
+    'Client_secret sai hoặc hết hạn. Chạy ': 'Incorrect or expired client_secret. Run ',
+    ' để cập nhật thông tin OAuth2.': ' to update OAuth2 credentials.',
+    '⚠️ 404 /oauth/token': '⚠️ 404 /oauth/token',
+    'URL token sai. Vào ': 'Wrong token URL. Edit ',
+    ', sửa ': ', fix ',
+    ' (vd: đổi ': ' (e.g. change ',
+    ' thành ': ' to ',
+    ' nếu dùng IAS).': ' if using IAS).',
+    '🔒 Không giải mã được secret': '🔒 Cannot Decrypt Secret',
+    'Đổi máy / hostname. Chạy lại ': 'Changed machine/hostname. Re-run ',
+    ' để tạo lại secret.': ' to recreate the secret.',
+    '📭 Chưa có profile nào': '📭 No Profile Configured',
+    'Chạy ': 'Run ',
+    ' để thêm project SAP đầu tiên.': ' to add your first SAP project.',
+    '🔌 MCP tool không xuất hiện': '🔌 MCP Tools Not Showing',
+    'Kiểm tra ': 'Check ',
+    ' đã đúng cấu trúc chưa. Đảm bảo ': ' has the correct structure. Ensure ',
+    ' có trong PATH.': ' is in your PATH.',
+
+    // --- Cookie Auth section ---
+    '🍪 Cookie Auth & Web Popup Re-Auth': '🍪 Cookie Auth & Web Popup Re-Auth',
+    'Bên cạnh OAuth2, SAP ABAP Agent hỗ trợ ': 'In addition to OAuth2, SAP ABAP Agent supports ',
+    'cookie-based authentication': 'cookie-based authentication',
+    ' sử dụng SAP session cookies (': ' using SAP session cookies (',
+    'MYSAPSSO2': 'MYSAPSSO2',
+    'SAP_SESSIONID': 'SAP_SESSIONID',
+    'sap-usercontext': 'sap-usercontext',
+    '). Phương thức này đặc biệt hữu dụng khi bạn đã có sẵn session từ SAP GUI, Fiori Launchpad, hoặc muốn tận dụng cơ chế ': '. This is especially useful if you already have a session from SAP GUI, Fiori Launchpad, or want to leverage ',
+    'Single Sign-On (SSO)': 'Single Sign-On (SSO)',
+    '⚡ Tính năng chính': '⚡ Key Features',
+    'Cookie-Based Auth': 'Cookie-Based Auth',
+    'Dùng session cookies SAP thay vì OAuth2 tokens. Hỗ trợ ': 'Uses SAP session cookies instead of OAuth2 tokens. Supports ',
+    ', v.v.': ', etc.',
+    'Web Popup Re-Auth': 'Web Popup Re-Auth',
+    'Khi session hết hạn (401), tự động mở browser cho user đăng nhập lại — lấy cookies mới, tiếp tục công việc.': 'When session expires (401), auto-opens a browser for the user to re-login — gets fresh cookies, continues work.',
+    'Stampede Protection': 'Stampede Protection',
+    'Nhiều request cùng bị 401 chỉ kích hoạt 1 lần re-auth (mutex + cooldown 5s) — giống cơ chế ': 'Multiple concurrent 401s trigger only 1 re-auth (mutex + 5s cooldown) — same as ',
+    ' của vibing-steampunk.': ' from vibing-steampunk.',
+    'reauthMu': 'reauthMu',
+    'Lưu cookies an toàn': 'Secure Cookie Storage',
+    'Cookies được mã hóa và lưu trong ': 'Cookies are encrypted and stored in ',
+    ' (DPAPI / AES-256-GCM), phục hồi khi restart agent.': ' (DPAPI / AES-256-GCM), restored on agent restart.',
+    '🔧 CLI Wizard — Cài đặt Cookie Auth': '🔧 CLI Wizard — Setting up Cookie Auth',
+    'Khi chạy ': 'When running ',
+    ', wizard sẽ hỏi bạn chọn phương thức xác thực. Chọn ': ', the wizard asks you to pick an auth method. Choose ',
+
+    'option 4 (Cookie-based)': 'option 4 (Cookie-based)',
+    '🌐 Web Popup Re-Auth — Khi Session Hết Hạn': '🌐 Web Popup Re-Auth — When Session Expires',
+    'Khi đang code mà session SAP hết hạn (HTTP 401), agent tự động:': 'While coding, if the SAP session expires (HTTP 401), the agent auto:',
+    'Phát hiện ': 'Detects ',
+    '401 Unauthorized': '401 Unauthorized',
+    ' từ SAP': ' from SAP',
+    'Kích hoạt ': 'Activates ',
+
+    ' (chỉ 1 lần re-auth dù nhiều request cùng fail)': ' (only 1 re-auth even if multiple requests fail)',
+    'Gọi ': 'Calls ',
+    'ReauthHandler': 'ReauthHandler',
+    ' — mở trình duyệt web': ' — opens web browser',
+    'Hiển thị thông báo ': 'Shows notification ',
+    '🔐 SESSION SAP DA HET HAN!': '🔐 SESSION EXPIRED!',
+    ' + URL đăng nhập': ' + login URL',
+    'User đăng nhập vào SAP qua browser': 'User logs into SAP via browser',
+    'Manual mode:': 'Manual mode:',
+    ' User copy cookies từ DevTools (F12) → paste vào terminal': ' User copies cookies from DevTools (F12) → pastes into terminal',
+    'Auto mode:': 'Auto mode:',
+    ' Playwright tự động trích xuất cookies sau login': ' Playwright auto-extracts cookies after login',
+    'Cookies mới được lưu vào ': 'Fresh cookies saved to ',
+    ' (mã hóa)': ' (encrypted)',
+    'Request được retry tự động với cookies mới → thành công!': 'Request auto-retried with fresh cookies → success!',
+    '🔐 Hai Chế Độ Re-Auth': '🔐 Two Re-Auth Modes',
+    'Manual Paste (Mặc định)': 'Manual Paste (Default)',
+    'Dùng ': 'Uses ',
+    'webbrowser.open()': 'webbrowser.open()',
+    ' mở SAP URL. User login thủ công, sau đó mở DevTools (F12) → Application → Cookies → copy cookie string → paste vào terminal.': ' to open SAP URL. User logs in manually, then opens DevTools (F12) → Application → Cookies → copy cookie string → paste into terminal.',
+    '✅ Không cần cài đặt thêm. Hoạt động trên mọi nền tảng.': '✅ No extra installation. Works on all platforms.',
+    'Auto (Playwright)': 'Auto (Playwright)',
+    'Dùng ': 'Uses ',
+    'playwright': 'playwright',
+    ' mở Chromium, cho user login, tự động phát hiện khi đăng nhập xong và trích xuất cookies.': ' to open Chromium, let user login, auto-detect when done and extract cookies.',
+    '⚠️ Yêu cầu ': '⚠️ Requires ',
+    'pip install playwright': 'pip install playwright',
+    '. Tự động fallback về manual nếu chưa cài.': '. Auto-fallback to manual if not installed.',
+    '📦 Cài đặt Playwright (cho Auto mode)': '📦 Installing Playwright (for Auto mode)',
+    'Cơ chế cookie re-auth được xây dựng dựa trên pattern từ ': 'The cookie re-auth mechanism is built on the pattern from ',
+    ' (dự án ADT → MCP bridge bằng Go):': ' (an ADT → MCP bridge in Go):',
+    '🔧 File liên quan': '🔧 Related Files',
+    '⚠️ Lưu ý': '⚠️ Notes',
+    '🍪 Cookies cần có SAP session': '🍪 Cookies Need SAP Session',
+    'Cần ít nhất một trong các cookies: ': 'At least one of these cookies is needed: ',
+    ', hoặc ': ', or ',
+    'sap-contextid': 'sap-contextid',
+    '🔄 Round-trip an toàn': '🔄 Safe Round-Trip',
+    'Khi re-auth, cookies cũ được giữ nguyên cho đến khi cookies mới được xác nhận. Stampede protection ngăn multiple re-auth đồng thời.': 'On re-auth, old cookies are preserved until new ones are confirmed. Stampede protection prevents concurrent re-auths.',
+
+    // --- Consultant System section ---
+    'Auto-scoring routing engine dispatch câu hỏi user tới ': 'Auto-scoring routing engine dispatches user questions to ',
+    '27 agents': '27 agents',
+    ' (18 module consultants + 1 researcher).': ' (18 module consultants + 1 researcher).',
+    'Keyword Matrix': 'Keyword Matrix',
+    ': Mỗi module có keywords với weight 3/2/1': ': Each module has weighted keywords (3/2/1)',
+    'Tính score': 'Score Calculation',
+    ': Module >= threshold (2) → dispatch': ': Module >= threshold (2) → dispatch',
+    'Explicit mention': 'Explicit Mention',
+    ': "hoi SD", "hoi FI" → dispatch mặc định': ': "hoi SD", "hoi FI" → force dispatch',
+    'Module coupling': 'Module Coupling',
+    ': FI↔CO, PP→QM→MM, PM→MM→FI, v.v.': ': FI↔CO, PP→QM→MM, PM→MM→FI, etc.',
+    'Parallel dispatch': 'Parallel Dispatch',
+    ': Tất cả module >= threshold dispatch song song': ': All modules >= threshold dispatched in parallel',
+    'Danh sách 18 module consultants': '18 Module Consultants',
+    'Ví dụ routing': 'Routing Examples',
+    'Câu hỏi': 'Question',
+    'Dispatch': 'Dispatch',
+    'song song': 'parallel',
+    'quan ly hoa chat nguy hiem': 'manage hazardous substances',
+    'lam sao tao purchase order': 'how to create purchase order',
+    'hoi MM': 'ask MM',
+    'tim CDS view cho sales order + hoi SD': 'find CDS view for sales order + ask SD',
+    'cau hinh customs cho import': 'configure customs for import',
+    'hoi PP va QM va MM': 'ask PP & QM & MM',
+
+    // --- Routing section ---
+    'Chi tiết keyword matrix, explicit mention, module coupling xem trong file ': 'See the full keyword matrix, explicit mention & module coupling in ',
+    'Keyword Matrix (rút gọn)': 'Keyword Matrix (abbreviated)',
+    'Module': 'Module',
+    'Weight 3 keywords': 'Weight 3 keywords',
+    'Weight 2 keywords': 'Weight 2 keywords',
+    'Module Coupling chính': 'Main Module Couplings',
+    'Module A': 'Module A',
+    'Auto-dispatch': 'Auto-dispatch',
+    'Lý do': 'Reason',
+    'Cost center trên ACDOCA (FI)': 'Cost center on ACDOCA (FI)',
+    'Quality inspection, BOM/component': 'Quality inspection, BOM/component',
+    'Spare parts, equipment, chi phí': 'Spare parts, equipment, costs',
+    'GR, delivery, production supply': 'GR, delivery, production supply',
+    'Cost object, billing, timesheet': 'Cost object, billing, timesheet',
+    'Procurement (MM), invoice (FI)': 'Procurement (MM), invoice (FI)',
+    'BP dùng chung cho customer/supplier': 'BP shared for customer/supplier',
+    'Export (SD), import (MM), transport (TM)': 'Export (SD), import (MM), transport (TM)',
+    'Hóa chất (MM), sản xuất (PP), kho (WM)': 'Chemicals (MM), production (PP), warehouse (WM)',
+
+    // --- Installation updates ---
+    'Python >= 3.10 (cho MCP server mới)': 'Python >= 3.10 (for new MCP server)',
+    'Node.js >= 18 (cho supergateway)': 'Node.js >= 18 (for supergateway)',
+    'Cấu hình MCP remote servers cho CDS KB & SAP Docs:': 'Configure MCP remote servers for CDS KB & SAP Docs:',
+    '# CDS Knowledge Base (7,355 views)': '# CDS Knowledge Base (7,355 views)',
+    '# SAP Docs Research': '# SAP Docs Research',
+    'Cấu hình Claude Code plugin:': 'Configure Claude Code plugin:',
+    'Sau bước này, các MCP tool và 27 agents sẽ sẵn sàng trong Claude Code.': 'After this, MCP tools & 27 agents will be ready in Claude Code.',
+
+    // --- Features grid updates ---
+    '18 module consultants': '18 module consultants',
+    'Auto-scoring routing engine. Hỏi câu hỏi nghiệp vụ, AI tự dispatch consultant phù hợp hoặc nhiều module song song.': 'Auto-scoring routing engine. Ask business questions, AI auto-dispatches the right consultant or multiple modules in parallel.',
+    'Keyword scoring + coupling': 'Keyword scoring + coupling',
+    'Mỗi module có keyword matrix weight 3/2/1. Module coupling tự động dispatch các module liên quan.': 'Each module has a weighted keyword matrix (3/2/1). Module coupling auto-dispatches related modules.',
+    'CDS KB + SAP Docs Research': 'CDS KB + SAP Docs Research',
+    'Tra cứu 7,355 CDS views + SAP Help, Community, API Hub, Fiori App Library qua MCP.': 'Search 7,355 CDS views + SAP Help, Community, API Hub, Fiori App Library via MCP.',
+
+    // --- Sidebar new nav items ---
+    'Consultant System': 'Consultant System',
+    '18 module consultants': '18 module consultants',
+    'Auto-scoring routing': 'Auto-scoring routing',
+
+    // --- Quick start prompts ---
+    'Hoi MM: lam sao tao purchase order': 'Ask MM: how to create PO',
+    'Tim CDS view cho sales order + hoi SD': 'Find CDS view for sales order + ask SD',
+
+    // --- Footer ---
+    '18 module consultants + 1 researcher': '18 module consultants + 1 researcher',
+
+    // --- Hero feature cards ---
+
+    // --- Sidebar new nav sections ---
+    'H\u01b0\u1edbng d\u1eabn': 'Guide',
+    'Ki\u1ebfn tr\u00fac h\u1ec7 th\u1ed1ng': 'System Architecture',
+    'C\u00e1ch \u0111\u1eb7t c\u00e2u h\u1ecfi': 'How to Ask Questions',
+    'H\u1ecdc SAP m\u1ed7i ng\u00e0y': 'Learn SAP Daily',
+    '25 module consultants': '25 Module Consultants',
+    'Auto-scoring routing': 'Auto-Scoring Routing',
+
+
+    // --- Quick start prompts ---
+    'H\u1ecdc SAP h\u00f4m nay': 'Learn SAP today',
+    'Quiz MM cho t\u00f4i': 'Quiz me on MM',
+
+    // --- Footer ---
+    '27 agents': '27 agents',
+
+    // --- Consultant System section ---
+    'SAP Consultant System (25 modules + 1 daily learner)': 'SAP Consultant System (25 modules + 1 daily learner)',
+    'Danh s\u00e1ch 25 module consultants + 1 daily learner': 'List of 25 Module Consultants + 1 Daily Learner',
+    'V\u00ed d\u1ee5 routing': 'Routing Examples',
+    'C\u00e2u h\u1ecfi': 'Question',
+
+    // --- Routing section ---
+    'Keyword Matrix (r\u00fat g\u1ecdn)': 'Keyword Matrix (abbreviated)',
+    'Weight 3 keywords': 'Weight 3 keywords',
+    'Weight 2 keywords': 'Weight 2 keywords',
+    'Module Coupling ch\u00ednh': 'Main Module Couplings',
+    'Module A': 'Module A',
+    'L\u00fd do': 'Reason',
+
+    // --- Daily Learner section ---
+    'Daily tip + \u0111\u1ec1 xu\u1ea5t module h\u1ecdc': 'Daily tip + module suggestion',
+    'B\u1eaft \u0111\u1ea7u/b\u00e0i ti\u1ebfp theo c\u1ee7a module': 'Start/next lesson for module',
+    'Hi\u1ec3n th\u1ecb LEARNING_PROGRESS.md': 'Show LEARNING_PROGRESS.md',
+    'Li\u1ec7t k\u00ea user skills \u0111\u00e3 t\u1ea1o': 'List user-created skills',
+    'C\u00e2u h\u1ecfi tr\u1eafc nghi\u1ec7m v\u1ec1 module': 'Quiz questions about module',
+
+    // --- Architecture section ---
+    '\U0001f3d7\ufe0f Ki\u1ebfn tr\u00fac h\u1ec7 th\u1ed1ng': '\U0001f3d7\ufe0f System Architecture',
+    '\U0001f504 Lu\u1ed3ng x\u1eed l\u00fd c\u00e2u h\u1ecfi': '\U0001f504 Question Processing Flow',
+    '\U0001f4c1 File Map': '\U0001f4c1 File Map',
+
+
+    // --- How to Ask Questions section ---
+    'C\u00e2u h\u1ecfi m\u1eabu (t\u1ed1t \u2705)': 'Good Examples \u2705',
+    'C\u00e2u h\u1ecfi k\u00e9m (\u274c)': 'Poor Examples \u274c',
+    'Module dispatch': 'Dispatched Modules',
+    'Gi\u1ea3i th\u00edch': 'Explanation',
+    'Skill': 'Skill',
+    'Khi n\u00e0o d\u00f9ng': 'When to Use',
+    'C\u00e2u h\u1ecfi m\u1eabu': 'Sample Question',
+    '\U0001f4a1 C\u00e1ch \u0111\u1eb7t c\u00e2u h\u1ecfi hi\u1ec7u qu\u1ea3': '\U0001f4a1 How to Ask Questions Effectively',
+    '\U0001f4dd Nguy\u00ean t\u1eafc chung': '\U0001f4dd General Principles',
+    '\U0001f3af M\u1eabu c\u00e2u h\u1ecfi cho t\u1eebng module': '\U0001f3af Question Samples by Module',
+    '\U0001f517 C\u00e2u h\u1ecfi multi-module (dispatch song song)': '\U0001f517 Multi-Module Questions (Parallel Dispatch)',
+    '\U0001f4ac C\u00e2u h\u1ecfi cho t\u1eebng skill': '\U0001f4ac Questions by Skill',
+    '\u26a1 M\u1eb9o n\u00e2ng cao': '\u26a1 Advanced Tips',
+
+
+    // --- Quick start ---
+    'M\u1edf Claude Code v\u1edbi plugin v\u00e0 th\u1eed m\u1ed9t trong c\u00e1c c\u00e2u l\u1ec7nh sau:': 'Launch Claude Code with the plugin and try one of these prompts:',
+    'Li\u1ec7t k\u00ea c\u00e1c profile SAP c\u1ee7a t\u00f4i': 'List my SAP profiles',
+
+    // --- Footer ---
+    'Trang h\u01b0\u1edbng d\u1eabn n\u00e0y \u0111\u01b0\u1ee3c t\u1ea1o b\u1edfi StormShynn Coding Assistant': 'This guide was created by StormShynn Coding Assistant',
+
+    // --- Feature cards ---
+    'H\u1ecdc SAP m\u1ed7i ng\u00e0y': 'Learn SAP Daily',
+    'Hermes-like daily learning agent. T\u1ef1 \u0111\u1ed9ng track ti\u1ebfn \u0111\u1ed9, g\u1eedi tip h\u1eb1ng ng\u00e0y, t\u1ea1o skill documents t\u1eeb c\u00e2u h\u1ecfi ph\u1ee9c t\u1ea1p.': 'Hermes-like daily learning agent. Auto-tracks progress, sends daily tips, creates skill docs from complex Q&As.',
+
+    // --- Doctor / MCP transport / PATH troubleshooting (added when server.py + doctor.py were built) ---
+    ' t\u1ef1 ph\u00e1t hi\u1ec7n c\u00e1c l\u1ed7i m\u00f4i tr\u01b0\u1eddng hay g\u1eb7p nh\u1ea5t (PATH thi\u1ebfu entry point, thi\u1ebfu pywin32/playwright...) v\u00e0 in s\u1eb5n l\u1ec7nh fix \u2014 kh\u00f4ng c\u1ea7n debug th\u1ee7 c\u00f4ng.': ' auto-detects the most common environment issues (missing entry point on PATH, missing pywin32/playwright...) and prints the exact fix command \u2014 no manual debugging needed.',
+    ') v\u00e0 h\u1ecfi ph\u01b0\u01a1ng th\u1ee9c x\u00e1c th\u1ef1c (ch\u1ecdn 1-4):': ') and asks for the auth method (choose 1-4):',
+    ', m\u1eb7c \u0111\u1ecbnh/khuy\u00ean d\u00f9ng': ', default/recommended',
+    ' \u2014 token c\u00f3 s\u1eb5n, nh\u1eadp tay': ' \u2014 a ready-made token, entered manually',
+    ' \u2014 session cookie SAP, xem chi ti\u1ebft \u1edf m\u1ee5c ': ' \u2014 SAP session cookie, see details in the ',
+    'Sau \u0111\u00f3 h\u1ecfi th\u00eam Region, service type (s4hc_(private) / s4hc_(public) / btp / onprem).': 'Then asks for Region, service type (s4hc_(private) / s4hc_(public) / btp / onpem).',
+    '\ud83d\udd10 Hai Ch\u1ebf \u0110\u1ed9 \u2014 L\u1ea5y Cookie L\u1ea7n \u0110\u1ea7u & Re-Auth Khi H\u1ebft H\u1ea1n': '\ud83d\udd10 Two Modes \u2014 Initial Cookie Fetch & Re-Auth on Expiry',
+    'Playwright (Auto) d\u00f9ng \u1edf 2 ch\u1ed7 \u0111\u1ed9c l\u1eadp trong wizard: l\u00fac setup l\u1ea7n \u0111\u1ea7u (b\u01b0\u1edbc ch\u1ecdn ngu\u1ed3n cookie, option 3) v\u00e0 l\u00fac session h\u1ebft h\u1ea1n gi\u1eefa l\u00fac d\u00f9ng (b\u01b0\u1edbc ch\u1ecdn re-auth mode, option 2). Ch\u1ecdn Manual \u1edf ch\u1ed7 n\u00e0y kh\u00f4ng b\u1eaft bu\u1ed9c ch\u1ecdn Manual \u1edf ch\u1ed7 kia.': 'Playwright (Auto) is used in 2 independent places in the wizard: at initial setup (the cookie-source step, option 3) and when the session expires mid-use (the re-auth mode step, option 2). Choosing Manual in one does not force Manual in the other.',
+    ' m\u1edf Chromium, cho user login, t\u1ef1 \u0111\u1ed9ng ph\u00e1t hi\u1ec7n khi \u0111\u0103ng nh\u1eadp xong v\u00e0 tr\u00edch xu\u1ea5t cookies \u2014 d\u00f9ng \u0111\u01b0\u1ee3c c\u1ea3 l\u00fac setup l\u1ea7n \u0111\u1ea7u v\u00e0 l\u00fac re-auth.': ' to open Chromium, let the user log in, auto-detect when done, and extract cookies \u2014 works both at initial setup and at re-auth.',
+    'Claude Code kh\u00f4ng c\u00f2n d\u00f9ng file ': 'Claude Code no longer uses the ',
+    ' \u2014 \u0111\u0103ng k\u00fd b\u1eb1ng l\u1ec7nh ': ' file \u2014 register with the ',
+    'M\u1eb7c \u0111\u1ecbnh scope ': 'Default scope is ',
+    ' (ch\u1ec9 m\u00e1y n\u00e0y, ch\u1ec9 project hi\u1ec7n t\u1ea1i). D\u00f9ng ': ' (this machine, this project only). Use ',
+    ' \u0111\u1ec3 d\u00f9ng \u0111\u01b0\u1ee3c \u1edf m\u1ecdi project, ho\u1eb7c ': ' to make it available in every project, or ',
+    ' \u0111\u1ec3 l\u01b0u v\u00e0o ': ' to save it into ',
+    ' v\u00e0 chia s\u1ebb qua git cho c\u1ea3 team.': ' and share it via git with the team.',
+    'Test plugin c\u1ee5c b\u1ed9 (kh\u00f4ng c\u1ea7n c\u00e0i v\u00e0o marketplace):': 'Test the plugin locally (no marketplace install needed):',
+    'Ki\u1ec3m tra m\u00f4i tr\u01b0\u1eddng (PATH, dependency...)': 'Check environment (PATH, dependencies...)',
+    ' b\u00e1o "not recognized", ch\u1ea1y ': ' says "not recognized", run ',
+    ' \u2014 l\u1ec7nh n\u00e0y ch\u1ea1y \u0111\u01b0\u1ee3c d\u00f9 PATH ch\u01b0a \u0111\u00fang.': ' \u2014 this command works even if PATH is wrong.',
+    'Ki\u1ec3m tra \u0111\u00e3 ': 'Check whether ',
+    ' ch\u01b0a (': ' has run (',
+    ' \u0111\u1ec3 xem). \u0110\u1ea3m b\u1ea3o ': ' to check). Make sure ',
+    'PATH thi\u1ebfu folder ch\u1ee9a entry point \u2014 l\u1ed7i r\u1ea5t hay g\u1eb7p tr\u00ean Windows khi ': 'PATH is missing the folder with the entry point \u2014 a very common Windows issue when ',
+    ' c\u00e0i v\u00e0o user-scheme site-packages. Ch\u1ea1y ': ' installs into user-scheme site-packages. Run ',
+    ' (ch\u1ea1y \u0111\u01b0\u1ee3c d\u00f9 PATH sai) \u0111\u1ec3 t\u1ef1 ph\u00e1t hi\u1ec7n v\u00e0 l\u1ea5y s\u1eb5n l\u1ec7nh fix.': ' (works even if PATH is wrong) to auto-detect the issue and get the exact fix command.',
+
+    // --- daily-learner section additions (2026-07-14) ---
+
+    'Học SAP mỗi ngày — Hermes-like Agent': 'Learn SAP Daily — Hermes-like Agent',
+
+    'Agent tự cải thiện (self-improving) lấy cảm hứng từ <strong>Hermes Agent</strong> bởi Nous Research. Vừa là gia sư SAP hàng ngày, vừa tự động tạo skill documents từ tương tác với người dùng.':
+        'A self-improving agent inspired by <strong>Hermes Agent</strong> by Nous Research. Acts as a daily SAP tutor while auto-creating skill documents from user interactions.',
+
+    '🌟 Hai chế độ hoạt động': '🌟 Two Operating Modes',
+
+    'Gửi tip SAP/ABAP mỗi ngày dựa trên module user hay hỏi. Track tiến độ qua <code>LEARNING_PROGRESS.md</code>. Gợi ý lộ trình học cá nhân hóa.':
+        'Sends daily SAP/ABAP tips based on user\'s frequently asked modules. Tracks progress via <code>LEARNING_PROGRESS.md</code>. Suggests personalized learning paths.',
+
+    'Khi giải quyết vấn đề phức tạp (≥3 bước), tự động tạo skill document trong <code>skills/user-skills/</code> — giống Hermes Agent.':
+        'When solving complex problems (≥3 steps), automatically creates skill documents in <code>skills/user-skills/</code> — inspired by Hermes Agent.',
+
+    'Tự sinh <code>skills/user-skills/</code> từ câu trả lời phức tạp':
+        'Auto-generates <code>skills/user-skills/</code> from complex answers',
+
+    '<code>LEARNING_PROGRESS.md</code> — module progress, mastered topics':
+        '<code>LEARNING_PROGRESS.md</code> — module progress, mastered topics',
+
+    'Daily tip mỗi session đầu ngày': 'Daily tip on the first session of the day',
+
+    'Hoạt động trong Claude Code, dispatch qua <code>sap-ask-consultant</code>':
+        'Works within Claude Code, dispatched via <code>sap-ask-consultant</code>',
+
+    'Càng học càng nhiều skill, knowledge base càng phong phú':
+        'The more you learn, the richer your skills and knowledge base become',
+
+    '3-tier memory: episodic (chat) + semantic (knowledge) + procedural (skills)':
+        '3-tier memory: episodic (chat) + semantic (knowledge) + procedural (skills)',
+
+    'Export LEARNING_PROGRESS + knowledge graph + skills làm training data':
+        'Exports LEARNING_PROGRESS + knowledge graph + skills as training data',
+
+    '📋 User Commands': '📋 User Commands',
+
+    'Daily tip + đề xuất module học': 'Daily tip + module learning suggestion',
+
+    'Bắt đầu/bài tiếp theo của module': 'Start/continue next lesson of module',
+
+    'Hiển thị LEARNING_PROGRESS.md': 'Displays LEARNING_PROGRESS.md',
+
+    'Liệt kê user skills đã tạo': 'Lists created user skills',
+
+    'Câu hỏi trắc nghiệm về module': 'Quiz questions about the module',
+
+    'Tạo learning path cho module mới': 'Creates a learning path for a new module',
+
+    'Random tip từ module user thích': 'Random tip from user\'s favorite module',
+
+    'Xem lại lịch sử chat hôm qua': 'Review yesterday\'s chat history',
+
+    '📚 Module Knowledge Matrix': '📚 Module Knowledge Matrix',
+
+    '18 module SAP với nội dung học theo 3 trình độ. Mỗi module có 5 topics cho mỗi level.':
+        '18 SAP modules with content at 3 proficiency levels. Each module has 5 topics per level.',
+
+    '📝 Daily Tip Templates': '📝 Daily Tip Templates',
+
+    'Mỗi ngày, Daily Learner gửi tip phù hợp với trình độ của bạn:':
+        'Each day, Daily Learner sends a tip suited to your skill level:',
+
+    '📘 SAP Tip hôm nay: [Module]': '📘 SAP Tip of the Day: [Module]',
+
+    '[Kiến thức cơ bản, 2-3 câu]': '[Basic knowledge, 2-3 sentences]',
+
+    '💡 Ví dụ ngắn · 🔍 Thử ngay: câu lệnh/Fiori app':
+        '💡 Short example · 🔍 Try it now: command/Fiori app',
+
+    '📗 SAP Deep Dive: [Module] > [Topic]': '📗 SAP Deep Dive: [Module] > [Topic]',
+
+    '[Kiến thức nâng cao, 3-4 câu]': '[Advanced knowledge, 3-4 sentences]',
+
+    '⚙️ Cấu hình SSCUI · 🔗 Module coupling':
+        '⚙️ SSCUI Configuration · 🔗 Module coupling',
+
+    '📕 SAP Expert: [Module] > [Advanced Topic]': '📕 SAP Expert: [Module] > [Advanced Topic]',
+
+    '[Kiến thức chuyên sâu]': '[In-depth knowledge]',
+
+    '🔄 Cross-module integration · ⚠️ Release-specific notes':
+        '🔄 Cross-module integration · ⚠️ Release-specific notes',
+
+    '🎯 Progressive Learning Paths': '🎯 Progressive Learning Paths',
+
+    'Beginner Path (cho người mới — 4 tuần):':
+        'Beginner Path (for newcomers — 4 weeks):',
+
+    'Tuần 1:': 'Week 1:',
+    'Tuần 2:': 'Week 2:',
+    'Tuần 3:': 'Week 3:',
+    'Tuần 4:': 'Week 4:',
+
+    'MM (procurement cơ bản) → Purchase Order → Goods Receipt → Invoice Receipt':
+        'MM (basic procurement) → Purchase Order → Goods Receipt → Invoice Receipt',
+
+    'SD (sales cơ bản) → Sales Order → Delivery → Billing':
+        'SD (basic sales) → Sales Order → Delivery → Billing',
+
+    'FI (kế toán cơ bản) → General Ledger → AP → AR':
+        'FI (basic accounting) → General Ledger → AP → AR',
+
+    'CO (controlling cơ bản) → Cost Center → Internal Order → Product Costing':
+        'CO (basic controlling) → Cost Center → Internal Order → Product Costing',
+
+    'Intermediate Path (cho người đã biết SAP):':
+        'Intermediate Path (for those familiar with SAP):',
+
+    'Chọn <strong>1 module chuyên sâu</strong> + <strong>2 module liên quan</strong>':
+        'Choose <strong>1 specialized module</strong> + <strong>2 related modules</strong>',
+
+    'Ví dụ: MM advanced + FI (valuation) + SD (stock transport)':
+        'Example: MM advanced + FI (valuation) + SD (stock transport)',
+
+    'Ví dụ: PP advanced + MM (BOM/component) + QM (inspection)':
+        'Example: PP advanced + MM (BOM/component) + QM (inspection)',
+
+    'Ví dụ: FI advanced + CO (cost center) + TR (cash management)':
+        'Example: FI advanced + CO (cost center) + TR (cash management)',
+
+    'Expert Path (cho chuyên gia — cross-module integration):':
+        'Expert Path (for specialists — cross-module integration):',
+
+    '🤖 Auto-Skill Creation Engine': '🤖 Auto-Skill Creation Engine',
+
+    'Khi bạn giải quyết vấn đề SAP phức tạp, Daily Learner tự động tạo skill document nếu:':
+        'When you solve complex SAP problems, Daily Learner auto-creates a skill document if:',
+
+    'Vấn đề cần ít nhất 3 bước giải quyết — không phải câu trả lời đơn giản.':
+        'The problem requires at least 3 steps to solve — not a simple answer.',
+
+    'Có SSCUI / Fiori app / API cụ thể được đề cập trong giải pháp.':
+        'Specific SSCUI / Fiori app / API is mentioned in the solution.',
+
+    'User nói "cảm ơn", "hữu ích", "got it" — xác nhận giải pháp đúng.':
+        'User says "thanks", "useful", "got it" — confirming the solution is correct.',
+
+    'Kiểm tra <code>skills/sap-user-skills/</code> không có file tương tự trước khi tạo mới.':
+        'Checks <code>skills/sap-user-skills/</code> for no similar file before creating new one.',
+
+  };
+
+  let currentLang = localStorage.getItem('sap-abap-agent-lang') || 'vi';
+
+  function translatePage(lang) {
+    const isEn = lang === 'en';
+    const root = document.querySelector('.content');
+    if (!root) return;
+
+    // Update html lang attribute
+    htmlEl.setAttribute('lang', isEn ? 'en' : 'vi');
+
+    // Toggle button labels
+    langVi.style.display = isEn ? 'none' : '';
+    langEn.style.display = isEn ? '' : 'none';
+
+    // Update page title
+    document.title = isEn ? 'SAP ABAP Agent — User Guide' : 'SAP ABAP Agent — Hướng dẫn sử dụng';
+
+    // Walk text nodes and translate
+    const walker = document.createTreeWalker(
+      root,
+      NodeFilter.SHOW_TEXT,
+      {
+        acceptNode: function(node) {
+          // Skip code blocks and pre elements
+          let el = node.parentElement;
+          while (el) {
+            if (el.tagName === 'PRE' || el.tagName === 'CODE' || el.tagName === 'SCRIPT' || el.tagName === 'STYLE') {
+              return NodeFilter.FILTER_REJECT;
+            }
+            el = el.parentElement;
+          }
+          return NodeFilter.FILTER_ACCEPT;
+        }
+      }
+    );
+
+    const replacements = [];
+    while (walker.nextNode()) {
+      const node = walker.currentNode;
+      let text = node.textContent;
+      let original = text;
+
+      if (isEn) {
+        // Save original VI text for perfect round-trip restoration
+        const parent = node.parentElement;
+        if (parent && !parent.hasAttribute('data-vi')) {
+          parent.setAttribute('data-vi', text);
+        }
+
+        // VI -> EN
+        for (const [vi, en] of Object.entries(translations)) {
+          if (en === '') {
+            text = text.replace(vi, '');
+          } else if (text.includes(vi)) {
+            text = text.split(vi).join(en);
+          }
+        }
+      } else {
+        // EN -> VI: restore from saved data-vi if available
+        const parent = node.parentElement;
+        const savedVi = parent ? parent.getAttribute('data-vi') : null;
+        if (savedVi !== null && savedVi.trim()) {
+          text = savedVi;
+        } else {
+          // Fallback: reverse lookup
+          for (const [vi, en] of Object.entries(translations)) {
+            if (en && text.includes(en)) {
+              text = text.split(en).join(vi);
+            }
+          }
+        }
+      }
+
+      if (text !== original) {
+        replacements.push({ node, text });
+      }
+    }
+
+    for (const { node, text } of replacements) {
+      node.textContent = text;
+    }
+
+    currentLang = lang;
+    localStorage.setItem('sap-abap-agent-lang', lang);
+  }
+
+  if (langToggle) {
+    langToggle.addEventListener('click', () => {
+      const newLang = currentLang === 'vi' ? 'en' : 'vi';
+      translatePage(newLang);
+    });
+  }
+
+  // Apply saved language on load
+  if (currentLang === 'en') {
+    translatePage('en');
+  }
+</script>
+
+<script>
+(function() {
+  'use strict';
+
+  var searchInput = document.getElementById('searchInput');
+  var searchResults = document.getElementById('searchResults');
+  if (!searchInput || !searchResults) return;
+
+  var sections = {};
+
+  // Collect all sections with ids
+  document.querySelectorAll('section[id]').forEach(function(section) {
+    var id = section.id;
+    var titleEl = section.querySelector('h2') || section.querySelector('h1');
+    var title = '';
+    if (titleEl) {
+      var icon = titleEl.querySelector('.section-icon');
+      var iconText = icon ? icon.textContent + ' ' : '';
+      var titleText = titleEl.textContent.replace(icon ? icon.textContent : '', '').trim();
+      title = iconText + titleText;
+    }
+    // Get text content from paragraphs and lists
+    var textContent = '';
+    section.querySelectorAll('p, li, td, th').forEach(function(el) {
+      textContent += el.textContent + ' ';
+    });
+    textContent = textContent.trim();
+
+    if (id && title) {
+      sections[id] = {
+        id: id,
+        title: title,
+        text: textContent.substring(0, 500)
+      };
+    }
+  });
+
+  // Build FlexSearch index (load from CDN)
+  function initSearch() {
+    if (typeof FlexSearch === 'undefined') {
+      setTimeout(initSearch, 200);
+      return;
+    }
+
+    var index = new FlexSearch.Document({
+      document: {
+        id: 'id',
+        index: [{
+          field: 'title',
+          tokenize: 'forward',
+          cache: true
+        }, {
+          field: 'text',
+          tokenize: 'forward',
+          cache: true
+        }]
+      },
+      tokenize: 'forward'
+    });
+
+    Object.keys(sections).forEach(function(_sk) { var item = sections[_sk];
+      index.add(item);
+    });
+
+    // Search handler
+    searchInput.addEventListener('input', function() {
+      var query = this.value.trim();
+      if (query.length < 1) {
+        searchResults.classList.remove('open');
+        return;
+      }
+
+      var raw = index.search(query, { limit: 8, suggest: true });
+      var results = [];
+      var seen = {};
+
+      raw.forEach(function(fieldResult) {
+        (fieldResult.result || []).forEach(function(id) {
+          if (!seen[id] && results.length < 8) {
+            seen[id] = true;
+            var section = sections[id];
+            if (section) {
+              results.push(section);
+            }
+          }
+        });
+      });
+
+      renderResults(results, query);
+    });
+
+    // Close on click outside
+    document.addEventListener('click', function(e) {
+      if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
+        searchResults.classList.remove('open');
+      }
+    });
+
+    // Navigate with keyboard
+    searchInput.addEventListener('keydown', function(e) {
+      var items = searchResults.querySelectorAll('.sr-item');
+      var activeItem = searchResults.querySelector('.sr-item.active');
+      var activeIdx = -1;
+      if (activeItem) {
+        activeIdx = Array.prototype.indexOf.call(items, activeItem);
+      }
+
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        var nextIdx = activeIdx + 1;
+        if (nextIdx < items.length) {
+          if (activeItem) activeItem.classList.remove('active');
+          items[nextIdx].classList.add('active');
+        }
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        var prevIdx = activeIdx - 1;
+        if (prevIdx >= 0) {
+          if (activeItem) activeItem.classList.remove('active');
+          items[prevIdx].classList.add('active');
+        }
+      } else if (e.key === 'Enter') {
+        e.preventDefault();
+        if (activeItem) {
+          activeItem.click();
+        } else if (items.length > 0) {
+          items[0].click();
+        }
+      } else if (e.key === 'Escape') {
+        searchResults.classList.remove('open');
+        searchInput.blur();
+      }
+    });
+
+    function renderResults(results, query) {
+      searchResults.innerHTML = '';
+
+      if (results.length === 0) {
+        searchResults.innerHTML = '<div class="sr-empty">Không tìm thấy kết quả cho "<strong>' + escapeHtml(query) + '</strong>"</div>';
+        searchResults.classList.add('open');
+        return;
+      }
+
+      var html = '<div class="sr-count">' + results.length + ' kết quả</div>';
+
+      results.forEach(function(section) {
+        var title = highlightMatch(section.title, query);
+        var snippet = highlightMatch(section.text.substring(0, 100), query);
+        html += '<div class="sr-item" data-id="' + section.id + '">' +
+          '<div class="sr-title">' + title + '</div>' +
+          '<div class="sr-section">' + snippet + '...</div>' +
+          '</div>';
+      });
+
+      searchResults.innerHTML = html;
+      searchResults.classList.add('open');
+
+      // Click handler
+      searchResults.querySelectorAll('.sr-item').forEach(function(item) {
+        item.addEventListener('click', function() {
+          var id = this.dataset.id;
+          searchResults.classList.remove('open');
+          searchInput.value = '';
+          var target = document.getElementById(id);
+          if (target) {
+            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        });
+      });
+    }
+
+    function highlightMatch(text, query) {
+      if (!query || !text) return text || '';
+      var escaped = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      var regex = new RegExp('(' + escaped + ')', 'gi');
+      return text.replace(regex, '<mark>$1</mark>');
+    }
+
+    function escapeHtml(text) {
+      var div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+  }
+
+  initSearch();
+})();
+</script>
+
+</body>
+</html>
+
+

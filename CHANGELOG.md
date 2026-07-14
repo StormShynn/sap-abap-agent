@@ -1,4 +1,4 @@
-# 📋 Changelog — SAP ABAP Agent
+﻿# 📋 Changelog — SAP ABAP Agent
 
 All notable changes to this project will be documented in this file.
 
@@ -9,6 +9,8 @@ Format dựa trên [Keep a Changelog](https://keepachangelog.com/) và [Semantic
 ## [v1.3.3] — 2026-07-14
 
 ### Changed
+- 🏷️ **Service type taxonomy: đổi schema** — cũ (`s4hc` / `btp` / `onprem`) → mới (`s4hc_(private) / s4hc_(public) / btp / onprem`). Tách rõ S/4HANA Cloud Public vs Private, alias tự động (`s4hc` → `s4hc_(public)`) để user cũ không bị lỗi. Helper `_ask_service()` dùng chung cho 4 nhánh auth, validator `normalize_service_type()` chặn giá trị sai.
+- 🛡️ **Lint mới `scripts/check_service_type.py`** — quét code + docs để phát hiện hardcode literal schema cũ.
 - 📐 **index.html: tái cấu trúc toàn bộ section ordering** — sắp xếp lại 47 section thành 7 nhóm
   theo luồng từ newbie → sử dụng → nâng cao:
   - **Bắt đầu**: Giới thiệu → Tính năng → **Kiến trúc (đã move từ cuối lên)** → Cài đặt → **Biến môi
@@ -773,4 +775,6 @@ Format dựa trên [Keep a Changelog](https://keepachangelog.com/) và [Semantic
   `sap-context-module-routing` skill.
 
 ---
+
+
 

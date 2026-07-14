@@ -2,8 +2,9 @@
 """Xac dinh thu muc luu state cua CHINH plugin Claude Code sap-abap-agent.
 
 Day la ban tuong duong cua reference/mcp-server/sap_btp_agent/config/paths.py nhung danh
-cho cac skill cua plugin nay (sap-daily-learner, sap-context-tool-result-trim,
-sap-scaffold-context-summary, sap-analyze-function-spec, sap-handoff, sap-routing-discipline)
+cho cac skill cua plugin nay (sap-daily-learner, sap-analyze-function-spec, sap-handoff, sap-routing-discipline)
+va cac reference process (reference/process/sap-context-tool-result-trim.md,
+reference/process/sap-scaffold-context-summary.md)
 - khac voi sap_btp_agent (MCP server ket noi SAP BTP, dung %USERPROFILE%\\.sap-btp-agent\\).
 
 Vi sao can file rieng: cac skill tren la markdown instruction (khong phai Python package cai

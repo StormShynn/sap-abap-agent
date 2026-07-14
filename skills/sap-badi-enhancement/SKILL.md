@@ -30,10 +30,11 @@ definition tren ABAP Cloud (tru BTP Steampunk, noi co the tu tao).
 Cloud BAdI la cac diem mo rong SAP da release san cho Key User va Developer:
 
 **Key User (Custom Logic)**:
-- Vao app Fiori **Custom Logic**
+- Vao app Fiori **Custom Fields and Logic** -> tab **Custom Logic**
 - Chon Business Context + BAdI tu danh muc SAP release
-- Viet ABAP logic don gian (validation, derive, check)
+- Viet ABAP logic don gian (validation, derivation) bang cu phap rut gon **ABAP for Key Users**
 - KHONG can developer
+- Thao tac tung buoc tren Fiori app + rang buoc cu phap chi tiet: xem skill `sap-key-user-toolkit` §3.2
 
 **Developer (Cloud BAdI Implementation)**:
 - Tao ABAP class implement BAdI definition
@@ -81,21 +82,16 @@ CALL BADI lo_badi->if_ex_badi_name~method_name(
 
 Tren ABAP Cloud, `cl_badi_factory` la class duoc release.
 
-## 5. Custom Logic (Key User)
+## 5. Custom Logic (Key User) — gioi han o cap implementation
 
-Quy trinh Key User Custom Logic:
-1. Vao app Fiori **Custom Logic**
-2. Chon Business Context (VD: Sales, Purchasing, Finance)
-3. Chon BAdI tu danh muc (VD: SalesOrder_PriceCheck)
-4. Viet ABAP logic:
-   ```abap
-   IF iv_condition_type = 'Z001'.
-     ev_price_calculated = iv_base_price * iv_markup / 100.
-   ENDIF.
-   ```
-5. Active, assign to scope
+Quy trinh thao tac tung buoc (vao app, chon Business Context, chon BAdI, phan biet 2 loai
+Validation/Determination, viet logic bang cu phap ABAP for Key Users, active/assign scope) +
+rang buoc cu phap ABAP for Key Users: xem skill `sap-key-user-toolkit` §3.2 — skill do di sau
+vao thao tac Fiori app cho key user, kem vi du Validation/Determination cu the.
 
-**Gioi han Key User Custom Logic**:
+**Gioi han Key User Custom Logic o cap implementation** (khac voi rang buoc cu phap ABAP for
+Key Users da liet ke o skill `sap-key-user-toolkit` §3.2 — day la gioi han rieng cua co che
+BAdI implementation, khong phai gioi han ngon ngu):
 - Chi 1 BAdI implementation active
 - Khong the goi external service (HTTP, RFC)
 - Gioi han ve cu phap ABAP (khong REFRESH, khong EXPORT/IMPORT)

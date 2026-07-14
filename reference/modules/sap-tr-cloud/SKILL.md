@@ -9,7 +9,9 @@ model: haiku
 
 [Seed set — kiem chung qua SAP Community/Help. **Luu y**: S/4HANA Cloud ho tro **Cash Management**
 scope item **BFC**, **Bank Account Management** scope item **BGM**, va **Liquidity Management**
-scope item **BFL**. Treasury (cong cu tai chinh, derivatives) co pham vi hep hon on-premise.]
+scope item **BFL**. Treasury (cong cu tai chinh, derivatives) co pham vi hep hon on-premise.
+Dung ket hop voi skill `sap-extensibility` (bac thang extensibility chung) va `sap-clean-code`
+(dat ten).]
 
 ## 1. Cau hinh (SSCUI)
 

@@ -22,65 +22,21 @@ invoices. **Read-only**, Java-based.
 
 ## Cai dat
 
-### Yeu cau
+Co che cai dat/cau hinh (driver JDBC, file `.prp`, dang ky MCP, 3-tool pattern) giong het moi
+connector CData khac — xem huong dan chung: `reference/mcp-guides/mcp-sap-cdata-setup.md`.
 
-- Java 11+
-- Maven (de build)
-- CData JDBC Driver for SAP Fieldglass (download + license trial)
+Rieng cho Fieldglass:
 
-### Buoc 1: Clone & build
-
-```bash
-git clone https://github.com/CDataSoftware/sap-fieldglass-mcp-server-by-cdata.git
-cd sap-fieldglass-mcp-server-by-cdata
-mvn clean install
-```
-
-### Buoc 2: License JDBC Driver
-
-```bash
-java -jar cdata.jdbc.sapfieldglass.jar --license
-```
-
-### Buoc 3: Tao .prp config file
-
-Tao file `sap-fieldglass.prp`:
-
-```properties
-# Connection string
-connection.string = "JDBC URL cua SAP Fieldglass..."
-
-# Driver path
-driver.path = "/path/to/cdata.jdbc.sapfieldglass.jar"
-
-# Tables cho phep truy van
-tables = *
-```
-
-### Buoc 4: Cau hinh MCP
-
-```json
-{
-  "mcpServers": {
-    "sap-fieldglass": {
-      "command": "java",
-      "args": [
-        "-jar",
-        "/path/to/CDataMCP-jar-with-dependencies.jar",
-        "/path/to/sap-fieldglass.prp"
-      ]
-    }
-  }
-}
-```
+| | |
+|---|---|
+| Driver JDBC | `cdata.jdbc.sapfieldglass.jar` |
+| File `.prp` | `sap-fieldglass.prp` |
+| Server name goi y | `sap-fieldglass` |
 
 ## Tools
 
-| Tool | Mo ta |
-|------|-------|
-| `fieldglass_get_tables` | Liet ke tat ca bang trong SAP Fieldglass instance |
-| `fieldglass_get_columns` | Liet ke columns cua 1 table |
-| `fieldglass_run_query` | Thuc thi SQL SELECT query |
+3 tools SQL chuan cua CData (chi tiet trong shared doc o tren): `fieldglass_get_tables`,
+`fieldglass_get_columns`, `fieldglass_run_query`.
 
 ## Cac bang pho bien
 
@@ -109,3 +65,4 @@ tables = *
 - Repository: `https://github.com/CDataSoftware/sap-fieldglass-mcp-server-by-cdata`
 - CData JDBC Driver: `https://www.cdata.com/drivers/sapfieldglass/download/jdbc`
 - CData MCP Official: `https://www.cdata.com/drivers/sapfieldglass/mcp/`
+- Cai dat CData MCP tong quat: `reference/mcp-guides/mcp-sap-cdata-setup.md`

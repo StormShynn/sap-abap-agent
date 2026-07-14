@@ -27,4 +27,4 @@ model: haiku
 Load `deep/SKILL.md` theo section lien quan (`Grep` de vi tri) → cross-check `api.sap.com` neu can → ap dung `sap-extensibility` bac thang truoc khi de xuat side-by-side.
 
 ## 4. Tich hop
-Skill lien quan: `sap-extensibility`, `sap-clean-code`, `sap-docs-researcher`, `sap-cds-kb`.
+Skill lien quan: `sap-extensibility`, `sap-clean-code`, `sap-docs-research`, `sap-cds-kb`.

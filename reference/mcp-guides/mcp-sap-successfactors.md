@@ -1,19 +1,7 @@
----
-name: mcp-sap-successfactors
-description: |
-  Huong dan cai dat va su dung MCP servers cho SAP SuccessFactors — 2 options: sf-mcp
-  (open-source, 62+ tools) va CData SuccessFactors MCP (SQL-based read-only). Tra cuu Employee
-  Central, RBP security, Time Off, Hiring, Position Management.
-when_to_use: |
-  "cai dat SuccessFactors MCP", "tra cuu nhan vien tu Claude", "SF employee data",
-  "SuccessFactors API integration", "sf-mcp setup".
-argument-hint: "[SuccessFactors Employee Central / user data query]"
-effort: low
-model: haiku
-tools: [Read, WebFetch]
----
-
 # mcp-sap-successfactors — SAP SuccessFactors MCP Servers
+
+**Dung o dau**: agent `sap-docs-researcher` (khai bao `skills: [..., mcp-sap-successfactors, ...]`)
+— doc file nay khi user can cai dat/tra cuu SAP SuccessFactors qua MCP.
 
 ## Tong quan
 
@@ -65,35 +53,13 @@ SF_COMPANY_ID=your_company
 
 ## Option 2: CData SuccessFactors MCP (SQL-based, read-only)
 
-### Cai dat
+Co che cai dat/cau hinh CData JDBC giong het `mcp-sap-concur` / `mcp-sap-fieldglass` (driver JDBC,
+file `.prp`, dang ky MCP, 3-tool pattern) — xem huong dan chung:
+`reference/mcp-guides/mcp-sap-cdata-setup.md`.
 
-```bash
-git clone https://github.com/CDataSoftware/sap-successfactors-mcp-server-by-cdata.git
-cd sap-successfactors-mcp-server-by-cdata
-mvn clean install
-```
-
-### Yeu cau
-
-- Java 11+
-- CData JDBC Driver for SAP SuccessFactors (download + license trial)
-
-### Cau hinh
-
-```json
-{
-  "mcpServers": {
-    "sf-cdata": {
-      "command": "java",
-      "args": [
-        "-jar",
-        "/path/to/CDataMCP-jar-with-dependencies.jar",
-        "/path/to/sap-successfactors.prp"
-      ]
-    }
-  }
-}
-```
+- **Repository**: `https://github.com/CDataSoftware/sap-successfactors-mcp-server-by-cdata`
+- **Yeu cau**: Java 11+, CData JDBC Driver for SAP SuccessFactors (download + license trial)
+- **File `.prp`**: `sap-successfactors.prp`, server name goi y: `sf-cdata`
 
 ### Tools (both options)
 

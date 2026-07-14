@@ -8,7 +8,9 @@ model: haiku
 # BW (Analytics & Data Warehouse) tren SAP S/4HANA Cloud Public Edition
 
 [Seed set — kiem chung qua SAP Community/Help (xem Nguon tham khao). Luu y: BW tren Cloud
-thuong la **side-by-side** (BW/4HANA hoac SAP Analytics Cloud) thay vi trong S/4HANA core.]
+thuong la **side-by-side** (BW/4HANA hoac SAP Analytics Cloud) thay vi trong S/4HANA core.
+Dung ket hop voi skill `sap-extensibility` (bac thang extensibility chung) va `sap-clean-code`
+(dat ten).]
 
 ## 1. To canh BW tren Public Cloud
 

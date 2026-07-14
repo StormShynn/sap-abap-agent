@@ -34,7 +34,7 @@ activate/chua, test da chay/chua), khong suy doan "chac la xong". Session sau do
 phai tin duoc noi dung, khong phai doi chieu lai tu dau.
 
 Tham chieu artifact co san **bang duong dan**, KHONG copy paste lai noi dung (tranh trung lap
-voi `TECHNICAL_SPEC.md`, `ATC_REVIEW.md`, `manifest.yaml` cua `sap-scaffold-context-summary`,
+voi `TECHNICAL_SPEC.md`, `ATC_REVIEW.md`, `manifest.yaml` cua `reference/process/sap-scaffold-context-summary.md`,
 git diff/commit). HANDOFF.md la lop dieu huong (index), khong phai lop luu tru.
 
 **Mac dinh KHONG ghi file** - chi in toan bo noi dung handoff ngay trong cau tra loi (chat).
@@ -156,7 +156,7 @@ khong can lam gi them.
 
 ## Tich hop
 
-- Skill `sap-scaffold-context-summary` - neu dang scaffold, tham chieu `manifest.yaml` co san
+- `reference/process/sap-scaffold-context-summary.md` - neu dang scaffold, tham chieu `manifest.yaml` co san
   thay vi ghi lai summary layer trong HANDOFF.md.
 - Skill `sap-finish-ticket` - neu checklist da READY, dung skill do de dong ticket, khong can
   handoff nua.

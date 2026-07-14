@@ -85,9 +85,12 @@ def parse_inline_list(val: str) -> list[str]:
 
 
 def skill_exists(name: str) -> bool:
-    return (ROOT / "skills" / name / "SKILL.md").exists() or (
-        ROOT / "reference" / "modules" / name / "SKILL.md"
-    ).exists()
+    return (
+        (ROOT / "skills" / name / "SKILL.md").exists()
+        or (ROOT / "reference" / "modules" / name / "SKILL.md").exists()
+        or (ROOT / "reference" / "mcp-guides" / f"{name}.md").exists()
+        or (ROOT / "reference" / "process" / f"{name}.md").exists()
+    )
 
 
 def check_agent_frontmatter() -> None:
@@ -154,7 +157,7 @@ def check_core_deep_size() -> None:
             fail(
                 "core-size",
                 f"{core.relative_to(ROOT)}: {n_lines} lines, exceeds the {limit}-line CORE "
-                f"budget documented in skills/sap-context-module-routing/SKILL.md "
+                f"budget documented in reference/process/sap-context-module-routing.md "
                 f"(has a deep/SKILL.md sibling, so overflow content belongs there)",
             )
 

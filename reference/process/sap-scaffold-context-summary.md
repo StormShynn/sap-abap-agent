@@ -1,21 +1,9 @@
----
-name: sap-scaffold-context-summary
-description: |
-  Quy tac sinh summary compact giua cac layer (table -> I -> R -> behavior -> service) trong pipeline
-  scaffold (sap-scaffold-rap, sap-scaffold-cds, sap-scaffold-rap-managed-unmanaged). Mooi layer
-  generate ra full source nhung chi summary + cache path dua vao context de layer tiep theo xu ly.
-  Dung khi scaffolding 3-layer RAP/CDS ma context dang phinh (full source cua nhieu object trong
-  cung layer bi mat attention).
-  KHONG dung cho layer don le (<4 object) - full source OK.
-when_to_use: |
-  "context scaffold phinh", "scaffold RAP nhieu object bi chong context",
-  "sau khi generate xong layer X can compact de sang layer Y".
-argument-hint: "[ticket-name]"
-model: haiku
-effort: low
----
-
 # SAP Scaffold Context Summary - Compact giua cac layer scaffold
+
+**Dung o dau**: ky thuat noi bo, khong tu trigger qua tu khoa nua (da chuyen tu `skills/` sang day)
+— duoc ap dung boi `skills/sap-scaffold-rap` (sau moi buoc 2-9), `skills/sap-scaffold-cds` (sau
+moi buoc 1-3), tham chieu tu `skills/sap-write-technical-spec`. Khi cac skill do dang scaffold
+nhieu object cung ticket va context bat dau phinh, chung se tro (`Read`) truc tiep den file nay.
 
 ## Khi nao dung
 
@@ -65,7 +53,7 @@ Cho moi object trong layer, summary luon theo schema:
 - Notes: <1-2 dong dac biet (vd "strict(2)", "with draft", "alias X", "use association data")>
 ```
 
-**Quy tac lua chon field "semantic"** (tu skill `sap-context-tool-result-trim`):
+**Quy tac lua chon field "semantic"** (tu `reference/process/sap-context-tool-result-trim.md`):
 - Chi lay field co `@Semantics.*`, `@ObjectModel.*`, hoac la key
 - BO annotation technical (`@AbapCatalog.foreignKey.specificationPosition`)
 - BO field system (`CreatedBy`, `LastChangedBy`, khi co 1 object rieng cho ho so)
@@ -155,7 +143,7 @@ Sang layer 3 (behavior R), chi can summary tren + doc cache khi can.
 - Skill `sap-scaffold-rap` (cac buoc 2-9) - ap dung sau moi buoc sinh source.
 - Skill `sap-scaffold-cds` (cac buoc 1-3) - ap dung sau moi buoc.
 - Skill `sap-write-technical-spec` - summary co the reference tu TECHNICAL_SPEC de cross-check field.
-- Skill `sap-context-tool-result-trim` - ket hop: trim full source output, ghi snapshot + summary.
+- `reference/process/sap-context-tool-result-trim.md` - ket hop: trim full source output, ghi snapshot + summary.
 
 ## Luu y
 

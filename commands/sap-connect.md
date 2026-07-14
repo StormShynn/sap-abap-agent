@@ -1,4 +1,4 @@
----
+﻿---
 description: Thiet lap / quan ly ket noi SAP BTP (multi-profile)
 argument-hint: "[setup|connect|reset|profiles|where] [URL|profileId]"
 ---
@@ -20,7 +20,7 @@ Wizard se tu sinh profile id tu URL (vd: `project1.s4hana.cloud.sap`), hoi phuon
 3. Bearer token (nhap tay)
 4. Cookie-based -- session cookie SAP; lay cookie tu file, paste tay, hoac **auto** (tu mo browser dang nhap, can extra `playwright`)
 
-Sau do hoi Region, service type.
+Sau do hoi Region, service type (`s4hc_(private)` / `s4hc_(public)` / `btp` / `onprem`).
 
 Thong tin duoc luu rieng trong `%USERPROFILE%\.sap-btp-agent\profiles\<id>\` (Windows)
 hoac `~/.sap-btp-agent/profiles/<id>/` (macOS/Linux):

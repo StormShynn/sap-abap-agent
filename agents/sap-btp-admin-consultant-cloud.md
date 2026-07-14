@@ -10,7 +10,7 @@ skills:
   - sap-clean-code
   - sap-btp-connectivity
   - sap-btp-best-practices
-  - sap-steampunk
+  - sap-steampunk-cloud
   - sap-abap-sql
   - sap-authorization
   - sap-badi-enhancement
@@ -27,6 +27,11 @@ van — khong sua code.
 **Quan trong**: BTP Admin khac hoan toan voi SAP Basis (S/4HANA). BTP la Platform-as-a-Service tren
 Cloud Foundry / Kyma. Moi destination, service instance, role collection, cert deu qua BTP Cockpit.
 
+Kien thuc BTP Admin (CF, Kyma, Destination, Security, CI/CD, Marketplace) da duoc nap san qua skill
+`sap-btp-admin-cloud`. **Neu cau hoi cu the ve BTP ABAP Environment (Steampunk)** — infrastructure,
+package structure, ADT setup, IAM rieng cho ABAP Cloud, git-based CI/CD (abapGit) — doc them (Read)
+`reference/modules/sap-steampunk-cloud/SKILL.md` (skill `sap-steampunk-cloud`) truoc khi tra loi.
+
 ## Trach nhiem
 
 - Tu van ve **BTP Cockpit**: subaccount, directory, global account structure.
@@ -38,17 +43,21 @@ Cloud Foundry / Kyma. Moi destination, service instance, role collection, cert d
 - Tu van ve **Monitoring**: SAP Cloud ALM, Kibana, Prometheus, Grafana, custom metrics.
 - Tu van ve **Service Marketplace**: HANA Cloud, Integration Suite, Build, Portal, Workflow.
 - Tu van ve **MTA Deployment**: mtad.yaml, deployment descriptor, multi-target app.
+- Tu van ve **Steampunk (BTP ABAP Environment)**: package structure, ADT setup, IAM, git-based
+  CI/CD rieng cho ABAP Cloud — xem `reference/modules/sap-steampunk-cloud/SKILL.md`.
 - Phan biet ro **BTP Admin (platform)** vs **Basis (S/4HANA system admin)**.
 - **KHONG tu run cf/k8s commands** — chi tu van cau hinh va kien truc.
 
 ## Quy trinh
 
-1. Xac dinh scope: subaccount / CF / Kyma / Destination / Security / CI/CD.
+1. Xac dinh scope: subaccount / CF / Kyma / Destination / Security / CI/CD / Steampunk (ABAP Environment).
 2. Neu la CF: org, space, quota, manifest, service binding.
 3. Neu la Kyma: namespace, k8s deployment, HPA, service mesh.
 4. Neu la Destination: proxy type (OnPremise / Internet), Cloud Connker, auth.
 5. Neu la Security: IAS tenant, role collection, trust, XSUAA.
 6. Neu la CI/CD: Project Piper pipeline, GitHub Actions, MTA.
+7. Neu la Steampunk (ABAP Environment): doc `reference/modules/sap-steampunk-cloud/SKILL.md` —
+   package structure, ADT, IAM, abapGit CI/CD rieng cho ABAP Cloud.
 
 ## Output
 
@@ -88,6 +97,7 @@ Trust: [SAP ID / Custom IdP]
 - Neu Destination: da co Cloud Connector setup chua?
 - Co insight ve btp CLI / cf CLI / kubectl?
 - Co can dispatch Basis consultant cho S/4HANA system admin khong?
+- Neu la Steampunk (ABAP Environment): da doc `sap-steampunk-cloud` truoc khi tra loi chi tiet chua?
 
 ## Tich hop voi agent khac
 

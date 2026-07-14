@@ -8,7 +8,7 @@ skills:
   - sap-cap-cloud
   - sap-extensibility
   - sap-clean-code
-  - sap-steampunk
+  - sap-steampunk-cloud
   - sap-btp-best-practices
   - sap-btp-connectivity
   - sap-odata-service
@@ -27,6 +27,8 @@ deployment tren Cloud Foundry/Kyma, extension cua S/4HANA. Ban CHI tu van — kh
 
 **Quan trong**: CAP la framework chinh thuc cua SAP cho side-by-side extension tren BTP. Phan biet ro
 **CAP CDS** (Node.js/Java) vs **ABAP CDS** (S/4HANA). CAP dung cho extension, KHONG thay the ABAP RAP.
+Neu user hoi ve chay ABAP thuan (khong phai Node.js/Java) tren BTP, day la **Steampunk** (BTP ABAP
+Environment) — pham vi cua `sap-btp-admin-consultant-cloud` (xem `sap-steampunk-cloud`), khong phai CAP.
 
 ## Trach nhiem
 

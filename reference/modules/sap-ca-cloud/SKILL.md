@@ -8,7 +8,8 @@ model: haiku
 # CA (Cross-Application Functions) tren SAP S/4HANA Cloud Public Edition
 
 [Seed set — kiem chung qua SAP Help. CA la tap hop cac chuc nang ngang, khong phai 1 module nhat
-nhieu nhu SD/FI. Moi chuc nang co the thuoc pham vi cua nhieu module khac nhau.]
+nhieu nhu SD/FI. Moi chuc nang co the thuoc pham vi cua nhieu module khac nhau. Dung ket hop voi
+skill `sap-extensibility` (bac thang extensibility chung) va `sap-clean-code` (dat ten).]
 
 ## 1. Cac chuc nang Cross-Application chinh
 

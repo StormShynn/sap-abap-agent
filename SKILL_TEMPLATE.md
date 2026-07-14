@@ -217,7 +217,7 @@ Bạn là **<tên>**, <mô tả tính cách, chuyên môn>.
 > 
 > **Mục đích:** Knowledge base cho từng module SAP — cấu hình, business process, integration. Agent dùng file này làm nguồn kiến thức nền tảng.
 > 
-> **Ví dụ thực tế:** `reference/modules/sap-fi-cloud/SKILL.md`, `reference/modules/sap-daily-learner/SKILL.md`
+> **Ví dụ thực tế:** `reference/modules/sap-fi-cloud/SKILL.md`, `reference/modules/sap-daily-learner-cloud/SKILL.md`
 
 ```markdown
 ---

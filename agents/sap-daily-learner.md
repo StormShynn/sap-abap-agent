@@ -5,6 +5,7 @@ model: sonnet
 tools: [Read, Grep, Glob, Write, Edit, WebFetch, WebSearch]
 skills:
   - sap-daily-learner
+  - sap-daily-learner-cloud
   - sap-extensibility
   - sap-clean-code
   - sap-abap-sql

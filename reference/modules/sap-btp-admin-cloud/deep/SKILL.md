@@ -99,36 +99,14 @@ spec:
 
 ## 3. Destination & Cloud Connector
 
-### Destination Types
+> Chi tiet day du (Destination Types, ACL, 6 loai authentication, principal
+> propagation, troubleshooting, code pattern CAP/ABAP Cloud): skill
+> `sap-btp-connectivity` (da khai bao trong `skills:` cua agent nay).
 
-| Type | Proxy | Use Case |
-|---|---|---|
-| **HTTP** | Internet | S/4HANA Cloud Public APIs |
-| **HTTP** | OnPremise | ECC / On-prem S/4HANA (can Cloud Connector) |
-| **RFC** | OnPremise | BAPI / RFC calls |
-| **LDAP** | OnPremise | LDAP |
-
-### Cloud Connector Setup
-
-1. Install Cloud Connector (on-prem VM)
-2. Connect to BTP subaccount
-3. Configure ACL (access control list): allowed resources + virtual host
-4. Test destination in BTP Cockpit
-
-### Destination Config Example
-
-```json
-{
-  "Name": "S4HANA",
-  "Type": "HTTP",
-  "URL": "https://my-s4hana.s4hana.cloud.sap",
-  "ProxyType": "Internet",
-  "Authentication": "OAuth2ClientCredentials",
-  "clientId": "sb-xxx",
-  "clientSecret": "xxx",
-  "tokenServiceURL": "https://my-tenant.authentication.eu10.hana.ondemand.com/oauth/token"
-}
-```
+Tom tat nhanh:
+- 4 loai destination: HTTP (Internet hoac OnPremise), RFC (OnPremise), LDAP (OnPremise).
+- Setup Cloud Connector: install (on-prem VM) -> connect subaccount -> config ACL
+  (virtual host + allowed resource) -> test destination trong BTP Cockpit.
 
 ## 4. Security
 

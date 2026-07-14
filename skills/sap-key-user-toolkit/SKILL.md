@@ -66,6 +66,12 @@ Rang buoc:
 
 ### 3.2 Them Custom Logic (Cloud BAdI for Key Users)
 
+Custom Logic la lop key-user-accessible cua Cloud BAdI: chi dung BAdI SAP da release san,
+KHONG tu tao BAdI definition/implementation ABAP day du. Kien truc Cloud BAdI noi chung (phan
+biet voi classic BAdI, goc nhin Developer tu tao implementation class, cach tim BAdI da
+released, BAdI vs RAP Behavior): xem skill `sap-badi-enhancement`. Muc nay chi tap trung goc
+nhin Key User — thao tac tren Fiori app va cu phap ABAP for Key Users rut gon.
+
 Fiori app: cung la **Custom Fields and Logic** -> tab **Custom Logic**.
 
 Hai loai logic:

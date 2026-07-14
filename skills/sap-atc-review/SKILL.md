@@ -86,7 +86,7 @@ Bat loi phan doan/cat goc ma script tu dong khong thay duoc. Nhung "vien co" hay
 
 | # | Vien co | Phai lam |
 |---|---|---|
-| R1 | "Chac released roi, khoi verify" | Verify qua `sap-docs-researcher` hoac View Browser ADT; chua chac -> `[Unverified]` |
+| R1 | "Chac released roi, khoi verify" | Verify qua `sap-docs-research` hoac View Browser ADT; chua chac -> `[Unverified]` |
 | R2 | "Khong thay view thi bia gan dung" | Ghi vao INTAKE muc 6 "can lam ro", KHONG bia ten view/field |
 | R3 | "Bo test / test sau" | Moi behavior/method BAT BUOC co ABAP Unit test |
 | R4 | "Sua nhanh trong code chuan/core cua he thong (neu co repo read-only)" | Read-only tuyet doi — reference/copy ra ngoai, khong sua tai cho |
