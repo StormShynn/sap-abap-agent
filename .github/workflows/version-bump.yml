@@ -2,6 +2,10 @@ name: Auto Version Bump
 
 # Tu dong tang "version" trong .claude-plugin/plugin.json sau moi push vao main,
 # de Claude Code (marketplace/plugin update mechanism) nhan ra ban moi.
+#
+# Neu push do co dung vao reference/mcp-server/ (code MCP server), dong bo them
+# version trong pyproject.toml + CLI help text + README, roi tu dong build wheel
+# va publish GitHub Release (mcp-server-vX.Y.Z) kem file .whl.
 on:
   push:
     branches: ["main"]
@@ -20,22 +24,30 @@ jobs:
       github.actor != 'github-actions[bot]' &&
       !contains(github.event.head_commit.message, '[skip version-bump]')
     runs-on: ubuntu-latest
+    outputs:
+      new_version: ${{ steps.version.outputs.new }}
+      mcp_changed: ${{ steps.changes.outputs.mcp }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Determine bump type from commit messages
-        id: bump
+      - name: Determine push commit range
+        id: range
         run: |
           BEFORE="${{ github.event.before }}"
           AFTER="${{ github.event.after }}"
           if [[ "$BEFORE" =~ ^0+$ ]]; then
-            MESSAGES=$(git log -1 --format='%s%n%b' "$AFTER")
+            echo "range=${AFTER}~1..${AFTER}" >> "$GITHUB_OUTPUT"
           else
-            MESSAGES=$(git log "$BEFORE..$AFTER" --format='%s%n%b')
+            echo "range=${BEFORE}..${AFTER}" >> "$GITHUB_OUTPUT"
           fi
+
+      - name: Determine bump type from commit messages
+        id: bump
+        run: |
+          MESSAGES=$(git log ${{ steps.range.outputs.range }} --format='%s%n%b')
           echo "----- commits trong lan push nay -----"
           echo "$MESSAGES"
           echo "---------------------------------------"
@@ -48,6 +60,18 @@ jobs:
           fi
           echo "Bump type: $BUMP"
           echo "type=$BUMP" >> "$GITHUB_OUTPUT"
+
+      - name: Detect reference/mcp-server changes
+        id: changes
+        run: |
+          CHANGED=$(git diff --name-only ${{ steps.range.outputs.range }} -- reference/mcp-server/)
+          if [[ -n "$CHANGED" ]]; then
+            echo "Mcp-server thay doi:"
+            echo "$CHANGED"
+            echo "mcp=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "mcp=false" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Bump version in plugin.json
         id: version
@@ -65,10 +89,86 @@ jobs:
           mv /tmp/plugin.json .claude-plugin/plugin.json
           echo "new=$NEW_VERSION" >> "$GITHUB_OUTPUT"
 
+      - name: Sync mcp-server package version (pyproject.toml, CLI help, README)
+        if: steps.changes.outputs.mcp == 'true'
+        run: |
+          NEW_VERSION="${{ steps.version.outputs.new }}"
+          OLD_VERSION=$(grep -oP '(?<=^version = ")[^"]+' reference/mcp-server/pyproject.toml)
+          echo "Dong bo mcp-server package: $OLD_VERSION -> $NEW_VERSION"
+
+          sed -i "s/^version = \"$OLD_VERSION\"/version = \"$NEW_VERSION\"/" \
+            reference/mcp-server/pyproject.toml
+          sed -i "s/CLI Tool (v$OLD_VERSION)/CLI Tool (v$NEW_VERSION)/" \
+            reference/mcp-server/sap_btp_agent/cli/__init__.py
+          sed -i "s/mcp-server-v$OLD_VERSION/mcp-server-v$NEW_VERSION/g; \
+                  s/sap_abap_agent_mcp-$OLD_VERSION-py3-none-any\.whl/sap_abap_agent_mcp-$NEW_VERSION-py3-none-any.whl/g" \
+            README.md
+
       - name: Commit and push
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add .claude-plugin/plugin.json
+          if [[ "${{ steps.changes.outputs.mcp }}" == "true" ]]; then
+            git add reference/mcp-server/pyproject.toml \
+                     reference/mcp-server/sap_btp_agent/cli/__init__.py \
+                     README.md
+          fi
           git commit -m "chore: bump version to ${{ steps.version.outputs.new }} [skip version-bump]"
           git push
+
+  release-mcp-server:
+    needs: bump-version
+    if: needs.bump-version.outputs.mcp_changed == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout latest main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Build wheel
+        working-directory: reference/mcp-server
+        run: |
+          pip install build
+          python -m build --wheel
+
+      - name: Create GitHub Release with wheel asset
+        working-directory: reference/mcp-server
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          VERSION="${{ needs.bump-version.outputs.new_version }}"
+          WHEEL="dist/sap_abap_agent_mcp-${VERSION}-py3-none-any.whl"
+
+          cat > /tmp/release-notes.md <<EOF
+          File .whl de cai MCP server (sap-btp-agent) ma khong can clone repo.
+
+          ## Cai dat
+
+          \`\`\`bash
+          pip install sap_abap_agent_mcp-${VERSION}-py3-none-any.whl
+          sap-btp-agent doctor      # kiem tra moi truong
+          sap-btp-agent setup https://xxx.s4hana.cloud.sap
+          claude mcp add --transport stdio sap-btp -- sap-btp-agent
+          \`\`\`
+
+          Extra tuy chon:
+          - Windows DPAPI: \`pip install "sap_abap_agent_mcp-${VERSION}-py3-none-any.whl[win-dpapi]"\`
+          - Cookie auth tu dong (Playwright): \`pip install "sap_abap_agent_mcp-${VERSION}-py3-none-any.whl[playwright]"\` roi \`playwright install chromium\`
+
+          Auto-published boi GitHub Actions (version-bump.yml) khi reference/mcp-server/ thay doi.
+          Xem chi tiet thay doi trong commit history cua repo.
+          EOF
+
+          gh release create "mcp-server-v${VERSION}" "$WHEEL" \
+            --repo "${{ github.repository }}" \
+            --title "SAP BTP MCP Server v${VERSION}" \
+            --notes-file /tmp/release-notes.md
