@@ -24,7 +24,7 @@ import re
 import sys
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parent.parent
+ROOT = Path(__file__).resolve().parent.parent.parent
 FAILURES: list[str] = []
 WARNINGS: list[str] = []
 
@@ -46,14 +46,34 @@ def parse_frontmatter(text: str) -> dict[str, str] | None:
     if not m:
         return None
     fm: dict[str, str] = {}
-    for line in m.group(1).splitlines():
-        km = re.match(r"^([A-Za-z_][A-Za-z0-9_-]*):\s*(.*)$", line)
+    lines = m.group(1).splitlines()
+    i = 0
+    while i < len(lines):
+        km = re.match(r"^([A-Za-z_][A-Za-z0-9_-]*):\s*(.*)$", lines[i])
         if not km:
+            i += 1
             continue
         key, val = km.group(1), km.group(2).strip()
         if val.startswith('"') and val.endswith('"') and len(val) >= 2:
             val = val[1:-1]
+        if not val:
+            # Possibly a multi-line YAML list:
+            #   key:
+            #     - item1
+            #     - item2
+            items = []
+            j = i + 1
+            while j < len(lines):
+                lm = re.match(r"^\s+-\s+(.*)$", lines[j])
+                if not lm:
+                    break
+                items.append(lm.group(1).strip())
+                j += 1
+            if items:
+                val = "[" + ", ".join(items) + "]"
+                i = j - 1
         fm[key] = val
+        i += 1
     return fm
 
 
@@ -99,16 +119,20 @@ def check_agent_frontmatter() -> None:
 
         body = text[len(re.match(r"^---.*?---\r?\n", text, re.DOTALL).group(0)):]
         # Only flag mentions that read like a self-directed instruction ("ap dung ... trong
-        # `X`", "theo `X`") — skip mentions like "skill `X`" or "Skill `X` se ..." that are
-        # just naming another (downstream/upstream) skill for context, not claiming to use it.
+        # `X`", "theo `X`") — skip mentions like "skill `X`", "dispatch `X`", "`X` ... dispatch
+        # sang ..." that are just naming another (downstream/upstream) skill/agent for context,
+        # not claiming to use it.
         known_skill_names = {p.name for p in (ROOT / "skills").iterdir() if p.is_dir()}
         known_module_names = {p.name for p in (ROOT / "reference" / "modules").iterdir() if p.is_dir()}
         for m in re.finditer(r"`(sap-[a-z0-9-]+)`", body):
             name = m.group(1)
             if name not in (known_skill_names | known_module_names) or name in declared_skills:
                 continue
-            preceding = body[max(0, m.start() - 16) : m.start()].lower()
-            if "skill" in preceding or re.search(r"`\s*/\s*$", preceding):
+            preceding = body[max(0, m.start() - 30) : m.start()].lower()
+            following = body[m.end() : m.end() + 40].lower()
+            if "skill" in preceding or "dispatch" in preceding or "dispatch" in following:
+                continue
+            if re.search(r"`\s*/\s*$", preceding):
                 continue
             warn(
                 "skill-drift",
@@ -182,7 +206,7 @@ def check_tool_count_drift() -> None:
 
 
 def check_python_syntax() -> None:
-    py_files = list((ROOT / "scripts").glob("*.py"))
+    py_files = list((ROOT / "reference" / "scripts").glob("*.py"))
     mcp_server = ROOT / "reference" / "mcp-server"
     if mcp_server.exists():
         py_files += [

@@ -6,6 +6,45 @@ Format dựa trên [Keep a Changelog](https://keepachangelog.com/) và [Semantic
 
 ---
 
+## [v0.9.3] — 2026-07-14
+
+### Changed
+- 📐 **index.html: tái cấu trúc toàn bộ section ordering** — sắp xếp lại 47 section thành 7 nhóm
+  theo luồng từ newbie → sử dụng → nâng cao:
+  - **Bắt đầu**: Giới thiệu → Tính năng → **Kiến trúc (đã move từ cuối lên)** → Cài đặt → **Biến môi
+    trường (đã move từ Tham khảo lên)**
+  - **Kết nối SAP**: Thêm project → OAuth2 → Cookie Auth → Kiểm tra kết nối → Quản lý profile
+  - **Sử dụng MCP**: Đăng ký MCP → **MCP Tools (đã move từ Tham khảo)** → **Lệnh CLI (đã move từ
+    Tham khảo)**
+  - **Consultant System**: Modules → Routing → Agents → **Cách đặt câu hỏi (đã move từ cuối lên)** →
+    Daily Learner
+  - **Skills MCP + Skills ABAP**: Tách riêng MCP skills và ABAP skills thành 2 nhóm sidebar riêng
+  - **Codegen Pipeline**: FS.docx → ABAP code + Workflow
+  - **Tham khảo & Cộng đồng**: **Cấu trúc thư mục (đã move từ giữa xuống)** → **Lỗi thường gặp (đã
+    move từ giữa xuống)** → Đóng góp
+- 🔄 **Sidebar navigation được thiết kế lại** hoàn toàn theo cấu trúc nhóm mới, đảm bảo tất cả 47
+  section IDs đều có link tương ứng trong sidebar (đã verify đồng bộ 100%).
+- 📚 **Daily Learner section được mở rộng đáng kể**:
+  - Khôi phục section `<section id="daily-learner">` bị thiếu (do lỗi script trước đó)
+  - Thêm **Module Knowledge Matrix** — 25 SAP modules với topics Beginner/Intermediate/Advanced
+  - Thêm **Daily Tip Templates** — 3 cấp độ (📘 Beginner / 📗 Intermediate / 📕 Advanced)
+  - Thêm **Progressive Learning Paths chi tiết** — kế hoạch theo tuần (4 tuần Beginner + Intermediate
+    + Expert cross-module integration)
+  - Thêm **Auto-Skill Creation Engine** — 4 điều kiện kích hoạt (features grid)
+  - Mở rộng Hermes-like Features table (thêm Memory Consolidation + Training Data Export)
+  - Mở rộng User Commands (thêm `onboard`, `tip`, `hom qua chung ta noi gi`)
+
+### Notes
+- Tổng số section giữ nguyên: 47 section IDs (không thêm/bớt), chỉ thay đổi thứ tự và bổ sung nội
+  dung Daily Learner.
+- Nội dung các section không bị sửa đổi — chỉ di chuyển vị trí.
+- Sidebar đã được verify đồng bộ 100% qua grep (47 section IDs == 47 sidebar hrefs).
+- File index.html tăng từ 280,355 bytes → ~285,000 bytes (do thêm Module Knowledge Matrix).
+- Đã verify qua browser thật: không lỗi console, sidebar navigation hoạt động,
+  layout hiển thị đúng.
+
+---
+
 ## [v0.9.2] — 2026-07-12
 
 ### Changed

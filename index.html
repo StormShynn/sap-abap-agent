@@ -943,7 +943,7 @@
     <div class="icon">SA</div>
     <div>
       <h2>SAP ABAP Agent</h2>
-      <small>v0.9.2 · 28 agents · 48 skills</small>
+      <small>v0.9.3 · 27 agents · 48 skills</small>
     </div>
   </div>
 
@@ -1033,7 +1033,7 @@
         <span class="theme-icon-light">☀️</span>
         <span class="theme-icon-dark" style="display:none;">🌙</span>
       </button>
-      <span class="header-version">v0.9.2 · 28 agents · 48 skills</span>
+      <span class="header-version">v0.9.3 · 27 agents · 48 skills</span>
     </div>
   </header>
 
@@ -3438,7 +3438,7 @@ java -jar cdata.jdbc.sapfieldglass.jar --license</code><button class="copy-btn" 
     </section>
 
     <div class="footer">
-      <strong>SAP ABAP Agent</strong> &middot; v0.9.2 · 28 agents · 48 skills<br>
+      <strong>SAP ABAP Agent</strong> &middot; v0.9.3 · 27 agents · 48 skills<br>
       <span style="font-size:12px;">Trang hướng dẫn này được tạo bởi StormShynn Coding Assistant</span>
     </div>
 
@@ -4499,6 +4499,147 @@ java -jar cdata.jdbc.sapfieldglass.jar --license</code><button class="copy-btn" 
     'PATH thi\u1ebfu folder ch\u1ee9a entry point \u2014 l\u1ed7i r\u1ea5t hay g\u1eb7p tr\u00ean Windows khi ': 'PATH is missing the folder with the entry point \u2014 a very common Windows issue when ',
     ' c\u00e0i v\u00e0o user-scheme site-packages. Ch\u1ea1y ': ' installs into user-scheme site-packages. Run ',
     ' (ch\u1ea1y \u0111\u01b0\u1ee3c d\u00f9 PATH sai) \u0111\u1ec3 t\u1ef1 ph\u00e1t hi\u1ec7n v\u00e0 l\u1ea5y s\u1eb5n l\u1ec7nh fix.': ' (works even if PATH is wrong) to auto-detect the issue and get the exact fix command.',
+
+    // --- daily-learner section additions (2026-07-14) ---
+
+    'Học SAP mỗi ngày — Hermes-like Agent': 'Learn SAP Daily — Hermes-like Agent',
+
+    'Agent tự cải thiện (self-improving) lấy cảm hứng từ <strong>Hermes Agent</strong> bởi Nous Research. Vừa là gia sư SAP hàng ngày, vừa tự động tạo skill documents từ tương tác với người dùng.':
+        'A self-improving agent inspired by <strong>Hermes Agent</strong> by Nous Research. Acts as a daily SAP tutor while auto-creating skill documents from user interactions.',
+
+    '🌟 Hai chế độ hoạt động': '🌟 Two Operating Modes',
+
+    'Gửi tip SAP/ABAP mỗi ngày dựa trên module user hay hỏi. Track tiến độ qua <code>LEARNING_PROGRESS.md</code>. Gợi ý lộ trình học cá nhân hóa.':
+        'Sends daily SAP/ABAP tips based on user's frequently asked modules. Tracks progress via <code>LEARNING_PROGRESS.md</code>. Suggests personalized learning paths.',
+
+    'Khi giải quyết vấn đề phức tạp (≥3 bước), tự động tạo skill document trong <code>skills/user-skills/</code> — giống Hermes Agent.':
+        'When solving complex problems (≥3 steps), automatically creates skill documents in <code>skills/user-skills/</code> — inspired by Hermes Agent.',
+
+    'Tự sinh <code>skills/user-skills/</code> từ câu trả lời phức tạp':
+        'Auto-generates <code>skills/user-skills/</code> from complex answers',
+
+    '<code>LEARNING_PROGRESS.md</code> — module progress, mastered topics':
+        '<code>LEARNING_PROGRESS.md</code> — module progress, mastered topics',
+
+    'Daily tip mỗi session đầu ngày': 'Daily tip on the first session of the day',
+
+    'Hoạt động trong Claude Code, dispatch qua <code>sap-ask-consultant</code>':
+        'Works within Claude Code, dispatched via <code>sap-ask-consultant</code>',
+
+    'Càng học càng nhiều skill, knowledge base càng phong phú':
+        'The more you learn, the richer your skills and knowledge base become',
+
+    '3-tier memory: episodic (chat) + semantic (knowledge) + procedural (skills)':
+        '3-tier memory: episodic (chat) + semantic (knowledge) + procedural (skills)',
+
+    'Export LEARNING_PROGRESS + knowledge graph + skills làm training data':
+        'Exports LEARNING_PROGRESS + knowledge graph + skills as training data',
+
+    '📋 User Commands': '📋 User Commands',
+
+    'Daily tip + đề xuất module học': 'Daily tip + module learning suggestion',
+
+    'Bắt đầu/bài tiếp theo của module': 'Start/continue next lesson of module',
+
+    'Hiển thị LEARNING_PROGRESS.md': 'Displays LEARNING_PROGRESS.md',
+
+    'Liệt kê user skills đã tạo': 'Lists created user skills',
+
+    'Câu hỏi trắc nghiệm về module': 'Quiz questions about the module',
+
+    'Tạo learning path cho module mới': 'Creates a learning path for a new module',
+
+    'Random tip từ module user thích': 'Random tip from user's favorite module',
+
+    'Xem lại lịch sử chat hôm qua': 'Review yesterday's chat history',
+
+    '📚 Module Knowledge Matrix': '📚 Module Knowledge Matrix',
+
+    '18 module SAP với nội dung học theo 3 trình độ. Mỗi module có 5 topics cho mỗi level.':
+        '18 SAP modules with content at 3 proficiency levels. Each module has 5 topics per level.',
+
+    '📝 Daily Tip Templates': '📝 Daily Tip Templates',
+
+    'Mỗi ngày, Daily Learner gửi tip phù hợp với trình độ của bạn:':
+        'Each day, Daily Learner sends a tip suited to your skill level:',
+
+    '📘 SAP Tip hôm nay: [Module]': '📘 SAP Tip of the Day: [Module]',
+
+    '[Kiến thức cơ bản, 2-3 câu]': '[Basic knowledge, 2-3 sentences]',
+
+    '💡 Ví dụ ngắn · 🔍 Thử ngay: câu lệnh/Fiori app':
+        '💡 Short example · 🔍 Try it now: command/Fiori app',
+
+    '📗 SAP Deep Dive: [Module] > [Topic]': '📗 SAP Deep Dive: [Module] > [Topic]',
+
+    '[Kiến thức nâng cao, 3-4 câu]': '[Advanced knowledge, 3-4 sentences]',
+
+    '⚙️ Cấu hình SSCUI · 🔗 Module coupling':
+        '⚙️ SSCUI Configuration · 🔗 Module coupling',
+
+    '📕 SAP Expert: [Module] > [Advanced Topic]': '📕 SAP Expert: [Module] > [Advanced Topic]',
+
+    '[Kiến thức chuyên sâu]': '[In-depth knowledge]',
+
+    '🔄 Cross-module integration · ⚠️ Release-specific notes':
+        '🔄 Cross-module integration · ⚠️ Release-specific notes',
+
+    '🎯 Progressive Learning Paths': '🎯 Progressive Learning Paths',
+
+    'Beginner Path (cho người mới — 4 tuần):':
+        'Beginner Path (for newcomers — 4 weeks):',
+
+    'Tuần 1:': 'Week 1:',
+    'Tuần 2:': 'Week 2:',
+    'Tuần 3:': 'Week 3:',
+    'Tuần 4:': 'Week 4:',
+
+    'MM (procurement cơ bản) → Purchase Order → Goods Receipt → Invoice Receipt':
+        'MM (basic procurement) → Purchase Order → Goods Receipt → Invoice Receipt',
+
+    'SD (sales cơ bản) → Sales Order → Delivery → Billing':
+        'SD (basic sales) → Sales Order → Delivery → Billing',
+
+    'FI (kế toán cơ bản) → General Ledger → AP → AR':
+        'FI (basic accounting) → General Ledger → AP → AR',
+
+    'CO (controlling cơ bản) → Cost Center → Internal Order → Product Costing':
+        'CO (basic controlling) → Cost Center → Internal Order → Product Costing',
+
+    'Intermediate Path (cho người đã biết SAP):':
+        'Intermediate Path (for those familiar with SAP):',
+
+    'Chọn <strong>1 module chuyên sâu</strong> + <strong>2 module liên quan</strong>':
+        'Choose <strong>1 specialized module</strong> + <strong>2 related modules</strong>',
+
+    'Ví dụ: MM advanced + FI (valuation) + SD (stock transport)':
+        'Example: MM advanced + FI (valuation) + SD (stock transport)',
+
+    'Ví dụ: PP advanced + MM (BOM/component) + QM (inspection)':
+        'Example: PP advanced + MM (BOM/component) + QM (inspection)',
+
+    'Ví dụ: FI advanced + CO (cost center) + TR (cash management)':
+        'Example: FI advanced + CO (cost center) + TR (cash management)',
+
+    'Expert Path (cho chuyên gia — cross-module integration):':
+        'Expert Path (for specialists — cross-module integration):',
+
+    '🤖 Auto-Skill Creation Engine': '🤖 Auto-Skill Creation Engine',
+
+    'Khi bạn giải quyết vấn đề SAP phức tạp, Daily Learner tự động tạo skill document nếu:':
+        'When you solve complex SAP problems, Daily Learner auto-creates a skill document if:',
+
+    'Vấn đề cần ít nhất 3 bước giải quyết — không phải câu trả lời đơn giản.':
+        'The problem requires at least 3 steps to solve — not a simple answer.',
+
+    'Có SSCUI / Fiori app / API cụ thể được đề cập trong giải pháp.':
+        'Specific SSCUI / Fiori app / API is mentioned in the solution.',
+
+    'User nói "cảm ơn", "hữu ích", "got it" — xác nhận giải pháp đúng.':
+        'User says "thanks", "useful", "got it" — confirming the solution is correct.',
+
+    'Kiểm tra <code>skills/sap-user-skills/</code> không có file tương tự trước khi tạo mới.':
+        'Checks <code>skills/sap-user-skills/</code> for no similar file before creating new one.',
 
   };
 
