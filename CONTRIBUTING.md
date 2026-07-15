@@ -145,6 +145,35 @@ Nếu skill mới cần được dispatch tự động, thêm vào `skills/sap-a
 
 ---
 
+## 🚫 Khi nào KHÔNG nên tạo skill mới
+
+`skills/` là bề mặt **SAP-consulting cho end user** — mỗi skill mới đều được load/quét bởi mọi
+người cài plugin, kể cả khi họ không bao giờ dùng tới. Trước khi tạo 1 thư mục `skills/<tên>/`
+mới, tự hỏi 3 câu sau (rút ra từ 1 lần tự sửa sai thật trong dự án — xem `CHANGELOG.md`):
+
+1. **Đối tượng dùng là ai?** Nếu là người **phát triển/đóng góp cho chính plugin này** (chạy lint,
+   kiểm tra tài liệu đồng bộ, audit MCP registration...) — đó là việc của contributor, không phải
+   của SAP consultant dùng plugin để tư vấn/code ABAP. Việc đó nên nằm trong `CONTRIBUTING.md` +
+   docstring của script trong `reference/scripts/`, **không cần** một `SKILL.md` riêng.
+2. **Có thực sự là 1 khả năng độc lập, hay chỉ là 1 lệnh nữa của skill đã có?** Nếu logic mới chỉ
+   là "thêm 1 việc tổng hợp/quản lý" gắn liền với 1 skill đã tồn tại (vd thêm lệnh "retro" vào
+   `sap-daily-learner` — skill đó đã có sẵn cơ chế theo dõi tiến độ/lesson card), hãy thêm **1 dòng
+   mới vào bảng "User Commands"/mục quy trình** của skill đó, đừng tạo file mới.
+3. **Có phải chỉ là 1 wrapper mỏng quanh 1 script, không có quy trình/phán đoán riêng?** Nếu chạy
+   xong script là hết việc (không có bước "loại trừ false-positive", "hỏi xác nhận trước khi ghi",
+   "đối chiếu nhiều nguồn dữ liệu"...) thì bản thân docstring của script + 1 dòng trong
+   `CONTRIBUTING.md`/PR checklist là đủ.
+
+**Ví dụ đã tự sửa trong dự án này**: lúc đầu tạo riêng `skills/sap-document-sync` (wrapper mỏng
+quanh `validate_plugin.py`, đối tượng dùng là contributor) và `skills/sap-retro` (chỉ là 1 lệnh
+tổng hợp, đã có chỗ hợp lý trong `sap-daily-learner`) — cả 2 đều **không cần** là skill riêng theo
+đúng 3 câu hỏi trên, nên đã gộp lại (xem PR/CHANGELOG liên quan). `skills/sap-security-review`
+được giữ lại làm skill riêng vì ngược lại: đối tượng dùng là SAP developer review code (end user
+thật), có checklist + quy trình phán đoán riêng đáng kể, và đúng khuôn mẫu đã có của
+`sap-clean-code`/`sap-extensibility` (skill riêng được `abap-reviewer` gọi tới).
+
+---
+
 ## 🆕 Thêm Agent mới
 
 Agent là Claude Code agent có system prompt riêng. Mỗi agent là một file `.md` trong `agents/`.
@@ -443,6 +472,8 @@ Khi mở Pull Request, hãy đảm bảo:
 - [ ] `.claude-plugin/plugin.json` version đã được bump
 - [ ] Không có file tạm, file nhạy cảm trong commit
 - [ ] Translations object không có key trùng lặp
+- [ ] Đã chạy `python reference/scripts/validate_plugin.py` (hoặc `check_all.py` để chạy kèm
+      `security_scan.py`/`check_site.py`) — xác nhận không FAIL, xem qua WARN nếu có
 
 ### Sau khi merge
 

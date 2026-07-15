@@ -118,6 +118,41 @@ ten trong output o muc "Co the hoi them" (xem Buoc 4).
   ("Co the hoi them: <module>") de user tu quyet dinh hoi tiep, tranh chay song song qua nhieu
   agent cho 1 cau hoi.
 
+### Buoc 5: Tra cuu kien thuc co san (local + Notion) truoc khi dispatch
+
+Voi tung module sap dispatch (danh sach tu Buoc 4), tra xem da co skill/kien thuc lien quan chua
+truoc khi giao han cho agent tu van tra loi tu dau — cac agent tu van (25 module + Research +
+abap-reviewer) deu KHONG co quyen Write/Edit, nen buoc tra cuu + cache nay lam o day (skill dieu
+phoi, khong bi gioi han quyen), khong sua tung agent:
+
+1. **Local truoc (offline, luon lam, re)**: `Glob`/`Grep` tren `memory/procedural/skills/` (duong
+   dan qua `python "${CLAUDE_PLUGIN_ROOT}/reference/scripts/agent_home.py" memory/procedural/skills`
+   — xem skill `sap-daily-learner` muc 1) tim file khop `<module>-*`. Thay -> dua noi dung vao
+   context khi dispatch agent, **KHONG goi Notion** (tranh round-trip mang cho cau da co san local).
+2. **Notion khi local mien (online, chi khi can)**: goi tool search cua MCP `notion` theo module +
+   tu khoa cau hoi — **chi search truoc** (index gon, re token), **KHONG fetch tat ca ket qua**.
+   Trong ket qua, chon dung page khop chu de roi moi goi tool fetch lay noi dung day du cho page
+   do. Thay page khop -> dua vao context khi dispatch, **dong thoi tu ghi 1 ban local cache** vao
+   `memory/procedural/skills/` (copy co hoc noi dung da co/da duyet tren Notion — khac voi viec
+   "tao skill moi", van la viec rieng cua `sap-daily-learner` qua Auto-Skill Creation Engine cua no).
+   Ngoai ra tang property `Lan dung lai` cua page do them 1 (best-effort, khong can atomic — xem
+   `sap-daily-learner` muc "3c. Promote skill" de biet vi sao: dung lai du nhieu lan la dieu kien
+   de 1 skill duoc de xuat dua vao `reference/modules/` cho moi nguoi dung, khong chi rieng team).
+3. Khong thay o ca 2 -> dispatch binh thuong nhu hien tai, khong co gi thay doi.
+4. **Fail-open bat buoc**: loi o buoc 1 hoac 2 (Notion chua connect qua `/mcp`, mat mang...) -> bo
+   qua, dispatch binh thuong, KHONG chan routing.
+
+**"Clone lai tu Notion khi mat local"**: xay ra tu nhien theo lazy-fetch o buoc 2 — lan dau hoi lai
+1 chu de sau khi mat local (vd xoa `%USERPROFILE%\.sap-abap-agent\`), buoc 2 tu fetch lai tu Notion
++ tu cache lai, khong can thao tac resync rieng nao.
+
+**Ve dung luong o cung**: moi skill doc ~2-5KB text — ngay ca kich ban nang (10,000 skill tich luy
+qua nhieu nam, ca team dung chung) van chi ~30-50MB, khong dang lo o quy mo noi dung text nay. Xem
+bao cao dung luong hien tai (chi hien thi, KHONG tu xoa `memory/`):
+```bash
+python "${CLAUDE_PLUGIN_ROOT}/reference/scripts/cleanup_agent_home.py"
+```
+
 **Da co agent**: SD, FI, MM, CO, PP, QM, PM, WM, PS, HCM, BW, Basis, TM, TR, Ariba, CA, GTS, EHS, **IBP**, **EWM**, **Fiori/UI5**, **CAP**, **CPI**, **SuccessFactors**, **BTP Admin**, Research, **Daily Learner**
 **Tong cong**: 25 modules consultant + 1 researcher + 1 daily learner = **27 agents**.
 
@@ -128,9 +163,10 @@ ten trong output o muc "Co the hoi them" (xem Buoc 4).
 3. **Kiem tra explicit mention** (Buoc 2).
 4. **Ap dung module coupling co dieu kien** (Buoc 3) — chi giu module coupling nao cung dat score >= 1.
 5. **Tong hop danh sach agent can dispatch, cap toi da 3** (Buoc 4) — du ra chuyen thanh goi y.
-6. **Dispatch** song song.
-7. **Tong hop cau tra loi**: 1 agent → nguyen van; ≥2 agent → 1 doan tong hop + tung agent.
-8. **Goi y buoc tiep theo**: `abap-reviewer`, `sap-docs-researcher`, `sap-daily-learner` (cho cau hoi hoc tap).
+6. **Tra cuu kien thuc co san** (Buoc 5) — local truoc, Notion khi local mien, fail-open neu loi.
+7. **Dispatch** song song, kem context da tra cuu duoc (neu co) cho tung agent.
+8. **Tong hop cau tra loi**: 1 agent → nguyen van; ≥2 agent → 1 doan tong hop + tung agent.
+9. **Goi y buoc tiep theo**: `abap-reviewer`, `sap-docs-researcher`, `sap-daily-learner` (cho cau hoi hoc tap).
 
 ## Output format
 
@@ -138,6 +174,7 @@ ten trong output o muc "Co the hoi them" (xem Buoc 4).
 🧭 Tu van: <danh sach agent da goi> | Auto-routing: <diem score tung module>
 [neu ≥2 agent: doan tong hop ngan truoc]
 [neu bi cap o Buoc 4: them dong "Co the hoi them: <module bi cap>"]
+[neu tim thay kien thuc co san o Buoc 5: them dong "📚 Da dung kien thuc co san (<local|Notion>)"]
 ### SD
 ...
 ### FI

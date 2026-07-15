@@ -16,6 +16,14 @@ Checks:
   6. MCP tool count in registry.py vs "N MCP tools" claims in docs
   7. every scripts/*.py and reference/mcp-server/**/*.py parses (py_compile)
   8. every sap-*-consultant-cloud agent is referenced in the routing matrix, and vice versa
+  9. index.html hardcoded counts ("N skill implementations", "N module knowledge bases") vs
+     actual skills/ and reference/modules/ directory counts on disk
+  10. version consistency between .claude-plugin/plugin.json and the newest CHANGELOG.md header
+      (2 independent sources that can drift if only one gets bumped)
+
+Only checks facts derivable from this repo's own filesystem — third-party stats quoted in docs
+(e.g. a vendored MCP server's own tool count, an external knowledge base's row count) are NOT
+verifiable from here and are intentionally left unchecked.
 """
 from __future__ import annotations
 
@@ -254,6 +262,75 @@ def check_routing_matrix_coverage() -> None:
         )
 
 
+def _real_skill_count() -> int:
+    skills_dir = ROOT / "skills"
+    count = len([p for p in skills_dir.iterdir() if p.is_dir()])
+    if (skills_dir / "sap-user-skills").is_dir():
+        count -= 1  # empty placeholder, excluded by convention (see .github/workflows/version-bump.yml)
+    return count
+
+
+def _real_module_count() -> int:
+    modules_dir = ROOT / "reference" / "modules"
+    return len([p for p in modules_dir.iterdir() if p.is_dir()])
+
+
+def check_index_html_counts() -> None:
+    index_html = ROOT / "index.html"
+    if not index_html.exists():
+        warn("doc-drift", "index.html not found, skipping count check")
+        return
+    text = read(index_html)
+    real_skills = _real_skill_count()
+    real_modules = _real_module_count()
+
+    for m in re.finditer(r"(\d+)\s+skill implementations", text):
+        claimed = int(m.group(1))
+        if claimed != real_skills:
+            fail(
+                "doc-drift",
+                f"index.html claims '{claimed} skill implementations' but skills/ currently "
+                f"has {real_skills} (excluding the sap-user-skills placeholder)",
+            )
+
+    for m in re.finditer(r"(\d+)\s+module knowledge bases", text):
+        claimed = int(m.group(1))
+        if claimed != real_modules:
+            fail(
+                "doc-drift",
+                f"index.html claims '{claimed} module knowledge bases' but "
+                f"reference/modules/ currently has {real_modules}",
+            )
+
+
+def check_version_consistency() -> None:
+    plugin_json = ROOT / ".claude-plugin" / "plugin.json"
+    changelog = ROOT / "CHANGELOG.md"
+    if not plugin_json.exists() or not changelog.exists():
+        warn("version-drift", "plugin.json or CHANGELOG.md not found, skipping version check")
+        return
+    m = re.search(r'"version"\s*:\s*"([^"]+)"', read(plugin_json))
+    if not m:
+        warn("version-drift", "could not find \"version\" field in plugin.json")
+        return
+    plugin_version = m.group(1)
+
+    m = re.search(r"^##\s+\[v?([0-9]+\.[0-9]+\.[0-9]+)\]", read(changelog), re.MULTILINE)
+    if not m:
+        warn("version-drift", "could not find a '## [vX.Y.Z]' header in CHANGELOG.md")
+        return
+    changelog_version = m.group(1)
+
+    if plugin_version != changelog_version:
+        warn(
+            "version-drift",
+            f".claude-plugin/plugin.json version '{plugin_version}' does not match the newest "
+            f"CHANGELOG.md entry 'v{changelog_version}' — these are 2 independent sources "
+            f"(plugin.json is auto-bumped by CI on push, CHANGELOG.md is hand-written); a mismatch "
+            f"just means CI hasn't caught up yet, not necessarily a real error (warn, not fail)",
+        )
+
+
 def main() -> int:
     check_agent_frontmatter()
     check_core_deep_size()
@@ -261,6 +338,8 @@ def main() -> int:
     check_tool_count_drift()
     check_python_syntax()
     check_routing_matrix_coverage()
+    check_index_html_counts()
+    check_version_consistency()
 
     if WARNINGS:
         print(f"--- {len(WARNINGS)} warning(s) ---")

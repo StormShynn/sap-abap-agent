@@ -19,6 +19,10 @@
     "mcp-sap-docs-btp": {
       "type": "sse",
       "url": "https://sap-docs-extend-mcp.cfapps.ap21.hana.ondemand.com/sse"
+    },
+    "notion": {
+      "type": "http",
+      "url": "https://mcp.notion.com/mcp"
     }
   }
 }

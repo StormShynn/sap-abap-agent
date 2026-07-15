@@ -6,6 +6,256 @@ Format dựa trên [Keep a Changelog](https://keepachangelog.com/) và [Semantic
 
 ---
 
+## [v1.10.0] — 2026-07-15
+
+### Added
+- 🛡️ **`skills/sap-security-review`** (mới) — quét bảo mật OWASP-style cho code ABAP Cloud: 8 mục
+  checklist cụ thể (S1-S8: SQL/CDS injection, thiếu authorization check, hardcode credential,
+  RFC/destination không auth chuẩn, log lộ dữ liệu nhạy cảm, XSS trong custom UI5, method public
+  thừa, thiếu validate input OData/API). Thiết kế "zero-noise" (theo code-review-skill): mỗi
+  finding bắt buộc kèm kịch bản khai thác cụ thể, dùng chung 6 nhãn severity đã có của
+  `abap-reviewer`, có danh sách false-positive rõ ràng (vd CDS parameter binding không phải
+  injection). Tích hợp vào `agents/abap-reviewer.md` như tầng review thứ 3 (sau naming/clean-code
+  và kiến trúc/extensibility) — không tách agent riêng, giữ 1 điểm vào duy nhất cho review.
+- 📊 **`reference/scripts/validate_plugin.py`**: thêm 2 check mới (check 9-10) — đối chiếu số liệu
+  hardcode trong `index.html` ("N skill implementations", "N module knowledge bases") với thực tế
+  trên đĩa, và đối chiếu version giữa `.claude-plugin/plugin.json` với header mới nhất của
+  `CHANGELOG.md` (warn, không fail — đây là 2 nguồn độc lập, lệch tạm thời là bình thường trước khi
+  CI chạy). Bắt được ngay 1 lỗi drift có thật đang tồn tại: index.html từng ghi "46 skill
+  implementations" trong khi `skills/` thực tế chỉ có 41 (đã sửa đúng thành 42 sau khi thêm
+  `sap-security-review`).
+- 🔄 **`skills/sap-daily-learner` mục 4b**: lệnh mới "retro"/"tổng kết gần đây" — tổng hợp ticket đã
+  đóng (glob `out/*/FINISH_CHECKLIST.md`), lesson card theo module (`memory/semantic/lessons/*.jsonl`),
+  và session episodic (`memory/episodic/index.jsonl`, kèm chú thích độ phủ không chắc chắn). Không
+  làm "per-person breakdown"/"shipping streak" — không có field "người làm" ở bất kỳ đâu trong
+  repo, ghi rõ "chưa có dữ liệu" thay vì bịa số liệu.
+- 🧭 **`skills/sap-finish-ticket`**: thêm Bước 3b "Smart review routing" — tùy loại object đã
+  scaffold (CDS read-only / RAP behavior có action / class thuần logic) mà xác định mức độ review
+  bảo mật/naming/extensibility nào thực sự cần, thay vì áp dụng đồng loạt cho mọi ticket.
+- 📖 **`CONTRIBUTING.md`**: thêm mục "Khi nào KHÔNG nên tạo skill mới" — 3 câu hỏi kiểm tra (đối
+  tượng dùng là contributor hay end-user SAP? có phải chỉ 1 lệnh nữa của skill đã có? có phải chỉ
+  là wrapper mỏng quanh 1 script không?) + checklist PR thêm bước chạy `validate_plugin.py`.
+
+### Changed
+- ↩️ **Tự sửa sai trong chính phiên này**: lúc đầu tạo riêng `skills/sap-document-sync` (wrapper
+  mỏng quanh `validate_plugin.py`) và `skills/sap-retro` — sau khi user nhắc "tránh rác skill", áp
+  dụng đúng 3 câu hỏi ở mục CONTRIBUTING.md trên và nhận ra cả 2 đều KHÔNG cần là skill riêng:
+  `sap-document-sync` có đối tượng dùng là contributor (không phải SAP consultant dùng plugin) nên
+  chuyển thành hướng dẫn trong `CONTRIBUTING.md` + docstring script; `sap-retro` chỉ là 1 lệnh tổng
+  hợp, đã có chỗ hợp lý sẵn trong `sap-daily-learner` (skill đó vốn đã theo dõi tiến độ/lesson
+  card). Đã xoá 2 thư mục skill đó, gộp nội dung vào đúng chỗ, sửa lại toàn bộ số liệu liên quan
+  (README.md, index.html — bao gồm cả việc phát hiện lại số đếm sau khi xoá 2 skill).
+
+### Notes
+- Đã chạy thật `validate_plugin.py` nhiều lần trong quá trình sửa — xác nhận bắt đúng lỗi số liệu
+  ở từng bước (46→41 khi phát hiện, 41→44 khi thêm 3 skill, 44→42 khi rút gọn còn 1 skill), không
+  fail nhầm 8 check cũ.
+- HTML: tag-balance checker + `node --check` sau vòng sửa cuối — không lỗi cú pháp, không cần thêm
+  bản dịch mới (chỉ đổi số/rút gọn danh sách, không thêm câu tiếng Việt mới).
+- Không test được thật `sap-security-review` trên 1 đoạn code ABAP thật trong phiên này — đề nghị
+  user tự thử với 1 class/CDS view thật sau khi merge.
+
+---
+
+## [v1.9.0] — 2026-07-15
+
+### Added
+- 🚀 **`sap-daily-learner` mục 3c: Quarantine → Active → Promote** (theo gstack's domain-skill
+  pattern) — skill trên Notion "trưởng thành" thành kiến thức chính thức của plugin:
+  - 2 property mới trên database "SAP Skills": `Lần dùng lại` (number) + `Đã promote` (checkbox).
+    Trạng thái suy ra từ 2 field này (không thêm field "Status" riêng, tránh lệch dữ liệu).
+  - Counter tăng (best-effort, không atomic) mỗi khi Bước 5 (`sap-ask-consultant`) hoặc mục 3b
+    (`sap-daily-learner`) dùng lại 1 skill có sẵn trên Notion.
+  - Ngưỡng mặc định **3** (nguyên từ gstack) → thành "ứng viên promote".
+  - Lệnh mới: "liệt kê ứng viên promote", "promote skill [topic]" — đưa skill vào
+    `reference/modules/<module>-cloud/SKILL.md` (git-tracked, đến **mọi** người dùng plugin, không
+    chỉ team qua Notion). **Luôn hỏi xác nhận trước khi ghi, không tự commit/push** — user tự xem
+    diff + commit theo `CONTRIBUTING.md`.
+- 📋 **Lệnh quản lý skill kiểu gstack's `/learn`**: "dọn skill cũ" (liệt kê theo ngày tạo cũ nhất,
+  hỏi xác nhận trước khi xoá từng file — không tự xoá hàng loạt), "export skill" (gộp toàn bộ
+  `memory/procedural/skills/*.md` thành 1 file backup), mở rộng "skill list" hiện có (thêm ngày
+  tạo + module).
+
+### Notes
+- Hoàn tất 5/5 ý tưởng từ 3 repo tham khảo (code-review-skill, claude-mem, gstack) mà user yêu cầu
+  đánh giá — xem `v1.8.0` cho 3 ý đầu (severity label, thẻ `<private>`, nguyên tắc search-gọn-fetch-
+  chi-tiết).
+- Không tự động hoá phần promote — cùng nguyên tắc "hành động khó đảo ngược cần hỏi trước" áp dụng
+  xuyên suốt plugin này: ghi vào `reference/modules/` là file git-tracked (khác Notion, vốn tự động
+  hoàn toàn vì chỉ ảnh hưởng nội bộ team), và không bao giờ tự commit/push thay user.
+
+---
+
+## [v1.8.0] — 2026-07-15
+
+### Added
+- 🏷️ **`agents/abap-reviewer.md`: nâng Output_Format từ 3 lên 6 nhãn mức độ** — thêm `🟠 Important`
+  (tách khỏi `Nit` cũ, giờ chỉ còn style/clean-code nhỏ), `💡 Learning` (ghi chú kiến thức, không
+  phải lỗi), `🟢 Praise` (điểm làm tốt, đáng khen — trước đây không có mục khen). Cập nhật Quy trình
+  review bước 5 + Checklist tương ứng. Bỏ qua mục nào không có phát hiện thay vì luôn in đủ 6 mục.
+- 🔒 **`skills/sap-daily-learner/SKILL.md` mục 3b: thẻ `<private>` — không đẩy skill nhạy cảm lên
+  Notion** — trước "Ghi sau", kiểm tra nếu câu hỏi gốc có đánh dấu `<private>...</private>` hoặc
+  user nói thẳng ("đừng đồng bộ lên Notion", "giữ local thôi") thì bỏ qua toàn bộ bước đẩy Notion,
+  chỉ giữ skill local, báo rõ lý do cho user. `README.md` + `index.html` (section Daily Learner)
+  cập nhật mô tả tương ứng.
+- 📉 **Ghi rõ nguyên tắc "search gọn trước, fetch chi tiết sau"** trong cả `sap-daily-learner` mục
+  3b và `sap-ask-consultant` Bước 5 — chỉ gọi tool fetch của MCP `notion` cho page thực sự khớp chủ
+  đề (không fetch tràn lan mọi kết quả search trả về), tiết kiệm token.
+
+### Notes
+- Cả 3 điểm trên tham khảo từ nghiên cứu 3 dự án ngoài theo yêu cầu user:
+  [awesome-skills/code-review-skill](https://github.com/awesome-skills/code-review-skill) (hệ
+  nhãn severity 6 mức), [thedotmack/claude-mem](https://github.com/thedotmack/claude-mem) (thẻ
+  `<private>` loại nội dung nhạy cảm khỏi lưu trữ, nguyên tắc search-index-gọn-trước/fetch-chi-tiết-
+  sau) — **không** mang theo hạ tầng nặng của claude-mem (Chroma vector DB, worker service riêng),
+  vì trái với nguyên tắc "không thêm dependency ngoài" đã ghi sẵn trong chính SKILL.md này.
+  [garrytan/gstack](https://github.com/garrytan/gstack) cũng được xem xét (mô hình
+  quarantine → active-sau-N-lần-dùng → promote-to-global, và lệnh `/learn` quản lý bộ nhớ) nhưng
+  CHƯA làm trong đợt này — còn chờ user xác nhận trước khi triển khai.
+- Đã đọc lại `agents/abap-reviewer.md` và `skills/sap-atc-review/SKILL.md` trước khi sửa: xác nhận
+  hệ nhãn severity chỉ áp dụng cho `abap-reviewer` (review holistic, đánh giá chủ quan) — KHÔNG áp
+  dụng cho `sap-atc-review` (checklist PASS/WARN/FAIL chạy script tự động, bản chất khác — không có
+  chỗ cho "praise"/"learning" trong 1 báo cáo lint nhị phân).
+
+---
+
+## [v1.7.0] — 2026-07-15
+
+### Added
+- 📚 **`skills/sap-ask-consultant/SKILL.md`: mở rộng tra cứu local + Notion ra cả 25 agent tư vấn**
+  — thêm Bước 5 mới (giữa "Tổng hợp dispatch" và "Dispatch song song", các bước sau đánh số lại):
+  trước khi dispatch bất kỳ module nào, tra `memory/procedural/skills/` (local, offline, luôn làm
+  vì rẻ) trước, chỉ gọi Notion (`notion-search`/`notion-fetch`) khi local chưa có; thấy ở Notion
+  thì tự cache lại local. Không thấy ở cả 2 → dispatch bình thường như cũ, không đổi hành vi.
+  Fail-open nếu Notion lỗi/chưa kết nối. Đặt ở `sap-ask-consultant` (skill điều phối, không bị giới
+  hạn `disallowedTools: [Write, Edit]` như 27 agent nó dispatch) — không cần sửa quyền hay nội dung
+  của bất kỳ agent tư vấn nào trong 25 file riêng lẻ.
+  - "Clone lại từ Notion khi mất local" xảy ra tự nhiên qua lazy-fetch ở Bước 5 — không cần lệnh
+    resync hàng loạt riêng.
+  - Phần **ghi** (tạo skill mới) giữ nguyên, vẫn chỉ `sap-daily-learner` (agent duy nhất có quyền
+    Write) — không mở rộng lần này theo đúng phạm vi user yêu cầu.
+- 📊 **`reference/scripts/cleanup_agent_home.py`**: thêm báo cáo dung lượng
+  `memory/procedural/skills/` (`report_skills_size()`, in trong `main()`) — **chỉ hiển thị, không
+  tự xoá** (tôn trọng nguyên tắc sẵn có: `memory/` là kiến thức lâu dài, không áp dụng age/size-cap
+  như cache/log).
+
+### Notes
+- Đánh giá dung lượng cụ thể: mỗi skill doc ~2-5KB text — kịch bản nặng (10,000 skill tích luỹ
+  nhiều năm, cả team) vẫn chỉ ~30-50MB, không phải rủi ro thật ở quy mô nội dung này. Thêm báo cáo
+  (không phải cơ chế xoá) chỉ để minh bạch, đúng tinh thần câu hỏi user.
+- Xác nhận qua grep: 27 file agent (25 module consultant + `sap-docs-researcher` +
+  `abap-reviewer`) đều có `disallowedTools: [Write, Edit]` — chỉ `sap-daily-learner` có quyền ghi.
+  Đây là lý do đặt logic tra cứu + cache ở `sap-ask-consultant` (skill điều phối, đầy đủ quyền)
+  thay vì sửa từng agent.
+- `README.md`, `index.html` (section "Auto-scoring Routing Engine" + bảng Hermes-like Features của
+  Daily Learner) cập nhật ngắn gọn phạm vi mới, kèm bản dịch EN — verify qua tag-balance checker +
+  `node --check` + mô phỏng `translatePage()` (phát hiện + tự sửa 1 lỗi chồng lấn dịch thuật giữa
+  entry mới và entry cũ trước khi hoàn tất, cùng quy trình đã dùng ở các lần trước).
+
+---
+
+## [v1.6.1] — 2026-07-15
+
+### Changed
+- 📐 **`sap-daily-learner`: format skill auto-tạo đổi sang cấu trúc Reference Module** — trước đó
+  skill tự tạo (`memory/procedural/skills/`, alias `skills/sap-user-skills/`) dùng format
+  Problem/Solution/SSCUI-Fiori/API/Notes + frontmatter riêng (`created`/`source`/`tags`), không
+  khớp với bất kỳ template chuẩn nào trong `SKILL_TEMPLATE.md`. Đổi sang đúng cấu trúc **Reference
+  Module** (mục 3 của template — vì bản chất đây là knowledge note để tra cứu, không phải
+  instruction skill để dispatch/execute): frontmatter chỉ còn `name`/`description`/`effort`/`model`;
+  nội dung theo 8 mục Bối cảnh/Quy trình xử lý/SSCUI/Fiori/API/Integration/Best Practices/Nguồn gốc
+  (thông tin nguồn gốc — câu hỏi gốc, ngày tạo — chuyển từ frontmatter xuống mục 8 trong nội dung).
+  Cập nhật đồng bộ ở `skills/sap-daily-learner/SKILL.md` (mục 3 + tham chiếu ở mục 3b) và
+  `agents/sap-daily-learner.md`.
+
+### Notes
+- Phát hiện từ phản hồi trực tiếp của user: skill auto-tạo trước đây lưu tại
+  `%USERPROFILE%\.sap-abap-agent\` (ngoài git hoàn toàn với người dùng thật — `skills/sap-user-skills/`
+  trong repo chỉ có nội dung khi dev tự trỏ `SAP_ABAP_AGENT_HOME` vào repo để test), không có cách
+  nào tự "vào project" vì đây là plugin phân phối public — nhiều người cài độc lập, không ai có
+  quyền push vào repo chung, cũng không nên (không kiểm soát được nội dung tự sinh từ người lạ).
+  Đây chính là lý do Notion (v1.6.0) là lớp chia sẻ đúng, không phải git repo. Xóa
+  `%USERPROFILE%\.sap-abap-agent\` không ảnh hưởng chức năng cốt lõi của plugin (agents/skills/MCP
+  đều nằm trong git) — chỉ mất tiến độ học cá nhân + cache skill local, `bootstrap_memory.py` tự
+  tạo lại cấu trúc rỗng, và nếu đã đồng bộ Notion thì lần hỏi lại sau vẫn tìm lại được (mục 3b).
+
+---
+
+## [v1.6.0] — 2026-07-15
+
+### Added
+- 🔄 **`sap-daily-learner`: đồng bộ 2 chiều với Notion (team-shared)** — mở rộng Auto-Skill
+  Creation Engine đã có (`skills/sap-daily-learner/SKILL.md` mục 3):
+  - **Đọc trước** (mục 3b mới, mở rộng điều kiện 4 "không trùng lặp"): trước khi tự giải 1 vấn đề
+    đủ điều kiện thành skill, tra database "SAP Skills" trên Notion (`notion-search`) — nếu thành
+    viên khác trong team đã hỏi/tạo skill tương tự, lấy ra dùng luôn (`notion-fetch`) thay vì làm
+    lại từ đầu, đồng thời lưu 1 bản local để lần sau không cần gọi Notion nữa.
+  - **Ghi sau**: sau khi tạo skill local như hiện tại, tự động đẩy lên database "SAP Skills" trên
+    Notion (`notion-create-pages`, tạo database lần đầu qua `notion-create-database` nếu chưa có)
+    — **tự động, không hỏi xác nhận** (quyết định của user, ưu tiên mượt hơn an toàn vì đã cân nhắc
+    trade-off).
+  - **Fail-open bắt buộc**: nếu MCP `notion` chưa kết nối/lỗi, bỏ qua bước đó, tiếp tục quy trình
+    local như cũ — không chặn, không đổi hành vi hiện có.
+  - Cập nhật `agents/sap-daily-learner.md` (ngắn gọn, trỏ về SKILL.md mục 3b) và Review Checklist
+    (mục 9 của SKILL.md) với 2 dòng mới tương ứng.
+  - `README.md` (subsection Notion) + `index.html` (section Daily Learner: feature-card + 1 dòng
+    bảng Hermes-like Features) mô tả ngắn gọn tính năng này, kèm bản dịch EN đầy đủ.
+
+### Notes
+- Tool thật của Notion hosted MCP (`notion-search`/`notion-fetch`/`notion-create-pages`/
+  `notion-create-database`) xác nhận qua
+  [developers.notion.com/guides/mcp/mcp-supported-tools](https://developers.notion.com/guides/mcp/mcp-supported-tools)
+  — không hard-code tên tool có tiền tố cụ thể trong SKILL.md vì chưa authenticate được MCP
+  `notion` trong phiên làm việc để verify tên tool chính xác sẽ hiển thị.
+- Đã kiểm tra `agents/sap-docs-researcher.md` (agent tích hợp nhiều MCP nhất repo): frontmatter
+  `tools:` không liệt kê tên tool MCP cụ thể — xác nhận không cần sửa `tools:` của
+  `agents/sap-daily-learner.md` để agent gọi được tool Notion.
+- Không viết script Python mới cho việc search/dedup (khác lesson cards, vốn cần thuật toán scoring
+  riêng) — dùng thẳng semantic search có sẵn của Notion MCP.
+- Chưa test end-to-end thật (gọi `notion-search`/`notion-create-pages` thật) vì MCP `notion` chưa
+  được authenticate trong phiên này — cần user tự thử bằng 1 câu hỏi thật sau khi connect Notion
+  qua `/mcp`.
+
+---
+
+## [v1.5.0] — 2026-07-15
+
+### Added
+- 🔌 **MCP server mới: Notion** (`notion`, category `docs-remote` trong `reference/scripts/mcp_inventory.json`)
+  — skill notes dùng chung cho team, qua MCP server **chính chủ** Notion
+  ([makenotion/notion-mcp-server](https://github.com/makenotion/notion-mcp-server), bản hosted qua
+  OAuth). Đã **auto-bundle vào `.mcp.json`** (regenerate qua `python reference/scripts/mcp_register.py
+  --json`) — không cần `claude mcp add` thủ công, mỗi thành viên chỉ cần chạy `/mcp` 1 lần để đăng
+  nhập tài khoản Notion của chính họ. **Không lưu token/secret nào trong repo** (repo public) — chia
+  sẻ workspace cho team là thao tác phía Notion (invite qua email), tách biệt hoàn toàn khỏi file cấu
+  hình.
+- 📖 `README.md`: subsection "Notion — skill notes dùng chung cho team" (sau khối `mcp-sap-docs-btp`)
+  — hướng dẫn `/mcp`, cách chia sẻ workspace, và nhắc lại quy ước bảo mật chung: server nào thực sự
+  cần secret tĩnh (`SAP-API-HUB-KEY`, `ADT_USER`/`ADT_PASS`...) đã có `reference/scripts/mcp_register.py`
+  hỏi riêng từng người + đăng ký qua `claude mcp add --scope user` (giá trị chỉ nằm trong
+  `~/.claude.json` của từng máy, không bao giờ vào file commit).
+- 🌐 `index.html`: thêm dòng lệnh Notion vào snippet section `cai-dat`, đoạn mô tả trong section
+  `dang-ky-mcp`, kèm bản dịch EN đầy đủ cho các chuỗi mới (đối chiếu qua 1 script Node mô phỏng đúng
+  thuật toán `translatePage()` — xác nhận không bị dict entry khác ăn lẫn giữa chừng).
+
+### Fixed
+- 🐛 **URL `cds-kb` bị lệch giữa `.mcp.json` và `reference/scripts/mcp_inventory.json`**: `.mcp.json`
+  đã trỏ đúng `cds-kb-mcp-kit-production.up.railway.app` (đổi ở phiên trước) nhưng `mcp_inventory.json`
+  vẫn giữ URL cũ `cds-kb-mcp-production.up.railway.app` — phát hiện khi regenerate `.mcp.json` từ
+  inventory (sẽ vô tình revert lại URL cũ nếu không sửa trước). Cũng sửa luôn URL cũ còn sót trong
+  snippet `cai-dat` của `index.html`.
+
+### Notes
+- Ban đầu định xây 1 script + file template secret mới (`.env` cục bộ tại `.sap-btp-agent`) để mọi MCP
+  server cần API key đọc chung — sau khi đọc code mới phát hiện `reference/scripts/{mcp_inventory.json,
+  mcp_register.py, mcp_status.py}` (+ skill `sap-mcp-status`) đã làm đúng việc này từ trước (1 nguồn
+  sự thật, `claude mcp add --scope user` lưu secret ở `~/.claude.json`, không bao giờ vào git). Không
+  xây lại — chỉ thêm 1 entry vào inventory có sẵn, tránh tạo 2 nguồn sự thật song song.
+- Notion rơi đúng vào nhóm zero-secret vì bản hosted OAuth không cần lưu token — khác các server khác
+  trong `adt-alternative`/`product-specific` (cần `claude mcp add` cục bộ + env var riêng từng người).
+
+---
+
 ## [v1.3.3] — 2026-07-14
 
 ### Changed

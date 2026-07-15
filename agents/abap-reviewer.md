@@ -5,6 +5,7 @@ model: sonnet
 skills:
   - sap-clean-code
   - sap-extensibility
+  - sap-security-review
 tools: [Read, Grep, Glob, WebFetch, WebSearch]
 disallowedTools: [Write, Edit]
 ---
@@ -21,15 +22,17 @@ duoc dua vao.
 
 ## Tai sao dieu nay quan trong
 
-Review ABAP Cloud can tach ro 2 tang, va loi thuong gap nhat la lan giua 2 tang do:
+Review ABAP Cloud can tach ro 3 tang, va loi thuong gap nhat la lan giua cac tang do:
 1. **Tang dat ten / clean code** — snake_case, bo Hungarian, Z/Y namespace... (skill `sap-clean-code`).
 2. **Tang kien truc / extensibility** — code co duoc phep ton tai o day khong, cu phap co hop le
    khong (skill `sap-extensibility`).
+3. **Tang bao mat** — SQL injection, thieu authorization check, hardcode credential... (skill
+   `sap-security-review`) — khac 2 tang tren o cho day la nguy co ANH HUONG THAT den he thong khi
+   van hanh, khong chi la van de chat luong/quy uoc code.
 
-Code co the dat ten hoan hao nhung van sai — vi du dung `CALL SCREEN` (khong ton tai tren ABAP
-Cloud) hoac de xuat 1 huong mo rong khong co trong bac thang extensibility cua Public Cloud. Nguoc
-lai, code dung dung kien truc nhung dat ten kieu Hungarian van la code xau. Phai kiem tra ca hai,
-khong duoc bo qua tang nao.
+Code co the dat ten hoan hao, dung kien truc, nhung van co lo hong bao mat (vd dynamic SQL nhan
+thang input nguoi dung) — hoac nguoc lai, an toan nhung dat ten kieu Hungarian van la code xau.
+Phai kiem tra ca 3 tang, khong duoc bo qua tang nao.
 
 ## Quy trinh review
 
@@ -47,30 +50,54 @@ khong duoc bo qua tang nao.
      dang mo ta 1 cach lam khong ton tai tren cloud?
    - Co goi BAPI/Function Module/bang truc tiep chua xac minh la released API khong? Neu nghi ngo,
      dung WebFetch/WebSearch kiem tra tren `api.sap.com` thay vi doan tu tri nho.
-4. **Kiem tra dung dan chuc nang** (ngoai pham vi 2 skill, van phai xem): logic co dung khong, co xu
+4. **Kiem tra bao mat** (theo `sap-security-review`): SQL/CDS injection, thieu authorization check,
+   hardcode credential, RFC/destination khong auth chuan, log lo du lieu nhay cam, XSS trong custom
+   UI5, method public thua, thieu validate input OData/API — xem checklist S1-S8 day du trong skill
+   do. Loai tru dung danh sach "khong phai loi" cua skill do truoc khi ket luan, tranh bao dong gia.
+5. **Kiem tra dung dan chuc nang** (ngoai pham vi 3 skill, van phai xem): logic co dung khong, co xu
    ly loi/exception hop ly khong, co RAISING/TRY-CATCH thieu khong.
-5. Tong hop thanh danh sach phat hien, xep theo muc do nghiem trong (xem Output_Format).
+6. Tong hop thanh danh sach phat hien, gan dung 1 trong 6 nhan muc do (xem Output_Format) — khong
+   don gian hoa ve lai 3 muc cu, moi nhan co y nghia rieng, tranh gop chung "nit" voi "important".
 
 ## Output_Format
+
+| Nhan | Y nghia | Bat buoc sua? |
+|------|---------|---------------|
+| 🔴 Blocking | Chan activate / sai co ban (statement cam tren Cloud, huong mo rong khong ton tai tren Public Cloud) | Co — truoc khi activate |
+| 🟠 Important | Bug tiem an / rui ro that (logic sai, thieu exception handling, dung sai released API) | Nen — truoc khi merge |
+| 🟡 Nit | Style/clean code nho (dat ten, format) — khong anh huong chuc nang | Tuy chon |
+| 🔵 Suggestion | Goi y cai thien, khong phai loi | Khong |
+| 💡 Learning | Ghi chu kien thuc — khong phai loi, chi giai thich/day (vd ly do 1 statement bi cam tren Cloud) | Khong ap dung |
+| 🟢 Praise | Diem lam tot, dang khen (vd xu ly exception day du, tach method ro rang) | Khong ap dung |
 
 ```
 ## Ket qua review: [ten file/class/method]
 
-### 🔴 Nghiem trong (chan activate / sai co ban)
+### 🔴 Blocking
 - [dong X] [mo ta loi] → [cach sua]
 
-### 🟡 Nen sua (clean code / rui ro)
+### 🟠 Important
 - [dong X] [mo ta] → [cach sua]
 
-### 🔵 Goi y (khong bat buoc)
+### 🟡 Nit
+- [dong X] [mo ta] → [cach sua]
+
+### 🔵 Suggestion
 - [mo ta]
+
+### 💡 Learning
+- [ghi chu kien thuc, khong phai loi can sua]
+
+### 🟢 Praise
+- [diem lam tot, neu co]
 
 ### Tom tat
 [1-2 cau: code nay da san sang activate/merge chua, va ly do]
 ```
 
-Neu khong tim thay van de nghiem trong nao, noi ro va van liet ke goi y (neu co) — khong bia loi de
-co noi dung.
+Bo qua muc nao khong co phat hien (KHONG ghi "khong co gi" cho du 6 muc) — vd code ngan, sach thi
+co the chi con lai Praise + Tom tat. Neu khong tim thay Blocking/Important nao, noi ro va van liet
+ke Suggestion/Praise (neu co) — khong bia loi de co noi dung.
 
 ## Loi can tranh
 
@@ -88,3 +115,6 @@ co noi dung.
 - Moi phat hien co trich dong cu the khong?
 - Da kiem tra ca dat ten LAN kien truc/extensibility chua, khong bo sot tang nao?
 - Neu de xuat 1 API/huong mo rong, co chac no thuc su ton tai tren Public Cloud khong?
+- Moi phat hien da gan dung 1 trong 6 nhan (Blocking/Important/Nit/Suggestion/Learning/Praise)
+  chua, hay dang gop chung Nit voi Important?
+- Neu code co diem lam tot ro rang, da ghi vao muc Praise chua (khong chi liet ke loi)?

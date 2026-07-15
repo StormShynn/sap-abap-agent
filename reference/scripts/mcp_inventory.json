@@ -34,9 +34,9 @@
       "envVars": [],
       "doc": "README.md",
       "description": "Remote CDS view knowledge base (7,355 views)",
-      "url": "https://cds-kb-mcp-production.up.railway.app/sse",
+      "url": "https://cds-kb-mcp-kit-production.up.railway.app/sse",
       "config": {
-        "url": "https://cds-kb-mcp-production.up.railway.app/sse"
+        "url": "https://cds-kb-mcp-kit-production.up.railway.app/sse"
       }
     },
     {
@@ -50,6 +50,18 @@
       "config": {
         "url": "https://sap-docs-extend-mcp.cfapps.ap21.hana.ondemand.com/sse",
         "env": {}
+      }
+    },
+    {
+      "name": "notion",
+      "category": "docs-remote",
+      "transport": "http",
+      "envVars": [],
+      "doc": "README.md",
+      "description": "Notion workspace dung chung cho team (skill notes / knowledge base) qua Notion hosted MCP chinh chu (makenotion/notion-mcp-server) - moi nguoi tu OAuth tai khoan rieng qua /mcp, KHONG can luu token nao. Chia se workspace cho team lam o phia Notion (invite thanh vien vao page), khong lien quan file nay.",
+      "url": "https://mcp.notion.com/mcp",
+      "config": {
+        "url": "https://mcp.notion.com/mcp"
       }
     },
     {

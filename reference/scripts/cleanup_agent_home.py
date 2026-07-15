@@ -2,7 +2,7 @@
 """Don dep cache/log tich luy trong <agent-home> (va sync_skills.log cua plugin) - tranh phinh
 thu muc local qua thoi gian.
 
-Hai muc tieu doc lap:
+Hai muc tieu doc lap (co xoa that):
   1. Cache cua `reference/process/sap-context-tool-result-trim.md` (<agent-home>/cache/**, xem agent_home.py):
      xoa file cu hon N ngay (mac dinh 7 - dung dung policy da ghi trong SKILL.md), doc config
      tu `<agent-home>/cache/.retention` (JSON: {"days": N, "max_mb": N}) neu co. Sau khi xoa
@@ -12,10 +12,17 @@ Hai muc tieu doc lap:
      docstring sync_skills.py de biet ly do): giu lai cac dong log trong N ngay gan nhat, xoa
      dong cu hon.
 
-KHONG dong vao: `memory/` (LEARNING_PROGRESS, knowledge_graph, lesson card - kien thuc lau dai,
-khong phai log), `sessions/` (gan voi ticket dang lam - xem skill `sap-finish-ticket` de biet
-khi nao don), `episodic/` (co policy rieng 30 ngay + archive-khong-xoa, xem `sap-daily-learner`),
-`dev-mirror/` (ban sao config dang dung, xoa nham se mat dong bo voi %USERPROFILE%).
+Cong them 1 muc BAO CAO (KHONG xoa gi):
+  3. `memory/procedural/skills/` - tong dung luong hien tai, chi de nguoi dung theo doi (skill
+     auto-tao boi `sap-daily-learner` + cache tu Notion boi `sap-ask-consultant` Buoc 5). Theo
+     tinh toan thuc te, noi dung text ~2-5KB/skill nen ngay ca vai chuc nghin skill van chi vai
+     chuc MB - khong dang lo, nhung van bao cao de minh bach.
+
+KHONG xoa: `memory/` (LEARNING_PROGRESS, knowledge_graph, lesson card, skills - kien thuc lau dai,
+khong phai log - chi bao cao dung luong o muc 3, khong tu dong xoa theo tuoi/dung luong nhu cache),
+`sessions/` (gan voi ticket dang lam - xem skill `sap-finish-ticket` de biet khi nao don),
+`episodic/` (co policy rieng 30 ngay + archive-khong-xoa, xem `sap-daily-learner`), `dev-mirror/`
+(ban sao config dang dung, xoa nham se mat dong bo voi %USERPROFILE%).
 
 Usage:
   python reference/scripts/cleanup_agent_home.py                  # ap dung mac dinh/.retention
@@ -141,6 +148,26 @@ def clean_sync_skills_log(days: int = DEFAULT_DAYS, *, dry_run: bool = False) ->
     return {"file": str(log_file), "kept_lines": len(kept_lines), "removed_lines": removed}
 
 
+def report_skills_size() -> dict:
+    """Bao cao (KHONG xoa) tong dung luong `memory/procedural/skills/` - kien thuc lau dai, khac
+    han ban chat voi cache/log o tren nen khong ap dung age/size-cap tu dong. Chi de nguoi dung
+    tu theo doi dung luong dang dung."""
+    skills_dir = get_agent_home() / "memory" / "procedural" / "skills"
+    if not skills_dir.exists():
+        return {"dir": str(skills_dir), "file_count": 0, "total_bytes": 0}
+    total = 0
+    count = 0
+    for f in skills_dir.rglob("*"):
+        if not f.is_file():
+            continue
+        try:
+            total += f.stat().st_size
+            count += 1
+        except OSError:
+            continue
+    return {"dir": str(skills_dir), "file_count": count, "total_bytes": total}
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(
         description="Don cache/log tich luy trong <agent-home> va sync_skills.log cua plugin."
@@ -171,6 +198,13 @@ def main() -> int:
     print(
         f"{prefix}sync_skills.log ({log_result['file']}): "
         f"giu {log_result['kept_lines']} dong, xoa {log_result['removed_lines']} dong cu"
+    )
+
+    skills_result = report_skills_size()
+    skills_mb = skills_result["total_bytes"] / (1024 * 1024)
+    print(
+        f"Skills ({skills_result['dir']}): {skills_result['file_count']} file, "
+        f"{skills_mb:.2f} MB — chi bao cao, KHONG tu xoa (kien thuc lau dai)"
     )
     return 0
 

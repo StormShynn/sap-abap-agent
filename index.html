@@ -1178,7 +1178,7 @@
 <span class="dir">📦 sap-abap-agent/</span>
 <span class="branch">├──</span> <span class="highlight">.claude-plugin/</span>        <span class="file"> ← Manifest + metadata</span>
 <span class="branch">├──</span> <span class="highlight">agents/</span>                 <span class="file"> ← 28 agent definitions (.md)</span>
-<span class="branch">├──</span> <span class="highlight">skills/</span>                 <span class="file"> ← 46 skill implementations</span>
+<span class="branch">├──</span> <span class="highlight">skills/</span>                 <span class="file"> ← 42 skill implementations</span>
 <span class="branch">│</span>   <span class="branch">├──</span> <span class="highlight">sap-ask-consultant/</span>    <span class="file"> ← Routing engine (28 agents)</span>
 <span class="branch">│</span>   <span class="branch">├──</span> <span class="highlight">sap-btp-setup/</span>         <span class="file"> ← BTP connection manager</span>
 <span class="branch">│</span>   <span class="branch">├──</span> <span class="highlight">sap-cds-kb/</span>            <span class="file"> ← CDS view search (7,355 views)</span>
@@ -1190,7 +1190,7 @@
 <span class="branch">│</span>   <span class="branch">├──</span> <span class="highlight">sap-doc-to-md/</span>         <span class="file"> ← Convert Word/Excel → Markdown</span>
 <span class="branch">│</span>   <span class="branch">├──</span> <span class="highlight">sap-routing-discipline/</span><span class="file"> ← SessionStart routing hook</span>
 <span class="branch">│</span>   <span class="branch">├──</span> <span class="highlight">sap-mcp-status/</span>        <span class="file"> ← MCP server audit script</span>
-<span class="branch">│</span>   <span class="branch">└──</span> <span class="highlight">...</span>                    <span class="file"> ← 36 other skills (codegen, scaffold, review, test)</span>
+<span class="branch">│</span>   <span class="branch">└──</span> <span class="highlight">...</span>                    <span class="file"> ← 31 other skills (codegen, scaffold, review, test, security)</span>
 <span class="branch">├──</span> <span class="highlight">reference/process/</span>      <span class="file"> ← Context engineering (trim, summary, module-routing)</span>
 <span class="branch">├──</span> <span class="highlight">reference/mcp-guides/</span>   <span class="file"> ← MCP setup guides (ADT, GUI, SuccessFactors)</span>
 <span class="branch">├──</span> <span class="highlight">reference/modules/</span>       <span class="file"> ← 27 module knowledge bases</span>
@@ -1242,10 +1242,13 @@ python -m sap_btp_agent.doctor</code><button class="copy-btn" onclick="copyCode(
       </ol>
 
       <pre><code><span class="hl-com"># CDS Knowledge Base (7,355 views)</span>
-claude mcp add --transport sse cds-kb --url https://cds-kb-mcp-production.up.railway.app/sse
+claude mcp add --transport sse cds-kb --url https://cds-kb-mcp-kit-production.up.railway.app/sse
 
 <span class="hl-com"># SAP Docs Research</span>
-claude mcp add --transport sse mcp-sap-docs-btp --url https://sap-docs-extend-mcp.cfapps.ap21.hana.ondemand.com/sse</code><button class="copy-btn" onclick="copyCode(this)">Sao chép</button></pre>
+claude mcp add --transport sse mcp-sap-docs-btp --url https://sap-docs-extend-mcp.cfapps.ap21.hana.ondemand.com/sse
+
+<span class="hl-com"># Notion (skill notes dùng chung cho team) — đã auto-bundle sẵn, chỉ cần /mcp để đăng nhập</span>
+claude mcp add --transport http notion https://mcp.notion.com/mcp</code><button class="copy-btn" onclick="copyCode(this)">Sao chép</button></pre>
 
       <ol start="3">
         <li>Cấu hình Claude Code plugin:</li>
@@ -1677,6 +1680,8 @@ SAP_BTP_PROFILE=project1.s4hana.cloud.sap sap-btp-agent</code><button class="cop
 
       <p>Mặc định scope <code>local</code> (chỉ máy này, chỉ project hiện tại). Dùng <code>--scope user</code> để dùng được ở mọi project, hoặc <code>--scope project</code> để lưu vào <code>.mcp.json</code> và chia sẻ qua git cho cả team.</p>
 
+      <p>💡 <strong>Notion</strong> — skill notes dùng chung cho team. Server <code>notion</code> đã auto-bundle sẵn trong <code>.mcp.json</code> của plugin này — không cần <code>claude mcp add</code> thủ công. Mỗi thành viên chỉ cần gõ <code>/mcp</code> trong Claude Code để đăng nhập tài khoản Notion của chính mình (OAuth, không lưu token nào trong repo). Chia sẻ workspace cho team = mời thành viên vào page Notion tương ứng (thao tác phía Notion), không liên quan đến file cấu hình.</p>
+
       <p>Test plugin cục bộ (không cần cài vào marketplace):</p>
 
       <pre><code>claude --plugin-dir ./sap-abap-agent</code><button class="copy-btn" onclick="copyCode(this)">Sao chép</button></pre>
@@ -1944,6 +1949,8 @@ bash reference/scripts/update.sh</code></pre>
 
       <p>Chi tiết keyword matrix, explicit mention, module coupling xem trong file <code>skills/sap-ask-consultant/SKILL.md</code>.</p>
 
+      <p>📚 <strong>Bước 5 — tra kiến thức có sẵn trước khi dispatch</strong>: trước khi giao cho agent tư vấn trả lời, routing tự tra <code>memory/procedural/skills/</code> (local, offline) rồi tới database "SAP Skills" trên Notion (online, chỉ khi local chưa có) — thấy thì dùng luôn + tự cache lại local, không thấy thì agent trả lời như bình thường. Mất local (đổi máy...) không sao, lần hỏi lại đầu tiên sẽ tự lấy lại từ Notion. Áp dụng cho toàn bộ 25 agent tư vấn, không chỉ Daily Learner.</p>
+
       <h3>Keyword Matrix (rút gọn)</h3>
       <div class="table-wrap">
         <table>
@@ -2141,7 +2148,7 @@ bash reference/scripts/update.sh</code></pre>
           <span class="fc-icon">🕵️</span>
           <h4>ABAP Reviewer</h4>
           <p><code>abap-reviewer</code> · gọi thủ công</p>
-          <p>Review code ABAP theo chuẩn ABAP Cloud: kiểm tra <strong>cả 2 tầng</strong> — đặt tên/clean code (namespace Z/Y, bỏ Hungarian notation) VÀ kiến trúc/extensibility (cú pháp bị cấm, released API). Chỉ review, không tự sửa hay tạo code mới.</p>
+          <p>Review code ABAP theo chuẩn ABAP Cloud: kiểm tra <strong>cả 3 tầng</strong> — đặt tên/clean code (namespace Z/Y, bỏ Hungarian notation), kiến trúc/extensibility (cú pháp bị cấm, released API), VÀ bảo mật (<code>sap-security-review</code> — SQL/CDS injection, thiếu authorization check, hardcode credential, kèm kịch bản khai thác cụ thể cho từng phát hiện). Chỉ review, không tự sửa hay tạo code mới.</p>
         </div>
       </div>
     </section>
@@ -2371,7 +2378,7 @@ bash reference/scripts/update.sh</code></pre>
         <div class="feature-card" style="border-color:var(--cyan);">
           <span class="fc-icon">🤖</span>
           <h4>Auto-Skill Creation</h4>
-          <p>Khi giải quyết vấn đề phức tạp (≥3 bước), tự động tạo skill document trong <code>skills/user-skills/</code> — giống Hermes Agent.</p>
+          <p>Khi giải quyết vấn đề phức tạp (≥3 bước), tự động tạo skill document trong <code>skills/user-skills/</code> — giống Hermes Agent. Trước khi tự giải, tra thử Notion xem team đã có skill tương tự chưa; sau khi tạo xong, tự đồng bộ lên Notion cho cả team dùng chung. Đánh dấu <code>&lt;private&gt;</code> quanh nội dung nhạy cảm để giữ riêng local, không đẩy lên Notion.</p>
         </div>
       </div>
 
@@ -2383,6 +2390,8 @@ bash reference/scripts/update.sh</code></pre>
           </thead>
           <tbody>
             <tr><td>Automated Skill Creation</td><td>Tự sinh <code>skills/user-skills/</code> từ câu trả lời phức tạp</td></tr>
+            <tr><td>Skill Reusability (team-shared)</td><td>Đồng bộ 2 chiều qua Notion — tra trước khi tự giải, tự đẩy skill mới lên cho cả team dùng; cả 25 agent tư vấn cũng tra chung kho này qua Bước 5 của <code>sap-ask-consultant</code></td></tr>
+            <tr><td>Quarantine → Promote</td><td>Skill dùng lại ≥3 lần trên Notion thành "ứng viên promote" — lệnh <code>promote skill</code> đưa vào <code>reference/modules/</code> (git-tracked, đến mọi người dùng plugin), luôn hỏi xác nhận trước khi ghi, không tự commit</td></tr>
             <tr><td>Persistent Memory</td><td><code>LEARNING_PROGRESS.md</code> — module progress, mastered topics</td></tr>
             <tr><td>Cron Scheduling</td><td>Daily tip mỗi session đầu ngày</td></tr>
             <tr><td>Multi-Platform</td><td>Hoạt động trong Claude Code, dispatch qua <code>sap-ask-consultant</code></td></tr>
@@ -3331,7 +3340,7 @@ java -jar cdata.jdbc.sapfieldglass.jar --license</code><button class="copy-btn" 
 <span class="dir">📦 sap-abap-agent/</span>
 <span class="branch">├──</span> <span class="highlight">.claude-plugin/</span>    <span class="file">   ← Manifest plugin Claude Code</span>
 <span class="branch">├──</span> <span class="highlight">commands/</span>              <span class="file">   ← /sap-connect, /sync-skills</span>
-<span class="branch">├──</span> <span class="highlight">skills/</span>                <span class="file">   ← 46 skill (routing, BTP setup, CDS KB, codegen pipeline...)</span>
+<span class="branch">├──</span> <span class="highlight">skills/</span>                <span class="file">   ← 42 skill (routing, BTP setup, CDS KB, codegen pipeline...)</span>
 <span class="branch">├──</span> <span class="highlight">agents/</span>                <span class="file">   ← 28 agent (.md) — 25 module consultant + researcher + daily learner + reviewer</span>
 <span class="branch">├──</span> <span class="highlight">hooks/</span>                 <span class="file">   ← Cảnh báo SELECT * + routing discipline (SessionStart)</span>
 <span class="branch">├──</span> <span class="highlight">reference/</span>
@@ -3693,6 +3702,32 @@ java -jar cdata.jdbc.sapfieldglass.jar --license</code><button class="copy-btn" 
   const htmlEl = document.documentElement;
 
   const translations = {
+    // --- sap-security-review + abap-reviewer 3-layer addition (2026-07-15) ---
+    "cả 3 tầng": "all 3 layers",
+    " — đặt tên/clean code (namespace Z/Y, bỏ Hungarian notation), kiến trúc/extensibility (cú pháp bị cấm, released API), VÀ bảo mật (": " — naming/clean code (Z/Y namespace, dropping Hungarian notation), architecture/extensibility (banned syntax, released APIs), AND security (",
+    " — SQL/CDS injection, thiếu authorization check, hardcode credential, kèm kịch bản khai thác cụ thể cho từng phát hiện). Chỉ review, không tự sửa hay tạo code mới.": " — SQL/CDS injection, missing authorization checks, hardcoded credentials, each finding paired with a concrete exploit scenario). Review only, never modifies or creates code.",
+    // --- Quarantine-promote addition (2026-07-15) ---
+    "Skill dùng lại ≥3 lần trên Notion thành \"ứng viên promote\" — lệnh ": "A skill reused ≥3 times on Notion becomes a \"promotion candidate\" — the ",
+    " đưa vào ": " command moves it into ",
+    " (git-tracked, đến mọi người dùng plugin), luôn hỏi xác nhận trước khi ghi, không tự commit": " (git-tracked, reaching every plugin user), always asking for confirmation before writing, never auto-committing",
+    // --- Private tag + severity label addition (2026-07-15) ---
+    " Đánh dấu ": " Mark ",
+    " quanh nội dung nhạy cảm để giữ riêng local, không đẩy lên Notion.": " around sensitive content to keep it local only, without pushing it to Notion.",
+    // --- Notion sap-ask-consultant Buoc 5 expansion addition (2026-07-15) ---
+    "Bước 5 — tra kiến thức có sẵn trước khi dispatch": "Step 5 — look up existing knowledge before dispatching",
+    ": trước khi giao cho agent tư vấn trả lời, routing tự tra ": ": before handing off to a consultant agent to answer, the routing logic first checks ",
+    " (local, offline) rồi tới database \"SAP Skills\" trên Notion (online, chỉ khi local chưa có) — thấy thì dùng luôn + tự cache lại local, không thấy thì agent trả lời như bình thường. Mất local (đổi máy...) không sao, lần hỏi lại đầu tiên sẽ tự lấy lại từ Notion. Áp dụng cho toàn bộ 25 agent tư vấn, không chỉ Daily Learner.": " (local, offline), then the \"SAP Skills\" database on Notion (online, only when not found locally) — if found, it uses that content and caches it locally; if not, the agent answers as usual. Losing the local copy (e.g. switching machines) is fine — the first time that topic comes up again, it's automatically re-fetched from Notion. Applies to all 25 consultant agents, not just Daily Learner.",
+    "; cả 25 agent tư vấn cũng tra chung kho này qua Bước 5 của ": "; all 25 consultant agents also read from this same shared store via Step 5 of ",
+    // --- Notion daily-learner 2-way sync addition (2026-07-15) ---
+    " Trước khi tự giải, tra thử Notion xem team đã có skill tương tự chưa; sau khi tạo xong, tự đồng bộ lên Notion cho cả team dùng chung.": " Before solving it from scratch, it checks Notion to see if the team already has a similar skill; after creating a new one, it automatically syncs it to Notion for the whole team to use.",
+    "Đồng bộ 2 chiều qua Notion — tra trước khi tự giải, tự đẩy skill mới lên cho cả team dùng": "Two-way sync via Notion — checks before solving from scratch, auto-pushes new skills for the whole team",
+    // --- Notion MCP addition (2026-07-15) ---
+    "# Notion (skill notes dùng chung cho team) — đã auto-bundle sẵn, chỉ cần /mcp để đăng nhập": "# Notion (skill notes shared across the team) — already auto-bundled, just run /mcp to sign in",
+    " — skill notes dùng chung cho team. Server ": " — skill notes shared across the team. Server ",
+    " đã auto-bundle sẵn trong ": " is already auto-bundled into ",
+    " của plugin này — không cần ": " of this plugin — no manual ",
+    " thủ công. Mỗi thành viên chỉ cần gõ ": " needed. Each team member just needs to type ",
+    " trong Claude Code để đăng nhập tài khoản Notion của chính mình (OAuth, không lưu token nào trong repo). Chia sẻ workspace cho team = mời thành viên vào page Notion tương ứng (thao tác phía Notion), không liên quan đến file cấu hình.": " in Claude Code to sign in with their own Notion account (OAuth — no token is stored in the repo). Sharing the workspace with the team means inviting members to the relevant Notion page (done on Notion's side), not touching any config file.",
     // --- sap-scaffold-cds-analytics addition (2026-07-12) ---
     "Sinh CDS Cube/Dimension/Text + Analytical Query khi cần báo cáo aggregate/multi-dimensional — ưu tiên build Analytical Query trên CDS/Cube đã released trước khi tự tạo Cube từ đầu.": "Generates CDS Cube/Dimension/Text views + an Analytical Query when the report needs aggregation/multiple dimensions — prioritizes building the Analytical Query on an already-released CDS/Cube before creating a custom Cube from scratch.",
     // --- workflow-by-goal: sap-deployment-target 2c addition (2026-07-12) ---

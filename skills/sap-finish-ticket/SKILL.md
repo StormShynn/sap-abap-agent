@@ -48,6 +48,21 @@ user object nao con loi.
 
 Neu co FAIL trong report — DUNG, khong duoc qua buoc 4. Neu chi WARN — ghi chu lai, tiep tuc.
 
+### Buoc 3b: Xac dinh review nao thuc su can (smart routing)
+
+Khong phai ticket nao cung can du 3 tang review cua `abap-reviewer` (naming/extensibility/bao mat)
+o cung 1 muc do — tuy loai object da scaffold:
+
+| Loai object | Naming/Extensibility | Bao mat (`sap-security-review`) |
+|---|---|---|
+| CDS view read-only (khong RAP behavior) | Bat buoc | Nhe — chi can S1 (injection qua parameter) |
+| RAP behavior CO create/update/delete action | Bat buoc | Bat buoc day du S1-S8, dac biet S2 (authorization) |
+| Class/method thuan logic (khong truy cap DB truc tiep) | Bat buoc | Tap trung S3 (hardcode credential), S7 (method public) |
+
+Neu bo qua 1 muc nao do, **ghi ro ly do trong `FINISH_CHECKLIST.md`** (vd "khong co RAP behavior
+nen bo qua kiem tra authorization chi tiet") — khong duoc im lang bo qua ma khong ghi chu, tranh
+nham lan sau nay "quen kiem tra" voi "co chu dinh bo qua vi khong lien quan".
+
 ### Buoc 4: Unit test — chay that, khong doan
 
 Yeu cau ket qua that tu ABAP Unit runner (Eclipse ADT `Ctrl+Shift+F10` hoac CI pipeline) cho

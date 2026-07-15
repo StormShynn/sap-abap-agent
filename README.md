@@ -68,6 +68,7 @@ sap-abap-agent/
 |   +-- sap-systematic-debugging/   # Debug runtime co he thong
 |   +-- sap-routing-discipline/     # SessionStart hook - ep check routing
 |   +-- sap-mcp-status/             # Audit MCP server registration
+|   +-- sap-security-review/        # Quet bao mat ABAP Cloud (OWASP-style, goi tu abap-reviewer)
 |   +-- ... (12 skills khac: mcp-sap-notes, mcp-sap-concur, mcp-sap-fieldglass,
 |   |       sap-released-classes, sap-abap-sql, sap-badi-enhancement,
 |   |       sap-authorization, sap-odata-service, sap-rap-events,
@@ -311,6 +312,61 @@ Cach 2 — `supergateway`:
 
 > **Windows users**: Neu dung supergateway, co the can dung `supergateway.cmd` thay vi `supergateway`
 > hoac chi dinh duong dan tuyet doi.
+
+### Notion — skill notes dung chung cho team
+
+**notion** — Workspace Notion lam noi ghi/tra skill notes bo sung (AI ghi tom tat, ban ghi tay), qua
+MCP server **chinh chu** cua Notion ([makenotion/notion-mcp-server](https://github.com/makenotion/notion-mcp-server)).
+Da **auto-bundle san trong `.mcp.json`** cua plugin nay (khong can `claude mcp add` thu cong) — moi
+thanh vien team chi can chay 1 lenh trong Claude Code de dang nhap tai khoan Notion cua rieng ho:
+
+```
+/mcp
+```
+
+Chon `notion` trong danh sach roi lam theo OAuth flow (mo browser dang nhap). **Khong co token/secret
+nao duoc luu trong repo** — moi nguoi tu xac thuc bang chinh tai khoan Notion cua minh.
+
+**Chia se cho team**: invite tung thanh vien vao page/workspace Notion tuong ung (thao tac o phia
+Notion — Share → nhap email), khong lien quan gi den file `.mcp.json`/repo. Xem chi tiet cach dang
+ky va cau hinh khac o [developers.notion.com/guides/mcp](https://developers.notion.com/guides/mcp).
+
+Vi du prompt:
+```
+"Tom tat skill sap-cloud-dictionary vua hoc vao page Notion 'SAP Skills'"
+"Tra trong Notion xem co note nao ve BAdI enhancement khong"
+```
+
+**Tu dong dong bo 2 chieu voi `sap-daily-learner`**: skill `sap-daily-learner` (Auto-Skill Creation
+Engine) tu tra database "SAP Skills" tren Notion truoc khi tu giai 1 van de tu dau — neu thanh vien
+khac trong team da hoi va tao skill tuong tu roi thi lay ra dung luon; sau khi tu tao 1 skill moi,
+tu dong day len Notion (khong can thao tac gi them ngoai `/mcp` da lam 1 lan o tren). Chi tiet quy
+trinh: `skills/sap-daily-learner/SKILL.md` muc "3b. Dong bo Notion".
+
+**Mo rong cho ca 25 agent tu van**: `skills/sap-ask-consultant/SKILL.md` (Buoc 5) cung tra kho
+local + Notion nay truoc khi dispatch bat ky agent tu van nao (SD/FI/MM/...) — local truoc (offline,
+nhanh), Notion khi local chua co (online), tu cache lai local sau khi tim thay tren Notion. Mat
+local (vd doi may) khong sao — lan hoi lai dau tien se tu lay lai tu Notion. Phan **ghi** skill moi
+van chi rieng `sap-daily-learner` (agent duy nhat co quyen ghi file).
+
+**Danh dau rieng tu**: neu khong muon 1 skill nao do bi day len Notion (vd noi dung gan voi khach
+hang/he thong cu the), danh dau bang the `<private>...</private>` quanh cau hoi hoac noi thang
+"dung dong bo len Notion" / "giu local thoi" — `sap-daily-learner` se chi luu local, bo qua buoc
+day Notion.
+
+**Tu Notion vao thang project (quarantine -> active -> promote)**: skill nao duoc ca team dung lai
+nhieu lan (mac dinh >=3, dem tren Notion) tro thanh "ung vien promote" — lenh "liet ke ung vien
+promote" / "promote skill [topic]" dua no vao `reference/modules/<module>-cloud/SKILL.md` (git-
+tracked, di kem plugin cho **moi** nguoi dung public, khong chi rieng team ban qua Notion). Luon
+hoi xac nhan truoc khi ghi file, khong tu commit/push — ban tu xem diff + tu commit theo dung flow
+trong `CONTRIBUTING.md`.
+
+> **Luu y bao mat**: repo nay la public — KHONG bao gio dan token Notion (hoac bat ky API key nao)
+> truc tiep vao `.mcp.json`/`mcp_inventory.json` roi commit. Voi server nao thuc su can 1 secret tinh
+> (vd `SAP-API-HUB-KEY` o tren, hoac `ADT_USER`/`ADT_PASS`...), dung `reference/scripts/mcp_register.py`
+> (hoi rieng tung nguoi, dang ky qua `claude mcp add --scope user`) — gia tri chi nam trong
+> `~/.claude.json` cua tung may, khong bao gio vao file commit. Xem `python reference/scripts/mcp_status.py`
+> de doi chieu nhanh server nao dang thieu env var mong doi.
 
 ### MCP server moi: tra cuu SAP Notes
 
