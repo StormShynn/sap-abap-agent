@@ -19,7 +19,7 @@
     ],
     "PreToolUse": [
       {
-        "matcher": ".*",
+        "matcher": "mcp__",
         "hooks": [
           {
             "type": "command",

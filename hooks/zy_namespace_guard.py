@@ -17,24 +17,37 @@ field, name field empty) - this guard only blocks when it is CONFIDENT a
 DDIC-object create/update/delete call targets a non-customer namespace. See
 skill sap-deployment-target / sap-clean-code for the instruction-level rule
 this backs up technically.
+
+Matching is an EXACT lookup against the tool names above (case-insensitive,
+ignoring any "mcp__<server>__" prefix) - NOT a loose keyword/regex match on
+tool_name. A generic keyword match (any tool whose name contains
+create/update/delete + table/view/domain/...) would false-positive on
+unrelated tools from other MCP servers/plugins that happen to share those
+words (e.g. a "create_table" or "delete_domain" tool with nothing to do
+with SAP DDIC) - registered plugin-wide (PreToolUse), this guard must not
+fire outside an actual SAP/ABAP call.
 """
 import json
 import re
 import sys
 
-ACTION_RE = re.compile(r"(create|update|delete)", re.IGNORECASE)
-OBJECT_KEYWORDS = (
-    "domain",
-    "dataelement",
-    "data_element",
-    "table",
-    "structure",
-    "view",
-    "behaviordef",
-    "behaviordefinition",
-    "metadataextension",
-    "servicedefinition",
-)
+# Ten tool CHINH XAC ma guard nay dang bao ve (xem docstring o tren).
+KNOWN_TOOL_NAMES = frozenset({
+    # sap-dict-bridge (reference/mcp-server/sap_btp_agent/tools/dictionary.py)
+    "sap_create_domain",
+    "sap_create_data_element",
+    "sap_create_table",
+    # ADT MCP forks (reference/mcp-guides/mcp-sap-adt.md)
+    "createdomain", "updatedomain", "deletedomain",
+    "createdataelement", "updatedataelement", "deletedataelement",
+    "createtable", "updatetable", "deletetable",
+    "createstructure", "updatestructure", "deletestructure",
+    "createview", "updateview", "deleteview",
+    "createbehaviordef", "updatebehaviordef", "deletebehaviordef",
+    "createbehaviordefinition", "updatebehaviordefinition", "deletebehaviordefinition",
+    "createmetadataextension", "updatemetadataextension", "deletemetadataextension",
+    "createservicedefinition", "updateservicedefinition", "deleteservicedefinition",
+})
 NAME_FIELDS = ("name", "object_name", "objectName", "objName")
 # Z/Y customer namespace, or a registered "/namespace/..." prefix.
 ALLOWED_NAME_RE = re.compile(r"^(/\w+/|[ZzYy])")
@@ -43,10 +56,9 @@ ALLOWED_NAME_RE = re.compile(r"^(/\w+/|[ZzYy])")
 def looks_like_ddic_object_call(tool_name):
     if not tool_name:
         return False
-    lowered = tool_name.lower()
-    if not ACTION_RE.search(lowered):
-        return False
-    return any(kw in lowered for kw in OBJECT_KEYWORDS)
+    # MCP tool names are "mcp__<server>__<tool>" - chi can phan tool o cuoi.
+    bare = tool_name.rsplit("__", 1)[-1].lower()
+    return bare in KNOWN_TOOL_NAMES
 
 
 def extract_object_name(tool_input):
