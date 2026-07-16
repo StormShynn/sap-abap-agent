@@ -97,7 +97,7 @@ def main() -> None:
 
 def _show_help() -> None:
     print()
-    print("  SAP ABAP Agent — CLI Tool (v1.3.0)")
+    print("  SAP ABAP Agent — CLI Tool (v1.5.1)")
     print("=" * 50)
     print()
     print("  Commands:")

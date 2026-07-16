@@ -116,7 +116,7 @@ sap-abap-agent/
 Yêu cầu: **Python >= 3.10**. **Không cần clone repo** — chỉ cần tải 1 file `.whl` và `pip install`:
 
 ```bash
-pip install https://github.com/StormShynn/sap-abap-agent/releases/download/mcp-server-v1.3.0/sap_abap_agent_mcp-1.3.0-py3-none-any.whl
+pip install https://github.com/StormShynn/sap-abap-agent/releases/download/mcp-server-v1.5.1/sap_abap_agent_mcp-1.5.1-py3-none-any.whl
 ```
 
 (Hoặc tải file `.whl` về trước rồi `pip install đường-dẫn-file.whl` nếu máy không có internet lúc chạy lệnh.)
@@ -124,14 +124,14 @@ pip install https://github.com/StormShynn/sap-abap-agent/releases/download/mcp-s
 Trên Windows, cài thêm extra `win-dpapi` để mã hóa secrets bằng DPAPI (thêm `[win-dpapi]` ngay sau tên file, trước phần mở rộng `.whl`):
 
 ```bash
-pip install "sap_abap_agent_mcp-1.3.0-py3-none-any.whl[win-dpapi]"
+pip install "sap_abap_agent_mcp-1.5.1-py3-none-any.whl[win-dpapi]"
 ```
 
 Nếu muốn dùng Cookie-based auth kiểu **tự mở browser đăng nhập** (không cần F12 copy tay), cài thêm extra `playwright`
 và download browser binary:
 
 ```bash
-pip install "sap_abap_agent_mcp-1.3.0-py3-none-any.whl[playwright]"
+pip install "sap_abap_agent_mcp-1.5.1-py3-none-any.whl[playwright]"
 playwright install chromium
 ```
 
