@@ -358,11 +358,65 @@ liên tục — **mỗi ngày plugin càng ít lỗi hơn**:
 > ⚠️ **Mặc định TẮT (opt-in)**. Cài plugin không bắt buộc bạn phải có GitHub auth, và việc thu
 > thập error/code âm thầm mà không hỏi trước là vi phạm quyền riêng tư — nên tính năng này chỉ
 > chạy khi bạn bật rõ ràng bằng 1 trong 2 cách:
+> **Cách 1 — tạm thời (chỉ trong session terminal hiện tại):**
+>
+> <details>
+> <summary><b>PowerShell</b> (Windows — khuyến nghị)</summary>
+>
+> ```powershell
+> $env:SAP_ABAP_AGENT_ERROR_REPORTING = "1"
+> ```
+>
+> </details>
+>
+> <details>
+> <summary><b>CMD</b> (Windows — Command Prompt)</summary>
+>
+> ```cmd
+> set SAP_ABAP_AGENT_ERROR_REPORTING=1
+> ```
+>
+> </details>
+>
+> <details>
+> <summary><b>bash / zsh / Git Bash / WSL</b> (macOS, Linux)</summary>
+>
 > ```bash
-> export SAP_ABAP_AGENT_ERROR_REPORTING=1          # bật cho session/máy hiện tại
-> # hoặc tạo file marker (bật vĩnh viễn, không cần set env var mỗi lần):
+> export SAP_ABAP_AGENT_ERROR_REPORTING=1
+> ```
+>
+> </details>
+>
+> **Cách 2 — vĩnh viễn (tạo file marker, không cần set env mỗi lần):**
+>
+> <details>
+> <summary><b>PowerShell</b> (Windows)</summary>
+>
+> ```powershell
+> New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\.sap-btp-agent\error-reports"
+> New-Item -ItemType File -Force -Path "$env:USERPROFILE\.sap-btp-agent\error-reports\ENABLED"
+> ```
+>
+> </details>
+>
+> <details>
+> <summary><b>CMD</b> (Windows)</summary>
+>
+> ```cmd
+> if not exist "%USERPROFILE%\.sap-btp-agent\error-reports" mkdir "%USERPROFILE%\.sap-btp-agent\error-reports"
+> echo. > "%USERPROFILE%\.sap-btp-agent\error-reports\ENABLED"
+> ```
+>
+> </details>
+>
+> <details>
+> <summary><b>bash / zsh / Git Bash / WSL</b> (macOS, Linux)</summary>
+>
+> ```bash
 > mkdir -p ~/.sap-btp-agent/error-reports && touch ~/.sap-btp-agent/error-reports/ENABLED
 > ```
+>
+> </details>
 > Ngoài ra, phần "đính code fix vào issue" **chỉ hoạt động khi bạn sửa chính code của plugin
 > này** (VD đang dev fix bug plugin) — không bao giờ đính kèm code ABAP/project nội bộ của bạn
 > lên issue public, dù đã bật opt-in.
@@ -401,10 +455,34 @@ không bao giờ vào `fix_log.jsonl`. Nếu qua được gate đó, mới quét
 
 #### Kiểm tra trạng thái
 
+Không cần stdin, chạy tay được:
+
+<details>
+<summary><b>PowerShell</b> (Windows — khuyến nghị)</summary>
+
+```powershell
+"{}" | python hooks/error_reporter.py status
+```
+
+</details>
+
+<details>
+<summary><b>CMD</b> (Windows — Command Prompt)</summary>
+
+```cmd
+echo {} | python hooks\error_reporter.py status
+```
+
+</details>
+
+<details>
+<summary><b>bash / zsh / Git Bash / WSL</b> (macOS, Linux)</summary>
+
 ```bash
-# Không cần stdin, chạy tay được
 echo '{}' | python hooks/error_reporter.py status
 ```
+
+</details>
 
 Output mẫu:
 ```json
@@ -430,13 +508,32 @@ Output mẫu:
 #### Ai cũng có local report — không cần GitHub
 
 Dù có GitHub auth hay không, error report **luôn được save thành file Markdown**
-tại `~/.sap-btp-agent/error-reports/reports/` — ai cũng đọc được, không cần token:
+tại `~/.sap-btp-agent/error-reports/reports/` — ai cũng đọc được, không cần Dù có GitHub auth hay không, error report **luôn được save thành file Markdown**
+tại `~/.sap-btp-agent/error-reports/reports/` — ai cũng đọc được, không cần token.
+
+<details>
+<summary><b>PowerShell / CMD</b> (Windows)</summary>
+
+```powershell
+# PowerShell
+Get-ChildItem "$env:USERPROFILE\.sap-btp-agent\error-reports\reports\"
+```
+
+```cmd
+:: CMD
+dir "%USERPROFILE%\.sap-btp-agent\error-reports\reports\"
+```
+
+</details>
+
+<details>
+<summary><b>bash / zsh / Git Bash / WSL</b> (macOS, Linux)</summary>
 
 ```bash
-# Xem danh sách report
-dir %USERPROFILE%\.sap-btp-agent\error-reports\reports\   # Windows
-ls ~/.sap-btp-agent/error-reports/reports/                 # macOS/Linux
+ls ~/.sap-btp-agent/error-reports/reports/
 ```
+
+</details>
 
 Mỗi report là 1 file `.md` hoàn chỉnh: error message + context + fix solution
 (nếu có) + hướng dẫn share lên GitHub Issues.
@@ -453,13 +550,37 @@ Fallback chain — không có auth cũng không sao, mọi thứ vẫn hoạt đ
 
 **Luôn có local report** — bước 3 vẫn lưu file `.md` đầy đủ, không mất gì.
 
-#### Thiết lập labels trên repo
+Chỉ cần chạy 1 lần, cần `GITHUB_TOKEN` (không cần `gh` CLI):
+
+<details>
+<summary><b>PowerShell</b> (Windows — khuyến nghị)</summary>
+
+```powershell
+$env:GITHUB_TOKEN = "ghp_xxx"
+python reference/scripts/setup_labels.py
+```
+
+</details>
+
+<details>
+<summary><b>CMD</b> (Windows — Command Prompt)</summary>
+
+```cmd
+set GITHUB_TOKEN=ghp_xxx
+python reference\scripts\setup_labels.py
+```
+
+</details>
+
+<details>
+<summary><b>bash / zsh / Git Bash / WSL</b> (macOS, Linux)</summary>
 
 ```bash
-# Chỉ cần chạy 1 lần, cần GITHUB_TOKEN (không cần gh CLI)
 export GITHUB_TOKEN=ghp_xxx
 python reference/scripts/setup_labels.py
 ```
+
+</details>
 
 Tạo 2 label: `auto-reported` 🟣 + `auto-fix` 🟢
 
@@ -613,6 +734,45 @@ claude mcp add --transport stdio sap-fieldglass -- java -jar /path/to/CDataMCP-j
 | `fieldglass_get_columns` | Liệt kê columns của 1 table |
 | `fieldglass_run_query` | Thực thi SQL SELECT query |
 
+### MCP server mới: Chrome DevTools (debug web / Fiori-UI5)
+
+**chrome-devtools-mcp** — MCP server **chính chủ** của Google/ChromeDevTools team, điều khiển 1
+Chrome thật (qua Puppeteer) để debug trang web: console log, network request, performance trace,
+screenshot, thao tác DOM. Không phải tool SAP-specific, nhưng hữu ích khi cần debug **Fiori/UI5
+app chạy trên browser** — việc mà `WebFetch`/`WebSearch` không làm được vì chỉ đọc HTML tĩnh,
+không chạy được JS/SPA:
+
+```bash
+# Yêu cầu: Node.js LTS + Google Chrome (bản stable) đã cài sẵn máy
+claude mcp add --transport stdio chrome-devtools -- npx -y chrome-devtools-mcp@latest
+
+# Khuyến dùng: thêm --isolated để dùng profile Chrome tạm (tự xóa sau khi đóng),
+# không đụng tới cookie/session Chrome thật bạn đang dùng hàng ngày
+claude mcp add --transport stdio chrome-devtools -- npx -y chrome-devtools-mcp@latest --isolated
+```
+
+Hoặc dùng script chung của plugin (hỏi Y/n rồi tự chạy lệnh trên giúp bạn, không cần gõ tay):
+
+```bash
+python reference/scripts/mcp_register.py
+```
+
+Server này **không** nằm trong `.mcp.json` bundled sẵn của plugin (khác `sap-btp`/`cds-kb`/`notion`)
+— dù không cần credential, nó vẫn cần 1 bước xác nhận (Y/n) vì là năng lực điều khiển 1 Chrome
+thật, không nên tự động bật cho mọi người cài plugin.
+
+| Tool | Mô tả |
+|------|-------|
+| `navigate_page` | Mở 1 URL (VD: Fiori Launchpad app) |
+| `take_snapshot` | Chụp DOM snapshot (đọc cấu trúc trang, phục vụ click/fill tiếp theo) |
+| `list_console_messages` | Liệt kê console log/error của trang (debug UI5 runtime error) |
+| `list_network_requests` | Liệt kê network request (kiểm tra OData call bị lỗi 400/500) |
+| `performance_start_trace` / `performance_stop_trace` | Ghi performance trace (debug app load chậm) |
+| `take_screenshot` | Chụp màn hình trang hiện tại |
+
+Chi tiết đầy đủ (toàn bộ nhóm tool, CLI flags, security notes): xem
+[`reference/mcp-guides/mcp-chrome-devtools.md`](reference/mcp-guides/mcp-chrome-devtools.md).
+
 _Sau khi cấu hình, AI sẽ có thêm các tool:_
 
 | Tool | Server | Mô tả |
@@ -648,13 +808,48 @@ Mọi tool đều có tham số `profile` (để trống = profile active). Ví 
 
 Đặt env `SAP_BTP_PROFILE=<id>` trước mỗi lần chạy:
 
+<details>
+<summary><b>PowerShell</b> (Windows — khuyến nghị)</summary>
+
+```powershell
+# Terminal 1: Claude 1 với profile A
+$env:SAP_BTP_PROFILE = "project1.s4hana.cloud.sap"
+sap-btp-agent
+
+# Terminal 2: Claude 2 với profile B
+$env:SAP_BTP_PROFILE = "project2.s4hana.cloud.sap"
+sap-btp-agent
+```
+
+</details>
+
+<details>
+<summary><b>CMD</b> (Windows — Command Prompt)</summary>
+
+```cmd
+:: Terminal 1: Claude 1 với profile A
+set SAP_BTP_PROFILE=project1.s4hana.cloud.sap
+sap-btp-agent
+
+:: Terminal 2: Claude 2 với profile B
+set SAP_BTP_PROFILE=project2.s4hana.cloud.sap
+sap-btp-agent
+```
+
+</details>
+
+<details>
+<summary><b>bash / zsh / Git Bash / WSL</b> (macOS, Linux)</summary>
+
 ```bash
 # Terminal 1: Claude 1 với profile A
 SAP_BTP_PROFILE=project1.s4hana.cloud.sap sap-btp-agent
 
 # Terminal 2: Claude 2 với profile B
-SAP_BTP_PROFILE=project1.s4hana.cloud.sap sap-btp-agent
+SAP_BTP_PROFILE=project2.s4hana.cloud.sap sap-btp-agent
 ```
+
+</details>
 
 ## Cấu hình folder
 
@@ -682,8 +877,48 @@ Cache/log trong đó tự dọn theo tuổi (mặc định 7 ngày, xem
 
 ## Env
 
-- `SAP_BTP_PROFILE=<id>` — khóa profile cho 1 lần chạy (ưu tiên registry)
-- `SAP_BTP_AGENT_HOME=/path` — đổi folder cấu hình (test, multi-tenant)
+Các biến môi trường quan trọng (đặt **trước khi** chạy `sap-btp-agent` / `claude`):
+
+| Tên biến | Ý nghĩa |
+|----------|---------|
+| `SAP_BTP_PROFILE=<id>` | Khóa profile cho 1 lần chạy (ưu tiên registry) |
+| `SAP_BTP_AGENT_HOME=/path` | Đổi folder cấu hình (test, multi-tenant) |
+| `GITHUB_TOKEN=ghp_xxx` | Token GitHub (tự tạo issue khi error reporter bật) |
+| `SAP_ABAP_AGENT_ERROR_REPORTING=1` | Bật error reporter (xem mục Error Reporting ở trên) |
+
+### Cách đặt env tùy theo shell
+
+**PowerShell (Windows — khuyến nghị):**
+
+```powershell
+# Tạm thời (chỉ session hiện tại)
+$env:SAP_BTP_PROFILE = "project1.s4hana.cloud.sap"
+
+# Vĩnh viễn (cho user hiện tại, mở lại shell mới vẫn còn)
+[System.Environment]::SetEnvironmentVariable("SAP_BTP_PROFILE", "project1.s4hana.cloud.sap", "User")
+```
+
+**CMD (Windows):**
+
+```cmd
+:: Tạm thời (chỉ session hiện tại)
+set SAP_BTP_PROFILE=project1.s4hana.cloud.sap
+
+:: Vĩnh viễn (cho user hiện tại)
+setx SAP_BTP_PROFILE "project1.s4hana.cloud.sap"
+```
+
+**bash / zsh / Git Bash / WSL (macOS, Linux):**
+
+```bash
+# Tạm thời (chỉ session hiện tại)
+export SAP_BTP_PROFILE=project1.s4hana.cloud.sap
+
+# Vĩnh viễn: thêm vào ~/.bashrc (bash) hoặc ~/.zshrc (zsh)
+echo 'export SAP_BTP_PROFILE=project1.s4hana.cloud.sap' >> ~/.bashrc
+```
+
+> **Sau khi đổi vĩnh viễn**, đóng và mở lại terminal / shell mới để biến có hiệu lực.
 
 ## 🧠 SAP Consultant System (Auto-scoring Routing Engine)
 

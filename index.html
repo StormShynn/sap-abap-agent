@@ -926,7 +926,49 @@
       .flow-fork { gap: 10px; }
     }
 
-  </style>
+      /* ===== MULTI-SHELL CODE COMPARE ===== */
+    .code-compare {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 12px;
+      margin: 14px 0 20px;
+    }
+    .code-block {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+    }
+    .code-label {
+      background: var(--bg-code);
+      border-bottom: 1px solid var(--border);
+      padding: 8px 14px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-bright);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .code-os {
+      font-size: 11px;
+      font-weight: 400;
+      color: var(--text-dim);
+      padding: 2px 8px;
+      background: rgba(255,255,255,.04);
+      border-radius: 10px;
+    }
+    .code-block pre {
+      margin: 0;
+      border-radius: 0;
+      border: none;
+      background: var(--bg-code);
+    }
+    .code-block pre code {
+      padding: 12px 14px;
+      display: block;
+    }
+</style>
   <script src="https://cdn.jsdelivr.net/npm/flexsearch@0.7.43/dist/flexsearch.bundle.min.js"></script>
   
   
@@ -954,6 +996,7 @@
     <a class="nav-link" href="#architecture"><span class="nav-icon">🏗️</span> Kiến trúc hệ thống</a>
     <a class="nav-link" href="#cai-dat"><span class="nav-icon">📦</span> Cài đặt</a>
     <a class="nav-link" href="#env"><span class="nav-icon">🌐</span> Biến môi trường</a>
+    <a class="nav-link" href="#error-reporting"><span class="nav-icon">🐛</span> Báo cáo lỗi tự động</a>
 
     <div class="nav-section">Kết nối SAP</div>
     <a class="nav-link" href="#them-project"><span class="nav-icon">➕</span> Thêm project SAP</a>
@@ -1278,6 +1321,184 @@ claude mcp add --transport http notion https://mcp.notion.com/mcp</code><button 
         <span style="color:var(--text-dim);font-family:var(--font);margin-left:8px;">— Đổi thư mục cấu hình (test, multi-tenant)</span>
       </div>
     </section>
+    <!-- ===== BÁO CÁO LỖI TỰ ĐỘNG ===== -->
+    <section id="error-reporting">
+      <h2><span class="section-icon">🐛</span> Báo cáo lỗi tự động (Continuous Improvement)</h2>
+
+      <p><strong>Error reporter</strong> chạy ngầm qua hook system, tự động phát hiện lỗi runtime (lệnh bash fail, MCP tool lỗi, activate fail...) rồi <strong>ghi file Markdown local</strong> tại <code>%USERPROFILE%\.sap-btp-agent\error-reports\reports\</code> (Windows) hoặc <code>~/.sap-btp-agent/error-reports/reports/</code> (macOS/Linux). Nếu có GitHub auth, sẽ tự tạo issue để dev fix — <strong>mỗi ngày plugin càng ít lỗi hơn</strong>.</p>
+
+      <div class="callout warning" style="background:rgba(210,153,34,.12);border-left:4px solid var(--orange);padding:14px 16px;border-radius:8px;margin:14px 0;">
+        <strong>⚠️ Mặc định TẮT (opt-in).</strong> Tính năng chỉ chạy khi bạn bật rõ ràng — không tự động thu thập gì nếu bạn không bật. Phần "đính code fix vào issue" chỉ gửi code của chính plugin này lên issue, không bao giờ đính kèm code ABAP/project nội bộ của bạn.
+      </div>
+
+      <h3>Bước 1 — Bật error reporter</h3>
+      <p>Chọn <strong>1 trong 2 cách</strong>:</p>
+
+      <h4>Cách A — Tạm thời (chỉ session terminal hiện tại)</h4>
+
+      <div class="code-compare">
+        <div class="code-block">
+          <div class="code-label">PowerShell <span class="code-os">Windows</span></div>
+<pre><code>$env:SAP_ABAP_AGENT_ERROR_REPORTING = "1"</code><button class="copy-btn" onclick="copyCode(this)">Sao chép</button></pre>
+        </div>
+
+        <div class="code-block">
+          <div class="code-label">CMD <span class="code-os">Windows</span></div>
+<pre><code>set SAP_ABAP_AGENT_ERROR_REPORTING=1</code><button class="copy-btn" onclick="copyCode(this)">Sao chép</button></pre>
+        </div>
+
+        <div class="code-block">
+          <div class="code-label">bash / zsh / Git Bash / WSL <span class="code-os">macOS · Linux</span></div>
+<pre><code>export SAP_ABAP_AGENT_ERROR_REPORTING=1</code><button class="copy-btn" onclick="copyCode(this)">Sao chép</button></pre>
+        </div>
+      </div>
+
+      <h4>Cách B — Vĩnh viễn (tạo file marker, không cần set env mỗi lần)</h4>
+
+      <div class="code-compare">
+        <div class="code-block">
+          <div class="code-label">PowerShell <span class="code-os">Windows</span></div>
+<pre><code>New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\.sap-btp-agent\error-reports"
+New-Item -ItemType File -Force -Path "$env:USERPROFILE\.sap-btp-agent\error-reports\ENABLED"</code><button class="copy-btn" onclick="copyCode(this)">Sao chép</button></pre>
+        </div>
+
+        <div class="code-block">
+          <div class="code-label">CMD <span class="code-os">Windows</span></div>
+<pre><code>if not exist "%USERPROFILE%\.sap-btp-agent\error-reports" mkdir "%USERPROFILE%\.sap-btp-agent\error-reports"
+echo. > "%USERPROFILE%\.sap-btp-agent\error-reports\ENABLED"</code><button class="copy-btn" onclick="copyCode(this)">Sao chép</button></pre>
+        </div>
+
+        <div class="code-block">
+          <div class="code-label">bash / zsh / Git Bash / WSL <span class="code-os">macOS · Linux</span></div>
+<pre><code>mkdir -p ~/.sap-btp-agent/error-reports && touch ~/.sap-btp-agent/error-reports/ENABLED</code><button class="copy-btn" onclick="copyCode(this)">Sao chép</button></pre>
+        </div>
+      </div>
+
+      <h3>Bước 2 — Kiểm tra trạng thái</h3>
+      <p>Chạy lệnh sau bất kỳ lúc nào để xem số lỗi đã ghi nhận, bao nhiêu issue đã tạo trên GitHub:</p>
+
+      <div class="code-compare">
+        <div class="code-block">
+          <div class="code-label">PowerShell <span class="code-os">Windows</span></div>
+<pre><code>"{}" | python hooks/error_reporter.py status</code><button class="copy-btn" onclick="copyCode(this)">Sao chép</button></pre>
+        </div>
+
+        <div class="code-block">
+          <div class="code-label">CMD <span class="code-os">Windows</span></div>
+<pre><code>echo {} | python hooks\error_reporter.py status</code><button class="copy-btn" onclick="copyCode(this)">Sao chép</button></pre>
+        </div>
+
+        <div class="code-block">
+          <div class="code-label">bash / zsh / Git Bash / WSL <span class="code-os">macOS · Linux</span></div>
+<pre><code>echo '{}' | python hooks/error_reporter.py status</code><button class="copy-btn" onclick="copyCode(this)">Sao chép</button></pre>
+        </div>
+      </div>
+
+      <h3>Bước 3 — Xem file report (Markdown local, không cần GitHub)</h3>
+      <p>Mỗi lỗi được save thành 1 file <code>.md</code> hoàn chỉnh tại <code>~/.sap-btp-agent/error-reports/reports/</code>. Dù không có GitHub auth bạn vẫn đọc và share được:</p>
+
+      <div class="code-compare">
+        <div class="code-block">
+          <div class="code-label">PowerShell <span class="code-os">Windows</span></div>
+<pre><code>Get-ChildItem "$env:USERPROFILE\.sap-btp-agent\error-reports\reports\"</code><button class="copy-btn" onclick="copyCode(this)">Sao chép</button></pre>
+        </div>
+
+        <div class="code-block">
+          <div class="code-label">CMD <span class="code-os">Windows</span></div>
+<pre><code>dir "%USERPROFILE%\.sap-btp-agent\error-reports\reports\"</code><button class="copy-btn" onclick="copyCode(this)">Sao chép</button></pre>
+        </div>
+
+        <div class="code-block">
+          <div class="code-label">bash / zsh / Git Bash / WSL <span class="code-os">macOS · Linux</span></div>
+<pre><code>ls ~/.sap-btp-agent/error-reports/reports/</code><button class="copy-btn" onclick="copyCode(this)">Sao chép</button></pre>
+        </div>
+      </div>
+
+      <h3>Bước 4 — Tạo GitHub issue tự động (optional)</h3>
+      <p>Nếu muốn error reporter tự tạo GitHub issue để dev fix, cần 1 trong 2 thứ:</p>
+      <ul>
+        <li><code>gh</code> CLI đã login, HOẶC</li>
+        <li>Set biến môi trường <code>GITHUB_TOKEN</code> (hoặc <code>GH_TOKEN</code>):</li>
+      </ul>
+
+      <div class="code-compare">
+        <div class="code-block">
+          <div class="code-label">PowerShell <span class="code-os">Windows — vĩnh viễn</span></div>
+<pre><code>[System.Environment]::SetEnvironmentVariable("GITHUB_TOKEN", "ghp_xxx", "User")</code><button class="copy-btn" onclick="copyCode(this)">Sao chép</button></pre>
+        </div>
+
+        <div class="code-block">
+          <div class="code-label">CMD <span class="code-os">Windows — vĩnh viễn</span></div>
+<pre><code>setx GITHUB_TOKEN "ghp_xxx"</code><button class="copy-btn" onclick="copyCode(this)">Sao chép</button></pre>
+        </div>
+
+        <div class="code-block">
+          <div class="code-label">bash / zsh <span class="code-os">macOS · Linux — vĩnh viễn</span></div>
+<pre><code>echo 'export GITHUB_TOKEN=ghp_xxx' >> ~/.bashrc</code><button class="copy-btn" onclick="copyCode(this)">Sao chép</button></pre>
+        </div>
+      </div>
+
+      <p>Sau khi có token, chạy 1 lần để tạo 2 label cần thiết trên repo:</p>
+
+      <div class="code-compare">
+        <div class="code-block">
+          <div class="code-label">PowerShell / CMD <span class="code-os">Windows</span></div>
+<pre><code>python reference\scripts\setup_labels.py</code><button class="copy-btn" onclick="copyCode(this)">Sao chép</button></pre>
+        </div>
+
+        <div class="code-block">
+          <div class="code-label">bash / zsh <span class="code-os">macOS · Linux</span></div>
+<pre><code>python reference/scripts/setup_labels.py</code><button class="copy-btn" onclick="copyCode(this)">Sao chép</button></pre>
+        </div>
+      </div>
+
+      <h3>Lưu đồ hoạt động</h3>
+<pre><code>User chạy lệnh → PostToolUse detect → ghi error_log.jsonl
+                                           ↓
+Stop hook → gom nhóm 24h → dedup (SHA256) → tạo GitHub issue (nếu mới)
+                                           ↓
+Khi Claude viết code sửa lỗi → detect-fix → ghi fix_log.jsonl
+                                           ↓
+Stop → match fix với issue → add comment "cách sửa" vào issue có sẵn
+                                           ↓
+Issue = [🐛 error] + [✅ fix solution] → Dev fix → release → user update → ít lỗi hơn</code><button class="copy-btn" onclick="copyCode(this)">Sao chép</button></pre>
+
+      <h3>Các chế độ hook</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Hook event</th><th>Mode</th><th>Chức năng</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>PostToolUse (Bash)</td>
+              <td><code>detect-bash</code></td>
+              <td>Phát hiện lỗi từ Bash command (exit code ≠ 0, stderr)</td>
+            </tr>
+            <tr>
+              <td>PostToolUse (sap_*)</td>
+              <td><code>detect-tool</code></td>
+              <td>Phát hiện lỗi từ MCP tool (syntax check fail, activate fail, connection error)</td>
+            </tr>
+            <tr>
+              <td>PostToolUse (Edit/Write)</td>
+              <td><code>detect-fix</code></td>
+              <td>Khi Claude viết code, kiểm tra có phải đang fix lỗi cũ không → ghi fix record</td>
+            </tr>
+            <tr>
+              <td>Stop</td>
+              <td><code>report</code></td>
+              <td>Gom error → dedup → tạo issue + Gom fix → add comment</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout" style="background:var(--accent-glow);border-left:4px solid var(--accent);padding:14px 16px;border-radius:8px;margin:14px 0;">
+        <strong>💡 Mẹo:</strong> Sau khi cập nhật plugin lên version mới, lỗi bạn từng gặp đã có thể đã được fix. Bật error reporter từ đầu giúp bạn thấy ngay khi có lỗi mới xuất hiện — không phải chờ release note.
+      </div>
+    </section>
+
 
     
     <div class="divider"></div>
@@ -3468,7 +3689,12 @@ java -jar cdata.jdbc.sapfieldglass.jar --license</code><button class="copy-btn" 
         <div class="tc-title">💻 'sap-btp-agent' is not recognized</div>
         <p class="tc-desc">PATH thiếu folder chứa entry point — lỗi rất hay gặp trên Windows khi <code>pip</code> cài vào user-scheme site-packages. Chạy <code>python -m sap_btp_agent.doctor</code> (chạy được dù PATH sai) để tự phát hiện và lấy sẵn lệnh fix.</p>
       </div>
-    </section>
+    
+      <div class="trouble-card ok">
+        <div class="tc-title">🐛 Không thấy report lỗi</div>
+        <p class="tc-desc">Error reporter mặc định TẮT (opt-in). Để bật, xem mục <a href="#error-reporting">Báo cáo lỗi tự động</a> ở trên.</p>
+      </div>
+</section>
 
     <div class="divider"></div>
 
