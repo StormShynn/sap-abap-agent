@@ -76,11 +76,14 @@ def run_claude_add(
     # positional (there is no --name flag), there is no --url flag (the URL
     # is <commandOrUrl>), and -e/--env must come BEFORE the `--` separator -
     # after it, it would be passed as a literal arg to the subprocess itself.
-    cmd = ["claude", "mcp", "add", "--transport", transport, "--scope", scope]
+    cmd = ["claude", "mcp", "add", "--transport", transport, "--scope", scope, name]
+
     if env:
+        # Filter out empty env vars to avoid invalid format errors
         for k, v in env.items():
-            cmd.extend(["--env", f"{k}={v}"])
-    cmd.append(name)
+            if v:  # Only add non-empty env vars
+                cmd.extend(["--env", f"{k}={v}"])
+
     if transport in ("sse", "http", "ws"):
         if url:
             cmd.append(url)
