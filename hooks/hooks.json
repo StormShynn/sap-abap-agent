@@ -40,6 +40,14 @@
           {
             "type": "command",
             "command": "python \"${CLAUDE_PLUGIN_ROOT}/hooks/verify_nudge.py\" mark-edit"
+          },
+          {
+            "type": "command",
+            "command": "python \"${CLAUDE_PLUGIN_ROOT}/hooks/error_reporter.py\" detect-tool"
+          },
+          {
+            "type": "command",
+            "command": "python \"${CLAUDE_PLUGIN_ROOT}/hooks/error_reporter.py\" detect-fix"
           }
         ]
       },
@@ -49,6 +57,19 @@
           {
             "type": "command",
             "command": "python \"${CLAUDE_PLUGIN_ROOT}/hooks/verify_nudge.py\" mark-verified"
+          },
+          {
+            "type": "command",
+            "command": "python \"${CLAUDE_PLUGIN_ROOT}/hooks/error_reporter.py\" detect-bash"
+          }
+        ]
+      },
+      {
+        "matcher": "sap_",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"${CLAUDE_PLUGIN_ROOT}/hooks/error_reporter.py\" detect-tool"
           }
         ]
       }
@@ -60,6 +81,11 @@
             "type": "command",
             "command": "python \"${CLAUDE_PLUGIN_ROOT}/hooks/verify_nudge.py\" check-stop",
             "async": false
+          },
+          {
+            "type": "command",
+            "command": "python \"${CLAUDE_PLUGIN_ROOT}/hooks/error_reporter.py\" report",
+            "async": true
           }
         ]
       }

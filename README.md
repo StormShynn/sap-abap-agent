@@ -1,41 +1,41 @@
-﻿# SAP ABAP Agent (tieng Viet)
+# SAP ABAP Agent (tiếng Việt)
 
 [![Version](https://img.shields.io/badge/version-1.3.3-blue.svg)](CHANGELOG.md) [![Python](https://img.shields.io/badge/Python-3.10+-blue.svg)](https://python.org) [![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE) [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](CODE_OF_CONDUCT.md) [![Security Policy](https://img.shields.io/badge/Security-View_Policy-blue.svg)](SECURITY.md) [![Changelog](https://img.shields.io/badge/Changelog-%23ff69b4.svg)](CHANGELOG.md) [![CI/CD](https://github.com/StormShynn/sap-abap-agent/actions/workflows/deploy.yml/badge.svg)](https://github.com/StormShynn/sap-abap-agent/actions/workflows/deploy.yml) [![GitHub Pages](https://img.shields.io/github/deployments/StormShynn/sap-abap-agent/github-pages?label=GitHub%20Pages&logo=github)](https://stormshynn.github.io/sap-abap-agent/)
 
-Plugin Claude Code + MCP server tu dong ket noi **SAP BTP / S/4HANA Cloud** de thao tac
-ABAP (doc / tim / syntax-check / activate). Ho tro **multi-profile** -- moi project SAP
-co profile rieng (URL, tenant, secret), luu trong **folder user** tren may
+Plugin Claude Code + MCP server tự động kết nối **SAP BTP / S/4HANA Cloud** để thao tác
+ABAP (đọc / tìm / syntax-check / activate). Hỗ trợ **multi-profile** — mỗi project SAP
+có profile riêng (URL, tenant, secret), lưu trong **folder user** trên máy
 (`%USERPROFILE%\.sap-btp-agent\` Windows, `~/.sap-btp-agent/` macOS/Linux).
 
-## Noi bat
+## Nổi bật
 
-- **🧠 SAP Consultant System (28 agents)**: Routing tu dong bang auto-scoring engine. 25 module
+- **🧠 SAP Consultant System (28 agents)**: Routing tự động bằng auto-scoring engine. 25 module
   consultants cho SD, FI, MM, CO, PP, QM, PM, WM, PS, HCM, BW, Basis, TM, TR, Ariba, CA, GTS, EHS,
   IBP, EWM, Fiori/UI5, CAP, CPI, SuccessFactors, BTP Admin + Docs Researcher + Daily Learner + Reviewer.
-- **🔌 SAP BTP Connection**: `sap-btp-agent` — ket noi S/4HANA Cloud, doc/activate ABAP, multi-profile.
+- **🔌 SAP BTP Connection**: `sap-btp-agent` — kết nối S/4HANA Cloud, đọc/activate ABAP, multi-profile.
 - **🧱 DDIC Dictionary Bridge**: `sap-dict-bridge` MCP server (`sap_create_domain`/`sap_create_data_element`/
-  `sap_create_table`) — tao Domain/Data Element/Table truc tiep qua cookie auth cua `sap-btp-agent`
+  `sap_create_table`) — tạo Domain/Data Element/Table trực tiếp qua cookie auth của `sap-btp-agent`
   (xem skill `sap-cloud-dictionary`).
-- **📚 CDS Knowledge Base**: Tra cuu 7,355 CDS views released qua semantic search.
-- **📖 SAP Docs Research**: Tra cuu SAP Help, Community, API Hub, Fiori App Library.
-- **🔒 Process Discipline**: SessionStart hook ep routing truoc khi tra loi,
-  verification-before-completion, systematic-debugging, finish-ticket checklist — chan lai kieu
-  loi "code doc on nhung chua chay that".
+- **📚 CDS Knowledge Base**: Tra cứu 7,355 CDS views released qua semantic search.
+- **📖 SAP Docs Research**: Tra cứu SAP Help, Community, API Hub, Fiori App Library.
+- **🔒 Process Discipline**: SessionStart hook ép routing trước khi trả lời,
+  verification-before-completion, systematic-debugging, finish-ticket checklist — chặn lại kiểu
+  lỗi "code đọc ổn nhưng chưa chạy thật".
 - **🧠 Context Engineering** (v0.6.2): trim MCP output (observation masking),
-  scaffold summary giua cac layer, 2-layer module routing (CORE+DEEP), 3-tier memory
-  cho daily-learner — lay pattern tu agent-skills-for-context-engineering.
+  scaffold summary giữa các layer, 2-layer module routing (CORE+DEEP), 3-tier memory
+  cho daily-learner — lấy pattern từ agent-skills-for-context-engineering.
 
-## Dong gop
+## Đóng góp
 
-Du an la **open-source**, moi dong gop deu duoc chao don!
+Dự án là **open-source**, mọi đóng góp đều được chào đón!
 
-| File | Muc dich |
+| File | Mục đích |
 |------|----------|
-| [`CONTRIBUTING.md`](CONTRIBUTING.md) | Huong dan dong gop skill, agent, docs |
-| [`SKILL_TEMPLATE.md`](SKILL_TEMPLATE.md) | Template chuan de tao skill / agent / reference module |
-| [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md) | Quy tac ung xu cua cong dong |
+| [`CONTRIBUTING.md`](CONTRIBUTING.md) | Hướng dẫn đóng góp skill, agent, docs |
+| [`SKILL_TEMPLATE.md`](SKILL_TEMPLATE.md) | Template chuẩn để tạo skill / agent / reference module |
+| [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md) | Quy tắc ứng xử của cộng đồng |
 
-## Cau truc
+## Cấu trúc
 
 ```text
 sap-abap-agent/
@@ -46,35 +46,35 @@ sap-abap-agent/
 |   +-- sap-daily-learner/     # 📚 Daily SAP Learning — Hermes-like (self-improving)
 |   +-- sap-btp-setup/         # Setup & troubleshoot SAP BTP connection
 |   +-- sap-clean-code/        # ABAP Cloud naming conventions & clean code
-|   +-- sap-extensibility/     # Extensibility bac thang cho Public Cloud
+|   +-- sap-extensibility/     # Extensibility bậc thang cho Public Cloud
 |   +-- sap-key-user-toolkit/  # Key User Extensibility handbook
-|   +-- sap-cds-kb/            # Tra cuu CDS view qua cds-kb-mcp
-|   +-- sap-docs-research/     # Tra cuu SAP Docs qua mcp-sap-docs
+|   +-- sap-cds-kb/            # Tra cứu CDS view qua cds-kb-mcp
+|   +-- sap-docs-research/     # Tra cứu SAP Docs qua mcp-sap-docs
 |   +-- sap-doc-to-md/         # Convert Word/Excel sang Markdown (markitdown)
-|   +-- sap-analyze-function-spec/  # FS.docx -> INTAKE.md (buoc 1 codegen pipeline)
-|   +-- sap-write-technical-spec/   # INTAKE.md -> TECHNICAL_SPEC.md (buoc 2)
-|   +-- sap-cloud-dictionary/       # Tao Domain/Data Element/Database Table (DDIC)
-|   +-- sap-bootstrap-system-context/ # Do he thong that qua MCP truoc khi scaffold
-|   +-- sap-scaffold-rap/           # TECHNICAL_SPEC.md -> RAP 3-layer skeleton (buoc 3)
-|   +-- sap-scaffold-cds/           # -> CDS view skeleton, pattern read-only (buoc 3)
+|   +-- sap-analyze-function-spec/  # FS.docx -> INTAKE.md (bước 1 codegen pipeline)
+|   +-- sap-write-technical-spec/   # INTAKE.md -> TECHNICAL_SPEC.md (bước 2)
+|   +-- sap-cloud-dictionary/       # Tạo Domain/Data Element/Database Table (DDIC)
+|   +-- sap-bootstrap-system-context/ # Dò hệ thống thật qua MCP trước khi scaffold
+|   +-- sap-scaffold-rap/           # TECHNICAL_SPEC.md -> RAP 3-layer skeleton (bước 3)
+|   +-- sap-scaffold-cds/           # -> CDS view skeleton, pattern read-only (bước 3)
 |   +-- sap-scaffold-cds-analytics/ # -> Cube/Dimension/Text + Analytical Query
 |   +-- sap-virtual-element/        # Calculated field trong CDS view
-|   +-- sap-atc-review/             # Lint naming/released-API/clean-ABAP (buoc 4)
-|   +-- sap-unit-test/              # Sinh ABAP Unit test class (buoc 5)
-|   +-- sap-cds-unit-test/          # Test CDS view/RAP BO (buoc 5)
+|   +-- sap-atc-review/             # Lint naming/released-API/clean-ABAP (bước 4)
+|   +-- sap-unit-test/              # Sinh ABAP Unit test class (bước 5)
+|   +-- sap-cds-unit-test/          # Test CDS view/RAP BO (bước 5)
 |   +-- sap-migrate-segw-to-rap/    # Reverse-engineer SEGW -> RAP
-|   +-- sap-finish-ticket/          # Checklist dong ticket (buoc 6)
-|   +-- sap-verification-before-completion/  # Bang chung chay that
-|   +-- sap-systematic-debugging/   # Debug runtime co he thong
-|   +-- sap-routing-discipline/     # SessionStart hook - ep check routing
+|   +-- sap-finish-ticket/          # Checklist đóng ticket (bước 6)
+|   +-- sap-verification-before-completion/  # Bằng chứng chạy thật
+|   +-- sap-systematic-debugging/   # Debug runtime có hệ thống
+|   +-- sap-routing-discipline/     # SessionStart hook - ép check routing
 |   +-- sap-mcp-status/             # Audit MCP server registration
-|   +-- sap-security-review/        # Quet bao mat ABAP Cloud (OWASP-style, goi tu abap-reviewer)
-|   +-- ... (12 skills khac: mcp-sap-notes, mcp-sap-concur, mcp-sap-fieldglass,
+|   +-- sap-security-review/        # Quét bảo mật ABAP Cloud (OWASP-style, gọi từ abap-reviewer)
+|   +-- ... (12 skills khác: mcp-sap-notes, mcp-sap-concur, mcp-sap-fieldglass,
 |   |       sap-released-classes, sap-abap-sql, sap-badi-enhancement,
 |   |       sap-authorization, sap-odata-service, sap-rap-events,
 |   |       sap-cloud-migration, sap-btp-connectivity, sap-btp-best-practices)
 +-- agents/
-|   +-- sap-ask-consultant/    # Auto-scoring routing — dispatch toi 28 agents:
+|   +-- sap-ask-consultant/    # Auto-scoring routing — dispatch tới 28 agents:
 |   |   +-- 25 module consultants (SD, FI, MM, CO, PP, QM, PM, WM, PS, HCM,
 |   |   |   BW, Basis, TM, TR, Ariba, CA, GTS, EHS, IBP, EWM, Fiori, CAP,
 |   |   |   CPI, SuccessFactors, BTP Admin)
@@ -83,16 +83,16 @@ sap-abap-agent/
 |   |   +-- abap-reviewer             # Review code ABAP Cloud
 |   +-- sap-btp-admin-consultant-cloud  # BTP Platform Administration
 |   +-- sap-cap-consultant-cloud        # CAP (Cloud Application Programming)
-+-- hooks/                   # Canh bao SELECT * (PostToolUse) + routing (SessionStart)
++-- hooks/                   # Cảnh báo SELECT * (PostToolUse) + routing (SessionStart)
 +-- reference/
-    +-- modules/             # Kien thuc module cho tung consultant
+    +-- modules/             # Kiến thức module cho từng consultant
     |   +-- sap-[module]-cloud/SKILL.md
     |   +-- sap-steampunk-cloud/SKILL.md
-    +-- process/             # Context engineering (da chuyen tu skills/)
+    +-- process/             # Context engineering (đã chuyển từ skills/)
     |   +-- sap-context-tool-result-trim.md   # Observation masking
-    |   +-- sap-scaffold-context-summary.md   # Compact giua cac layer scaffold
+    |   +-- sap-scaffold-context-summary.md   # Compact giữa các layer scaffold
     |   +-- sap-context-module-routing.md     # 2-layer core+deep routing
-    +-- mcp-guides/          # MCP setup reference (da chuyen tu skills/)
+    +-- mcp-guides/          # MCP setup reference (đã chuyển từ skills/)
     |   +-- mcp-sap-adt.md              # ADT MCP (3 options)
     |   +-- mcp-sap-gui.md              # SAP GUI Automation
     |   +-- mcp-sap-successfactors.md   # SuccessFactors MCP
@@ -106,39 +106,39 @@ sap-abap-agent/
         +-- sap_btp_agent/
         |   +-- config/        # paths, profile (registry), store, secrets
         |   +-- sap/           # auth (OAuth2), client (REST + auto-reconnect)
-        |   +-- tools/         # registry cac tool MCP (co tham so `profile`)
-        |   +-- cli/           # wizard setup + quan ly profile
+        |   +-- tools/         # registry các tool MCP (có tham số `profile`)
+        |   +-- cli/           # wizard setup + quản lý profile
         +-- pyproject.toml
 ```
 
-## Cai dat (1 lan)
+## Cài đặt (1 lần)
 
-Yeu cau: **Python >= 3.10**. **Khong can clone repo** -- chi can tai 1 file `.whl` va `pip install`:
+Yêu cầu: **Python >= 3.10**. **Không cần clone repo** — chỉ cần tải 1 file `.whl` và `pip install`:
 
 ```bash
 pip install https://github.com/StormShynn/sap-abap-agent/releases/download/mcp-server-v1.3.0/sap_abap_agent_mcp-1.3.0-py3-none-any.whl
 ```
 
-(Hoac tai file `.whl` ve truoc roi `pip install duong-dan-file.whl` neu may khong co internet luc chay lenh.)
+(Hoặc tải file `.whl` về trước rồi `pip install đường-dẫn-file.whl` nếu máy không có internet lúc chạy lệnh.)
 
-Tren Windows, cai them extra `win-dpapi` de ma hoa secrets bang DPAPI (them `[win-dpapi]` ngay sau ten file, truoc phan mo rong `.whl`):
+Trên Windows, cài thêm extra `win-dpapi` để mã hóa secrets bằng DPAPI (thêm `[win-dpapi]` ngay sau tên file, trước phần mở rộng `.whl`):
 
 ```bash
 pip install "sap_abap_agent_mcp-1.3.0-py3-none-any.whl[win-dpapi]"
 ```
 
-Neu muon dung Cookie-based auth kieu **tu mo browser dang nhap** (khong can F12 copy tay), cai them extra `playwright`
-va download browser binary:
+Nếu muốn dùng Cookie-based auth kiểu **tự mở browser đăng nhập** (không cần F12 copy tay), cài thêm extra `playwright`
+và download browser binary:
 
 ```bash
 pip install "sap_abap_agent_mcp-1.3.0-py3-none-any.whl[playwright]"
 playwright install chromium
 ```
 
-Sau buoc cai, ban se co lenh `sap-btp-agent` trong PATH (entry point khai bao trong `pyproject.toml`).
+Sau bước cài, bạn sẽ có lệnh `sap-btp-agent` trong PATH (entry point khai báo trong `pyproject.toml`).
 
 <details>
-<summary>Dev / contributor: cai tu source (editable install)</summary>
+<summary>Dev / contributor: cài từ source (editable install)</summary>
 
 ```bash
 git clone https://github.com/StormShynn/sap-abap-agent.git
@@ -146,8 +146,8 @@ cd sap-abap-agent/reference/mcp-server
 pip install -e .[win-dpapi,playwright]
 ```
 
-Dung khi ban muon sua code MCP server (`reference/mcp-server/sap_btp_agent/`) va thay doi co hieu luc ngay
-khong can build lai wheel. Build wheel moi de release:
+Dùng khi bạn muốn sửa code MCP server (`reference/mcp-server/sap_btp_agent/`) và thay đổi có hiệu lực ngay
+không cần build lại wheel. Build wheel mới để release:
 
 ```bash
 pip install build
@@ -157,123 +157,123 @@ python -m build --wheel
 
 </details>
 
-**Kiem tra ngay sau khi cai** (khuyen dung, danh cho moi nguoi -- khong can dung AI de debug):
+**Kiểm tra ngay sau khi cài** (khuyến dùng, dành cho mọi người — không cần dùng AI để debug):
 
 ```bash
 python -m sap_btp_agent.doctor
 ```
 
-Lenh nay chay duoc **ngay ca khi `sap-btp-agent` chua nam trong PATH** (loi thuong gap nhat tren Windows: `pip`
-cai vao user-scheme site-packages vi khong co quyen viet vao Python goc, VD `%APPDATA%\Python\PythonXY\Scripts`,
-folder nay thuong khong tu dong co trong PATH). Doctor se tu phat hien va in san lenh PowerShell de fix, kem
-kiem tra cac dependency hay bi thieu ngam (pywin32/DPAPI, playwright+chromium...). Sau khi da cai xong va PATH
-dung, co the goi lai qua `sap-btp-agent doctor`.
+Lệnh này chạy được **ngay cả khi `sap-btp-agent` chưa nằm trong PATH** (lỗi thường gặp nhất trên Windows: `pip`
+cài vào user-scheme site-packages vì không có quyền viết vào Python gốc, VD `%APPDATA%\Python\PythonXY\Scripts`,
+folder này thường không tự động có trong PATH). Doctor sẽ tự phát hiện và in sẵn lệnh PowerShell để fix, kèm
+kiểm tra các dependency hay bị thiếu ngầm (pywin32/DPAPI, playwright+chromium...). Sau khi đã cài xong và PATH
+đúng, có thể gọi lại qua `sap-btp-agent doctor`.
 
-## Them project SAP moi
+## Thêm project SAP mới
 
-Cach nhanh nhat -- truyen URL truc tiep:
+Cách nhanh nhất — truyền URL trực tiếp:
 
 ```bash
 sap-btp-agent setup https://project1.s4hana.cloud.sap
 ```
 
-Wizard se tu sinh profile id tu hostname (`project1.s4hana.cloud.sap`) va hoi phuong thuc xac thuc (chon 1-4):
+Wizard sẽ tự sinh profile id từ hostname (`project1.s4hana.cloud.sap`) và hỏi phương thức xác thực (chọn 1-4):
 
-1. **OAuth2** (client_credentials) -- `client_id` + `client_secret`, mac dinh/khuyen dung
-2. **Password** -- `username` + `password`
-3. **Bearer token** -- token co san, nhap tay
-4. **Cookie-based** -- session cookie SAP (`MYSAPSSO2`, `SAP_SESSIONID`, `sap-usercontext`...). Wizard hoi tiep lay cookie tu dau:
+1. **OAuth2** (client_credentials) — `client_id` + `client_secret`, mặc định/khuyến dùng
+2. **Password** — `username` + `password`
+3. **Bearer token** — token có sẵn, nhập tay
+4. **Cookie-based** — session cookie SAP (`MYSAPSSO2`, `SAP_SESSIONID`, `sap-usercontext`...). Wizard hỏi tiếp lấy cookie từ đâu:
    - (1) File cookie Netscape format
    - (2) Paste tay (F12 -> Application -> Cookies)
-   - (3) **Auto** -- tu mo browser cho ban dang nhap, tu lay cookie (can extra `playwright`, khong co se fallback ve paste tay)
+   - (3) **Auto** — tự mở browser cho bạn đăng nhập, tự lấy cookie (cần extra `playwright`, không có sẽ fallback về paste tay)
 
-   Sau khi co cookie, tu dong re-auth qua browser popup (hoac Playwright) moi lan session het han (401).
+   Sau khi có cookie, tự động re-auth qua browser popup (hoặc Playwright) mỗi lần session hết hạn (401).
 
-Sau do hoi them Region, service type (s4hc_(private) / s4hc_(public) / btp / onprem).
+Sau đó hỏi thêm Region, service type (s4hc_(private) / s4hc_(public) / btp / onprem).
 
-Thong tin duoc luu rieng trong `profiles/<id>/`:
+Thông tin được lưu riêng trong `profiles/<id>/`:
 
 ```
 %USERPROFILE%\.sap-btp-agent\profiles\project1.s4hana.cloud.sap\
-+-- config.json     <- URL, tenant, client_id, region, service (khong nhay cam)
-+-- secrets.json    <- client_secret / token (DA MA HOA)
++-- config.json     <- URL, tenant, client_id, region, service (không nhạy cảm)
++-- secrets.json    <- client_secret / token (ĐÃ MÃ HÓA)
 ```
 
-**Them project thu 2, 3...** cung de:
+**Thêm project thứ 2, 3...** cũng dễ:
 
 ```bash
 sap-btp-agent setup https://project1.s4hana.cloud.sap
 ```
 
-Moi project se co profile rieng, secret rieng (ma hoa doc lap).
+Mỗi project sẽ có profile riêng, secret riêng (mã hóa độc lập).
 
-## Quan ly nhieu profile
+## Quản lý nhiều profile
 
 ```bash
-sap-btp-agent profiles list             # liet ke profile (* = active)
-sap-btp-agent profiles use project1     # chon profile active
-sap-btp-agent profiles show             # xem chi tiet profile active
-sap-btp-agent profiles remove project2  # xoa 1 profile
-sap-btp-agent reset                     # xoa TAT CA (can than!)
+sap-btp-agent profiles list             # liệt kê profile (* = active)
+sap-btp-agent profiles use project1     # chọn profile active
+sap-btp-agent profiles show             # xem chi tiết profile active
+sap-btp-agent profiles remove project2  # xóa 1 profile
+sap-btp-agent reset                     # xóa TẤT CẢ (cẩn thận!)
 ```
 
-## Kiem tra ket noi
+## Kiểm tra kết nối
 
 ```bash
 sap-btp-agent connect                            # test profile active
-sap-btp-agent connect project1.s4hana.cloud.sap  # test 1 profile cu the
+sap-btp-agent connect project1.s4hana.cloud.sap  # test 1 profile cụ thể
 ```
 
-## Dang ky MCP voi Claude Code
+## Đăng ký MCP với Claude Code
 
-> **Quan ly nhieu MCP server cung luc?** Cac phan duoi day huong dan `claude mcp add`
-> tung server rieng le. Neu ban dung nhieu coding agent (Claude Code, Claude Desktop,
-> Codex CLI, Gemini CLI...) va muon 1 cho bat/tat MCP server cho tat ca thay vi sua tay
-> tung file config, xem thu [mcp-switch](https://github.com/StormShynn/mcp-switch) —
-> desktop app (Tauri + Rust) rieng cua tac gia plugin nay, dung 1 store trung tam
-> (`~/.mcp-switch/store.json`) roi ghi lai config native cua tung tool khi ban bat/tat.
-> Doc lap voi plugin nay, khong bat buoc.
+> **Quản lý nhiều MCP server cùng lúc?** Các phần dưới đây hướng dẫn `claude mcp add`
+> từng server riêng lẻ. Nếu bạn dùng nhiều coding agent (Claude Code, Claude Desktop,
+> Codex CLI, Gemini CLI...) và muốn 1 chỗ bật/tắt MCP server cho tất cả thay vì sửa tay
+> từng file config, xem thử [mcp-switch](https://github.com/StormShynn/mcp-switch) —
+> desktop app (Tauri + Rust) riêng của tác giả plugin này, dùng 1 store trung tâm
+> (`~/.mcp-switch/store.json`) rồi ghi lại config native của từng tool khi bạn bật/tắt.
+> Độc lập với plugin này, không bắt buộc.
 
-`sap-btp-agent` goi khong co argument se chay MCP stdio server (`sap_btp_agent/server.py`), serve cac tool
-ben duoi qua JSON-RPC. Da test end-to-end (initialize -> tools/list -> tools/call) truoc khi cong bo.
+`sap-btp-agent` gọi không có argument sẽ chạy MCP stdio server (`sap_btp_agent/server.py`), serve các tool
+bên dưới qua JSON-RPC. Đã test end-to-end (initialize -> tools/list -> tools/call) trước khi công bố.
 
-Dung lenh `claude mcp add` (Claude Code khong con dung file `mcp_servers.json`):
+Dùng lệnh `claude mcp add` (Claude Code không còn dùng file `mcp_servers.json`):
 
 ```bash
 claude mcp add --transport stdio sap-btp -- sap-btp-agent
 ```
 
-Mac dinh la scope `local` (chi may nay, chi project hien tai). Dung `--scope user` de dung duoc o moi project,
-hoac `--scope project` de luu vao `.mcp.json` va chia se qua git cho ca team.
+Mặc định là scope `local` (chỉ máy này, chỉ project hiện tại). Dùng `--scope user` để dùng được ở mọi project,
+hoặc `--scope project` để lưu vào `.mcp.json` và chia sẻ qua git cho cả team.
 
-Mo Claude Code voi plugin, cac tool sau se xuat hien:
+Mở Claude Code với plugin, các tool sau sẽ xuất hiện:
 
-| Tool                  | Mo ta                                                       |
+| Tool                  | Mô tả                                                       |
 |-----------------------|-------------------------------------------------------------|
-| `sap_list_profiles`   | Liet ke cac profile da cau hinh                             |
-| `sap_ping`            | Test ket noi profile (co tham so `profile`)                 |
-| `sap_list_packages`   | Liet ke package ABAP                                        |
-| `sap_search`          | Tim object ABAP theo ten                                    |
-| `sap_read_source`     | Doc source code (class, program, include...)                |
-| `sap_syntax_check`    | Syntax check (khong activate)                               |
+| `sap_list_profiles`   | Liệt kê các profile đã cấu hình                             |
+| `sap_ping`            | Test kết nối profile (có tham số `profile`)                 |
+| `sap_list_packages`   | Liệt kê package ABAP                                        |
+| `sap_search`          | Tìm object ABAP theo tên                                    |
+| `sap_read_source`     | Đọc source code (class, program, include...)                |
+| `sap_syntax_check`    | Syntax check (không activate)                               |
 | `sap_activate`        | Activate object (transport local)                           |
 
-### MCP server phu tro: tra cuu CDS view & SAP docs
+### MCP server phụ trợ: tra cứu CDS view & SAP docs
 
-Theo mac dinh, Claude Code chi chap nhan 1 MCP server stdio. De su dung them cac MCP server
-remote (cds-kb-mcp va mcp-sap-docs), dung `claude mcp add` voi transport `sse`:
+Theo mặc định, Claude Code chỉ chấp nhận 1 MCP server stdio. Để sử dụng thêm các MCP server
+remote (cds-kb-mcp và mcp-sap-docs), dùng `claude mcp add` với transport `sse`:
 
 **CDS Knowledge Base** (7,355 released CDS views):
 
-Cach 1 — `claude mcp add` (neu Claude Code ho tro `--transport sse`):
+Cách 1 — `claude mcp add` (nếu Claude Code hỗ trợ `--transport sse`):
 
 ```bash
 claude mcp add --transport sse cds-kb --url https://cds-kb-mcp-production.up.railway.app/sse
-# Neu primary khong truy cap duoc, dung fallback:
+# Nếu primary không truy cập được, dùng fallback:
 # claude mcp add --transport sse cds-kb --url https://cds-kb-mcp.cfapps.ap21.hana.ondemand.com/sse
 ```
 
-Cach 2 — `supergateway` (tuong thich voi moi IDE ho tro MCP: Cursor, Claude Desktop, VS Code, Gemini IDE):
+Cách 2 — `supergateway` (tương thích với mọi IDE hỗ trợ MCP: Cursor, Claude Desktop, VS Code, Gemini IDE):
 
 ```json
 {
@@ -288,15 +288,15 @@ Cach 2 — `supergateway` (tuong thich voi moi IDE ho tro MCP: Cursor, Claude De
 
 **SAP Docs Research** (SAP Help, Community, API Hub, Fiori App, Clean Core):
 
-Cach 1 — `claude mcp add`:
+Cách 1 — `claude mcp add`:
 
 ```bash
 claude mcp add --transport sse mcp-sap-docs-btp --url https://sap-docs-extend-mcp.cfapps.ap21.hana.ondemand.com/sse
-# Neu co SAP-API-HUB-KEY:
+# Nếu có SAP-API-HUB-KEY:
 # claude mcp add --transport sse mcp-sap-docs-btp --url https://sap-docs-extend-mcp.cfapps.ap21.hana.ondemand.com/sse --headers "{\"SAP-API-HUB-KEY\": \"<YOUR_KEY>\"}"
 ```
 
-Cach 2 — `supergateway`:
+Cách 2 — `supergateway`:
 
 ```json
 {
@@ -310,114 +310,213 @@ Cach 2 — `supergateway`:
 }
 ```
 
-> **Windows users**: Neu dung supergateway, co the can dung `supergateway.cmd` thay vi `supergateway`
-> hoac chi dinh duong dan tuyet doi.
+> **Windows users**: Nếu dùng supergateway, có thể cần dùng `supergateway.cmd` thay vì `supergateway`
+> hoặc chỉ định đường dẫn tuyệt đối.
 
-### Notion — skill notes dung chung cho team
+### Notion — skill notes dùng chung cho team
 
-**notion** — Workspace Notion lam noi ghi/tra skill notes bo sung (AI ghi tom tat, ban ghi tay), qua
-MCP server **chinh chu** cua Notion ([makenotion/notion-mcp-server](https://github.com/makenotion/notion-mcp-server)).
-Da **auto-bundle san trong `.mcp.json`** cua plugin nay (khong can `claude mcp add` thu cong) — moi
-thanh vien team chi can chay 1 lenh trong Claude Code de dang nhap tai khoan Notion cua rieng ho:
+**notion** — Workspace Notion làm nơi ghi/tra skill notes bổ sung (AI ghi tóm tắt, bạn ghi tay), qua
+MCP server **chính chủ** của Notion ([makenotion/notion-mcp-server](https://github.com/makenotion/notion-mcp-server)).
+Đã **auto-bundle sẵn trong `.mcp.json`** của plugin này (không cần `claude mcp add` thủ công) — mỗi
+thành viên team chỉ cần chạy 1 lệnh trong Claude Code để đăng nhập tài khoản Notion của riêng họ:
 
 ```
 /mcp
 ```
 
-Chon `notion` trong danh sach roi lam theo OAuth flow (mo browser dang nhap). **Khong co token/secret
-nao duoc luu trong repo** — moi nguoi tu xac thuc bang chinh tai khoan Notion cua minh.
+Chọn `notion` trong danh sách rồi làm theo OAuth flow (mở browser đăng nhập). **Không có token/secret
+nào được lưu trong repo** — mỗi người tự xác thực bằng chính tài khoản Notion của mình.
 
-**Chia se cho team**: invite tung thanh vien vao page/workspace Notion tuong ung (thao tac o phia
-Notion — Share → nhap email), khong lien quan gi den file `.mcp.json`/repo. Xem chi tiet cach dang
-ky va cau hinh khac o [developers.notion.com/guides/mcp](https://developers.notion.com/guides/mcp).
+**Chia sẻ cho team**: invite từng thành viên vào page/workspace Notion tương ứng (thao tác ở phía
+Notion — Share → nhập email), không liên quan gì đến file `.mcp.json`/repo. Xem chi tiết cách đăng
+ký và cấu hình khác ở [developers.notion.com/guides/mcp](https://developers.notion.com/guides/mcp).
 
-Vi du prompt:
+Ví dụ prompt:
 ```
-"Tom tat skill sap-cloud-dictionary vua hoc vao page Notion 'SAP Skills'"
-"Tra trong Notion xem co note nao ve BAdI enhancement khong"
+"Tóm tắt skill sap-cloud-dictionary vừa học vào page Notion 'SAP Skills'"
+"Tra trong Notion xem có note nào về BAdI enhancement không"
 ```
 
-**Tu dong dong bo 2 chieu voi `sap-daily-learner`**: skill `sap-daily-learner` (Auto-Skill Creation
-Engine) tu tra database "SAP Skills" tren Notion truoc khi tu giai 1 van de tu dau — neu thanh vien
-khac trong team da hoi va tao skill tuong tu roi thi lay ra dung luon; sau khi tu tao 1 skill moi,
-tu dong day len Notion (khong can thao tac gi them ngoai `/mcp` da lam 1 lan o tren). Chi tiet quy
-trinh: `skills/sap-daily-learner/SKILL.md` muc "3b. Dong bo Notion".
+**Tự động đồng bộ 2 chiều với `sap-daily-learner`**: skill `sap-daily-learner` (Auto-Skill Creation
+Engine) tự tra database "SAP Skills" trên Notion trước khi tự giải 1 vấn đề từ đầu — nếu thành viên
+khác trong team đã hỏi và tạo skill tương tự rồi thì lấy ra dùng luôn; sau khi tự tạo 1 skill mới,
+tự động đẩy lên Notion (không cần thao tác gì thêm ngoài `/mcp` đã làm 1 lần ở trên). Chi tiết quy
+trình: `skills/sap-daily-learner/SKILL.md` mục "3b. Đồng bộ Notion".
 
-**Mo rong cho ca 25 agent tu van**: `skills/sap-ask-consultant/SKILL.md` (Buoc 5) cung tra kho
-local + Notion nay truoc khi dispatch bat ky agent tu van nao (SD/FI/MM/...) — local truoc (offline,
-nhanh), Notion khi local chua co (online), tu cache lai local sau khi tim thay tren Notion. Mat
-local (vd doi may) khong sao — lan hoi lai dau tien se tu lay lai tu Notion. Phan **ghi** skill moi
-van chi rieng `sap-daily-learner` (agent duy nhat co quyen ghi file).
+**Mở rộng cho cả 25 agent tư vấn**: `skills/sap-ask-consultant/SKILL.md` (Bước 5) cũng tra kho
+local + Notion này trước khi dispatch bất kỳ agent tư vấn nào (SD/FI/MM/...) — local trước (offline,
+nhanh), Notion khi local chưa có (online), tự cache lại local sau khi tìm thấy trên Notion. Mất
+local (vd đổi máy) không sao — lần hỏi lại đầu tiên sẽ tự lấy lại từ Notion. Phần **ghi** skill mới
+vẫn chỉ riêng `sap-daily-learner` (agent duy nhất có quyền ghi file).
 
-**Danh dau rieng tu**: neu khong muon 1 skill nao do bi day len Notion (vd noi dung gan voi khach
-hang/he thong cu the), danh dau bang the `<private>...</private>` quanh cau hoi hoac noi thang
-"dung dong bo len Notion" / "giu local thoi" — `sap-daily-learner` se chi luu local, bo qua buoc
-day Notion.
+### 🤖 Continuous Improvement Engine — Tự động phát hiện lỗi & tạo issue
 
-**Tu Notion vao thang project (quarantine -> active -> promote)**: skill nao duoc ca team dung lai
-nhieu lan (mac dinh >=3, dem tren Notion) tro thanh "ung vien promote" — lenh "liet ke ung vien
-promote" / "promote skill [topic]" dua no vao `reference/modules/<module>-cloud/SKILL.md` (git-
-tracked, di kem plugin cho **moi** nguoi dung public, khong chi rieng team ban qua Notion). Luon
-hoi xac nhan truoc khi ghi file, khong tu commit/push — ban tu xem diff + tu commit theo dung flow
-trong `CONTRIBUTING.md`.
+Error reporter (`hooks/error_reporter.py`) chạy ngầm qua hook system, tự động phát hiện lỗi
+runtime trong quá trình dùng plugin và tạo GitHub issue trên repo chính để theo dõi, fix lỗi
+liên tục — **mỗi ngày plugin càng ít lỗi hơn**:
 
-> **Luu y bao mat**: repo nay la public — KHONG bao gio dan token Notion (hoac bat ky API key nao)
-> truc tiep vao `.mcp.json`/`mcp_inventory.json` roi commit. Voi server nao thuc su can 1 secret tinh
-> (vd `SAP-API-HUB-KEY` o tren, hoac `ADT_USER`/`ADT_PASS`...), dung `reference/scripts/mcp_register.py`
-> (hoi rieng tung nguoi, dang ky qua `claude mcp add --scope user`) — gia tri chi nam trong
-> `~/.claude.json` cua tung may, khong bao gio vao file commit. Xem `python reference/scripts/mcp_status.py`
-> de doi chieu nhanh server nao dang thieu env var mong doi.
+```
+User chạy lệnh → PostToolUse detect → ghi error_log.jsonl
+                                           ↓
+Stop hook → gom nhóm 24h → dedup (SHA256) → tạo GitHub issue (nếu mới)
+                                           ↓
+Khi Claude viết code sửa lỗi → detect-fix → ghi fix_log.jsonl
+                                           ↓
+Stop → match fix với issue → add comment "cách sửa" vào issue có sẵn
+                                           ↓
+Issue = [🐛 error] + [✅ fix solution] → Dev fix → release → user update → ít lỗi hơn
+```
 
-### MCP server moi: tra cuu SAP Notes
+#### Ba chế độ hook
 
-**mcp-sap-notes** — Tra cuu SAP Notes va KB articles truc tiep tu SAP Support Portal:
+| Hook event | Mode | Chức năng |
+|------------|------|-----------|
+| PostToolUse (Bash) | `detect-bash` | Phát hiện lỗi từ Bash command (exit code ≠ 0, stderr) |
+| PostToolUse (sap_*) | `detect-tool` | Phát hiện lỗi từ MCP tool (syntax check fail, activate fail, connection error) |
+| PostToolUse (Edit/Write) | `detect-fix` | Khi Claude viết code, kiểm tra có phải đang fix lỗi cũ không → ghi fix record |
+| Stop | `report` | Gom error → dedup → tạo issue + Gom fix → add comment |
+
+#### Matching fix với error
+
+Khi Claude viết code sửa lỗi, `detect-fix` quét error_log 7 ngày, scoring:
+- **file_path** match → +3
+- **session_id** match → +1
+- **Code keywords** (tên class, table, method) match với error message → +1 đến +3
+- Threshold ≥2 → tạo fix record, sẽ được add comment vào GitHub issue ở Stop hook
+
+#### Kiểm tra trạng thái
 
 ```bash
-# Cai dat tu source
+# Không cần stdin, chạy tay được
+echo '{}' | python hooks/error_reporter.py status
+```
+
+Output mẫu:
+```json
+{
+  "plugin_version": "1.5.0",
+  "total_logged_errors": 12,
+  "total_logged_fixes": 3,
+  "active_error_groups_24h": 2,
+  "known_issues_created": 1,
+  "error_breakdown": {
+    "a1b2c3d4e5f6": {
+      "type": "abap_syntax_error",
+      "count": 5,
+      "message_preview": "Syntax error in ZCL_MY_CLASS...",
+      "has_issue": true,
+      "has_fix": true,
+      "fix_count": 1
+    }
+  }
+}
+```
+
+#### Ai cũng có local report — không cần GitHub
+
+Dù có GitHub auth hay không, error report **luôn được save thành file Markdown**
+tại `~/.sap-btp-agent/error-reports/reports/` — ai cũng đọc được, không cần token:
+
+```bash
+# Xem danh sách report
+dir %USERPROFILE%\.sap-btp-agent\error-reports\reports\   # Windows
+ls ~/.sap-btp-agent/error-reports/reports/                 # macOS/Linux
+```
+
+Mỗi report là 1 file `.md` hoàn chỉnh: error message + context + fix solution
+(nếu có) + hướng dẫn share lên GitHub Issues.
+
+#### Tạo GitHub issue (optional — có auth thì tự động)
+
+Fallback chain — không có auth cũng không sao, mọi thứ vẫn hoạt động:
+
+```
+1. gh CLI (gh issue create)?           → có → tạo issue
+2. GITHUB_TOKEN / GH_TOKEN env var?    → có → REST API → tạo issue
+3. Không có cả 2?                      → local report + pending queue → retry sau
+```
+
+**Luôn có local report** — bước 3 vẫn lưu file `.md` đầy đủ, không mất gì.
+
+#### Thiết lập labels trên repo
+
+```bash
+# Chỉ cần chạy 1 lần, cần GITHUB_TOKEN (không cần gh CLI)
+export GITHUB_TOKEN=ghp_xxx
+python reference/scripts/setup_labels.py
+```
+
+Tạo 2 label: `auto-reported` 🟣 + `auto-fix` 🟢
+
+**Đánh dấu riêng tư**: nếu không muốn 1 skill nào đó bị đẩy lên Notion (vd nội dung gắn với khách
+hàng/hệ thống cụ thể), đánh dấu bằng thẻ `<private>...</private>` quanh câu hỏi hoặc nói thẳng
+"đừng đồng bộ lên Notion" / "giữ local thôi" — `sap-daily-learner` sẽ chỉ lưu local, bỏ qua bước
+đẩy Notion.
+
+**Từ Notion vào thẳng project (quarantine -> active -> promote)**: skill nào được cả team dùng lại
+nhiều lần (mặc định >=3, đếm trên Notion) trở thành "ứng viên promote" — lệnh "liệt kê ứng viên
+promote" / "promote skill [topic]" đưa nó vào `reference/modules/<module>-cloud/SKILL.md` (git-
+tracked, đi kèm plugin cho **mọi** người dùng public, không chỉ riêng team bạn qua Notion). Luôn
+hỏi xác nhận trước khi ghi file, không tự commit/push — bạn tự xem diff + tự commit theo đúng flow
+trong `CONTRIBUTING.md`.
+
+> **Lưu ý bảo mật**: repo này là public — KHÔNG bao giờ dán token Notion (hoặc bất kỳ API key nào)
+> trực tiếp vào `.mcp.json`/`mcp_inventory.json` rồi commit. Với server nào thực sự cần 1 secret tĩnh
+> (vd `SAP-API-HUB-KEY` ở trên, hoặc `ADT_USER`/`ADT_PASS`...), dùng `reference/scripts/mcp_register.py`
+> (hỏi riêng từng người, đăng ký qua `claude mcp add --scope user`) — giá trị chỉ nằm trong
+> `~/.claude.json` của từng máy, không bao giờ vào file commit. Xem `python reference/scripts/mcp_status.py`
+> để đối chiếu nhanh server nào đang thiếu env var mong đợi.
+
+### MCP server mới: tra cứu SAP Notes
+
+**mcp-sap-notes** — Tra cứu SAP Notes và KB articles trực tiếp từ SAP Support Portal:
+
+```bash
+# Cài đặt từ source
 git clone https://github.com/marianfoo/sap-mcp-servers.git
 cd sap-mcp-servers/packages/notes
 npm install
 npm run build
 
-# Dang ky MCP
+# Đăng ký MCP
 claude mcp add --transport stdio sap-notes -- node /abs/path/to/dist/mcp-server.js \
   --env SAP_USERNAME=your@s-user.com --env SAP_PASSWORD=your_pass
 ```
 
-| Tool | Mo ta |
+| Tool | Mô tả |
 |------|-------|
-| `search` | Tim SAP Note theo keyword / error code / component |
-| `fetch` | Lay noi dung day du SAP Note + ABAP correction instructions |
+| `search` | Tìm SAP Note theo keyword / error code / component |
+| `fetch` | Lấy nội dung đầy đủ SAP Note + ABAP correction instructions |
 
-### MCP server moi: SAP GUI Automation (Windows)
+### MCP server mới: SAP GUI Automation (Windows)
 
-**mcp-sap-gui (kts982)** — Dieu khien SAP GUI for Windows qua MCP (57 tools):
+**mcp-sap-gui (kts982)** — Điều khiển SAP GUI for Windows qua MCP (57 tools):
 
 ```bash
-# Cai dat bang uvx (khuyen dung)
+# Cài đặt bằng uvx (khuyến dùng)
 pip install uvx
 
-# Dang ky MCP
+# Đăng ký MCP
 claude mcp add --transport stdio sap-gui -- uvx mcp-sap-gui[screenshots] \
   --read-only --allowed-transactions MM03 VA03 IW33
 ```
 
-**Yeu cau**: Windows + SAP GUI + SAP GUI Scripting enabled (xem `reference/mcp-guides/mcp-sap-gui.md`).
+**Yêu cầu**: Windows + SAP GUI + SAP GUI Scripting enabled (xem `reference/mcp-guides/mcp-sap-gui.md`).
 
-| Tool | Mo ta |
+| Tool | Mô tả |
 |------|-------|
-| `sap_connect` | Ket noi SAP GUI |
-| `sap_run_transaction` | Mo transaction (/nMM03) |
-| `sap_read_field` | Doc gia tri field |
-| `sap_read_table` | Doc toan bo ALV/Grid table |
+| `sap_connect` | Kết nối SAP GUI |
+| `sap_run_transaction` | Mở transaction (/nMM03) |
+| `sap_read_field` | Đọc giá trị field |
+| `sap_read_table` | Đọc toàn bộ ALV/Grid table |
 
-### MCP server moi: ADT ABAP Development (3 lua chon)
+### MCP server mới: ADT ABAP Development (3 lựa chọn)
 
-| Lua chon | Lenh cai dat | Phu hop |
+| Lựa chọn | Lệnh cài đặt | Phù hợp |
 |----------|-------------|---------|
-| **SAP Official ADT** (VS Code) | Cai extension ADT → Settings → Enable ADT MCP Server | VS Code users, enterprise |
-| **ARC-1** (enterprise) | `npx arc-1@latest` | Team/doanh nghiep can security |
-| **mcp-abap-adt** (community) | `npx -y mcp-abap-adt` | Ca nhan, POC nhanh |
+| **SAP Official ADT** (VS Code) | Cài extension ADT → Settings → Enable ADT MCP Server | VS Code users, enterprise |
+| **ARC-1** (enterprise) | `npx arc-1@latest` | Team/doanh nghiệp cần security |
+| **mcp-abap-adt** (community) | `npx -y mcp-abap-adt` | Cá nhân, POC nhanh |
 
 ```bash
 # ARC-1
@@ -428,60 +527,60 @@ claude mcp add --transport stdio mcp-abap-adt -- npx -y mcp-abap-adt \
   --env ADT_URL=https://my-system.s4hana.cloud.sap --env ADT_USER=user --env ADT_PASS=pass
 ```
 
-### MCP server moi: SAP SuccessFactors (2 options)
+### MCP server mới: SAP SuccessFactors (2 options)
 
 **sf-mcp (aiadiguru2025)** — Open-source MCP server cho SAP SuccessFactors OData API (62+ tools):
 
 ```bash
-# Yeu cau: Python 3.10+, uv package manager
+# Yêu cầu: Python 3.10+, uv package manager
 git clone https://github.com/aiadiguru2025/sf-mcp.git
 cd sf-mcp
 uv sync
 
-# Dang ky MCP
+# Đăng ký MCP
 claude mcp add --transport stdio sf-mcp -- uv --directory /path/to/sf-mcp run main.py
 ```
 
-| Tool | Mo ta |
+| Tool | Mô tả |
 |------|-------|
-| `get_employee_info` | Tra cuu thong tin nhan vien theo ID |
-| `search_employees` | Tim nhan vien theo criteria (name, department...) |
-| `get_org_structure` | Lay so do to chuc cong ty |
-| `get_time_off_balance` | Kiem tra ngay nghi con lai cua nhan vien |
-| `get_role_permissions` | Kiem tra RBP permissions cua nhan vien |
+| `get_employee_info` | Tra cứu thông tin nhân viên theo ID |
+| `search_employees` | Tìm nhân viên theo criteria (name, department...) |
+| `get_org_structure` | Lấy sơ đồ tổ chức công ty |
+| `get_time_off_balance` | Kiểm tra ngày nghỉ còn lại của nhân viên |
+| `get_role_permissions` | Kiểm tra RBP permissions của nhân viên |
 
-**Option 2: CData SF MCP** — Java-based, SQL read-only (can CData JDBC driver license):
+**Option 2: CData SF MCP** — Java-based, SQL read-only (cần CData JDBC driver license):
 
 ```bash
 claude mcp add --transport stdio sf-cdata -- java -jar /path/to/CDataMCP-jar-with-dependencies.jar /path/to/sap-successfactors.prp
 ```
 
-### MCP server moi: SAP Concur Travel & Expense
+### MCP server mới: SAP Concur Travel & Expense
 
 **CData SAP Concur MCP** — Query expense reports, travel requests, bookings, vendor data qua SQL:
 
 ```bash
-# Yeu cau: Java 11+, Maven
+# Yêu cầu: Java 11+, Maven
 git clone https://github.com/CDataSoftware/sap-concur-mcp-server-by-cdata.git
 cd sap-concur-mcp-server-by-cdata
 mvn clean install
 
-# Dang ky MCP
+# Đăng ký MCP
 claude mcp add --transport stdio sap-concur -- java -jar /path/to/CDataMCP-jar-with-dependencies.jar /path/to/sap-concur.prp
 ```
 
-| Tool | Mo ta |
+| Tool | Mô tả |
 |------|-------|
-| `concur_get_tables` | Liet ke cac bang SAP Concur instance |
-| `concur_get_columns` | Liet ke columns cua 1 table |
-| `concur_run_query` | Thuc thi SQL SELECT query |
+| `concur_get_tables` | Liệt kê các bảng SAP Concur instance |
+| `concur_get_columns` | Liệt kê columns của 1 table |
+| `concur_run_query` | Thực thi SQL SELECT query |
 
-### MCP server moi: SAP Fieldglass Services Procurement
+### MCP server mới: SAP Fieldglass Services Procurement
 
 **CData SAP Fieldglass MCP** — Query contingent workforce, SoW, timesheets, invoices qua SQL:
 
 ```bash
-# Yeu cau: Java 11+, Maven
+# Yêu cầu: Java 11+, Maven
 git clone https://github.com/CDataSoftware/sap-fieldglass-mcp-server-by-cdata.git
 cd sap-fieldglass-mcp-server-by-cdata
 mvn clean install
@@ -489,118 +588,118 @@ mvn clean install
 # License JDBC Driver
 java -jar cdata.jdbc.sapfieldglass.jar --license
 
-# Dang ky MCP
+# Đăng ký MCP
 claude mcp add --transport stdio sap-fieldglass -- java -jar /path/to/CDataMCP-jar-with-dependencies.jar /path/to/sap-fieldglass.prp
 ```
 
-| Tool | Mo ta |
+| Tool | Mô tả |
 |------|-------|
-| `fieldglass_get_tables` | Liet ke cac bang SAP Fieldglass instance |
-| `fieldglass_get_columns` | Liet ke columns cua 1 table |
-| `fieldglass_run_query` | Thuc thi SQL SELECT query |
+| `fieldglass_get_tables` | Liệt kê các bảng SAP Fieldglass instance |
+| `fieldglass_get_columns` | Liệt kê columns của 1 table |
+| `fieldglass_run_query` | Thực thi SQL SELECT query |
 
-_Sau khi cau hinh, AI se co them cac tool:_
+_Sau khi cấu hình, AI sẽ có thêm các tool:_
 
-| Tool | Server | Mo ta |
+| Tool | Server | Mô tả |
 |------|--------|-------|
-| `search_cds` | cds-kb | Tim CDS view theo business meaning |
-| `get_cds_view` | cds-kb | Lay definition day du cua 1 CDS view |
-| `get_views_by_tag` | cds-kb | Liet ke CDS view theo tag (BO, LOB, module) |
-| `get_taxonomy` | cds-kb | Kham pha Lines of Business → Business Objects |
-| `kb_info` | cds-kb | Kiem tra version KB |
-| `search` | mcp-sap-docs-btp | Tra cuu SAP Help Portal + offline docs |
-| `sap_community_search` | mcp-sap-docs-btp | Tim kiem SAP Community Q&A |
-| `sap_search_objects` | mcp-sap-docs-btp | Tra cuu Clean Core Released Objects |
-| `abap_feature_matrix` | mcp-sap-docs-btp | Kiem tra ABAP syntax support |
-| `sap_accelerator_hub_*` | mcp-sap-docs-btp | Kham pha API tren SAP Accelerator Hub |
-| `sap_fiori_library_*` | mcp-sap-docs-btp | Tra cuu Fiori App Reference Library |
-| `sap_discovery_center_*` | mcp-sap-docs-btp | Kham pha BTP services & pricing |
-| `abap_lint` | mcp-sap-docs-btp | Kiem tra chat luong code ABAP |
+| `search_cds` | cds-kb | Tìm CDS view theo business meaning |
+| `get_cds_view` | cds-kb | Lấy definition đầy đủ của 1 CDS view |
+| `get_views_by_tag` | cds-kb | Liệt kê CDS view theo tag (BO, LOB, module) |
+| `get_taxonomy` | cds-kb | Khám phá Lines of Business → Business Objects |
+| `kb_info` | cds-kb | Kiểm tra version KB |
+| `search` | mcp-sap-docs-btp | Tra cứu SAP Help Portal + offline docs |
+| `sap_community_search` | mcp-sap-docs-btp | Tìm kiếm SAP Community Q&A |
+| `sap_search_objects` | mcp-sap-docs-btp | Tra cứu Clean Core Released Objects |
+| `abap_feature_matrix` | mcp-sap-docs-btp | Kiểm tra ABAP syntax support |
+| `sap_accelerator_hub_*` | mcp-sap-docs-btp | Khám phá API trên SAP Accelerator Hub |
+| `sap_fiori_library_*` | mcp-sap-docs-btp | Tra cứu Fiori App Reference Library |
+| `sap_discovery_center_*` | mcp-sap-docs-btp | Khám phá BTP services & pricing |
+| `abap_lint` | mcp-sap-docs-btp | Kiểm tra chất lượng code ABAP |
 
-> **Luu y**: Server `mcp-sap-docs-btp` can `SAP-API-HUB-KEY` de cac tool `sap_accelerator_hub_*`
-> hoat dong day du. Cac tool con lai van chay khong can key.
+> **Lưu ý**: Server `mcp-sap-docs-btp` cần `SAP-API-HUB-KEY` để các tool `sap_accelerator_hub_*`
+> hoạt động đầy đủ. Các tool còn lại vẫn chạy không cần key.
 
-Moi tool deu co tham so `profile` (de trong = profile active). Vi du:
+Mọi tool đều có tham số `profile` (để trống = profile active). Ví dụ:
 
 ```
-"Liet ke cac package trong project project1"
--> Claude goi sap_list_packages({ profile: "project1.s4hana.cloud.sap" })
+"Liệt kê các package trong project project1"
+-> Claude gọi sap_list_packages({ profile: "project1.s4hana.cloud.sap" })
 
-"Tim class ZCL_* trong project dang dung"
--> Claude goi sap_search({ query: "ZCL_" })
+"Tìm class ZCL_* trong project đang dùng"
+-> Claude gọi sap_search({ query: "ZCL_" })
 ```
 
-## Chay nhieu instance cung luc (1 profile / instance)
+## Chạy nhiều instance cùng lúc (1 profile / instance)
 
-Dat env `SAP_BTP_PROFILE=<id>` truoc moi lan chay:
+Đặt env `SAP_BTP_PROFILE=<id>` trước mỗi lần chạy:
 
 ```bash
-# Terminal 1: Claude 1 voi profile A
+# Terminal 1: Claude 1 với profile A
 SAP_BTP_PROFILE=project1.s4hana.cloud.sap sap-btp-agent
 
-# Terminal 2: Claude 2 voi profile B
+# Terminal 2: Claude 2 với profile B
 SAP_BTP_PROFILE=project1.s4hana.cloud.sap sap-btp-agent
 ```
 
-## Cau hinh folder
+## Cấu hình folder
 
 ```
 %USERPROFILE%\.sap-btp-agent\   (Windows)
 ~/.sap-btp-agent/               (macOS/Linux)
-+-- profiles.json                <- registry (danh sach + active)
++-- profiles.json                <- registry (danh sách + active)
 +-- profiles/
 |   +-- <profile-id>/            <- 1 folder / project SAP
 |       +-- config.json
-|       +-- secrets.json         <- MA HOA
+|       +-- secrets.json         <- MÃ HÓA
 +-- log/
 +-- cache/
 ```
 
-- **Windows**: secrets ma hoa bang **DPAPI** qua PowerShell (gan voi tai khoan Windows).
-- **macOS/Linux**: **AES-256-GCM**, key derive tu `hostname + username`.
-- File mode `0o600`, chi owner doc/ghi.
+- **Windows**: secrets mã hóa bằng **DPAPI** qua PowerShell (gắn với tài khoản Windows).
+- **macOS/Linux**: **AES-256-GCM**, key derive từ `hostname + username`.
+- File mode `0o600`, chỉ owner đọc/ghi.
 
-**Luu y**: `%USERPROFILE%\.sap-abap-agent\` (ten gan giong nhung KHAC folder tren) la noi luu
-state rieng cua **plugin Claude Code** (memory cua `sap-daily-learner`, cache cua
-`sap-context-tool-result-trim`, session/handoff dang lam do) - khong lien quan ket noi SAP BTP.
-Cache/log trong do tu don theo tuoi (mac dinh 7 ngay, xem
-`reference/scripts/cleanup_agent_home.py`). Chi tiet: `CONTRIBUTING.md` muc "SAP_ABAP_AGENT_HOME".
+**Lưu ý**: `%USERPROFILE%\.sap-abap-agent\` (tên gần giống nhưng KHÁC folder trên) là nơi lưu
+state riêng của **plugin Claude Code** (memory của `sap-daily-learner`, cache của
+`sap-context-tool-result-trim`, session/handoff đang làm dở) — không liên quan kết nối SAP BTP.
+Cache/log trong đó tự dọn theo tuổi (mặc định 7 ngày, xem
+`reference/scripts/cleanup_agent_home.py`). Chi tiết: `CONTRIBUTING.md` mục "SAP_ABAP_AGENT_HOME".
 
 ## Env
 
-- `SAP_BTP_PROFILE=<id>` -- khoa profile cho 1 lan chay (uu tien registry)
-- `SAP_BTP_AGENT_HOME=/path` -- doi folder cau hinh (test, multi-tenant)
+- `SAP_BTP_PROFILE=<id>` — khóa profile cho 1 lần chạy (ưu tiên registry)
+- `SAP_BTP_AGENT_HOME=/path` — đổi folder cấu hình (test, multi-tenant)
 
 ## 🧠 SAP Consultant System (Auto-scoring Routing Engine)
 
-`skills/sap-ask-consultant/SKILL.md` la skill trung tam, dispatch cau hoi user toi **25 module
-consultants + 1 researcher + 1 daily learner + 1 reviewer** bang co che **keyword scoring + parallel dispatch**.
+`skills/sap-ask-consultant/SKILL.md` là skill trung tâm, dispatch câu hỏi user tới **25 module
+consultants + 1 researcher + 1 daily learner + 1 reviewer** bằng cơ chế **keyword scoring + parallel dispatch**.
 
-### Cach hoat dong
+### Cách hoạt động
 
-1. **Keyword Matrix**: Moi module co keywords voi weight 3/2/1.
-2. **Tinh score**: Module nao >= threshold (2) thi duoc dispatch.
-3. **Explicit mention**: "hoi SD", "hoi FI" → dispatch mac dinh.
-4. **Module coupling**: Module thuong di cung (FI↔CO, PP→QM→MM...) tu dong dispatch.
-5. **Parallel dispatch**: Tat ca module >= threshold dispatch song song trong 1 message.
+1. **Keyword Matrix**: Mỗi module có keywords với weight 3/2/1.
+2. **Tính score**: Module nào >= threshold (2) thì được dispatch.
+3. **Explicit mention**: "hỏi SD", "hỏi FI" → dispatch mặc định.
+4. **Module coupling**: Module thường đi cùng (FI↔CO, PP→QM→MM...) tự động dispatch.
+5. **Parallel dispatch**: Tất cả module >= threshold dispatch song song trong 1 message.
 
-### Vi du
+### Ví dụ
 
-| Cau hoi | Module dispatch |
+| Câu hỏi | Module dispatch |
 |---------|----------------|
-| "tim CDS view cho sales order bi cham giao hang" | `sap-docs-researcher` + `sap-sd-consultant-cloud` song song |
-| "cau hinh cost center va GL" | `sap-co-consultant-cloud` + `sap-fi-consultant-cloud` (coupling) |
-| "lam sao tao purchase order" | `sap-mm-consultant-cloud` |
-| "hoi PP, QM, MM" | `sap-pp` + `sap-qm` + `sap-mm` song song |
-| "hoi IBP: du bao doanh thu quy sau" | `sap-ibp-consultant-cloud` (Demand Planning) |
-| "EWM cau hinh wave management cho kho" | `sap-ewm-consultant-cloud` |
+| "tìm CDS view cho sales order bị chậm giao hàng" | `sap-docs-researcher` + `sap-sd-consultant-cloud` song song |
+| "cấu hình cost center và GL" | `sap-co-consultant-cloud` + `sap-fi-consultant-cloud` (coupling) |
+| "làm sao tạo purchase order" | `sap-mm-consultant-cloud` |
+| "hỏi PP, QM, MM" | `sap-pp` + `sap-qm` + `sap-mm` song song |
+| "hỏi IBP: dự báo doanh thu quý sau" | `sap-ibp-consultant-cloud` (Demand Planning) |
+| "EWM cấu hình wave management cho kho" | `sap-ewm-consultant-cloud` |
 | "IBP inventory optimization cho supply chain" | `sap-ibp-consultant-cloud` + `sap-mm-consultant-cloud` (coupling) |
 | "Fiori app cho sales order" | `sap-fiori-consultant-cloud` + `sap-sd-consultant-cloud` (coupling) |
 | "CAP side-by-side extension cho S/4HANA" | `sap-cap-consultant-cloud` + `sap-btp-admin-consultant-cloud` |
-| "iFlow tich hop S/4HANA voi SAP SuccessFactors" | `sap-cpi-consultant-cloud` + `sap-successfactors-consultant-cloud` |
+| "iFlow tích hợp S/4HANA với SAP SuccessFactors" | `sap-cpi-consultant-cloud` + `sap-successfactors-consultant-cloud` |
 | "BTP destination + Cloud Connector" | `sap-btp-admin-consultant-cloud` |
 
-### Cac module da co
+### Các module đã có
 
 | # | Agent | Module |
 |---|-------|--------|
@@ -634,27 +733,27 @@ consultants + 1 researcher + 1 daily learner + 1 reviewer** bang co che **keywor
 
 ## 🏗️ Codegen Pipeline (Function Spec -> ABAP code)
 
-8 skill noi tiep nhau, bien Function Spec (`.docx` khach hang gui) thanh code ABAP da activate,
-review, test va san sang release, theo chuan RAP/CDS. File trung gian dat trong `in/`/`out/` — **thu muc local per-user, KHONG nam trong
-git repo**: `%USERPROFILE%\.sap-btp-agent\in\` + `...\out\` (Windows) hoac `~/.sap-btp-agent/in/` +
-`.../out/` (macOS/Linux), cung noi luu profile/secrets ket noi SAP BTP (xem muc "Cau hinh folder").
-Ly do: tai lieu FS va output sinh ra la du lieu nghiep vu/khach hang, khong nen nam chung voi
-source code plugin (rui ro commit nham len repo public). Co the doi qua env `SAP_BTP_AGENT_HOME`.
-Lay dung duong dan: `python -c "from sap_btp_agent.config.paths import get_in_dir; print(get_in_dir())"`.
+8 skill nối tiếp nhau, biến Function Spec (`.docx` khách hàng gửi) thành code ABAP đã activate,
+review, test và sẵn sàng release, theo chuẩn RAP/CDS. File trung gian đặt trong `in/`/`out/` — **thư mục local per-user, KHÔNG nằm trong
+git repo**: `%USERPROFILE%\.sap-btp-agent\in\` + `...\out\` (Windows) hoặc `~/.sap-btp-agent/in/` +
+`.../out/` (macOS/Linux), cùng nơi lưu profile/secrets kết nối SAP BTP (xem mục "Cấu hình folder").
+Lý do: tài liệu FS và output sinh ra là dữ liệu nghiệp vụ/khách hàng, không nên nằm chung với
+source code plugin (rủi ro commit nhầm lên repo public). Có thể đổi qua env `SAP_BTP_AGENT_HOME`.
+Lấy đúng đường dẫn: `python -c "from sap_btp_agent.config.paths import get_in_dir; print(get_in_dir())"`.
 
 ```bash
-# 0. Dat FS vao in/ (thu muc local per-user o tren), convert sang markdown
+# 0. Đặt FS vào in/ (thư mục local per-user ở trên), convert sang markdown
 cp /path/to/FS_xxx.docx "$(python -c 'from sap_btp_agent.config.paths import get_in_dir; print(get_in_dir())')/"
-# -> skill sap-doc-to-md (reference/scripts/office_to_md.py, khong tham so) -> out/FS_xxx.md
+# -> skill sap-doc-to-md (reference/scripts/office_to_md.py, không tham số) -> out/FS_xxx.md
 
-# 1. Phan tich FS -> chuan hoa yeu cau
+# 1. Phân tích FS -> chuẩn hóa yêu cầu
 # -> skill sap-analyze-function-spec -> out/<ticket>/INTAKE.md
 
-# 2. Quyet dinh kien truc (managed/unmanaged/CDS/class)
+# 2. Quyết định kiến trúc (managed/unmanaged/CDS/class)
 # -> skill sap-write-technical-spec -> out/<ticket>/TECHNICAL_SPEC.md
 
 # 3. Sinh skeleton code
-# -> skill sap-scaffold-rap (CRUD/RAP) hoac sap-scaffold-cds (chi-read) -> out/<ticket>/src/
+# -> skill sap-scaffold-rap (CRUD/RAP) hoặc sap-scaffold-cds (chỉ-read) -> out/<ticket>/src/
 
 # 4. Review naming/released-API/clean-ABAP
 # -> skill sap-atc-review -> out/<ticket>/ATC_REVIEW.md
@@ -662,19 +761,19 @@ cp /path/to/FS_xxx.docx "$(python -c 'from sap_btp_agent.config.paths import get
 # 5. Sinh ABAP Unit test
 # -> skill sap-unit-test
 
-# 6. Checklist dong ticket (activation/ATC/test/transport/abapGit)
+# 6. Checklist đóng ticket (activation/ATC/test/transport/abapGit)
 # -> skill sap-finish-ticket -> out/<ticket>/FINISH_CHECKLIST.md
 ```
 
-Skill phu tro: `sap-virtual-element` (calculated field trong CDS). Quy uoc dat ten & bac thang
-extensibility dung chung voi `sap-clean-code` / `sap-extensibility`. Khi can tim CDS view/API
-chuan cho 1 phan he cu the (buoc 2), hoi agent consultant tuong ung (`sap-fi-consultant-cloud`,
-`sap-mm-consultant-cloud`...) hoac `sap-docs-researcher`.
+Skill phụ trợ: `sap-virtual-element` (calculated field trong CDS). Quy ước đặt tên & bậc thang
+extensibility dùng chung với `sap-clean-code` / `sap-extensibility`. Khi cần tìm CDS view/API
+chuẩn cho 1 phân hệ cụ thể (bước 2), hỏi agent consultant tương ứng (`sap-fi-consultant-cloud`,
+`sap-mm-consultant-cloud`...) hoặc `sap-docs-researcher`.
 
-Ky luat xuyen suot (khong phai buoc rieng, ap dung moi luc trong pipeline): `sap-routing-discipline`
-(luon check routing truoc khi tra loi — bom tu dong qua SessionStart hook),
-`sap-verification-before-completion` (bang chung chay that truoc khi bao "xong"),
-`sap-systematic-debugging` (khi co bug runtime, thay vi doan-sua-lap-lai).
+Kỷ luật xuyên suốt (không phải bước riêng, áp dụng mọi lúc trong pipeline): `sap-routing-discipline`
+(luôn check routing trước khi trả lời — bơm tự động qua SessionStart hook),
+`sap-verification-before-completion` (bằng chứng chạy thật trước khi báo "xong"),
+`sap-systematic-debugging` (khi có bug runtime, thay vì đoán-sửa-lặp-lại).
 
 ## Test local
 
@@ -684,24 +783,24 @@ claude --plugin-dir ./sap-abap-agent
 ```
 
 Trong Claude:
-- "Setup SAP BTP cho project https://project1.s4hana.cloud.sap" -> goi wizard
-- "Liet ke cac profile SAP cua toi" -> goi `sap_list_profiles`
-- "Tim class bat dau bang ZCL_ trong project project1" -> goi `sap_search` voi `profile="project1..."`
-- "Hoi SD: cau hinh pricing cho sales order" -> goi `sap-sd-consultant-cloud`
-- "Tim CDS view cho purchase order qua han va hoi MM" -> `sap-docs-researcher` + `sap-mm-consultant-cloud`
-- "Hoc SAP hom nay" -> `sap-daily-learner` (daily tip + learning path)
-- "Quiz MM cho toi" -> `sap-daily-learner` (trac nghiem MM)
-- "Cau hinh cost center va cash management" -> `sap-co-consultant-cloud` + `sap-tr-consultant-cloud`
+- "Setup SAP BTP cho project https://project1.s4hana.cloud.sap" -> gọi wizard
+- "Liệt kê các profile SAP của tôi" -> gọi `sap_list_profiles`
+- "Tìm class bắt đầu bằng ZCL_ trong project project1" -> gọi `sap_search` với `profile="project1..."`
+- "Hỏi SD: cấu hình pricing cho sales order" -> gọi `sap-sd-consultant-cloud`
+- "Tìm CDS view cho purchase order quá hạn và hỏi MM" -> `sap-docs-researcher` + `sap-mm-consultant-cloud`
+- "Học SAP hôm nay" -> `sap-daily-learner` (daily tip + learning path)
+- "Quiz MM cho tôi" -> `sap-daily-learner` (trắc nghiệm MM)
+- "Cấu hình cost center và cash management" -> `sap-co-consultant-cloud` + `sap-tr-consultant-cloud`
 - "Fiori app cho sales order" -> `sap-fiori-consultant-cloud` + `sap-sd-consultant-cloud`
 - "CAP side-by-side extension cho S/4HANA" -> `sap-cap-consultant-cloud` + `sap-btp-admin-consultant-cloud`
-- "iFlow tich hop S/4HANA voi SuccessFactors" -> `sap-cpi-consultant-cloud` + `sap-successfactors-consultant-cloud`
+- "iFlow tích hợp S/4HANA với SuccessFactors" -> `sap-cpi-consultant-cloud` + `sap-successfactors-consultant-cloud`
 - "BTP destination + Cloud Connector" -> `sap-btp-admin-consultant-cloud`
 
-## Cap nhat
+## Cập nhật
 
-Tu dong (CI/CD): moi lan push code vao `main`, GitHub Actions bump version trong `plugin.json`, tao git tag `vX.Y.Z` — Claude Code marketplace tu dong phat hien va nhac ban cap nhat plugin.
+Tự động (CI/CD): mỗi lần push code vào `main`, GitHub Actions bump version trong `plugin.json`, tạo git tag `vX.Y.Z` — Claude Code marketplace tự động phát hiện và nhắc bạn cập nhật plugin.
 
-Local (1 lenh):
+Local (1 lệnh):
 ```bash
 # Windows (PowerShell)
 .\reference\scripts\update.ps1
@@ -709,24 +808,23 @@ Local (1 lenh):
 # Linux / macOS
 bash reference/scripts/update.sh
 ```
-Script tu dong: git pull plugin → tai wheel `.whl` moi nhat tu GitHub Release → `pip install --upgrade`.
+Script tự động: git pull plugin → tải wheel `.whl` mới nhất từ GitHub Release → `pip install --upgrade`.
 
-## Loi thuong gap
+## Lỗi thường gặp
 
-| Loi                                 | Cach sua                                                  |
-|-------------------------------------|-----------------------------------------------------------|
-| `401 Unauthorized`                  | Client_secret sai / het han. Chay `setup <profile-id>`    |
-| `404 /oauth/token`                  | Sua `tokenUrl` trong `profiles/<id>/secrets.json`         |
-| `Khong giai ma duoc secret`         | Doi may. Chay `setup <profile-id>` de tao lai             |
-| `Chua co profile nao`               | Chay `sap-btp-agent setup <URL>`                          |
-| `'sap-btp-agent' is not recognized` | PATH thieu folder chua entry point. Chay `python -m sap_btp_agent.doctor` de tu phat hien + lay lenh fix |
+| Lỗi                                 | Cách sửa                                                  |
+|-------------------------------------|-------------------------------------------------------------|
+| `401 Unauthorized`                  | Client_secret sai / hết hạn. Chạy `setup <profile-id>`    |
+| `404 /oauth/token`                  | Sửa `tokenUrl` trong `profiles/<id>/secrets.json`         |
+| `Khong giai ma duoc secret`         | Đổi máy. Chạy `setup <profile-id>` để tạo lại             |
+| `Chua co profile nao`               | Chạy `sap-btp-agent setup <URL>`                          |
+| `'sap-btp-agent' is not recognized` | PATH thiếu folder chứa entry point. Chạy `python -m sap_btp_agent.doctor` để tự phát hiện + lấy lệnh fix |
 
-## Trang thai
+## Trạng thái
 
-v1.3.3 -- **28 agents (25 modules + 1 researcher + 1 daily learner + 1 reviewer)** voi auto-scoring routing engine,
+v1.3.3 — **28 agents (25 modules + 1 researcher + 1 daily learner + 1 reviewer)** với auto-scoring routing engine,
 CDS KB, SAP Docs Research, ABAP Cloud clean code, extensibility, key user toolkit, Hermes-like self-improving learning.
-**Moi:** Fiori/UI5, CAP, CPI, SuccessFactors, BTP Admin consultants; state cua plugin
-(`sap-daily-learner`, cache, session/handoff) chuyen tu project-relative sang
-`%USERPROFILE%\.sap-abap-agent\` dung, kem script tu don cache/log qua 7 ngay
+**Mới:** Fiori/UI5, CAP, CPI, SuccessFactors, BTP Admin consultants; state của plugin
+(`sap-daily-learner`, cache, session/handoff) chuyển từ project-relative sang
+`%USERPROFILE%\.sap-abap-agent\` dùng, kèm script tự dọn cache/log quá 7 ngày
 (xem CHANGELOG v1.3.3).
-
