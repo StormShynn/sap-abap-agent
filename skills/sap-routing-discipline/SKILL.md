@@ -32,6 +32,7 @@ API, Fiori app cu the ma kien thuc chung khong co.
 | R6 | "Context dang phinh, rut gon di" | Xem Tier 2 routing rules ben duoi TRUOC khi compact |
 | R7 | "Module consultant load full SKILL.md luon" | Module FI da tach 2-layer (core+deep), chi load deep khi user hoi chi tiet - xem Tier 2 |
 | R8 | "Output MCP tool nho, tra nguyen" | Neu >2K token, doc `reference/process/sap-context-tool-result-trim.md` va ap dung masking truoc khi paste vao context |
+| R9 | "Cau hoi dung cham data access/extensibility/cu phap ABAP Cloud, chua ro he thong la edition nao" | Chay `sap-service-type-context` truoc (s4hc_(private)/s4hc_(public)/btp/onprem), tru khi da xac dinh trong phien nay - tranh mac dinh Public Edition sai ngu canh |
 
 ## Tier 2 routing rules (CONTEXT-INJECTION - ngon ngu tu context-optimization)
 
@@ -98,3 +99,6 @@ Khi user hoi ve "lich su" / "hom qua" / "truoc do":
 - Skill `sap-ask-before-guessing` - nguyen tac song song, bom qua cung hook: TONG QUAT hoa vien
   co R4 (hoi khi khong chac) ra MOI diem quyet dinh trong pipeline scaffold/deploy, khong chi
   routing module.
+- Skill `sap-service-type-context` (R9) - xac dinh edition (s4hc_(private)/s4hc_(public)/btp/
+  onprem) truoc khi tra loi cau hoi bi anh huong boi edition; doc offline tu config cua
+  sap-btp-agent, hoi user neu chua xac dinh duoc.

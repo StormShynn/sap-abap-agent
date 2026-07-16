@@ -943,7 +943,7 @@
     <div class="icon">SA</div>
     <div>
       <h2>SAP ABAP Agent</h2>
-      <small>v1.6.0 · 28 agents · 42 skills</small>
+      <small>v1.6.0 · 28 agents · 43 skills</small>
     </div>
   </div>
 
@@ -985,6 +985,7 @@
     <a class="nav-link" href="#skill-sap-fieldglass-mcp"><span class="nav-icon">🛠️</span> Fieldglass MCP</a>
 
     <div class="nav-section">Skills ABAP</div>
+    <a class="nav-link" href="#skill-service-type-context"><span class="nav-icon">🧭</span> Service Type Context</a>
     <a class="nav-link" href="#skill-clean-code"><span class="nav-icon">🧹</span> Clean Code & Naming</a>
     <a class="nav-link" href="#skill-extensibility"><span class="nav-icon">🧩</span> Extensibility Ladder</a>
     <a class="nav-link" href="#skill-key-user-toolkit"><span class="nav-icon">🛠️</span> Key User Toolkit</a>
@@ -1035,7 +1036,7 @@
         <span class="theme-icon-light">☀️</span>
         <span class="theme-icon-dark" style="display:none;">🌙</span>
       </button>
-      <span class="header-version">v1.6.0 · 28 agents · 42 skills</span>
+      <span class="header-version">v1.6.0 · 28 agents · 43 skills</span>
     </div>
   </header>
 
@@ -1178,7 +1179,7 @@
 <span class="dir">📦 sap-abap-agent/</span>
 <span class="branch">├──</span> <span class="highlight">.claude-plugin/</span>        <span class="file"> ← Manifest + metadata</span>
 <span class="branch">├──</span> <span class="highlight">agents/</span>                 <span class="file"> ← 28 agent definitions (.md)</span>
-<span class="branch">├──</span> <span class="highlight">skills/</span>                 <span class="file"> ← 42 skill implementations</span>
+<span class="branch">├──</span> <span class="highlight">skills/</span>                 <span class="file"> ← 43 skill implementations</span>
 <span class="branch">│</span>   <span class="branch">├──</span> <span class="highlight">sap-ask-consultant/</span>    <span class="file"> ← Routing engine (28 agents)</span>
 <span class="branch">│</span>   <span class="branch">├──</span> <span class="highlight">sap-btp-setup/</span>         <span class="file"> ← BTP connection manager</span>
 <span class="branch">│</span>   <span class="branch">├──</span> <span class="highlight">sap-cds-kb/</span>            <span class="file"> ← CDS view search (7,355 views)</span>
@@ -2816,6 +2817,44 @@ java -jar cdata.jdbc.sapfieldglass.jar --license</code><button class="copy-btn" 
       <p>💡 Yeu cau CData JDBC Driver for SAP Fieldglass (trial available). Query contingent workforce, Statement of Work, timesheets, invoices truc tiep tu AI.</p>
     </section>
 
+    <!-- ===== SKILL: SERVICE TYPE CONTEXT ===== -->
+    <section id="skill-service-type-context">
+      <h2><span class="section-icon">🧭</span> Service Type Context (sap-service-type-context)</h2>
+      <p><strong>skills/sap-service-type-context/SKILL.md</strong> — Xác định hệ thống đang làm việc là <code>s4hc_(private)</code> / <code>s4hc_(public)</code> / <code>btp</code> / <code>onprem</code> bằng cách đọc <code>profiles/&lt;id&gt;/config.json</code> của <code>sap-btp-agent</code> (offline, không gọi MCP, không đụng secret) — hỏi user nếu chưa xác định được — trước khi trả lời câu hỏi bị ảnh hưởng bởi edition.</p>
+
+      <h3>So sánh nhanh theo Service Type</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Khía cạnh</th><th>s4hc_(public)</th><th>s4hc_(private)</th><th>onprem</th><th>btp</th></tr></thead>
+          <tbody>
+            <tr><td>Đọc dữ liệu</td><td>Chỉ released CDS/API</td><td>Ưu tiên released, dev on-stack có thể sâu hơn</td><td>SELECT bảng chuẩn trực tiếp bình thường</td><td>Không đụng core trực tiếp — luôn gọi qua API dù core là edition nào</td></tr>
+            <tr><td>Extensibility</td><td>SSCUI + Key User + Developer(3-system) + side-by-side</td><td>Ladder tương tự nhưng on-stack rộng hơn, có thể còn BAdI/exit classic tùy compat scope</td><td>Toàn bộ classic: SPRO/IMG, user-exit, BAdI classic, enhancement point</td><td>Chỉ có side-by-side (chính nó là 1 bậc trong ladder)</td></tr>
+            <tr><td>Cú pháp ABAP Cloud bị cấm</td><td>Bắt buộc</td><td>Tùy compat scope dự án chọn</td><td>Không áp dụng trừ khi tự nguyện theo</td><td>Bắt buộc</td></tr>
+            <tr><td>Landscape mặc định</td><td>2-system</td><td>Thường 3-system trở lên</td><td>Thường 3-system trở lên</td><td>Riêng, không áp dụng</td></tr>
+            <tr><td>ATC / released-API check</td><td>Bắt buộc strict</td><td>Có nhưng ít strict hơn</td><td>Không cần trừ khi muốn cloud-ready</td><td>Bắt buộc</td></tr>
+            <tr><td>SSCUI/Fiori app cụ thể (tư vấn module)</td><td>Đúng</td><td>SSCUI vẫn có nhưng nhiều phần dùng classic transaction/SPRO song song</td><td>Đa số là transaction code/SPRO, không phải SSCUI</td><td>Không áp dụng (không có UI nghiệp vụ riêng)</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>⚠️ <strong>Không đổi theo edition:</strong> quy ước namespace <code>Z</code>/<code>Y</code> áp dụng cho <strong>mọi</strong> edition kể cả on-premise — không phải đặc thù ABAP Cloud.</p>
+
+      <h3>Cách xác định (offline, không cần hệ thống đang sống)</h3>
+      <p>Đọc thẳng <code>profiles/&lt;id&gt;/config.json</code> (field không nhạy cảm — secret nằm riêng ở <code>secrets.json</code> đã mã hóa) thay vì gọi <code>sap_ping</code>: rẻ hơn (không round-trip mạng), không phụ thuộc hệ thống SAP đang sống hay không.</p>
+      <pre><code>python "${CLAUDE_PLUGIN_ROOT}/reference/scripts/detect_service_type.py"</code><button class="copy-btn" onclick="copyCode(this)">Sao chép</button></pre>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>source</th><th>Ý nghĩa</th><th>Hành động</th></tr></thead>
+          <tbody>
+            <tr><td><code>config</code></td><td>Đã có giá trị <code>service</code> user xác nhận lúc setup</td><td>Dùng thẳng, không hỏi lại</td></tr>
+            <tr><td><code>config_default</code></td><td>Config tồn tại nhưng thiếu/sai field <code>service</code></td><td>Hỏi lại user xác nhận</td></tr>
+            <tr><td><code>not_configured</code></td><td>Chưa từng chạy <code>sap-btp-agent setup</code></td><td>Hỏi thẳng user (giữ nguyên taxonomy 4 nhánh)</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>💡 <strong>Tích hợp:</strong> <code>sap-routing-discipline</code> trỏ tới skill này trước khi trả lời câu hỏi bị ảnh hưởng bởi edition; <code>sap-ask-consultant</code>/<code>sap-extensibility</code>/<code>sap-clean-code</code>/<code>sap-abap-sql</code> đọc kết quả để rẽ nhánh hoặc chèn cảnh báo thay vì mặc định Public Edition.</p>
+    </section>
+
     <!-- ===== SKILL: CLEAN CODE ===== -->
     <section id="skill-clean-code">
       <h2><span class="section-icon">🧹</span> Clean Code &amp; Name Conversion</h2>
@@ -3537,7 +3576,7 @@ java -jar cdata.jdbc.sapfieldglass.jar --license</code><button class="copy-btn" 
     </section>
 
     <div class="footer">
-      <strong>SAP ABAP Agent</strong> &middot; v1.6.0 · 28 agents · 42 skills<br>
+      <strong>SAP ABAP Agent</strong> &middot; v1.6.0 · 28 agents · 43 skills<br>
       <span style="font-size:12px;">Trang hướng dẫn này được tạo bởi StormShynn Coding Assistant</span>
     </div>
 
@@ -3617,6 +3656,11 @@ java -jar cdata.jdbc.sapfieldglass.jar --license</code><button class="copy-btn" 
   if (overlay) {
     overlay.addEventListener('click', closeSidebar);
   }
+
+  // Đóng sidebar khi click vào nav link (mobile)
+  document.querySelectorAll('.sidebar .nav-link').forEach(link => {
+    link.addEventListener('click', closeSidebar);
+  });
 
   // Close sidebar when clicking a nav link (mobile)
   document.querySelectorAll('.sidebar a.nav-link').forEach(link => {
@@ -4837,6 +4881,37 @@ java -jar cdata.jdbc.sapfieldglass.jar --license</code><button class="copy-btn" 
 
     'Kiểm tra <code>skills/sap-user-skills/</code> không có file tương tự trước khi tạo mới.':
         'Checks <code>skills/sap-user-skills/</code> for no similar file before creating new one.',
+
+    'Xác định hệ thống đang làm việc là <code>s4hc_(private)</code> / <code>s4hc_(public)</code> / <code>btp</code> / <code>onprem</code> bằng cách đọc <code>profiles/&lt;id&gt;/config.json</code> của <code>sap-btp-agent</code> (offline, không gọi MCP, không đụng secret) — hỏi user nếu chưa xác định được — trước khi trả lời câu hỏi bị ảnh hưởng bởi edition.':
+        'Determines whether the connected system is <code>s4hc_(private)</code> / <code>s4hc_(public)</code> / <code>btp</code> / <code>onprem</code> by reading <code>profiles/&lt;id&gt;/config.json</code> from <code>sap-btp-agent</code> (offline, no MCP call, no secret touched) — asks the user if it cannot be determined — before answering edition-dependent questions.',
+
+    'So sánh nhanh theo Service Type': 'Quick comparison by Service Type',
+    'Khía cạnh': 'Aspect',
+    'Đọc dữ liệu': 'Data access',
+    'Extensibility': 'Extensibility',
+    'Cú pháp ABAP Cloud bị cấm': 'Forbidden ABAP Cloud syntax',
+    'Landscape mặc định': 'Default landscape',
+    'ATC / released-API check': 'ATC / released-API check',
+    'SSCUI/Fiori app cụ thể (tư vấn module)': 'Specific SSCUI/Fiori app (module consultant)',
+
+    '<strong>Không đổi theo edition:</strong> quy ước namespace <code>Z</code>/<code>Y</code> áp dụng cho <strong>mọi</strong> edition kể cả on-premise — không phải đặc thù ABAP Cloud.':
+        '<strong>Does not change by edition:</strong> the <code>Z</code>/<code>Y</code> namespace convention applies to <strong>every</strong> edition including on-premise — it is not ABAP Cloud specific.',
+
+    'Cách xác định (offline, không cần hệ thống đang sống)': 'How it is determined (offline, no live system needed)',
+    'Đọc thẳng <code>profiles/&lt;id&gt;/config.json</code> (field không nhạy cảm — secret nằm riêng ở <code>secrets.json</code> đã mã hóa) thay vì gọi <code>sap_ping</code>: rẻ hơn (không round-trip mạng), không phụ thuộc hệ thống SAP đang sống hay không.':
+        'Reads <code>profiles/&lt;id&gt;/config.json</code> directly (non-sensitive fields — secrets live separately in encrypted <code>secrets.json</code>) instead of calling <code>sap_ping</code>: cheaper (no network round-trip), independent of whether the SAP system is currently reachable.',
+
+    'Ý nghĩa': 'Meaning',
+    'Hành động': 'Action',
+    'Đã có giá trị <code>service</code> user xác nhận lúc setup': 'Already has a <code>service</code> value the user confirmed during setup',
+    'Dùng thẳng, không hỏi lại': 'Use it directly, do not ask again',
+    'Config tồn tại nhưng thiếu/sai field <code>service</code>': 'Config exists but the <code>service</code> field is missing/invalid',
+    'Hỏi lại user xác nhận': 'Ask the user to confirm',
+    'Chưa từng chạy <code>sap-btp-agent setup</code>': 'Has never run <code>sap-btp-agent setup</code>',
+    'Hỏi thẳng user (giữ nguyên taxonomy 4 nhánh)': 'Ask the user directly (keep the 4-branch taxonomy)',
+
+    '<strong>Tích hợp:</strong> <code>sap-routing-discipline</code> trỏ tới skill này trước khi trả lời câu hỏi bị ảnh hưởng bởi edition; <code>sap-ask-consultant</code>/<code>sap-extensibility</code>/<code>sap-clean-code</code>/<code>sap-abap-sql</code> đọc kết quả để rẽ nhánh hoặc chèn cảnh báo thay vì mặc định Public Edition.':
+        '<strong>Integration:</strong> <code>sap-routing-discipline</code> points to this skill before answering edition-dependent questions; <code>sap-ask-consultant</code>/<code>sap-extensibility</code>/<code>sap-clean-code</code>/<code>sap-abap-sql</code> read the result to branch or insert a warning instead of defaulting to Public Edition.',
 
   };
 

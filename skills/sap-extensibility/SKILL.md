@@ -1,6 +1,11 @@
 ---
 name: sap-extensibility
-description: Huong dan extensibility & rang buoc ABAP Cloud cho SAP S/4HANA Cloud Public Edition. Dung khi user hoi nen dat custom logic o dau (SSCUI/Key User/side-by-side BTP), co dung duoc BAdI/SPRO/table truc tiep khong, hoac gap loi cu phap ABAP Cloud (RAP, released API).
+description: Huong dan extensibility & rang buoc ABAP Cloud theo tung service type SAP
+  (s4hc_(private)/s4hc_(public)/btp/onprem) — §1-§6 chi tiet cho S/4HANA Cloud Public Edition,
+  §8 tom tat khac biet cho 3 edition con lai. Dung khi user hoi nen dat custom logic o dau
+  (SSCUI/Key User/side-by-side BTP/SPRO classic), co dung duoc BAdI/SPRO/table truc tiep khong,
+  hoac gap loi cu phap ABAP Cloud (RAP, released API). Goi `sap-service-type-context` truoc
+  neu chua biet edition trong phien nay.
 when_to_use: |
   "custom logic nay nen dat o dau", "co dung SELECT truc tiep vao bang standard khong",
   "object chua released thi lam sao", "CALL SCREEN co dung duoc tren Cloud khong".
@@ -8,12 +13,23 @@ effort: medium
 model: haiku
 ---
 
-# SAP Public Cloud — Extensibility & Rang buoc ABAP Cloud
+# SAP Extensibility & Rang buoc ABAP Cloud — theo tung Service Type
 
 [Chua xac minh song tung chi tiet — kien truc tong quan da kiem chung qua SAP Help/Learning/Community
 (xem muc Nguon tham khao cuoi file); ten SSCUI/scope item/Fiori app cu the thay doi theo tung ban
 release quy (SAP ra 4 ban/nam: vd 2502/2505/2508/2511) nen luon nhac user xac minh lai truoc khi dua
 vao san xuat.]
+
+## Buoc 0: Xac dinh edition truoc khi ap dung bang duoi
+
+Noi dung §1-§6 duoi day viet cho **`s4hc_(public)`** (S/4HANA Cloud Public Edition). Neu chua
+biet he thong dang lam viec la edition nao trong phien nay, chay `sap-service-type-context`
+truoc. Ket qua:
+
+- `s4hc_(public)` -> dung nguyen §1-§6 nhu duoi.
+- `s4hc_(private)` / `onprem` / `btp` -> xem **§8. Khac biet theo edition** o cuoi file de dieu
+  chinh truoc khi tra loi — DUNG ap dung nguyen si rang buoc §1-§6 cho 3 edition nay (vd cam
+  SELECT bang chuan chi dung tren `s4hc_(public)`/`btp`, khong dung tren `onprem`).
 
 ## 1. Cau hinh & truy cap he thong tren Public Cloud
 
@@ -142,3 +158,50 @@ hay khong.
 - [Extensibility | SAP Help Portal](https://help.sap.com/docs/SAP_S4HANA_CLOUD/0f69f8fb28ac4bf48d2b57b9637e81fa/533228e1e854433ab16d013f161ca509.html)
 - SAP API Business Hub — `https://api.sap.com` (danh muc released API, kiem tra tinh trang release/cloud-qualified truoc khi dung)
 - SAP Best Practices Explorer — danh muc scope item theo tung release
+
+## 8. Khac biet theo edition (Private Edition / On-premise / BTP ABAP Environment)
+
+[Dua tren kien truc tong quan da biet, chua xac minh song tung chi tiet cho ban release hien
+tai — cung muc do tin cay nhu §1-§6. Luon xac minh lai voi tech lead/SAP Help truoc khi ap
+dung cung nhac, dac biet compat scope cua Private Edition (tuy du an chon, khong co 1 quy tac
+chung duy nhat).]
+
+### s4hc_(private) — S/4HANA Cloud Private Edition
+
+- Bac thang extensibility §2 van ap dung nhung **Developer Extensibility (bac 3) rong hon** —
+  khong bi gioi han chi 3-system landscape nhu Public Edition, va tuy **compat scope** du an
+  chon luc setup landscape ma co the con dung duoc BAdI/enhancement classic ben canh ABAP
+  Cloud. HOI user/tech lead compat scope cu the truoc khi khang dinh 1 ky thuat classic dung
+  duoc hay khong — dung tu suy dien tu Public Edition sang.
+- Cu phap cam o §4 (bang ABAP Cloud) **khong bat buoc tuyet doi** neu du an chon compat scope
+  cho phep classic ABAP — nhung SAP van khuyen dung ABAP Cloud cho code moi de de nang cap.
+- Released-API-only (§3b) van la best practice khuyen dung (upgrade-safety) nhung khong bi ATC
+  chan cung nhu Public Edition trong moi truong hop — kiem tra ATC variant that dang bat tren
+  he thong (`sap-atc-review`) thay vi gia dinh.
+
+### onprem — On-premise / RISE with SAP (khong ep ABAP Cloud)
+
+- Toan bo bac thang §2 **khong bat buoc** — co the dung truc tiep: SPRO/IMG (cau hinh classic),
+  customer exit, BAdI classic (SE18/SE19), enhancement point/enhancement framework, SE38/SE80
+  dev truc tiep tren object chuan (van qua Z/Y namespace cho object cua khach hang).
+- **SELECT truc tiep bang chuan** (MARA, VBAK, EKKO...) la binh thuong, khong can qua CDS/API
+  released nhu §1/§3b mo ta.
+- Cu phap cam o §4 **khong ap dung** tru khi du an tu nguyen theo huong ABAP Cloud de de dang
+  migrate len Cloud sau nay.
+- Clean Core (§3) la **khuyen nghi**, khong phai rang buoc ky thuat bat buoc — de xuat van nen
+  uu tien released API/Key User khi hop ly, nhung khong fail-fast nhu Public Edition neu user
+  chu dinh muon sua truc tiep tren object cua chinh ho (van ap dung rao chan Z/Y cua
+  `sap-deployment-target`).
+
+### btp — SAP BTP ABAP Environment (Steampunk)
+
+- Day la 1 **runtime/he thong rieng**, khong phai "S/4HANA Cloud" — ban than no chinh la
+  **bac 4 (side-by-side)** trong thang §2 nhin tu phia he thong core (du core la
+  `s4hc_(public)`, `s4hc_(private)`, hay `onprem`).
+- Cu phap cam o §4 **bat buoc** (day la ABAP Cloud restricted 100%, khong co ngoai le).
+- **Khong doc/ghi truc tiep** bat ky he thong core nao — luon goi qua released API/RFC/OData du
+  core dang ket noi la edition gi. Neu can du lieu tu core, ap dung cay quyet dinh §3b nhung
+  buoc ① luon la "co released API/CDS tu he thong core khong" (khong co khai niem "table chuan"
+  o day vi BTP ABAP Environment khong so huu du lieu nghiep vu core).
+- Khong co SSCUI/Key User Extensibility rieng (do khong phai he thong nghiep vu) — cau hinh
+  chu yeu la BTP cockpit/destination/Communication Arrangement, xem `sap-btp-connectivity`.

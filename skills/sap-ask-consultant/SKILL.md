@@ -1,6 +1,11 @@
 ---
 name: sap-ask-consultant
-description: Hoi truc tiep 1 "chuyen gia" SAP theo phan he (SD, FI...) cho SAP S/4HANA Cloud Public Edition. Tu dong chon dung agent tu van theo module, chay song song neu cau hoi dung nhieu module, roi tong hop cau tra loi. Dung khi user hoi "hoi SD", "hoi FI", hoac cau hoi nghiep vu ro module (sales order, GL, AP...).
+description: Hoi truc tiep 1 "chuyen gia" SAP theo phan he (SD, FI...) — noi dung 25 module
+  consultant viet cho SAP S/4HANA Cloud Public Edition (SSCUI/Fiori app cu the). Tu dong chon
+  dung agent tu van theo module, chay song song neu cau hoi dung nhieu module, roi tong hop
+  cau tra loi. Neu edition da biet (qua sap-service-type-context) khac s4hc_(public), tu dong
+  chen canh bao SSCUI/API co the khac tren he thong that. Dung khi user hoi "hoi SD", "hoi FI",
+  hoac cau hoi nghiep vu ro module (sales order, GL, AP...).
 when_to_use: |
   "hoi SD: cau hinh pricing", "hoi FI ve dong so ky", "tu van MM ve purchase order",
   "cau hinh cost center va GL" (nhieu module cung luc).
@@ -26,6 +31,15 @@ neu nhieu agent cung tra loi).
 Day la routing **tu dong hoa hoan toan**: khong match-first-stop-first, ma la **scoring + dispatch
 song song**. Moi module co 1 ma tran tu khoa co trong so. User cang nhieu tu khoa → score cang cao →
 module cang chac chan duoc dispatch.
+
+### Buoc 0: Kiem tra edition da biet chua (khong tu chay lai neu da co)
+
+25 module consultant agent (`sap-*-consultant-cloud`) viet noi dung SSCUI/Fiori app/API cu the
+cho **`s4hc_(public)`**. Neu edition cua phien nay **da duoc xac dinh truoc do** (qua
+`sap-service-type-context`, vd tu 1 luot hoi truoc trong cung phien) va **khac** `s4hc_(public)`
+— ghi nho de chen canh bao o Buoc 4 (Tong hop dispatch). KHONG chu dong chay
+`sap-service-type-context` o day chi de tu van thuan tuy nghiep vu don gian (tranh lam cham
+routing cho cau hoi khong thuc su can) — chi ap dung canh bao NEU da biet san tu ngu canh phien.
 
 ### Buoc 1: Xay dung Keyword Matrix cho tung module
 
@@ -117,6 +131,11 @@ ten trong output o muc "Co the hoi them" (xem Buoc 4).
   **top 3 theo score cao nhat**, cac module con lai KHONG dispatch — chi liet ke ten trong output
   ("Co the hoi them: <module>") de user tu quyet dinh hoi tiep, tranh chay song song qua nhieu
   agent cho 1 cau hoi.
+- **Canh bao edition** (chi khi Buoc 0 da xac dinh edition != `s4hc_(public)`): them 1 dong dau
+  output (xem muc Output format) — "⚠️ Noi dung agent duoi day viet cho Public Edition (SSCUI/
+  Fiori app cu the) — he thong ban dang lam viec la `<edition>`, ten SSCUI/transaction tuong
+  ung co the khac. Xem `sap-service-type-context` de biet dieu chinh." KHONG chan dispatch, chi
+  canh bao.
 
 ### Buoc 5: Tra cuu kien thuc co san (local + Notion) truoc khi dispatch
 
@@ -158,6 +177,8 @@ python "${CLAUDE_PLUGIN_ROOT}/reference/scripts/cleanup_agent_home.py"
 
 ## Quy trinh — Automated Routing Engine
 
+0. **Kiem tra edition da biet chua** (Buoc 0) — chi ghi nho de canh bao neu khac `s4hc_(public)`,
+   khong chu dong chay `sap-service-type-context`.
 1. **Phan tich cau hoi user**: normalize (lowercase, loai bo dau), trich xuat keyword.
 2. **Tinh score tung module** theo Keyword Matrix o Buoc 1.
 3. **Kiem tra explicit mention** (Buoc 2).
@@ -171,6 +192,7 @@ python "${CLAUDE_PLUGIN_ROOT}/reference/scripts/cleanup_agent_home.py"
 ## Output format
 
 ```
+[neu edition da biet != s4hc_(public): dong canh bao SSCUI/API o Buoc 4]
 🧭 Tu van: <danh sach agent da goi> | Auto-routing: <diem score tung module>
 [neu ≥2 agent: doan tong hop ngan truoc]
 [neu bi cap o Buoc 4: them dong "Co the hoi them: <module bi cap>"]
