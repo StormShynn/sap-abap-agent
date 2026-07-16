@@ -87,12 +87,7 @@
       "config": {
         "command": "npx",
         "args": ["-y", "mcp-abap-adt"],
-        "env": {
-          "ADT_URL": "",
-          "ADT_USER": "",
-          "ADT_PASS": "",
-          "ADT_CLIENT": "100"
-        }
+        "env": {}
       }
     },
     {
@@ -173,7 +168,7 @@
       "category": "product-specific",
       "transport": "stdio",
       "envVars": [],
-      "doc": "skills/mcp-sap-fieldglass/SKILL.md",
+      "doc": "skills/sap-fieldglass/SKILL.md",
       "description": "Fieldglass Services Procurement (CData SQL-based - can JDBC license)",
       "config": {
         "install_hint": "Tai CData JDBC driver + MCP jar tu CData; claude mcp add --transport stdio sap-fieldglass -- java -jar /path/to/CDataMCP-jar-with-dependencies.jar /path/to/.env/sap-fieldglass.prp",
