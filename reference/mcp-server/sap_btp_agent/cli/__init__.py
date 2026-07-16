@@ -35,6 +35,7 @@ from ..config.secrets import save_secrets
 from ..config.store import (
     SERVICE_TYPE_DEFAULT,
     SERVICE_TYPES,
+    normalize_btp_url,
     normalize_service_type,
     save_config,
 )
@@ -138,6 +139,14 @@ async def _wizard_setup(url: str) -> None:
         print("  ❌ Khong co URL. Huy.")
         return
 
+    # Thieu scheme (VD nhap "xxx.s4hana.cloud.sap" khong co "https://") lam
+    # derive_profile_id_from_url fail va Playwright/httpx tu choi request
+    # sau nay voi loi kho hieu - tu them https:// va bao lai cho user biet.
+    normalized_url = normalize_btp_url(url)
+    if normalized_url != url:
+        info(f"Da tu them 'https://': {normalized_url}")
+        url = normalized_url
+
     profile_id = derive_profile_id_from_url(url)
     if not profile_id:
         profile_id = ask("Khong the sinh ID tu URL. Nhap profile ID manually",
@@ -230,8 +239,12 @@ async def _wizard_setup(url: str) -> None:
                 cookies = _parse_cookie_string(cookie_str)
         elif cookie_source == "3":
             from ..sap.auth import web_login_auto
-            result = await web_login_auto({"base_url": url, "profile_id": profile_id})
-            cookies = result.cookies
+            try:
+                result = await web_login_auto({"base_url": url, "profile_id": profile_id})
+                cookies = result.cookies
+            except Exception as err:
+                print(f"  ❌ Auto-login qua browser loi: {err}")
+                cookies = {}
             if not cookies:
                 print("  ⚠️ Khong lay duoc cookie tu browser. Thu nhap tay.")
                 cookie_str = ask("Cookie string (name=value; name2=value2)")

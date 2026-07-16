@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 from pathlib import Path
 from typing import Any
 
@@ -51,6 +52,21 @@ def normalize_service_type(value: object) -> str:
             f"Chon mot trong: {', '.join(SERVICE_TYPES)}"
         )
     return v
+
+
+def normalize_btp_url(value: object) -> str:
+    """Dam bao btpUrl co scheme (https://) - SAP BTP/S4HANA luon dung HTTPS.
+
+    Thieu scheme khien urllib.parse khong nhan dien duoc host (derive profile
+    ID tu URL fail) va Playwright/httpx tu choi request voi loi kho hieu
+    (VD "Cannot navigate to invalid URL"). Chuoi rong giu nguyen (chua setup).
+    """
+    v = str(value or "").strip()
+    if not v or re.match(r"^https?://", v, re.IGNORECASE):
+        return v
+    return f"https://{v}"
+
+
 DEFAULT_CONFIG: dict[str, Any] = {
     "version": 1,
     "btpUrl": "",
@@ -83,6 +99,9 @@ def load_config(profile_id: str | None = None) -> dict[str, Any]:
                 data["service"] = normalize_service_type(data["service"])
             except ValueError:
                 data["service"] = SERVICE_TYPE_DEFAULT
+        # Tu sua config cu thieu scheme (VD luu tu ban truoc khi co fix nay)
+        if "btpUrl" in data:
+            data["btpUrl"] = normalize_btp_url(data["btpUrl"])
         return {**DEFAULT_CONFIG, **data}
     except json.JSONDecodeError as err:
         raise RuntimeError(f"Loi doc {file}: {err}") from err
@@ -100,6 +119,8 @@ def save_config(profile_id: str | None, partial: dict[str, Any]) -> dict[str, An
     # Validate / chuan hoa service type (alias s4hc -> s4hc_(public), reject gia tri khong hop le)
     if "service" in merged:
         merged["service"] = normalize_service_type(merged["service"])
+    if "btpUrl" in merged:
+        merged["btpUrl"] = normalize_btp_url(merged["btpUrl"])
     content = json.dumps(merged, ensure_ascii=False, indent=2)
     file.write_text(content, encoding="utf-8")
     mirror_write_text(file, content)
