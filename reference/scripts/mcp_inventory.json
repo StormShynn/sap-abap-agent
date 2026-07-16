@@ -1,5 +1,5 @@
 {
-  "_comment": "Known MCP servers documented across this plugin's skills/README. Edit this list when a skill starts (or stops) documenting a `claude mcp add ...` command. Consumed by mcp_status.py and mcp_register.py. The 'core' + 'docs-remote' category entries' config blocks are bundled directly in ../../.mcp.json (auto-registered for anyone who installs this plugin, zero per-user config needed) - keep those two in sync by hand if either changes. 'adt-alternative' and 'product-specific' entries stay opt-in via mcp_register.py, since they need a per-user choice (which ADT alternative) or per-user credentials/license files that can't be shared in a bundled config.",
+  "_comment": "Known MCP servers documented across this plugin's skills/README. Edit this list when a skill starts (or stops) documenting a `claude mcp add ...` command. Consumed by mcp_status.py and mcp_register.py. The 'core' + 'docs-remote' category entries' config blocks are bundled directly in ../../.mcp.json (auto-registered for anyone who installs this plugin, zero per-user config needed) - keep those two in sync by hand if either changes. 'adt-alternative' and 'product-specific' entries stay opt-in via mcp_register.py, since they need a per-user choice (which ADT alternative) or per-user credentials/license files that can't be shared in a bundled config. 'dev-tool' entries (e.g. chrome-devtools) need no credential and CAN auto-run via mcp_register.py's Y/n prompt flow (same as adt-alternative) - but still stay OUT of the bundled .mcp.json, since they grant a real capability (controlling a live browser) that should not be silently active for every plugin user by default.",
   "servers": [
     {
       "name": "sap-btp",
@@ -172,6 +172,19 @@
       "description": "Fieldglass Services Procurement (CData SQL-based - can JDBC license)",
       "config": {
         "install_hint": "Tai CData JDBC driver + MCP jar tu CData; claude mcp add --transport stdio sap-fieldglass -- java -jar /path/to/CDataMCP-jar-with-dependencies.jar /path/to/.env/sap-fieldglass.prp",
+        "env": {}
+      }
+    },
+    {
+      "name": "chrome-devtools",
+      "category": "dev-tool",
+      "transport": "stdio",
+      "envVars": [],
+      "doc": "reference/mcp-guides/mcp-chrome-devtools.md",
+      "description": "Chrome DevTools automation/debug (ChromeDevTools chinh chu, Google) - console/network/performance trace cho web, huu ich debug Fiori/UI5 chay tren browser. Khong can credential (chi can Node.js + Chrome cai san may) nhung van hoi Y/n truoc khi dang ky vi dieu khien browser that",
+      "config": {
+        "command": "npx",
+        "args": ["-y", "chrome-devtools-mcp@latest"],
         "env": {}
       }
     }

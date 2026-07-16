@@ -8,7 +8,10 @@ Usage:
 
 Server duoc chia 3 nhom:
   - auto:   co the register ngay (core + remote SSE)
-  - prompt: can xac nhan + env vars (npx, uvx)
+  - prompt: hoi Y/n truoc khi chay (npx/uvx mot dong, khong can credential rieng) - gom
+            adt-alternative (cac lua chon ADT thay the nhau) va dev-tool (tool dung chung
+            khong SAP-specific, vd chrome-devtools - van hoi truoc du khong can credential,
+            vi la nang luc dieu khien that (browser...), khong nen tu dong bat)
   - manual: can clone repo / cai dat them (notes, sf-mcp, cdata)
 """
 from __future__ import annotations
@@ -274,9 +277,12 @@ def main() -> int:
     # --- Xay dung .mcp.json ---
     # CHI core + docs-remote: day la file se commit vao git, dung chung cho
     # het moi nguoi cai plugin nay. adt-alternative la cac lua chon THAY THE
-    # nhau (khong nen bundle ca 3 cung luc), va product-specific/adt-alternative
-    # co the can credential rieng tung nguoi (vd ADT_USER/ADT_PASS) - khong
-    # duoc bake vao file dung chung, du la placeholder rong hay gia tri that.
+    # nhau (khong nen bundle ca 3 cung luc), product-specific co the can
+    # credential rieng tung nguoi (vd ADT_USER/ADT_PASS) - khong duoc bake vao
+    # file dung chung, du la placeholder rong hay gia tri that. dev-tool (vd
+    # chrome-devtools) khong can credential nhung van KHONG bundle - day la
+    # nang luc dieu khien that (browser...), phai la lua chon tu nguyen cua
+    # tung nguoi dung, khong nen tu dong bat cho moi nguoi cai plugin.
     print("\n--- Generating .mcp.json (core + docs-remote only) ---")
     mcp_config: dict[str, Any] = {"mcpServers": {}}
     bundled_categories = {"core", "docs-remote"}
@@ -311,23 +317,25 @@ def main() -> int:
             results[name] = status
             print(f"  [{status.upper():>10}] {name}")
 
-    # Nhom prompt: adt-alternative
-    for entry in groups.get("adt-alternative", []):
-        name = entry["name"]
-        if name in registered:
-            results[name] = "registered"
-            print(f"  [ REGISTERED] {name}")
-            continue
-        if args.apply:
-            status = register_auto(entry, registered | set(results.keys()))
-        else:
-            yn = input(f"\n  Register {name} ({entry['description']})? [Y/n] ").strip().lower()
-            if yn in ("", "y", "yes"):
-                status = register_prompt(entry, registered | set(results.keys()))
+    # Nhom prompt: adt-alternative (lua chon thay the nhau) + dev-tool (tool dung chung,
+    # khong can credential nhung van hoi truoc vi la nang luc dieu khien that)
+    for cat in ("adt-alternative", "dev-tool"):
+        for entry in groups.get(cat, []):
+            name = entry["name"]
+            if name in registered:
+                results[name] = "registered"
+                print(f"  [ REGISTERED] {name}")
+                continue
+            if args.apply:
+                status = register_auto(entry, registered | set(results.keys()))
             else:
-                status = "skipped"
-        results[name] = status
-        print(f"  [{status.upper():>10}] {name}")
+                yn = input(f"\n  Register {name} ({entry['description']})? [Y/n] ").strip().lower()
+                if yn in ("", "y", "yes"):
+                    status = register_prompt(entry, registered | set(results.keys()))
+                else:
+                    status = "skipped"
+            results[name] = status
+            print(f"  [{status.upper():>10}] {name}")
 
     # Nhom manual: product-specific
     print("\n--- Product-specific servers (manual setup required) ---")
