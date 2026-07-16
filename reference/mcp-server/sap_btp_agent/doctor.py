@@ -81,6 +81,71 @@ def _check_module(name: str, label: str, *, required: bool) -> tuple[bool, str]:
     return (not required), f"{label}: {'THIEU (bat buoc)' if required else 'chua cai (optional)'}"
 
 
+def _cleanup_orphan_mcp_processes() -> tuple[bool, str]:
+    """Tim + tu dong dong tien trinh sap-btp-agent.exe bi orphan (process
+    Claude Code/terminal cha da tat nhung MCP server con van con song).
+
+    Chi Windows: day la nguyen nhan hay gap nhat khien `pip install --upgrade`
+    fail voi loi "file dang duoc su dung boi tien trinh khac" - file .exe bi
+    lock boi bat ky tien trinh sap-btp-agent.exe nao con song, ke ca orphan.
+    Chi dong tien trinh KHONG con process cha (an toan tuyet doi - khong the
+    lam gian doan session nao dang dung, vi theo dinh nghia khong con ai
+    tham chieu no nua). KHONG dong tien trinh van co process cha con song.
+    """
+    if os.name != "nt":
+        return True, "Cleanup orphan MCP process: bo qua (chi ap dung Windows)"
+
+    import json
+    import subprocess
+
+    ps_script = (
+        "$all = Get-CimInstance Win32_Process; "
+        "$targets = $all | Where-Object { $_.Name -eq 'sap-btp-agent.exe' }; "
+        "$alivePids = $all.ProcessId; "
+        "$orphans = $targets | Where-Object { $_.ParentProcessId -notin $alivePids }; "
+        "$orphans | Select-Object -ExpandProperty ProcessId | ConvertTo-Json"
+    )
+    try:
+        result = subprocess.run(
+            ["powershell", "-NoProfile", "-NonInteractive", "-Command", ps_script],
+            capture_output=True, text=True, timeout=15,
+        )
+    except Exception as err:
+        return True, f"Cleanup orphan MCP process: khong chay duoc PowerShell de kiem tra ({err})"
+
+    raw = (result.stdout or "").strip()
+    if not raw:
+        return True, "Cleanup orphan MCP process: khong co tien trinh orphan"
+
+    try:
+        parsed = json.loads(raw)
+    except json.JSONDecodeError:
+        return True, "Cleanup orphan MCP process: khong parse duoc ket qua PowerShell (bo qua)"
+
+    pids = [parsed] if isinstance(parsed, int) else list(parsed)
+    if not pids:
+        return True, "Cleanup orphan MCP process: khong co tien trinh orphan"
+
+    killed = []
+    for pid in pids:
+        try:
+            subprocess.run(
+                ["taskkill", "/F", "/PID", str(pid), "/T"],
+                capture_output=True, text=True, timeout=10,
+            )
+            killed.append(str(pid))
+        except Exception:
+            pass
+
+    if killed:
+        return True, (
+            f"Cleanup orphan MCP process: da tu dong dong {len(killed)} tien trinh "
+            f"sap-btp-agent.exe bi orphan (PID {', '.join(killed)}) - se khong con lock file "
+            f".exe cho lan 'pip install --upgrade' sau"
+        )
+    return True, "Cleanup orphan MCP process: phat hien orphan nhung khong dong duoc - thu taskkill thu cong"
+
+
 def _check_playwright_browsers() -> tuple[bool, str]:
     if importlib.util.find_spec("playwright") is None:
         return True, "Playwright + chromium: chua cai (option 3 'auto mo browser' se fallback ve paste tay)"
@@ -111,6 +176,7 @@ def main() -> None:
     ]
     if os.name == "nt":
         checks.append(_check_module("win32crypt", "pywin32 (DPAPI cho secrets)", required=False))
+        checks.append(_cleanup_orphan_mcp_processes())
     checks.append(_check_playwright_browsers())
 
     all_ok = True
