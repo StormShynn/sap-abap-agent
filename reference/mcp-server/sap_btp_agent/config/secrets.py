@@ -98,8 +98,10 @@ def _try_dpapi_unprotect(blob_b64: str) -> str | None:
         return None
     try:
         raw = base64.b64decode(blob_b64)
-        plain, _ = win32crypt.CryptUnprotectData(raw, None, None, None, 0)
-        return plain.decode("utf-8")
+        result = win32crypt.CryptUnprotectData(raw, None, None, None, 0)
+        # pywin32 tra ve (description, data) - data (bytes thuc) nam o [1]
+        data = result[1] if isinstance(result, tuple) else result
+        return bytes(data).decode("utf-8")
     except Exception:
         return None
 

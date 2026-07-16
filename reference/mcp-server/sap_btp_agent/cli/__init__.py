@@ -16,7 +16,12 @@ import os
 import sys
 from typing import Any
 
-from ..sap.auth import _parse_cookie_string
+from ..sap.auth import (
+    _looks_like_netscape_text,
+    _parse_cookie_string,
+    _parse_netscape_cookie_text,
+    _session_cookie_names,
+)
 from ..config.profile import (
     derive_profile_id_from_url,
     get_current_active,
@@ -55,6 +60,10 @@ def main() -> None:
     Khong co argument -> chay MCP stdio server (dung khi Claude Code/Desktop
     spawn qua `claude mcp add ... -- sap-btp-agent`). Co argument -> CLI thuong.
     """
+    # Console Windows mac dinh cp1252 -> in emoji (❌✅⚠️...) se UnicodeEncodeError.
+    if sys.stdout.encoding and sys.stdout.encoding.lower() not in ("utf-8", "utf8"):
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+        sys.stderr.reconfigure(encoding="utf-8", errors="replace")
     args = sys.argv[1:] if len(sys.argv) > 1 else []
     if not args:
         from ..server import main as run_mcp_server
@@ -230,10 +239,14 @@ async def _wizard_setup(url: str) -> None:
         else:
             print()
             print("  👉 Mo SAP system trong trinh duyet, dang nhap, sau do:")
-            print("     (F12 -> Application -> Cookies -> Copy cookie string)")
+            print("     (F12 -> Application -> Cookies -> Copy cookie string,")
+            print("      hoac paste noi dung file cookie Netscape - vd tu 'Get cookies.txt')")
             print()
-            cookie_str = ask("Cookie string (name=value; name2=value2)")
-            cookies = _parse_cookie_string(cookie_str)
+            cookie_text = _read_cookie_paste()
+            if _looks_like_netscape_text(cookie_text):
+                cookies = _parse_netscape_cookie_text(cookie_text)
+            else:
+                cookies = _parse_cookie_string(cookie_text)
 
         region = ask("Region", default="eu10")
         service = _ask_service()
@@ -253,13 +266,12 @@ async def _wizard_setup(url: str) -> None:
         })
 
         if cookies:
-            important = {"MYSAPSSO2", "SAP_SESSIONID", "sap-contextid", "sap-usercontext"}
-            found = important & set(cookies.keys())
+            found = _session_cookie_names(cookies)
             if found:
                 ok(f"Nhan dien {len(cookies)} cookies (gom {', '.join(found)})")
             else:
-                warn(f"Khong thay session cookies (MYSAPSSO2/SAP_SESSIONID). "
-                     f"Co the can dang nhap lai.")
+                warn(f"Khong thay cookie ten SAP_SESSIONID*/MYSAPSSO2 sau khi parse "
+                     f"({len(cookies)} cookies khac). Co the paste sai dinh dang hoac can dang nhap lai.")
         else:
             warn("Khong co cookies. Profile se can cap nhat sau.")
 
@@ -507,23 +519,45 @@ def _cmd_mcp_setup() -> None:
 
 def _load_cookies_from_file(filepath: str) -> dict[str, str]:
     """Load cookies tu Netscape-format cookie file."""
-    cookies: dict[str, str] = {}
     try:
         with open(os.path.expanduser(filepath), "r", encoding="utf-8") as f:
-            for line in f:
-                line = line.strip()
-                if not line or line.startswith("#"):
-                    continue
-                parts = line.split("\t")
-                if len(parts) >= 7:
-                    cookies[parts[5]] = parts[6]
-                elif "=" in line:
-                    kv = line.split("=", 1)
-                    cookies[kv[0].strip()] = kv[1].strip()
-        return cookies
+            text = f.read()
     except (FileNotFoundError, PermissionError) as err:
         warn(f"Khong doc duoc file: {err}")
         return {}
+    return _parse_netscape_cookie_text(text)
+
+
+def _read_cookie_paste() -> str:
+    """Doc cookie string tu stdin.
+
+    Neu dong dau tien phat hien dinh dang Netscape cookie file (tab-separated
+    7 cot, hoac header '# Netscape...'), tiep tuc doc them cac dong con lai
+    toi khi EOF - vi paste 1 file nhieu dong khong the lay het bang 1 lan
+    readline() nhu cau hoi thuong (ask()).
+    """
+    sys.stdout.write("  Cookie string (name=value; name2=value2): ")
+    sys.stdout.flush()
+    first = sys.stdin.readline()
+    if not first:
+        return ""
+    first_line = first.rstrip("\n").rstrip("\r")
+    if not _looks_like_netscape_text(first_line):
+        return first_line.strip()
+
+    eof_hint = "Ctrl+Z roi Enter" if os.name == "nt" else "Ctrl+D"
+    print(f"  (Phat hien dinh dang Netscape cookie file - paste tiep cac dong con lai, "
+          f"roi {eof_hint} de ket thuc)")
+    lines = [first_line]
+    try:
+        while True:
+            line = sys.stdin.readline()
+            if not line:
+                break
+            lines.append(line.rstrip("\n").rstrip("\r"))
+    except (EOFError, KeyboardInterrupt):
+        pass
+    return "\n".join(lines)
 
 
 if __name__ == "__main__":

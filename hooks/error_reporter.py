@@ -125,6 +125,87 @@ def _is_plugin_file(file_path: str) -> bool:
         return False
 
 
+# Cac dang chuoi giong secret/credential thuong gap trong error message,
+# stderr, bash command — che truoc khi log/publish (defense in depth, ke ca
+# khi da gioi han fix-comment chi trong plugin file o tren).
+_REDACT_PATTERNS = [
+    (re.compile(r"(?i)\b(bearer)\s+[A-Za-z0-9\-._~+/]+=*"), r"\1 ***REDACTED***"),
+    (re.compile(r"(?i)\b(authorization|x-api-key|x-csrf-token|cookie|set-cookie)\s*[:=]\s*\S+"),
+     r"\1: ***REDACTED***"),
+    (re.compile(r"://([^/\s:@]+):([^/\s@]+)@"), r"://\1:***REDACTED***@"),
+    (re.compile(r"(?i)\b(password|passwd|client_secret|clientsecret|secret|"
+                r"api[_-]?key|access_token|refresh_token)\s*[:=]\s*['\"]?[^\s'\",;]+"),
+     r"\1=***REDACTED***"),
+]
+
+
+def _redact(text: str) -> str:
+    """Che cac chuoi giong secret/token/credential truoc khi log/publish.
+
+    Best-effort (regex) — khong bat duoc 100% cac dang the hien token, nhung
+    chan cac pattern pho bien nhat (Bearer, Authorization header, URL co
+    user:pass@, password=/token=/secret=...).
+    """
+    if not text:
+        return text
+    redacted = text
+    for pattern, repl in _REDACT_PATTERNS:
+        redacted = pattern.sub(repl, redacted)
+    return redacted
+
+
+class _FileLock:
+    """Lock don gian, portable (Windows/macOS/Linux), khong can dependency
+    ngoai — dung open(path, O_CREAT|O_EXCL) lam mutex.
+
+    Chong race condition khi nhieu session Claude Code chay song song deu
+    goi Stop hook gan nhau: ca 2 doc known_issues.json thay "chua co issue",
+    ca 2 deu tao issue moi -> issue trung. Tu bo qua lock cu (stale) qua
+    stale_after_s de tranh deadlock vinh vien neu process truoc crash giua
+    luc dang giu lock. Fail-open: het wait_s ma khong lay duoc lock thi van
+    tiep tuc KHONG co lock (uu tien khong block/mat report hon la dedup
+    hoan hao).
+    """
+
+    def __init__(self, path: Path, stale_after_s: float = 60.0, wait_s: float = 45.0):
+        self.path = path
+        self.stale_after_s = stale_after_s
+        self.wait_s = wait_s
+        self._acquired = False
+
+    def __enter__(self) -> "_FileLock":
+        _ensure_dir()
+        deadline = time.time() + self.wait_s
+        while True:
+            try:
+                fd = os.open(str(self.path), os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+                os.close(fd)
+                self._acquired = True
+                return self
+            except FileExistsError:
+                try:
+                    if time.time() - self.path.stat().st_mtime > self.stale_after_s:
+                        self.path.unlink(missing_ok=True)
+                        continue
+                except OSError:
+                    pass
+                if time.time() >= deadline:
+                    return self
+                time.sleep(0.1)
+            except OSError:
+                return self
+
+    def __exit__(self, *exc: Any) -> None:
+        if self._acquired:
+            try:
+                self.path.unlink(missing_ok=True)
+            except OSError:
+                pass
+
+
+KNOWN_ISSUES_LOCK = ERROR_REPORTS_DIR / "known_issues.lock"
+
+
 # ── Helpers ────────────────────────────────────────────────────────────────
 
 
@@ -263,20 +344,20 @@ def _extract_details(payload: dict) -> dict | None:
 
         if exit_code is not None and exit_code != 0:
             error_type = "bash_error"
-            error_message = stderr[:1000] if stderr else f"Exit code {exit_code}"
+            error_message = _redact(stderr[:1000] if stderr else f"Exit code {exit_code}")
             context = {
-                "command": command[:300],
+                "command": _redact(command[:300]),
                 "exit_code": exit_code,
-                "stderr_preview": stderr[:500],
+                "stderr_preview": _redact(stderr[:500]),
             }
         elif stderr and any(kw in stderr.lower() for kw in ["error", "exception", "fail"]):
             error_type = "bash_error"
-            error_message = stderr[:1000]
-            context = {"command": command[:300], "stderr_preview": stderr[:500]}
+            error_message = _redact(stderr[:1000])
+            context = {"command": _redact(command[:300]), "stderr_preview": _redact(stderr[:500])}
         elif "sap" in command.lower()[:100] and len(command) > 20:
             error_type = "bash_info"
-            error_message = f"SAP-related Bash command executed: {command[:200]}"
-            context = {"command": command[:300], "note": "khong co exit code - log de trace"}
+            error_message = f"SAP-related Bash command executed: {_redact(command[:200])}"
+            context = {"command": _redact(command[:300]), "note": "khong co exit code - log de trace"}
 
     # ── MCP tool errors ────────────────────────────────────────────
     elif is_mcp_tool and isinstance(result, dict):
@@ -285,10 +366,14 @@ def _extract_details(payload: dict) -> dict | None:
 
         if is_error or (isinstance(content, str) and "error" in content.lower()[:200]):
             error_type = "mcp_error"
-            error_message = str(content)[:1500] if isinstance(content, str) else json.dumps(content)[:1500]
+            raw_message = str(content)[:1500] if isinstance(content, str) else json.dumps(content)[:1500]
+            error_message = _redact(raw_message)
             context = {
                 "tool_name": tool_name,
-                "input": {k: v for k, v in tool_input.items() if k not in ("password", "secret")},
+                "input": {
+                    k: (_redact(v) if isinstance(v, str) else v)
+                    for k, v in tool_input.items() if k not in ("password", "secret")
+                },
             }
             err_lower = error_message.lower()
             if "syntax" in err_lower and ("check" in err_lower or "error" in err_lower):
@@ -305,7 +390,7 @@ def _extract_details(payload: dict) -> dict | None:
         result_str = str(result)
         if "error" in result_str.lower()[:200]:
             error_type = "edit_error"
-            error_message = result_str[:1000]
+            error_message = _redact(result_str[:1000])
             context = {"file_path": tool_input.get("file_path", "")}
 
     if error_type and error_message:
@@ -432,8 +517,8 @@ def _detect_fix(payload: dict) -> dict | None:
         "error_hashes": error_hashes,  # các error_hash liên quan
         "primary_error_hash": error_hashes[0],
         "diff_summary": diff_summary,
-        "fix_code_preview": new_string[:1000],
-        "old_code_preview": old_string[:500],
+        "fix_code_preview": _redact(new_string[:1000]),
+        "old_code_preview": _redact(old_string[:500]),
         "error_type": primary_error.get("error_type", "unknown"),
         "plugin_version": PLUGIN_VERSION,
         "platform": sys.platform,
@@ -965,12 +1050,19 @@ def _process_pending_queue() -> dict[str, str]:
 
 
 def _run_report() -> None:
-    """Main report logic.
+    """Main report logic (khoá bằng _FileLock quanh known_issues.json).
 
-    Phase 1 — Error Reporting:
-      Gom error → dedup → tạo issue (nếu mới)
-    Phase 2 — Fix Attaching:
-      Gom fix → match với known issues → add comment fix
+    Nhiều session Claude Code có thể chạy song song, cùng gọi Stop hook gần
+    nhau — khoá tránh 2 session cùng đọc "chưa có issue" rồi cùng tạo issue
+    trùng cho cùng 1 error_hash.
+    """
+    with _FileLock(KNOWN_ISSUES_LOCK):
+        _run_report_locked()
+
+
+def _run_report_locked() -> None:
+    """Phase 1 — Error Reporting: Gom error → dedup → tạo issue (nếu mới).
+    Phase 2 — Fix Attaching: Gom fix → match với known issues → add comment fix.
     """
     _ensure_dir()
 

@@ -6,6 +6,71 @@ Format dựa trên [Keep a Changelog](https://keepachangelog.com/) và [Semantic
 
 ---
 
+## [v1.11.0] — 2026-07-16
+
+### Added
+- 🤖 **Continuous Improvement Engine: opt-in + giới hạn phạm vi** (`hooks/error_reporter.py`,
+  bổ sung ngay trong ngày tính năng được thêm) — 4 rào an toàn bắt buộc trước khi tính năng này
+  sẵn sàng chạy trên máy end-user:
+  - **Opt-in, mặc định TẮT** (`_is_enabled()`) — cài plugin Claude Code không bắt buộc có
+    GitHub auth, và thu thập error/code âm thầm không hỏi trước là vi phạm quyền riêng tư. Bật
+    bằng `SAP_ABAP_AGENT_ERROR_REPORTING=1` hoặc file marker
+    `~/.sap-btp-agent/error-reports/ENABLED`.
+  - **Giới hạn fix-comment chỉ trong code của chính plugin** (`_is_plugin_file()`) —
+    `detect-fix` bỏ qua ngay nếu file đang sửa nằm ngoài thư mục cài đặt plugin, chặn nguy cơ
+    đính code ABAP/business logic nội bộ của user lên GitHub issue public (matching cũ không
+    giới hạn phạm vi file nào cả).
+  - **Redact chuỗi giống secret** (`_redact()`) trước khi log/publish: Bearer token,
+    Authorization/Cookie header, URL dạng `user:pass@host`, `password=`/`token=`/`secret=`... —
+    best-effort regex, áp dụng cho error message, bash command, và code snippet đính kèm.
+  - **File lock chống race condition** (`_FileLock`, `open(O_CREAT|O_EXCL)`) quanh
+    `known_issues.json` — nhiều session Claude Code chạy song song cùng gọi Stop hook gần nhau
+    có thể tạo issue trùng cho cùng 1 lỗi (tái hiện thật: 2 tiến trình `claude.exe` chạy đồng
+    thời lúc dev tính năng này). Tự bỏ qua lock cũ (stale >60s), fail-open nếu chờ >45s.
+  - `README.md`: thêm cảnh báo opt-in + giới hạn phạm vi ngay đầu section "Continuous
+    Improvement Engine", sửa nhãn "Ba chế độ hook" (sai số — thực tế 5 mode kể cả `status`)
+    thành "Các chế độ hook".
+
+### Fixed
+- 🐛 **4 bug trong `reference/mcp-server/sap_btp_agent/`** — báo bởi user qua GitHub issues
+  #2–#5 sau khi test thật với S/4HANA Cloud Public Edition, đã comment chi tiết theo file/hàm
+  cụ thể và close từng issue:
+  - `config/secrets.py::_try_dpapi_unprotect`: `win32crypt.CryptUnprotectData` trả về
+    `(description, data)` nhưng code cũ lấy nhầm phần tử `[0]` (string) rồi `.decode()` →
+    `AttributeError` luôn luôn, bị `except Exception` nuốt thành "Khong giai ma duoc DPAPI".
+    Sửa lấy đúng `[1]` (bytes thật). Đã verify round-trip encrypt/decrypt thật bằng `win32crypt`
+    trên máy Windows — decrypt ra đúng plaintext.
+  - `sap/client.py::_request`: mọi request ADT (`/sap/bc/adt/...`) nhận `Accept:
+    application/json` mặc định trong khi ADT chỉ chấp nhận XML → 406. Sửa tự set `Accept:
+    application/xml, */*` khi path chứa `/sap/bc/adt/` — cùng root cause với `sap_ping` 406,
+    nên fix này cover luôn, không cần sửa riêng `tools/registry.py`.
+  - `sap/client.py::_request` (+ `_fetch_csrf_token` mới): `syntax_check`/`activate`/
+    `run_unit_tests`/`list_packages` gửi literal `x-csrf-token: fetch` cho request ghi — giá trị
+    này chỉ để **xin** token qua GET, không phải token thật. Sửa: tự GET
+    `/sap/bc/adt/core/discovery` lấy token thật từ response header trước khi gửi request chính.
+  - `sap/client.py::list_packages`: gọi GET vào `/sap/bc/adt/repository/nodestructure` (endpoint
+    POST-only) → 405. Đổi sang POST kèm CSRF flow ở trên. *Chưa verify được* response body có
+    đầy đủ dữ liệu với query param hiện tại hay cần thêm form param như Eclipse ADT gửi.
+  - `sap/auth.py::web_login_popup`: hướng dẫn paste cookie ghi cứng "Ctrl+D" (EOF Unix) — trên
+    Windows phải Ctrl+Z. Sửa hiển thị theo `os.name`.
+  - `sap/auth.py` + `cli/__init__.py`: paste cookie Netscape-format vào ô "nhập tay" (chỉ hiểu
+    `name=value; name2=value2`) ra "1 key rác" vì `ask()` chỉ đọc 1 dòng. Thêm
+    `_looks_like_netscape_text()`/`_parse_netscape_cookie_text()` + đọc nhiều dòng tới EOF khi
+    phát hiện định dạng Netscape. Nhân đây sửa luôn 4 chỗ check session cookie đang so khớp
+    tuyệt đối chuỗi `"SAP_SESSIONID"` (sai — tên thật có suffix hệ thống/client, VD
+    `SAP_SESSIONID_S4H_100`) thành prefix-match qua `_session_cookie_names()`.
+  - `cli/__init__.py::main`: emoji (❌✅⚠️...) crash trên console Windows cp1252. Reconfigure
+    `sys.stdout`/`sys.stderr` sang UTF-8 ở đầu entry point.
+
+### Notes
+- `version-bump.yml` sẽ tự đồng bộ version `pyproject.toml`/CLI help/README + build và publish
+  wheel mới (`mcp-server-vX.Y.Z`) sau khi push, vì `reference/mcp-server/` có thay đổi trong
+  lần push này.
+- Không sửa `tools/registry.py::_handle_ping` riêng cho issue #3 — fix gốc ở `client.py` đã
+  cover, tránh set `Accept` header 2 lần chồng nhau không cần thiết.
+
+---
+
 ## [v1.10.0] — 2026-07-15
 
 ### Added

@@ -119,8 +119,10 @@ class SapClient:
             authorization = f"Bearer {token}"
             cookies = None
 
+        is_adt = "/sap/bc/adt/" in path
+        default_accept = "application/xml, */*" if is_adt else ("application/json" if is_json else "*/*")
         final_headers: dict[str, str] = {
-            "Accept": "application/json" if is_json else "*/*",
+            "Accept": default_accept,
         }
         if authorization:
             final_headers["Authorization"] = authorization
@@ -130,6 +132,12 @@ class SapClient:
             final_headers["Content-Type"] = "application/json"
 
         timeout_s = (self.config.get("timeoutMs") or 30000) / 1000
+
+        # ADT ghi (POST/PUT/DELETE) khong the gui literal "fetch" cho x-csrf-token -
+        # phai xin token thuc truoc qua GET /core/discovery.
+        if is_adt and method != "GET" and final_headers.get("x-csrf-token") == "fetch":
+            final_headers["x-csrf-token"] = await self._fetch_csrf_token(cookies, timeout_s)
+
         resp = await self._fetch_with_retry(
             method, url, final_headers, body, timeout_s, 2,
             cookies=cookies,
@@ -187,6 +195,23 @@ class SapClient:
         except Exception as err:
             raise RuntimeError(f"Re-auth that bai: {err}") from err
 
+    async def _fetch_csrf_token(self, cookies: dict[str, str] | None, timeout_s: float) -> str:
+        """Xin CSRF token thuc tu ADT discovery endpoint.
+
+        ADT yeu cau GET voi header x-csrf-token: fetch truoc; token thuc
+        nam trong response header cua GET nay, khong the dung literal "fetch"
+        lam token de gui kem request ghi (POST/PUT/DELETE).
+        """
+        url = self._build_url("/sap/bc/adt/core/discovery", None)
+        resp = await self._fetch_with_retry(
+            "GET", url, {"Accept": "application/xml", "x-csrf-token": "fetch"},
+            None, timeout_s, 2, cookies=cookies,
+        )
+        token = resp.headers.get("x-csrf-token", "")
+        if not token:
+            raise RuntimeError("Khong lay duoc CSRF token tu /sap/bc/adt/core/discovery.")
+        return token
+
     def _build_url(self, path: str, query: dict[str, Any] | None) -> str:
         base = path if path.startswith("http") else f"{self._base()}/{path.lstrip('/')}"
         if query:
@@ -240,11 +265,12 @@ class SapClient:
 
     # ============ Helper ABAP / ADT ===================================
     async def list_packages(self, parent: str = "") -> Any:
-        return await self.get("/sap/bc/adt/repository/nodestructure", query={
+        # nodestructure la POST-only endpoint (GET -> 405); can CSRF token thuc.
+        return await self.post("/sap/bc/adt/repository/nodestructure", query={
             "parent_type": "DEVC",
             "parent_name": parent or "$TMP",
             "withShortDescriptions": "true",
-        })
+        }, headers={"x-csrf-token": "fetch"})
 
     async def search_objects(self, query: str, object_type: str = "") -> Any:
         return await self.get("/sap/bc/adt/repository/informationsystem/search", query={

@@ -10,9 +10,10 @@ Ho tro:
 from __future__ import annotations
 
 import asyncio
+import os
 import time
 from dataclasses import dataclass, field
-from typing import Any, Callable, Coroutine
+from typing import Any, Callable, Coroutine, Iterable
 
 import httpx
 
@@ -212,8 +213,7 @@ class SapCookieAuth:
         return bool(self.config and self.config.get("btpUrl"))
 
     def has_session(self) -> bool:
-        important = {"MYSAPSSO2", "SAP_SESSIONID", "sap-usercontext", "sap-contextid"}
-        return bool(important & set(self._cookies.keys()))
+        return bool(_session_cookie_names(self._cookies))
 
     async def reauth(self, ctx: dict[str, Any] | None = None) -> ReauthResult:
         """Goi re-auth callback de lay cookies moi.
@@ -296,7 +296,8 @@ async def web_login_popup(ctx: dict[str, Any]) -> ReauthResult:
     print()
 
     import sys
-    sys.stdout.write("  Cookie string (paste vao day, Enter, Ctrl+D):\n  ")
+    eof_hint = "Ctrl+Z roi Enter" if os.name == "nt" else "Ctrl+D"
+    sys.stdout.write(f"  Cookie string (paste vao day, Enter, {eof_hint}):\n  ")
     sys.stdout.flush()
 
     lines = []
@@ -316,7 +317,7 @@ async def web_login_popup(ctx: dict[str, Any]) -> ReauthResult:
 
     cookies = _parse_cookie_string(cookie_str)
 
-    if "MYSAPSSO2" in cookies or "SAP_SESSIONID" in cookies:
+    if _session_cookie_names(cookies):
         print(f"\n  ✅ Da nhan {len(cookies)} cookies (co session cookie). Tiep tuc!")
     else:
         print(f"\n  ⚠️ Da nhan {len(cookies)} cookies nhung khong thay MYSAPSSO2 / SAP_SESSIONID.")
@@ -363,12 +364,11 @@ async def web_login_auto(ctx: dict[str, Any]) -> ReauthResult:
         # Cho user dang nhap that su: poll session cookie xuat hien, KHONG dung
         # wait_for_url("**/sap/bc/adt/**") vi URL vua goto() da khop pattern nay
         # ngay lap tuc (chua he dang nhap), khien code chay tiep qua som.
-        important = {"MYSAPSSO2", "SAP_SESSIONID", "sap-contextid", "sap-usercontext"}
         deadline = time.monotonic() + 300  # 5 phut, dong bo voi timeout cu
         logged_in = False
         while time.monotonic() < deadline:
             current = {c["name"] for c in await context.cookies()}
-            if important & current:
+            if _session_cookie_names(current):
                 logged_in = True
                 break
             await page.wait_for_timeout(1000)
@@ -384,8 +384,7 @@ async def web_login_auto(ctx: dict[str, Any]) -> ReauthResult:
         await browser.close()
 
     if cookies:
-        important = {"MYSAPSSO2", "SAP_SESSIONID", "sap-contextid", "sap-usercontext"}
-        found = important & set(cookies.keys())
+        found = _session_cookie_names(cookies)
         if found:
             print(f"  ✅ Da lay duoc {len(cookies)} cookies (gom {', '.join(found)}). Tiep tuc!")
         else:
@@ -405,6 +404,65 @@ def _parse_cookie_string(cookie_str: str) -> dict[str, str]:
             key, val = part.split("=", 1)
             cookies[key.strip()] = val.strip()
     return cookies
+
+
+# Ten cookie session SAP thuong gap. SAP_SESSIONID co the co suffix
+# he thong/client (VD: SAP_SESSIONID_S4H_100) nen phai match prefix,
+# khong the so khop tuyet doi.
+_SESSION_COOKIE_PREFIXES = ("MYSAPSSO2", "SAP_SESSIONID")
+_SESSION_COOKIE_EXACT = {"sap-contextid", "sap-usercontext"}
+
+
+def _session_cookie_names(cookies: Iterable[str]) -> list[str]:
+    """Loc ra cac ten cookie duoc xem la session cookie SAP hop le.
+
+    Nhan dict (name -> value) hoac bat ky iterable ten cookie nao (VD set tra
+    ve tu Playwright context.cookies()).
+    """
+    return [
+        name for name in cookies
+        if name.upper().startswith(_SESSION_COOKIE_PREFIXES) or name.lower() in _SESSION_COOKIE_EXACT
+    ]
+
+
+def _parse_netscape_cookie_line(line: str) -> tuple[str, str] | None:
+    """Parse 1 dong Netscape cookie file: domain, flag, path, secure, expiration, name, value."""
+    parts = line.split("\t")
+    if len(parts) >= 7:
+        return parts[5], parts[6]
+    return None
+
+
+def _parse_netscape_cookie_text(text: str) -> dict[str, str]:
+    """Parse noi dung Netscape cookie file (hoac paste truc tiep noi dung file nay).
+
+    Dong khong dung 7-cot tab-separated nhung co dang 'name=value' duoc hieu
+    nhu fallback (giu tuong thich voi file mix ca 2 dinh dang).
+    """
+    cookies: dict[str, str] = {}
+    for line in text.splitlines():
+        line = line.strip()
+        if not line or line.startswith("#"):
+            continue
+        parsed = _parse_netscape_cookie_line(line)
+        if parsed:
+            cookies[parsed[0]] = parsed[1]
+        elif "=" in line:
+            key, val = line.split("=", 1)
+            cookies[key.strip()] = val.strip()
+    return cookies
+
+
+def _looks_like_netscape_text(text: str) -> bool:
+    """Nhan dien noi dung Netscape cookie file: header '# Netscape...' hoac
+    dong dau la 7 cot tab-separated."""
+    stripped = text.strip()
+    if not stripped:
+        return False
+    if stripped.upper().startswith("# NETSCAPE") or stripped.upper().startswith("# HTTP COOKIE FILE"):
+        return True
+    first_line = stripped.splitlines()[0]
+    return len(first_line.split("\t")) >= 7
 
 
 # ===== Helpers =====================================================
