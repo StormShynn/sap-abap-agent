@@ -29,7 +29,7 @@ jobs:
       mcp_changed: ${{ steps.changes.outputs.mcp }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
@@ -145,7 +145,7 @@ jobs:
       contents: write
     steps:
       - name: Checkout latest main
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           ref: main
 
