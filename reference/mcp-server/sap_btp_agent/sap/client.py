@@ -136,7 +136,12 @@ class SapClient:
         # ADT ghi (POST/PUT/DELETE) khong the gui literal "fetch" cho x-csrf-token -
         # phai xin token thuc truoc qua GET /core/discovery.
         if is_adt and method != "GET" and final_headers.get("x-csrf-token") == "fetch":
-            final_headers["x-csrf-token"] = await self._fetch_csrf_token(cookies, timeout_s)
+            final_headers["x-csrf-token"] = await self._fetch_csrf_token(cookies, authorization, timeout_s)
+            if self.use_cookie_auth:
+                # _fetch_csrf_token co the da tu reauth ben trong (session het han) ->
+                # lay lai cookies moi nhat truoc khi gui request ghi chinh, tranh
+                # dung nham cookies cu (da bi invalidate).
+                cookies = self.cookie_auth.get_cookies()
 
         resp = await self._fetch_with_retry(
             method, url, final_headers, body, timeout_s, 2,
@@ -195,22 +200,62 @@ class SapClient:
         except Exception as err:
             raise RuntimeError(f"Re-auth that bai: {err}") from err
 
-    async def _fetch_csrf_token(self, cookies: dict[str, str] | None, timeout_s: float) -> str:
+    async def _fetch_csrf_token(self, cookies: dict[str, str] | None,
+                                 authorization: str | None, timeout_s: float) -> str:
         """Xin CSRF token thuc tu ADT discovery endpoint.
 
         ADT yeu cau GET voi header x-csrf-token: fetch truoc; token thuc
         nam trong response header cua GET nay, khong the dung literal "fetch"
         lam token de gui kem request ghi (POST/PUT/DELETE).
+
+        Phai gui GET nay kem dung co che auth nhu request chinh (Authorization
+        Bearer cho oauth2/password/bearer, hoac Cookie cho cookie-auth) - truoc day
+        chi truyen cookies nen oauth2/password/bearer luon goi discovery o trang
+        thai unauthenticated -> SAP tra ve khong co header x-csrf-token. Voi cookie
+        auth, neu session da het han (401) thi tu reauth (popup/Playwright) roi thu
+        lai 1 lan - neu khong discovery se fail ngay ma khong bao gio kich hoat lai
+        dang nhap, du reauthMode=auto.
         """
         url = self._build_url("/sap/bc/adt/core/discovery", None)
+        headers = {"Accept": "application/xml", "x-csrf-token": "fetch"}
+        if authorization:
+            headers["Authorization"] = authorization
+
         resp = await self._fetch_with_retry(
-            "GET", url, {"Accept": "application/xml", "x-csrf-token": "fetch"},
-            None, timeout_s, 2, cookies=cookies,
+            "GET", url, headers, None, timeout_s, 2, cookies=cookies,
         )
+
+        if resp.status_code == 401 and self.use_cookie_auth and self.config.get("autoReconnect", True):
+            if await self._handle_cookie_reauth():
+                resp = await self._fetch_with_retry(
+                    "GET", url, headers, None, timeout_s, 2,
+                    cookies=self.cookie_auth.get_cookies(),
+                )
+
         token = resp.headers.get("x-csrf-token", "")
         if not token:
             raise RuntimeError("Khong lay duoc CSRF token tu /sap/bc/adt/core/discovery.")
         return token
+
+    async def check_write_access(self) -> str:
+        """Kiem tra rieng kha nang GHI (activate/list_packages/run_unit_tests/syntax_check...):
+        co xin duoc CSRF token thuc tu discovery khong.
+
+        Doc du lieu (GET) va ghi du lieu (POST/PUT/DELETE) la 2 dieu kien khac nhau -
+        GET co the qua (vd session con du de doc) trong khi CSRF-fetch van fail. Dung
+        ham nay trong `connect` de connect test phan anh dung tinh trang, tranh bao
+        "ket noi thanh cong" roi lenh ghi sau do lai fail.
+        """
+        await self.init()
+        if self.use_cookie_auth:
+            cookies = self.cookie_auth.get_cookies()
+            authorization = None
+        else:
+            token = await self.auth.get_access_token()
+            authorization = f"Bearer {token}"
+            cookies = None
+        timeout_s = (self.config.get("timeoutMs") or 30000) / 1000
+        return await self._fetch_csrf_token(cookies, authorization, timeout_s)
 
     def _build_url(self, path: str, query: dict[str, Any] | None) -> str:
         base = path if path.startswith("http") else f"{self._base()}/{path.lstrip('/')}"

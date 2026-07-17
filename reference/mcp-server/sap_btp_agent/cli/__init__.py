@@ -352,7 +352,7 @@ async def _cmd_connect(profile_id: str | None) -> None:
             "/sap/bc/adt/repository/informationsystem/search",
             query={"operation": "quickSearch", "query": "ZZZZZZ_NO_MATCH_AAA", "maxResults": 1},
         )
-        ok(f"Ket noi thanh cong! Profile: {pid}")
+        ok(f"Doc du lieu (read): OK — Profile: {pid}")
         info(f"URL: {cfg.get('btpUrl', '?')}")
         info(f"Auth: {auth_mode}")
         if isinstance(me, dict) and "error" not in me:
@@ -366,6 +366,24 @@ async def _cmd_connect(profile_id: str | None) -> None:
             print("  💡 Thu chay lai setup de cap nhat cookies:")
             print(f"     sap-btp-agent setup {cfg.get('btpUrl', '')}")
         return
+
+    # Doc (GET) va ghi (POST/PUT/DELETE) la 2 dieu kien khac nhau - GET co the qua
+    # trong khi xin CSRF token (dieu kien de goi activate/list_packages/run_unit_tests/
+    # syntax_check) van fail. Kiem tra rieng de "connect" khong bao "thanh cong" roi
+    # lenh ghi sau do lai loi ngay, gay kho hieu.
+    try:
+        await client.check_write_access()
+        ok("Ghi du lieu (CSRF/write): OK")
+        print()
+        ok(f"Ket noi thanh cong — Profile '{pid}' san sang dung ca doc lan ghi.")
+    except Exception as err:
+        warn(f"Ghi du lieu (CSRF/write): THAT BAI — {err}")
+        warn("Cac lenh GHI (activate/list_packages/run_unit_tests/syntax_check) se loi ngay bay gio.")
+        warn("Doc-only (search/read_source/execute_query...) van dung binh thuong.")
+        if auth_mode == "cookie":
+            print()
+            print("  💡 Thu chay lai setup de dang nhap lai (lay cookie moi):")
+            print(f"     sap-btp-agent setup {cfg.get('btpUrl', '')}")
 
 
 # ===== PROFILES ====================================================
