@@ -49,6 +49,7 @@ class SapClient:
         self._reauth_guard = ReauthStampedeGuard(cooldown_s=REAUTH_COOLDOWN_S)
 
         self._initialized = False
+        self._keep_alive_task: asyncio.Task | None = None
 
     async def init(self) -> None:
         if self._initialized:
@@ -283,6 +284,42 @@ class SapClient:
             cookies = None
         timeout_s = (self.config.get("timeoutMs") or 30000) / 1000
         return await self._fetch_csrf_token(cookies, authorization, timeout_s)
+
+    def start_keep_alive(self, interval_s: float = 300.0) -> None:
+        """Bat 1 task nen tu dong "ping" SAP dinh ky de giu session song -
+        dac biet quan trong voi cookie auth: nhieu SAP tenant het session vi
+        IDLE timeout (khong hoat dong 1 khoang), khong phai vi het thoi gian
+        tuyet doi - ping dinh ky giu session "duoc dung" nen khong bao gio
+        idle du lau de bi huy, giam han so lan phai bat lai popup dang nhap.
+
+        Port tu vibing-steampunk pkg/adt/client.go StartKeepAlive() + http.go
+        Ping() - ho dung interval mac dinh 300s (5 phut) voi ghi chu nguyen
+        van: "interval nen ngan hon session timeout cua SAP server; 5 phut la
+        gia tri hop ly". Ping() ben Go = goi lai chinh ham xin CSRF token (ho
+        khong co logic rieng) - o day dung lai check_write_access() cho dung
+        tinh chat.
+
+        Goi lai se tu dung task cu truoc khi bat task moi (giong ban goc).
+        Ping khong co reauth_handler rieng (client tao qua ham nay thuong
+        khong duoc gan reauth_handler) - neu session da chet that su luc ping,
+        se fail am tham (khong tu bat popup dang nhap ngoai y muon trong luc
+        nen) - lan goi tool that su tiep theo se tu xu ly reauth binh thuong.
+        """
+        self.stop_keep_alive()
+        self._keep_alive_task = asyncio.ensure_future(self._keep_alive_loop(interval_s))
+
+    def stop_keep_alive(self) -> None:
+        if self._keep_alive_task and not self._keep_alive_task.done():
+            self._keep_alive_task.cancel()
+        self._keep_alive_task = None
+
+    async def _keep_alive_loop(self, interval_s: float) -> None:
+        while True:
+            await asyncio.sleep(interval_s)
+            try:
+                await self.check_write_access()
+            except Exception:
+                pass  # best-effort - loi that su se lo dien o lan goi tool tiep theo
 
     def _build_url(self, path: str, query: dict[str, Any] | None) -> str:
         base = path if path.startswith("http") else f"{self._base()}/{path.lstrip('/')}"

@@ -283,6 +283,24 @@ async def _verify_discovery_session(base_url: str, cookies: dict[str, str]) -> b
     return "html" not in resp.headers.get("content-type", "").lower()
 
 
+async def _launch_real_browser(pw):
+    """Uu tien mo Edge/Chrome THAT da cai san tren may, thay vi Chromium rieng
+    Playwright tu tai ve. Fallback ve Chromium bundled neu khong co channel nao.
+
+    Ly do (vibing-steampunk - repo Go cung tac gia, da chay on cho SAP SSO -
+    dung dung binary browser that qua duong dan exe, khong dung ban tai rieng):
+    mot so co che SSO cong ty (Windows Integrated Auth/Kerberos, chung chi may,
+    extension) chi hoat dong day du tren browser cai that, co the thieu trong
+    Chromium bundled cua Playwright chay o profile cach ly.
+    """
+    for channel in ("msedge", "chrome"):
+        try:
+            return await pw.chromium.launch(headless=False, channel=channel)
+        except Exception:
+            continue
+    return await pw.chromium.launch(headless=False)
+
+
 async def web_login_popup(ctx: dict[str, Any]) -> ReauthResult:
     """Mo trinh duyet web cho user dang nhap SAP, tu dong lay cookie moi.
 
@@ -311,7 +329,9 @@ async def web_login_popup(ctx: dict[str, Any]) -> ReauthResult:
     print("  Dang mo trinh duyet web cho ban dang nhap...")
     print()
 
-    login_url = f"{base_url.rstrip('/')}/sap/bc/adt/core/discovery"
+    # ADT root (HTML) thay vi /core/discovery (XML) - tranh Chrome/Edge tu tai
+    # XML ve nhu file thay vi hien trang dang nhap (cung ly do nhu web_login_auto).
+    login_url = f"{base_url.rstrip('/')}/sap/bc/adt/"
     webbrowser.open(login_url)
 
     print("  👉 Da mo trinh duyet. Vui long dang nhap SAP cua ban.")
@@ -382,30 +402,34 @@ async def web_login_auto(ctx: dict[str, Any]) -> ReauthResult:
     print()
 
     async with async_playwright() as pw:
-        browser = await pw.chromium.launch(headless=False)
+        browser = await _launch_real_browser(pw)
         context = await browser.new_context()
         page = await context.new_page()
 
-        # login_url tro thang toi discovery (XML, content-type application/atomsvc+xml)
-        # de dam bao trigger dung luong auth ma ADT can - nhung Chrome khong co
-        # renderer cho type nay nen se coi la file va tu dong tai ve ngay khi
-        # session da hop le (vd session con song tu truoc, hoac ngay sau khi dang
-        # nhap xong). Huy download nay ngay lap tuc: khong can noi dung file (viec
-        # verify da nam o _verify_discovery_session goi rieng qua httpx ben duoi),
-        # tranh hien thong bao "da tai xuong" gay hieu lam la phai lam gi do them.
+        # In real-time moi buoc redirect/navigation cua trang chinh ra terminal -
+        # de biet ngay dang ket o dau (vd dung y tai /sap/saml2/sp/acs/080) thay
+        # vi chi thay dong "dang cho" tinh, khong biet co tien trien hay khong.
+        def _log_nav(frame):
+            if frame == page.main_frame:
+                print(f"     → {frame.url}")
+        page.on("framenavigated", _log_nav)
+
+        # login_url tro toi ADT root (HTML) thay vi /core/discovery (XML) - XML
+        # khong co renderer trong Chrome nen se bi tai ve nhu file thay vi hien
+        # trang, gay nham lan. Van giu handler huy download ben duoi de phong khi
+        # redirect chain van roi vao 1 URL XML nao do.
         page.on("download", lambda dl: asyncio.ensure_future(dl.cancel()))
 
-        login_url = f"{base_url.rstrip('/')}/sap/bc/adt/core/discovery"
+        login_url = f"{base_url.rstrip('/')}/sap/bc/adt/"
         try:
             await page.goto(login_url)
         except Exception:
-            # Neu session cu van con hop le, goto() co the "fail" ngay vi dieu
-            # huong thang vao download (xem comment tren) thay vi 1 page load
-            # binh thuong - khong fatal, cookies (neu co) van nam trong context,
-            # vong poll ben duoi se tu kiem tra tiep.
+            # SSO redirect (Kerberos 401, SAML...) hay khien goto() bao loi
+            # ERR_ABORTED ngay lap tuc - khong fatal, browser van o lai va tiep
+            # tuc redirect, vong poll ben duoi se tu kiem tra tiep.
             pass
 
-        print("  👉 Vui long dang nhap trong cua so trinh duyet (cho toi 45 giay)...")
+        print("  👉 Vui long dang nhap trong cua so trinh duyet (cho toi 10 giay)...")
 
         # Cho user dang nhap that su: poll session cookie xuat hien, KHONG dung
         # wait_for_url("**/sap/bc/adt/**") vi URL vua goto() da khop pattern nay
@@ -416,10 +440,10 @@ async def web_login_auto(ctx: dict[str, Any]) -> ReauthResult:
         # thuc su cap session cho ADT - dung cookie luc do se van bi tu choi (200
         # kem trang HTML logon) du "nhin tuong" da dang nhap xong. Nen verify bang
         # 1 request GET discovery that truoc khi coi la logged_in.
-        # TAM giam tu 300s (5 phut) xuong 45s de debug nhanh vu "Please wait" bi
-        # ket o SAML ACS (my440301) - tang lai 300 sau khi xong, 45s qua ngan cho
+        # TAM giam tu 300s (5 phut) xuong 10s de debug nhanh vu "Please wait" bi
+        # ket o SAML ACS (my440301) - tang lai 300 sau khi xong, 10s qua ngan cho
         # mot luot dang nhap/MFA that.
-        deadline = time.monotonic() + 45
+        deadline = time.monotonic() + 30
         logged_in = False
         while time.monotonic() < deadline:
             current_cookies = {c["name"]: c["value"] for c in await context.cookies()}

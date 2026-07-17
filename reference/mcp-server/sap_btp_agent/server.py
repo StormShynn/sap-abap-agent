@@ -41,15 +41,49 @@ def _build_server() -> Server:
     return server
 
 
+async def _start_keep_alive_for_active_profile():
+    """Giu session song cho profile dang active - CHI voi cookie auth (OAuth2/
+    password/bearer da tu refresh token khi het han qua get_access_token(),
+    khong bi anh huong boi idle timeout theo kieu nay). Port tu vibing-
+    steampunk (xem SapClient.start_keep_alive). Loi gi cung KHONG duoc lam
+    server chet - server van phai chay duoc du keep-alive that bai.
+    """
+    try:
+        from .config.profile import get_current_active
+        from .config.store import load_config
+        from .sap.client import SapClient
+
+        pid = get_current_active()
+        if not pid:
+            return None
+        cfg = load_config(pid)
+        if cfg.get("authMode") != "cookie":
+            return None
+
+        client = SapClient(pid)
+        await client.init()
+        client.start_keep_alive(300)  # 5 phut - xem ghi chu trong start_keep_alive
+        print(f"[KEEPALIVE] Bat cho profile '{pid}' (moi 5 phut)", file=sys.stderr)
+        return client
+    except Exception as err:
+        print(f"[KEEPALIVE] Khong bat duoc (bo qua, khong anh huong server): {err}", file=sys.stderr)
+        return None
+
+
 async def run_stdio() -> None:
     server = _build_server()
+    keep_alive_client = await _start_keep_alive_for_active_profile()
     print("SAP BTP Agent MCP server (stdio) dang chay... (Ctrl+C de dung)", file=sys.stderr)
-    async with mcp.server.stdio.stdio_server() as (read_stream, write_stream):
-        await server.run(
-            read_stream,
-            write_stream,
-            server.create_initialization_options(),
-        )
+    try:
+        async with mcp.server.stdio.stdio_server() as (read_stream, write_stream):
+            await server.run(
+                read_stream,
+                write_stream,
+                server.create_initialization_options(),
+            )
+    finally:
+        if keep_alive_client:
+            keep_alive_client.stop_keep_alive()
 
 
 def main() -> None:
