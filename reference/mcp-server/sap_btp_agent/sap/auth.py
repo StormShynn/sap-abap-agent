@@ -256,6 +256,33 @@ class SapCookieAuth:
 
 # ===== Web popup login helper ======================================
 
+async def _verify_discovery_session(base_url: str, cookies: dict[str, str]) -> bool:
+    """Goi thuc GET /sap/bc/adt/core/discovery voi cookies hien tai de xac nhan
+    da THUC SU dang nhap duoc backend ABAP.
+
+    Chi dua vao TEN cookie xuat hien (vd 'sap-usercontext') la khong du: trong
+    luong IAS/SAML, cookie nay co the xuat hien som (o buoc trung gian cua chuoi
+    redirect) truoc khi ICF thuc su cap session cho ung dung ABAP, khien code
+    tuong da dang nhap xong qua som roi dong browser/ket thuc paste, dan toi
+    CSRF-fetch sau do van fail vi cookie thu duoc chua du quyen.
+    """
+    if not cookies:
+        return False
+    url = f"{base_url.rstrip('/')}/sap/bc/adt/core/discovery"
+    cookie_header = "; ".join(f"{k}={v}" for k, v in cookies.items())
+    try:
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            resp = await client.get(
+                url,
+                headers={"Accept": "application/xml", "Cookie": cookie_header},
+            )
+    except Exception:
+        return False
+    if resp.status_code >= 400 or resp.status_code in (302, 303, 307, 308):
+        return False
+    return "html" not in resp.headers.get("content-type", "").lower()
+
+
 async def web_login_popup(ctx: dict[str, Any]) -> ReauthResult:
     """Mo trinh duyet web cho user dang nhap SAP, tu dong lay cookie moi.
 
@@ -317,8 +344,11 @@ async def web_login_popup(ctx: dict[str, Any]) -> ReauthResult:
 
     cookies = _parse_cookie_string(cookie_str)
 
-    if _session_cookie_names(cookies):
-        print(f"\n  ✅ Da nhan {len(cookies)} cookies (co session cookie). Tiep tuc!")
+    if await _verify_discovery_session(base_url, cookies):
+        print(f"\n  ✅ Da nhan {len(cookies)} cookies - xac nhan goi duoc ADT discovery. Tiep tuc!")
+    elif _session_cookie_names(cookies):
+        print(f"\n  ⚠️ Da nhan {len(cookies)} cookies (co ten giong session) nhung goi thu "
+              f"discovery van chua qua - co the client/quyen ADT chua du, hoac dang nhap chua xong.")
     else:
         print(f"\n  ⚠️ Da nhan {len(cookies)} cookies nhung khong thay MYSAPSSO2 / SAP_SESSIONID.")
         print("     Co the can dang nhap lai hoac copy dung cookies.")
@@ -356,19 +386,44 @@ async def web_login_auto(ctx: dict[str, Any]) -> ReauthResult:
         context = await browser.new_context()
         page = await context.new_page()
 
-        login_url = f"{base_url.rstrip('/')}/sap/bc/adt/core/discovery"
-        await page.goto(login_url)
+        # login_url tro thang toi discovery (XML, content-type application/atomsvc+xml)
+        # de dam bao trigger dung luong auth ma ADT can - nhung Chrome khong co
+        # renderer cho type nay nen se coi la file va tu dong tai ve ngay khi
+        # session da hop le (vd session con song tu truoc, hoac ngay sau khi dang
+        # nhap xong). Huy download nay ngay lap tuc: khong can noi dung file (viec
+        # verify da nam o _verify_discovery_session goi rieng qua httpx ben duoi),
+        # tranh hien thong bao "da tai xuong" gay hieu lam la phai lam gi do them.
+        page.on("download", lambda dl: asyncio.ensure_future(dl.cancel()))
 
-        print("  👉 Vui long dang nhap trong cua so trinh duyet (cho toi 5 phut)...")
+        login_url = f"{base_url.rstrip('/')}/sap/bc/adt/core/discovery"
+        try:
+            await page.goto(login_url)
+        except Exception:
+            # Neu session cu van con hop le, goto() co the "fail" ngay vi dieu
+            # huong thang vao download (xem comment tren) thay vi 1 page load
+            # binh thuong - khong fatal, cookies (neu co) van nam trong context,
+            # vong poll ben duoi se tu kiem tra tiep.
+            pass
+
+        print("  👉 Vui long dang nhap trong cua so trinh duyet (cho toi 45 giay)...")
 
         # Cho user dang nhap that su: poll session cookie xuat hien, KHONG dung
         # wait_for_url("**/sap/bc/adt/**") vi URL vua goto() da khop pattern nay
         # ngay lap tuc (chua he dang nhap), khien code chay tiep qua som.
-        deadline = time.monotonic() + 300  # 5 phut, dong bo voi timeout cu
+        #
+        # Chi thay ten cookie (vd sap-usercontext) la CHUA DU: trong luong IAS/SAML
+        # cookie nay co the xuat hien o 1 buoc redirect trung gian, truoc khi ICF
+        # thuc su cap session cho ADT - dung cookie luc do se van bi tu choi (200
+        # kem trang HTML logon) du "nhin tuong" da dang nhap xong. Nen verify bang
+        # 1 request GET discovery that truoc khi coi la logged_in.
+        # TAM giam tu 300s (5 phut) xuong 45s de debug nhanh vu "Please wait" bi
+        # ket o SAML ACS (my440301) - tang lai 300 sau khi xong, 45s qua ngan cho
+        # mot luot dang nhap/MFA that.
+        deadline = time.monotonic() + 45
         logged_in = False
         while time.monotonic() < deadline:
-            current = {c["name"] for c in await context.cookies()}
-            if _session_cookie_names(current):
+            current_cookies = {c["name"]: c["value"] for c in await context.cookies()}
+            if _session_cookie_names(current_cookies) and await _verify_discovery_session(base_url, current_cookies):
                 logged_in = True
                 break
             await page.wait_for_timeout(1000)

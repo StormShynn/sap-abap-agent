@@ -82,6 +82,8 @@ def main() -> None:
         asyncio.run(_wizard_setup(url))
     elif cmd == "connect":
         asyncio.run(_cmd_connect(cmd_args[0] if cmd_args else None))
+    elif cmd == "reauth":
+        asyncio.run(_cmd_reauth(cmd_args[0] if cmd_args else None))
     elif cmd == "profiles" and cmd_args:
         asyncio.run(_cmd_profiles(cmd_args[0], cmd_args[1] if len(cmd_args) > 1 else None))
     elif cmd == "reset":
@@ -104,6 +106,7 @@ def _show_help() -> None:
     print("  Commands:")
     print("    setup [URL]            Thêm project SAP mới (wizard)")
     print("    connect [profile-id]   Test kết nối profile")
+    print("    reauth [profile-id]    Đăng nhập lại (lấy cookie mới) - không hỏi lại từ đầu như setup")
     print("    mcp-setup              Đăng ký MCP servers với Claude Code")
     print("    profiles list          Liệt kê tất cả profile")
     print("    profiles use <id>      Chọn profile active")
@@ -118,6 +121,7 @@ def _show_help() -> None:
     print("    sap-btp-agent setup https://xxx.s4hana.cloud.sap")
     print("    sap-btp-agent mcp-setup")
     print("    sap-btp-agent connect")
+    print("    sap-btp-agent reauth")
     print("    sap-btp-agent profiles list")
     print("    sap-btp-agent doctor")
     print()
@@ -363,8 +367,8 @@ async def _cmd_connect(profile_id: str | None) -> None:
         print(f"  ❌ Ket noi that bai: {err}")
         if auth_mode == "cookie":
             print()
-            print("  💡 Thu chay lai setup de cap nhat cookies:")
-            print(f"     sap-btp-agent setup {cfg.get('btpUrl', '')}")
+            print("  💡 Dang nhap lai (nhanh hon, khong hoi lai tu dau nhu setup):")
+            print(f"     sap-btp-agent reauth {pid}")
         return
 
     # Doc (GET) va ghi (POST/PUT/DELETE) la 2 dieu kien khac nhau - GET co the qua
@@ -382,8 +386,58 @@ async def _cmd_connect(profile_id: str | None) -> None:
         warn("Doc-only (search/read_source/execute_query...) van dung binh thuong.")
         if auth_mode == "cookie":
             print()
-            print("  💡 Thu chay lai setup de dang nhap lai (lay cookie moi):")
-            print(f"     sap-btp-agent setup {cfg.get('btpUrl', '')}")
+            print("  💡 Dang nhap lai (nhanh hon, khong hoi lai tu dau nhu setup):")
+            print(f"     sap-btp-agent reauth {pid}")
+
+
+# ===== REAUTH (dang nhap lai / lay cookie moi, khong can setup lai tu dau) ==
+
+async def _cmd_reauth(profile_id: str | None) -> None:
+    """Lay cookie moi cho 1 profile cookie-auth da co san.
+
+    Khac voi `setup` (hoi lai tu dau: auth mode, region, service type, tenant...),
+    lenh nay chi doc lai config da luu roi kich hoat thang buoc lay cookie -
+    dung khi chi can dang nhap lai vi session het han, khong doi gi khac.
+    """
+    from ..sap.auth import SapCookieAuth, web_login_popup, web_login_auto
+    from ..config.store import load_config
+
+    try:
+        cfg = await asyncio.to_thread(load_config, profile_id)
+    except RuntimeError as err:
+        print(f"  ❌ {err}")
+        return
+
+    pid = profile_id or get_current_active() or "?"
+    auth_mode = cfg.get("authMode", "oauth2")
+
+    if auth_mode != "cookie":
+        print(f"  ❌ Profile '{pid}' dung authMode='{auth_mode}', khong phai cookie.")
+        print("     OAuth2/password/bearer tu refresh token luc goi API - khong can lenh nay.")
+        return
+
+    reauth_mode = cfg.get("reauthMode", "manual")
+    reauth_handler = web_login_auto if reauth_mode == "auto" else web_login_popup
+
+    header(f"Dang nhap lai — {pid}")
+    info(f"Re-auth mode: {'Auto (Playwright)' if reauth_mode == 'auto' else 'Manual (paste cookie)'}")
+
+    cookie_auth = SapCookieAuth(pid, reauth_handler=reauth_handler)
+    await cookie_auth.init()
+    try:
+        result = await cookie_auth.reauth()
+    except Exception as err:
+        print(f"  ❌ Dang nhap lai that bai: {err}")
+        return
+
+    if not result.cookies:
+        print("  ⚠️ Khong lay duoc cookie moi (co the ban da huy hoac timeout).")
+        return
+
+    await cookie_auth.save_cookies()
+    print()
+    ok(f"Da cap nhat cookie cho profile '{pid}'.")
+    info(f"Kiem tra lai: sap-btp-agent connect {pid}")
 
 
 # ===== PROFILES ====================================================

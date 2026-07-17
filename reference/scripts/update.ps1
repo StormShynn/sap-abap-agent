@@ -70,6 +70,13 @@ catch {
 
 # 3. pip install
 Write-Host "[3/3] pip install --upgrade ..." -ForegroundColor Yellow
+
+# Neu sap-btp-agent.exe dang chay (vd MCP server dang duoc Claude Code giu ket
+# noi), pip khong ghi de duoc file .exe khoa boi tien trinh do (WinError 32).
+# Dong het truoc khi cai - an toan vi day chi la entry-point script, khong mat
+# du lieu; ket noi MCP se tu ket noi lai sau khi restart Claude Code.
+Get-Process -Name "sap-btp-agent" -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
+
 pip install --upgrade "$wheelPath"
 if ($LASTEXITCODE -eq 0) {
     Write-Host "  OK sap-btp-agent updated to v$version" -ForegroundColor Green
