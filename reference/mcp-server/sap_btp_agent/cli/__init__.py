@@ -405,7 +405,7 @@ async def _cmd_profiles(subcmd: str, arg: str | None) -> None:
             header(f"Profile: {pid}")
             for k, v in cfg.items():
                 print(f"  {k}: {v}")
-            print(f"  secrets keys: {list(secrets.keys())}")
+            print("  secrets: loaded")
             print()
         except RuntimeError as err:
             print(f"  ❌ {err}")
