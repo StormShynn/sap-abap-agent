@@ -148,8 +148,10 @@ class SapClient:
             cookies=cookies,
         )
 
-        # === Xu ly 401: session het han ===
-        if resp.status_code == 401 and self.config.get("autoReconnect", True):
+        # === Xu ly session het han: 401 THAT SU, hoac SAP tra HTML/redirect
+        # (nhieu tenant dung IAS/SAML SSO KHONG tra 401 chuan khi cookie het han -
+        # ma tra 200 kem trang logon HTML, hoac 3xx redirect toi IdP) ===
+        if self._looks_unauthenticated(resp) and self.config.get("autoReconnect", True):
             if self.use_cookie_auth:
                 # Cookie auth: popup web cho user dang nhap lai
                 reauthed = await self._handle_cookie_reauth()
@@ -174,8 +176,30 @@ class SapClient:
             txt = resp.text[:500]
             raise RuntimeError(f"SAP {method} {path} -> {resp.status_code}: {txt}")
 
+        # Sau khi reauth (hoac khong can), request ADT van tra ve HTML/redirect ->
+        # session van khong hop le (reauth that bai/bi huy) - KHONG duoc coi day la
+        # thanh cong (truoc day rot vao day va tra thang HTML nhu la "OK").
+        if is_adt and self._looks_unauthenticated(resp):
+            raise RuntimeError(
+                f"SAP {method} {path} -> session khong hop le: nhan ve HTML/redirect "
+                f"thay vi du lieu that (status {resp.status_code}). Co the reauth that "
+                f"bai, bi huy, hoac cookie/token khong con quyen truy cap."
+            )
+
         ct = resp.headers.get("content-type", "")
         return resp.json() if "json" in ct else resp.text
+
+    @staticmethod
+    def _looks_unauthenticated(resp: httpx.Response) -> bool:
+        """SAP (dac biet tenant dung IAS/SAML SSO) thuong KHONG tra 401 chuan khi
+        cookie session het han - ma tra 200 kem 1 trang HTML dang nhap, hoac 3xx
+        redirect toi IdP. ADT/OData luon ky vong XML/JSON nen Content-Type HTML la
+        dau hieu chac chan chua dang nhap, bat ke status code la gi. Thieu check nay
+        khien reauth khong bao gio duoc kich hoat cho cac tenant loai nay (van dung
+        cookie cu da invalid, "pass qua" ma khong dung lai xin dang nhap)."""
+        if resp.status_code in (401, 302, 303, 307, 308):
+            return True
+        return "html" in resp.headers.get("content-type", "").lower()
 
     async def _handle_cookie_reauth(self) -> bool:
         """Xu ly re-auth cho cookie auth.
@@ -212,9 +236,12 @@ class SapClient:
         Bearer cho oauth2/password/bearer, hoac Cookie cho cookie-auth) - truoc day
         chi truyen cookies nen oauth2/password/bearer luon goi discovery o trang
         thai unauthenticated -> SAP tra ve khong co header x-csrf-token. Voi cookie
-        auth, neu session da het han (401) thi tu reauth (popup/Playwright) roi thu
-        lai 1 lan - neu khong discovery se fail ngay ma khong bao gio kich hoat lai
-        dang nhap, du reauthMode=auto.
+        auth, neu session da het han thi tu reauth (popup/Playwright) roi thu lai
+        1 lan - neu khong discovery se fail ngay ma khong bao gio kich hoat lai dang
+        nhap, du reauthMode=auto. Dung _looks_unauthenticated() thay vi chi check
+        == 401, vi nhieu tenant SAML/IAS tra 200 (HTML logon page) hoac 3xx thay vi
+        401 khi session het han - check == 401 don thuan se KHONG BAO GIO kich hoat
+        reauth cho nhung tenant nay (cookie cu invalid van duoc dung lai vo han).
         """
         url = self._build_url("/sap/bc/adt/core/discovery", None)
         headers = {"Accept": "application/xml", "x-csrf-token": "fetch"}
@@ -225,7 +252,7 @@ class SapClient:
             "GET", url, headers, None, timeout_s, 2, cookies=cookies,
         )
 
-        if resp.status_code == 401 and self.use_cookie_auth and self.config.get("autoReconnect", True):
+        if self._looks_unauthenticated(resp) and self.use_cookie_auth and self.config.get("autoReconnect", True):
             if await self._handle_cookie_reauth():
                 resp = await self._fetch_with_retry(
                     "GET", url, headers, None, timeout_s, 2,
