@@ -18,6 +18,7 @@ from __future__ import annotations
 import argparse
 import re
 import sys
+from html.parser import HTMLParser
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent.parent
@@ -54,12 +55,37 @@ def check_duplicate_blocks(html: str) -> None:
                 f"likely a non-idempotent generator script re-inserting the same block",
             )
 
-    script_tags = re.findall(
-        r"<script(\s[^>]*)?>(.*?)</script\s*>", html, re.DOTALL | re.IGNORECASE
-    )
+    class _ScriptCollector(HTMLParser):
+        def __init__(self) -> None:
+            super().__init__()
+            self._in_script = False
+            self._current_attrs: dict[str, str | None] = {}
+            self._current_body: list[str] = []
+            self.scripts: list[tuple[dict[str, str | None], str]] = []
+
+        def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+            if tag.lower() == "script":
+                self._in_script = True
+                self._current_attrs = {k.lower(): v for k, v in attrs}
+                self._current_body = []
+
+        def handle_endtag(self, tag: str) -> None:
+            if tag.lower() == "script" and self._in_script:
+                self.scripts.append((self._current_attrs, "".join(self._current_body)))
+                self._in_script = False
+                self._current_attrs = {}
+                self._current_body = []
+
+        def handle_data(self, data: str) -> None:
+            if self._in_script:
+                self._current_body.append(data)
+
+    parser = _ScriptCollector()
+    parser.feed(html)
+    script_tags = parser.scripts
     # A script tag with a src= attribute is *meant* to have an empty body — only flag
     # empty inline (no-src) tags, which are dead leftovers from a bad dedup pass.
-    empty = sum(1 for attrs, body in script_tags if "src=" not in (attrs or "") and not body.strip())
+    empty = sum(1 for attrs, body in script_tags if "src" not in attrs and not body.strip())
     if empty:
         fail(
             "dup-block",
