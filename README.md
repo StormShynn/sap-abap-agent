@@ -1195,3 +1195,74 @@ CDS KB, SAP Docs Research, ABAP Cloud clean code, extensibility, key user toolki
 (`sap-daily-learner`, cache, session/handoff) chuyển từ project-relative sang
 `%USERPROFILE%\.sap-abap-agent\` dùng, kèm script tự dọn cache/log quá 7 ngày
 (xem CHANGELOG v1.3.3).
+
+## Cảm hứng (Inspired by)
+
+Plugin tham khảo và lấy cảm hứng từ các dự án open-source dưới đây (tất cả đều đã được tích hợp
+hoặc tham khảo pattern, **không fork**):
+
+### Cùng lĩnh vực SAP / ABAP
+- [`secondsky/sap-skills`](https://github.com/secondsky/sap-skills) — plugin AI coding assistant
+  production-ready (BTP, CAP, Fiori, ABAP, HANA, Analytics Cloud, Datasphere). Tham khảo cấu
+  trúc skill/manifest.
+- [`marcellourbani/vscode_abap_remote_fs`](https://github.com/marcellourbani/vscode_abap_remote_fs)
+  — VS Code agentic AI platform cho ABAP development.
+- [`google/ai-abap-assistant-sample`](https://github.com/google/ai-abap-assistant-sample) — Genie
+  for SAP (code explain / review / suggest). Tham khảo cho skill `sap-atc-review` mục "RAG Review
+  Pattern".
+- [`microsoft/aisdkforsapabap`](https://github.com/microsoft/aisdkforsapabap) — AI SDK cho ABAP.
+- [`oisee/zllm`](https://github.com/oisee/zllm) — LangChain-lite cho ABAP.
+- [`ClementRingot/ROSA`](https://github.com/ClementRingot/ROSA) — MCP server cho Released Objects.
+  Tham khảo cho skill `sap-released-classes` mục "Released-Object search pattern".
+- [`google-cloud-abap/demo-hpro`](https://github.com/google-cloud-abap/demo-hpro) — RAG với
+  Vertex AI SDK for ABAP.
+- [`Chirag-Dwivedi/SAP_ABAP_RAG_Chatbot`](https://github.com/Chirag-Dwivedi/SAP_ABAP_RAG_Chatbot)
+  — RAG chatbot SAP/ABAP. Tham khảo pattern retrieval.
+- [`IaManBel/sap-abap-rag-refactorer`](https://github.com/IaManBel/sap-abap-rag-refactorer) —
+  RAG cho ABAP refactor.
+- [`Gixsy95/abap_wiki`](https://github.com/Gixsy95/abap_wiki) — Agent-driven knowledge base cho
+  S/4HANA custom objects.
+
+### MCP servers tham khảo (xem chi tiết trong `docs/sap-mcp-recommendations.md`)
+- [`marianfoo/sap-ai-mcp-servers`](https://github.com/marianfoo/sap-ai-mcp-servers) — repo
+  catalog.
+- [`fr0ster/mcp-abap-adt`](https://github.com/fr0ster/mcp-abap-adt),
+  [`mario-andreschak/mcp-abap-abap-adt-api`](https://github.com/mario-andreschak/mcp-abap-abap-adt-api),
+  [`HatriGt/hana-mcp-server`](https://github.com/HatriGt/hana-mcp-server),
+  [`marianfoo/mcp-sap-notes`](https://github.com/marianfoo/mcp-sap-notes),
+  [`mario-andreschak/mcp-sap-gui`](https://github.com/mario-andreschak/mcp-sap-gui),
+  [`gavdilabs/cap-mcp-plugin`](https://github.com/gavdilabs/cap-mcp-plugin),
+  [`lemaiwo/btp-sap-odata-to-mcp-server`](https://github.com/lemaiwo/btp-sap-odata-to-mcp-server).
+
+### Curriculum / learning tham khảo (cho `sap-daily-learner`)
+- [`anfisc/abap-rap-introduction`](https://github.com/anfisc/abap-rap-introduction),
+  [`msg-CareerPaths/sap-abap-internship`](https://github.com/msg-CareerPaths/sap-abap-internship),
+  [`KlamGit/sap-basic-abap`](https://github.com/KlamGit/sap-basic-abap),
+  [`skalmodiya/sap-ai-core-launchpad`](https://github.com/skalmodiya/sap-ai-core-launchpad).
+
+### Công nghệ nền
+- [`NousResearch/hermes-agent`](https://github.com/NousResearch/hermes-agent) — nguồn cảm hứng
+  cho `sap-daily-learner` (persistent memory + auto-skill + curator).
+- [`agent-skills-for-context-engineering`](https://github.com/muratcankoylan/agent-skills-for-context-engineering)
+  — pattern memory-systems + context engineering (đã nhắc trong README ở mục "Context
+  Engineering").
+
+### Cách đóng góp thêm
+
+Nếu bạn biết repo open-source khác cùng chủ đề, mở issue / PR thêm vào mục này. Tiêu chí:
+- Repo có tài liệu rõ ràng.
+- Mã nguồn công khai, license cho phép tham khảo (MIT / Apache-2.0 / BSD…).
+- Đã được maintain trong 6 tháng gần nhất.
+
+## Tài liệu
+
+| File                                         | Mục đích                                              |
+|----------------------------------------------|--------------------------------------------------------|
+| [`docs/onboarding-guide.md`](docs/onboarding-guide.md)         | Hướng dẫn end-user cài đặt + dùng thử                  |
+| [`docs/sap-mcp-recommendations.md`](docs/sap-mcp-recommendations.md) | Khuyến nghị MCP server bổ sung (Tier 1/2/3, opt-in)     |
+| [`CONTRIBUTING.md`](CONTRIBUTING.md)         | Hướng dẫn đóng góp skill/agent/docs                    |
+| [`SKILL_TEMPLATE.md`](SKILL_TEMPLATE.md)     | Template chuẩn để tạo skill/agent/reference module    |
+| [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md)   | Quy tắc ứng xử cộng đồng                              |
+| [`CHANGELOG.md`](CHANGELOG.md)               | Lịch sử thay đổi                                       |
+| [`SECURITY.md`](SECURITY.md)                 | Chính sách bảo mật                                     |
+| [`LICENSE`](LICENSE)                         | MIT License                                             |

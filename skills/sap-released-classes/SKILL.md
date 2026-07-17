@@ -112,3 +112,38 @@ hoac BTP ABAP Environment, CHI duoc dung cac class trong danh muc nay.
 - ABAP Cloud documentation on SAP Help Portal
 - `xco_cp` library reference
 - API Business Hub: `https://api.sap.com`
+
+## 10. Released-Object search pattern (bổ sung)
+
+Pattern tra cứu released object lấy cảm hứng từ
+[`ClementRingot/ROSA`](https://github.com/ClementRingot/ROSA) — MCP/REST server cho `Released
+Objects Search` trên ABAP Cloud / Clean Core. Plugin hiện **không phụ thuộc** MCP ngoài (giữ
+tinh thần "không thêm MCP mới vào `.mcp.json`") — các bước dưới đây dùng tool có sẵn trong plugin.
+
+### Quy trình tra cứu (khi review cần check một class có released hay không)
+
+1. **Bước A — xác định cần kiểm tra object gì**: từ output của `sap-atc-review` (mục "Released
+   API check") hoặc khi user hỏi "class X có dùng được trên ABAP Cloud không?".
+2. **Bước B — tra trong bảng released của skill này** (mục UUID, JSON, Email…):
+   ```bash
+   python "${CLAUDE_PLUGIN_ROOT}/reference/scripts/check_released_api.py" --query <ten-class>
+   ```
+   Script hiện đang whitelist các class trong mục 1–9 của skill này; nếu tìm thấy -> ghi nhận
+   là released, kèm method.
+3. **Bước C — fallback khi script không trả về**: dùng 1 trong 2 công cụ đã có sẵn:
+   - `mcp-sap-docs-btp` (đã bật trong `.mcp.json`) — search "released objects ABAP Cloud".
+   - `sap-docs-research` skill — gọi `WebFetch` tới `https://help.sap.com` / API Business Hub
+     với truy vấn `"<class> ABAP Cloud released"`.
+4. **Bước D — ghi nhận vào ATC report**: nếu là class **không released** xuất hiện trong code do
+   scaffold, đánh FAIL vào mục "Released API check" (xem `sap-atc-review` / Bước 2) và đề xuất
+   thay thế bằng class released tương đương trong cùng skill này.
+5. **Bước E — nếu cần MCP thật**: đối với user cần tra cứu real-time (không dùng static table),
+   xem hướng dẫn bật opt-in trong `docs/sap-mcp-recommendations.md` (Tier 1, repo
+   `ClementRingot/ROSA`) — KHÔNG tự động bật.
+
+### Tại sao không thêm ROSA MCP vào `.mcp.json` mặc định?
+
+- ROSA expose tập object released **đầy đủ** (rất lớn), sẽ làm phình context và đụng pattern
+  "observation masking" của plugin.
+- Đa số use case đã được phủ bởi bảng released trong skill này + `mcp-sap-docs-btp`.
+- Contributor cần MCP này có thể bật opt-in theo hướng dẫn, không ảnh hưởng install mặc định.

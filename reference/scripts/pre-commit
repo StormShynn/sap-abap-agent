@@ -1,0 +1,69 @@
+# Pre-commit hook cho sap-abap-agent
+#
+# Chay khi `git commit` (khong phai push). Day la version built-in cua git hook,
+# KHONG can cai dat pre-commit framework (https://pre-commit.com).
+# Contributor copy file nay thanh `.git/hooks/pre-commit` (da co .sample mau).
+#
+# Check (fast, < 10s):
+#   1. validate_plugin.py (structural checks - da chay trong CI)
+#   2. validate_inspired_by_links.py (GitHub URL 404 check)
+#   3. pytest (unit test)
+#
+# Skip neu:
+#   - commit message chua `[skip hooks]`
+#   - khong co Python 3.10+ (in canh bao, khong block)
+#
+# Tham khao CONTRIBUTING.md section "Validate Inspired-by Links".
+
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+cd "$REPO_ROOT" || exit 2
+
+# 1. Skip neu commit message chua magic token (msg lay tu file tam)
+COMMIT_MSG_FILE="$REPO_ROOT/.git/COMMIT_EDITMSG"
+if [ -f "$COMMIT_MSG_FILE" ] && grep -qF "[skip hooks]" "$COMMIT_MSG_FILE"; then
+  echo "[pre-commit] '[skip hooks]' detected in commit message - skipping."
+  exit 0
+fi
+
+EXIT_CODE=0
+PY=""
+for cand in python python3 py; do
+  if command -v "$cand" >/dev/null 2>&1; then
+    PY="$cand"
+    break
+  fi
+done
+
+if [ -z "$PY" ]; then
+  echo "[pre-commit] WARNING: khong tim thay python; skip tat ca check."
+  exit 0
+fi
+
+run_check() {
+  local name="$1"; shift
+  echo "--- [pre-commit] $name ---"
+  if ! "$PY" "$@"; then
+    echo "--- [pre-commit] $name FAILED ---"
+    EXIT_CODE=1
+  else
+    echo "--- [pre-commit] $name OK ---"
+  fi
+}
+
+# 1. Structural validation (file count drift, frontmatter, syntax...)
+if [ -f "reference/scripts/validate_plugin.py" ]; then
+  run_check "validate_plugin.py" reference/scripts/validate_plugin.py
+fi
+
+# 2. Inspired-by URL HEAD check (fast - concurrency 8)
+if [ -f "reference/scripts/validate_inspired_by_links.py" ]; then
+  run_check "validate_inspired_by_links.py --strict" \
+    reference/scripts/validate_inspired_by_links.py --strict --concurrency 8
+fi
+
+# 3. pytest - chi chay neu co tests/ va pytest da cai
+if [ -d "tests" ] && "$PY" -c "import pytest" 2>/dev/null; then
+  run_check "pytest tests/" -m pytest tests/ -q --no-header
+fi
+
+exit $EXIT_CODE
