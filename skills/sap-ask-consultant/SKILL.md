@@ -147,9 +147,22 @@ phoi, khong bi gioi han quyen), khong sua tung agent:
 1. **Local truoc (offline, luon lam, re)**: `Glob`/`Grep` tren `memory/procedural/skills/` (duong
    dan qua `python "${CLAUDE_PLUGIN_ROOT}/reference/scripts/agent_home.py" memory/procedural/skills`
    — xem skill `sap-daily-learner` muc 1) tim file khop `<module>-*`. Thay -> dua noi dung vao
-   context khi dispatch agent, **KHONG goi Notion** (tranh round-trip mang cho cau da co san local).
+   context khi dispatch agent, **KHONG goi Notion** (tranh round-trip mang cho cau da co san local),
+   **dong thoi ghi nhan usage cho Skill Curator** (xem `sap-daily-learner` muc 3d — skill it
+   dung dan bi danh dau `stale` roi `archived`, dung lai thi tinh la con gia tri):
+   ```bash
+   python "${CLAUDE_PLUGIN_ROOT}/reference/scripts/skill_curator.py" record-use \
+     "$(python "${CLAUDE_PLUGIN_ROOT}/reference/scripts/agent_home.py" memory/procedural)" \
+     "<ten-file-skill>.md"
+   ```
 2. **Notion khi local mien (online, chi khi can)**: goi tool search cua MCP `notion` theo module +
    tu khoa cau hoi — **chi search truoc** (index gon, re token), **KHONG fetch tat ca ket qua**.
+   Da test that (2026-07-16): search toan workspace van tra dung ket qua top-1 nhung lan noise
+   voi cac trang mac dinh cua Notion (VD "Getting Started") o workspace nho co it noi dung — neu
+   trong phien da biet data source id cua database "SAP Skills" (VD tu 1 lan `notion-fetch`/tao
+   database truoc do trong cung phien), uu tien truyen `data_source_url: "collection://<id>"`
+   cho tool search de gioi han pham vi, ket qua sach hon (da xac nhan qua test). Neu chua biet id
+   (lan dau trong phien) thi search toan workspace nhu binh thuong, khong sao.
    Trong ket qua, chon dung page khop chu de roi moi goi tool fetch lay noi dung day du cho page
    do. Thay page khop -> dua vao context khi dispatch, **dong thoi tu ghi 1 ban local cache** vao
    `memory/procedural/skills/` (copy co hoc noi dung da co/da duyet tren Notion — khac voi viec

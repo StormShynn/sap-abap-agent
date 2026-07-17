@@ -19,8 +19,8 @@ echo.
 
 REM ---- CONFIG ----
 set "PYTHON_PATH=C:\Python314\python.exe"
-set "SCRIPT_PATH=D:\__StormShyn\sap-abap-agent\scripts\sync_skills.py"
-set "WRAPPER_PATH=D:\__StormShyn\sap-abap-agent\scripts\run_sync_skills.bat"
+set "SCRIPT_PATH=D:\__StormShyn\sap-abap-agent\reference\scripts\sync_skills.py"
+set "WRAPPER_PATH=D:\__StormShyn\sap-abap-agent\reference\scripts\run_sync_skills.bat"
 set "WORKING_DIR=D:\__StormShyn\sap-abap-agent"
 set "TASK_NAME=SAP ABAP Agent - Skill Sync"
 set "LOG_FILE=D:\__StormShyn\sap-abap-agent\.sap-abap-agent\task_scheduler.log"

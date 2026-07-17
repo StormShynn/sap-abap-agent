@@ -331,6 +331,31 @@ nào được lưu trong repo** — mỗi người tự xác thực bằng chín
 Notion — Share → nhập email), không liên quan gì đến file `.mcp.json`/repo. Xem chi tiết cách đăng
 ký và cấu hình khác ở [developers.notion.com/guides/mcp](https://developers.notion.com/guides/mcp).
 
+<details>
+<summary><b>👥 Mời thêm người vào dùng chung database "SAP Skills" — làm sao cho đúng</b></summary>
+
+Setup phía người được mời, theo đúng thứ tự:
+
+1. **Accept invite/mở link share Notion trước** (thao tác tay trong trình duyệt, ngoài Claude Code)
+   — xác nhận thấy đúng nội dung database.
+2. Tự chạy `/mcp` trong Claude Code, chọn `notion`, đăng nhập **bằng tài khoản Notion của chính
+   họ** (không dùng chung tài khoản với người tạo database).
+
+> ⚠️ **Rủi ro cần biết**: cơ chế tìm database hiện tại dựa theo **tên** (`notion-search "SAP
+> Skills"` → thấy thì dùng, không thấy thì tự tạo mới). Chưa test được với 1 tài khoản Notion thứ
+> 2 liệu search có chắc chắn tìm ra database đã được share (khác với database tự tạo) hay không —
+> nếu không tìm ra, Claude sẽ **tự tạo 1 database "SAP Skills" mới, riêng, không báo lỗi gì cả**,
+> làm mất ý nghĩa dùng chung (mỗi người 1 bản, không đồng bộ).
+>
+> **Cách né**: trước khi để `sap-daily-learner` tự chạy lần đầu, người mới nên tự bảo Claude
+> "search notion database SAP Skills" và kiểm tra kết quả có đúng database cũ (có dữ liệu sẵn)
+> hay không — thấy database rỗng/khác thì báo ngay để xử lý thủ công, tránh bị tạo trùng trong
+> im lặng.
+
+Chi tiết đầy đủ: `skills/sap-daily-learner/SKILL.md` mục 3b.
+
+</details>
+
 Ví dụ prompt:
 ```
 "Tóm tắt skill sap-cloud-dictionary vừa học vào page Notion 'SAP Skills'"
@@ -803,6 +828,98 @@ Mọi tool đều có tham số `profile` (để trống = profile active). Ví 
 "Tìm class ZCL_* trong project đang dùng"
 -> Claude gọi sap_search({ query: "ZCL_" })
 ```
+
+## 📚 SAP Daily Learner — Skill Curator & Cron thật (Hermes-like)
+
+`skills/sap-daily-learner/SKILL.md` là agent tự cải thiện (self-improving) lấy cảm hứng từ
+**Hermes Agent** ([NousResearch/hermes-agent](https://github.com/NousResearch/hermes-agent)) —
+gia sư SAP hàng ngày + tự tạo skill document từ tương tác phức tạp (xem mục "Notion" ở trên cho
+phần đồng bộ team). 2 khả năng dưới đây (thêm 2026-07-16) đọc trực tiếp kiến trúc thật của Hermes
+trước khi build — không đoán mò tên gọi rồi tự chế cơ chế bên trong.
+
+### 🧹 Skill Curator — vòng đời skill tự động
+
+Skill tự tạo trong `memory/procedural/skills/` càng tích luỹ càng dễ "chết" — không còn ai dùng
+nhưng vẫn nằm mãi, làm chậm việc tra cứu. `reference/scripts/skill_curator.py` xử lý việc này,
+đúng cơ chế **Curator** của Hermes: skill không dùng tới sau **30 ngày** chuyển `stale`, sau
+**90 ngày** chuyển `archived` (di chuyển vào `memory/procedural/skills/.archive/`, **không bao
+giờ xoá thật** — khôi phục được bất kỳ lúc nào bằng cách chuyển file trở lại). Dùng lại 1 skill sẽ
+tự đưa nó về `active`.
+
+Chạy tự động mỗi khi `sap-daily-learner` được gọi (tự gate theo interval 7 ngày — gọi sớm hơn sẽ
+tự bỏ qua, không cần tự canh giờ) — **không cần setup gì thêm**. Muốn tự kiểm tra trạng thái:
+
+```bash
+python reference/scripts/skill_curator.py run "$(python reference/scripts/agent_home.py memory/procedural)" --dry-run
+```
+
+### ⏰ Cron thật — daily tip chạy nền qua Windows Task Scheduler
+
+> ⚠️ **Mặc định TẮT (opt-in tuyệt đối)**, cùng triết lý với Continuous Improvement Engine ở dưới.
+> Mỗi lần cron thật sự chạy sẽ gọi 1 phiên Claude Code (`claude -p`) thật — **tốn chi phí API
+> thật** trên tài khoản của bạn. Cài xong vẫn chưa chạy gì cả cho tới khi bạn bật rõ ràng.
+
+Khác Hermes bản gốc (có `gateway daemon` chạy liên tục, tự poll mỗi 60 giây): plugin này không có
+tiến trình nền thật — dùng **Windows Task Scheduler** làm "cái luôn túc trực" thay cho daemon đó.
+
+**Bước 1 — Cài lịch Task Scheduler** (chỉ đặt lịch, CHƯA chạy gì — cần quyền Administrator):
+
+```
+Click phải reference\scripts\install-daily-learner-cron.bat → Run as administrator
+```
+
+Sau khi cài, task sẽ tự "tick" mỗi 5 phút nhưng vẫn no-op (không làm gì) cho tới Bước 2.
+
+**Bước 2 — Bật opt-in thật sự** (chọn 1 trong 2 cách):
+
+<details>
+<summary><b>PowerShell</b> (Windows — khuyến nghị)</summary>
+
+```powershell
+New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\.sap-abap-agent\cron"
+New-Item -ItemType File -Force -Path "$env:USERPROFILE\.sap-abap-agent\cron\ENABLED"
+```
+
+</details>
+
+<details>
+<summary><b>CMD</b> (Windows — Command Prompt)</summary>
+
+```cmd
+if not exist "%USERPROFILE%\.sap-abap-agent\cron" mkdir "%USERPROFILE%\.sap-abap-agent\cron"
+echo. > "%USERPROFILE%\.sap-abap-agent\cron\ENABLED"
+```
+
+</details>
+
+Hoặc set biến môi trường hệ thống `SAP_ABAP_AGENT_CRON_ENABLED=1` (System Properties → Environment
+Variables) thay vì tạo file marker — 2 cách tương đương.
+
+**Bước 3 — Thêm ít nhất 1 job** (cron chỉ có việc để làm sau bước này):
+
+> ⚠️ Prompt bắt đầu bằng `/` (gọi thẳng 1 skill) **phải thêm qua PowerShell**, không dùng Git
+> Bash — đã xác nhận qua test thật: Git Bash tự "dịch" chuỗi bắt đầu bằng `/` thành đường dẫn
+> Windows (MSYS path-mangling), làm hỏng nội dung prompt.
+
+```powershell
+python reference\scripts\cron_manage.py add "$env:USERPROFILE\.sap-abap-agent" daily-tip "/sap-daily-learner cho toi 1 tip hoc SAP hom nay dua tren tien do hien tai" daily@08:00
+```
+
+**Kiểm tra trạng thái / chi phí đã dùng** (bất kỳ lúc nào):
+
+```bash
+python reference/scripts/cron_manage.py status "$(python reference/scripts/agent_home.py)"
+```
+
+**Kết quả tick** được ghi vào `<agent-home>/cron/pending/`, rồi tự bơm vào phiên chat Claude Code
+kế tiếp khi bạn mở lên (SessionStart hook `hooks/cron_deliver.py`) — không có tích hợp Telegram/
+Slack như Hermes thật, nhưng không cần thêm thao tác nào.
+
+**Gỡ bỏ**: `schtasks /delete /tn "SAP ABAP Agent - Daily Learner Cron Tick" /f`, xoá file
+`ENABLED`/`cron_manage.py disable <job-id>` là đủ.
+
+Chi tiết đầy đủ (bao gồm bảng so sánh Memory/Skill Creation/Curator/Cron với Hermes thật):
+`skills/sap-daily-learner/SKILL.md` mục "Scheduling cơ chế" + "3d. Skill Curator".
 
 ## Chạy nhiều instance cùng lúc (1 profile / instance)
 

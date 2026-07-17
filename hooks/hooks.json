@@ -13,6 +13,11 @@
             "type": "command",
             "command": "f=\"${CLAUDE_PLUGIN_ROOT}/skills/sap-ask-before-guessing/SKILL.md\"; [ -f \"$f\" ] || exit 0; sed -n '/^---$/,/^---$/!p' \"$f\" | python -c \"import sys, json; print(json.dumps({'hookSpecificOutput': {'hookEventName': 'SessionStart', 'additionalContext': sys.stdin.read()}}))\"",
             "async": false
+          },
+          {
+            "type": "command",
+            "command": "python \"${CLAUDE_PLUGIN_ROOT}/hooks/cron_deliver.py\"",
+            "async": false
           }
         ]
       }

@@ -3,8 +3,8 @@ name: sap-daily-learner
 description: Skill tu dong hoa viec hoc SAP/ABAP moi ngay - tu dong tao skill, track tien do, goi y noi dung dua trinh do nguoi dung. Lay cam hung tu Hermes Agent (Nous Research).
 when_to_use: |
   "hoc SAP hom nay", "quiz MM cho toi", "progress hoc tap cua toi", "hoc tiep module PP".
-effort: high
-model: sonnet
+effort: medium
+model: haiku
 ---
 
 # SAP Daily Learner - Skill Implementation
@@ -56,8 +56,11 @@ python "${CLAUDE_PLUGIN_ROOT}/reference/scripts/agent_home.py" memory
 │       ├── fi-acdoca.md       # concept-level note, viet khi user "explain ACDOCA"
 │       └── mm-stock-valuation.md
 └── procedural/            # Tang 3 - skill/cach lam (auto-created tu success cases)
-    └── skills/                # alias cho skills/sap-user-skills/
-        └── <module>-<topic>.md
+    ├── skills/                # alias cho skills/sap-user-skills/
+    │   ├── <module>-<topic>.md
+    │   └── .archive/          # skill bi Curator archive - KHONG xoa, xem muc 3d
+    ├── skills_index.jsonl     # usage tracking cho Curator (created/last_used/use_count/status)
+    └── curator_state.json     # {"last_run": "YYYY-MM-DD"} - gate interval giua 2 lan curator chay
 ```
 
 **Quy tac su dung**:
@@ -204,7 +207,36 @@ Moi module co 5 topics, 3 levels:
 
 ### Scheduling co che
 
-Mac dinh tip khi session dau trong ngay (kiem tra `episodic/index.jsonl` ngay hom nay).
+**Mac dinh (luon bat, khong can cai gi)**: tip khi session dau trong ngay (kiem tra
+`episodic/index.jsonl` ngay hom nay) - hoan toan phu thuoc luot chat, khong co gi chay
+nen. Day la co che duy nhat truoc 2026-07-16.
+
+**Cron that (opt-in, moi them 2026-07-16)** - lay dung kien truc tu Hermes Agent
+(github.com/NousResearch/hermes-agent, xem `website/docs/user-guide/features/cron.md`):
+`reference/scripts/cron_manage.py` quan ly 1 danh sach job (`add`/`list`/`enable`/
+`disable`/`remove`/`tick`/`status`), moi job co `schedule` dang `daily@HH:MM` hoac
+`every:<so-phut>m`. Lenh `tick` (goi dinh ky boi Windows Task Scheduler qua
+`reference/scripts/install-daily-learner-cron.bat`) kiem tra job nao den han, roi that
+su spawn 1 phien Claude Code headless (`claude -p "<prompt>" --plugin-dir <duong-dan-plugin>`)
+de sinh tip that. Ket qua duoc ghi vao `<agent-home>/cron/pending/`, roi 1 SessionStart
+hook rieng (`hooks/cron_deliver.py`) bom noi dung do vao phien chat KE TIEP khi user mo
+Claude Code len (thay cho kenh Telegram/Slack cua Hermes that).
+
+**Khac voi Hermes ban goc**: khong co gateway daemon that (tick phai duoc trigger tu
+ngoai, khong tu poll lien tuc); lich chi ho tro 2 dang don gian (khong co cron-expression
+day du); delivery la file-based + SessionStart injection (khong co tich hop nhan tin).
+
+**OPT-IN TUYET DOI, mac dinh TAT** (giong triet ly `hooks/error_reporter.py`): moi lan
+tick that su goi Claude Code deu ton chi phi API that. Cai `install-daily-learner-cron.bat`
+CHI dat lich Task Scheduler (se tu tick moi 5 phut nhung KHONG lam gi - no-op) - phai bat
+rieng bang env var `SAP_ABAP_AGENT_CRON_ENABLED=1` hoac file marker
+`<agent-home>/cron/ENABLED`, VA phai tu `add` it nhat 1 job thi cron moi co viec de lam.
+
+**Luu y khi tu tay `add` 1 job co prompt bat dau bang `/`** (vd `/sap-daily-learner ...`
+de goi thang skill): dung PowerShell, KHONG dung Git Bash/Bash tool - da xac nhan thuc te
+Git Bash tu "dich" chuoi bat dau bang `/` thanh duong dan Windows (MSYS path-mangling),
+lam hong noi dung prompt (vd `/sap-daily-learner ...` bi doi thanh
+`C:/Program Files/Git/sap-daily-learner ...`).
 
 ## 3. Auto-Skill Creation Engine (tang PROCEDURAL)
 
@@ -304,6 +336,38 @@ PP/.../BTP Admin), `Topic` (title), `Tags` (multi-select), `Created` (date), `So
 (text). Noi dung trang = y het format skill local o tren (cau truc Reference Module: Boi canh/Quy
 trinh xu ly/SSCUI/Fiori/API/Integration/Best Practices/Nguon goc).
 
+**Da tao that ngay 2026-07-16** (database chua ton tai truoc do — day la lan dau co che nay chay
+that) — schema day du kem `Lan dung lai` (number) + `Da promote` (checkbox) tu muc 3c luon, tranh
+phai update schema lan 2.
+
+**Gotcha da xac nhan qua test that**: field `Tags` (multi_select) tao moi KHONG co san option nao
+— Notion API tu choi (`validation_error`) neu truyen thang 1 chuoi tuy y (vd `"test"`) ma chua
+duoc dinh nghia truoc trong schema. Khi tao trang MOI voi 1 tag chua tung dung: **HOAC** bo qua
+property `Tags` (an toan nhat, tags khong bat buoc de skill hoat dong), **HOAC** goi
+`notion-update-data-source` them option do vao schema TRUOC roi moi tao trang. KHONG tu suy doan
+Tags se "tu tao option moi" — da xac nhan thuc te KHONG tu dong nhu vay.
+
+**Onboard nguoi moi vao team dung chung database nay — rui ro tao trung, CAN LUU Y**: co che tim
+database hien tai la theo TEN (`notion-search "SAP Skills"` -> thay thi dung, KHONG thay thi tu
+tao moi). Sharing/phan quyen Notion CHI lam duoc qua UI (Share button), KHONG co tool MCP nao lam
+duoc viec nay (da xac nhan - xem danh sach tool o tren, khong tool nao ten share/invite/permission).
+
+Quy trinh cho 1 nguoi moi duoc moi vao database dung chung:
+1. Accept invite/mo link share Notion truoc (thao tac tay, ngoai Claude Code).
+2. Tu `/mcp` connect Notion **cua chinh ho** (OAuth rieng tung nguoi, KHONG dung chung tai khoan).
+
+[Unverified] **Chua test duoc voi tai khoan Notion thu 2** lieu `notion-search` tu tai khoan nguoi
+duoc moi co chac chan tim ra dung database da duoc share (khac voi database ho tu tao) hay khong.
+Neu KHONG tim ra, theo dung logic hien tai se **tu tao 1 database "SAP Skills" MOI, rieng, im
+lang khong bao loi** — mat het y nghia dung chung (moi nguoi 1 ban, khong dong bo).
+
+**Giam rui ro nay** (khuyen nguoi moi lam TRUOC khi de daily-learner tu chay lan dau):
+- Tu mo link database trong trinh duyet Notion 1 lan, xac nhan thay dung noi dung/cac trang da co
+  san (VD trang `test-ket-noi-notion`) — chung minh chac chan co quyen truy cap that.
+- Hoac tu bao Claude "search notion database SAP Skills" truoc, kiem tra ket qua co dung database
+  cu (co du lieu cu) khong, thay database rong/khac thi bao ngay de xu ly, tranh de tu dong tao
+  trung trong im lang.
+
 **Doc truoc** (mo rong dieu kien 4, TRUOC khi tu giai tu dau): khi dieu kien 1-3 da dat (van de
 >=3 buoc, co config cu the, user phan hoi tich cuc) nhung CHUA ro co trung lap khong:
 1. Goi tool search cua MCP `notion` theo module + tu khoa topic — **chi goi search truoc** (ket
@@ -393,6 +457,54 @@ va `Lan dung lai>=3`, liet ke Module/Topic/so lan dung cho user xem.
 **Fail-open**: loi goi tool Notion o buoc nao trong muc nay (tang counter, tim ung vien, fetch) ->
 bo qua buoc do, khong chan cac lenh/luong khac cua skill nay.
 
+## 3d. Skill Curator (vong doi active/stale/archived) - lay cam hung tu Hermes Agent
+
+Bo sung cho muc 3 (Auto-Skill Creation Engine): skill cang tich luy theo thoi gian cang de
+"chet" - khong con dung toi nhung van nam trong `memory/procedural/skills/` mai mai, khong ai
+don. Curator giai quyet dieu nay - lay dung co che tu Hermes Agent
+(github.com/NousResearch/hermes-agent, xem `website/docs/user-guide/features/curator.md`):
+skill it dung dan chuyen `active -> stale -> archived`, **KHONG BAO GIO xoa that**.
+
+**Khac voi Hermes ban goc**: Hermes co gateway daemon that, gate 1 lan curator chay theo CA
+`interval_hours` (mac dinh 7 ngay) VA `min_idle_hours` (mac dinh 2 gio). Plugin nay khong co
+tien trinh nen - lenh "run" duoi day chi duoc goi opportunistic trong luc `sap-daily-learner`
+dang chay, nen chi gate theo interval, BO dieu kien idle (khong the do "agent idle bao lau"
+khi khong co daemon theo doi lien tuc).
+
+**Nguong mac dinh** (giu dung theo Hermes): `interval_days=7`, `stale_after_days=30`,
+`archive_after_days=90`.
+
+**Ghi nhan usage** (moi khi 1 skill local duoc tim thay + dung de tra loi - ca o day lan o
+`sap-ask-consultant` Buoc 5):
+```bash
+python "${CLAUDE_PLUGIN_ROOT}/reference/scripts/skill_curator.py" record-use \
+  "$(python "${CLAUDE_PLUGIN_ROOT}/reference/scripts/agent_home.py" memory/procedural)" \
+  "<module>-<topic>.md"
+```
+
+**Chay 1 luot curator** (opportunistic - moi khi `sap-daily-learner` duoc goi, KHONG can user
+noi gi dac biet; script tu gate theo `interval_days` - goi lai truoc han se tra ve
+`skipped_interval` va khong lam gi them, nen goi vo tu cung an toan, khong can tu kiem tra
+truoc):
+```bash
+python "${CLAUDE_PLUGIN_ROOT}/reference/scripts/skill_curator.py" run \
+  "$(python "${CLAUDE_PLUGIN_ROOT}/reference/scripts/agent_home.py" memory/procedural)"
+```
+
+**Vong doi**: `active` (dung trong `stale_after_days` gan nhat) → `stale` (qua
+`stale_after_days` khong dung, VAN nam trong `memory/procedural/skills/`, chi la 1 nhan) →
+`archived` (qua `archive_after_days`, file duoc DI CHUYEN vao
+`memory/procedural/skills/.archive/` - khong xoa, khoi phuc duoc bang cach chuyen file tro
+lai). Dung lai (qua `record-use`) bat ky luc nao → tu dong chuyen ve `active`.
+
+**Lenh "curator status" / "skill nao sap bi archive"**: doc `skills_index.jsonl`, liet ke skill
+theo status, uu tien hien skill `stale` (sap archive) de user biet ma khong bi bat ngo.
+
+**KHONG lam** (giu dung tinh than "khong xoa kien thuc" cua `cleanup_agent_home.py`): tu dong
+xoa that bat ky skill nao, ke ca khi da `archived` lau. Archive la trang thai cuoi, khong co
+buoc "xoa vinh vien tu dong" nao ca - chi user tu tay xoa
+`memory/procedural/skills/.archive/` neu muon, ngoai pham vi script nay.
+
 ## 4. Episodic tier - chat history
 
 File `<agent-home>/memory/episodic/<YYYY-MM>/<YYYY-MM-DD>_session-<id>.md`
@@ -480,8 +592,11 @@ Them daily-learner vao module routing (giu nguyen):
 | "retro" / "tong ket gan day" | Tong hop ticket/lesson card/session trong khoang thoi gian (muc 4b) |
 | "liet ke ung vien promote" | Skill tren Notion da dung lai >=3 lan, chua promote (muc 3c) |
 | "promote skill [topic]" | Dua 1 skill tu Notion vao reference/modules/, hoi xac nhan truoc khi ghi (muc 3c) |
+| "curator status" / "skill nao sap archive" | Liet ke skill local theo status active/stale/archived tu `skills_index.jsonl` (muc 3d) |
 | "don skill cu" | Liet ke skill local theo ngay tao cu nhat, hoi xac nhan truoc khi xoa tung cai |
 | "export skill" | Gop toan bo memory/procedural/skills/*.md thanh 1 file backup |
+| "cron status" | `cron_manage.py status` - job dang co, tong so tick da chay, tong chi phi USD |
+| "them cron job [lich]" | `cron_manage.py add` - LUON canh bao day la tinh nang opt-in ton chi phi API that neu chua bat, hoi xac nhan huong dan bat truoc khi coi la xong (muc "Scheduling co che") |
 
 ## 7. Hermes-like Features Mapping (cap nhat)
 
@@ -490,11 +605,20 @@ Them daily-learner vao module routing (giu nguyen):
 | Automated Skill Creation | Tu sinh `memory/procedural/skills/<module>-<topic>.md` tu cau tra loi phuc tap |
 | Persistent Memory (3-tier) | semantic (default load) + episodic (chat history) + procedural (skills) |
 | Multi-Platform Integration | Hoat dong trong Claude Code, co the dispatch qua `sap-ask-consultant` |
-| Cron Scheduling | Daily tip moi session dau ngay |
-| Self-Improving | Cang hoc cang nhieu skill documents, knowledge graph cang day |
+| Autonomous Curator 🆕 | `skill_curator.py` - vong doi active/stale/archived, KHONG xoa that (muc 3d) |
+| Cron Scheduling 🆕 | `cron_manage.py` + Task Scheduler that, OPT-IN mac dinh TAT — xem ghi chu duoi bang |
+| Self-Improving | Cang hoc cang nhieu skill documents, knowledge graph cang day; Curator tu don skill khong con dung |
 | Training Data Export | Co the export LEARNING_PROGRESS + knowledge graph + skills lam training data |
 | Skill Reusability | Skill documents co the dispatch lai cho user khac co cung cau hoi |
-| Memory Consolidation | Periodic cleanup episodic (>30 ngay) + archive, KHONG xoa |
+| Memory Consolidation | Periodic cleanup episodic (>30 ngay) + archive, KHONG xoa; Curator lam viec tuong tu cho skills (muc 3d) |
+
+> **Ghi chu trung thuc (cap nhat 2026-07-16)**: `cron_manage.py` + `install-daily-learner-cron.bat`
+> gio da co that (xem muc "Scheduling co che" - muc 2) - Windows Task Scheduler tick moi 5 phut,
+> `tick` den han se spawn 1 phien `claude -p` headless that. Nhung KHAC Hermes ban goc (gateway
+> daemon tu chay ngay sau khi cai): co che nay **opt-in tuyet doi, mac dinh TAT** - cai xong van
+> chua chay gi ca cho toi khi bat rieng qua `SAP_ABAP_AGENT_CRON_ENABLED=1` hoac file marker
+> `<agent-home>/cron/ENABLED`, VA phai tu `add` it nhat 1 job. Ly do tach 2 buoc: moi lan tick
+> that su ton chi phi API, khong nen tu bat ngam ngay khi cai dat.
 
 ## 8. Progressive Learning Paths
 
@@ -546,3 +670,15 @@ Cross-module integration patterns:
 - [ ] Lenh "promote skill" — da hoi xac nhan truoc khi ghi vao `reference/modules/`, KHONG tu
       commit/push (de user tu lam theo `CONTRIBUTING.md`)
 - [ ] Lenh "don skill cu" — da hoi xac nhan truoc khi xoa tung file, KHONG tu xoa hang loat
+- [ ] Sau khi dung 1 skill local co san (o day hoac o `sap-ask-consultant` Buoc 5) — da goi
+      `skill_curator.py record-use` (muc 3d), tranh Curator archive nham skill van con dung
+- [ ] Neu goi `sap-daily-learner` va co the da qua `interval_days` tu lan curator chay truoc —
+      da goi `skill_curator.py run` (script tu gate an toan, goi vo tu khong hai gi)
+- [ ] `skill_curator.py run` KHONG xoa that skill nao — chi di chuyen vao `.archive/` khi qua
+      `archive_after_days`, dung cho tu dong "xoa vinh vien"
+- [ ] Neu user hoi ve cron/tick/job — KHONG tu y `cron_manage.py add` + tu bat opt-in gate
+      (env var/marker file) ma khong noi ro se ton chi phi API that moi lan tick chay job
+- [ ] Job co prompt bat dau bang `/` — them qua PowerShell, KHONG qua Git Bash/Bash tool
+      (MSYS mangle `/...` thanh duong dan Windows, da xac nhan bang test that)
+- [ ] KHONG tu chay `install-daily-learner-cron.bat` (can quyen Administrator, tao Task
+      Scheduler that) — chi huong dan user tu chay, giong tinh than khong tu commit/push

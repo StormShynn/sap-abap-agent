@@ -2615,14 +2615,63 @@ bash reference/scripts/update.sh</code></pre>
             <tr><td>Skill Reusability (team-shared)</td><td>Đồng bộ 2 chiều qua Notion — tra trước khi tự giải, tự đẩy skill mới lên cho cả team dùng; cả 25 agent tư vấn cũng tra chung kho này qua Bước 5 của <code>sap-ask-consultant</code></td></tr>
             <tr><td>Quarantine → Promote</td><td>Skill dùng lại ≥3 lần trên Notion thành "ứng viên promote" — lệnh <code>promote skill</code> đưa vào <code>reference/modules/</code> (git-tracked, đến mọi người dùng plugin), luôn hỏi xác nhận trước khi ghi, không tự commit</td></tr>
             <tr><td>Persistent Memory</td><td><code>LEARNING_PROGRESS.md</code> — module progress, mastered topics</td></tr>
-            <tr><td>Cron Scheduling</td><td>Daily tip mỗi session đầu ngày</td></tr>
+            <tr><td>Autonomous Curator 🆕</td><td><code>skill_curator.py</code> — skill không dùng tới 30 ngày thành <code>stale</code>, 90 ngày thành <code>archived</code> (không bao giờ xoá thật)</td></tr>
+            <tr><td>Cron Scheduling 🆕</td><td>Cron thật qua Windows Task Scheduler + <code>cron_manage.py</code> — opt-in, mặc định TẮT (xem mục "Cron thật" bên dưới)</td></tr>
             <tr><td>Multi-Platform</td><td>Hoạt động trong Claude Code, dispatch qua <code>sap-ask-consultant</code></td></tr>
-            <tr><td>Self-Improving</td><td>Càng học càng nhiều skill, knowledge base càng phong phú</td></tr>
+            <tr><td>Self-Improving</td><td>Càng học càng nhiều skill, knowledge base càng phong phú; Curator tự dọn skill không còn dùng</td></tr>
             <tr><td>Memory Consolidation</td><td>3-tier memory: episodic (chat) + semantic (knowledge) + procedural (skills)</td></tr>
             <tr><td>Training Data Export</td><td>Export LEARNING_PROGRESS + knowledge graph + skills làm training data</td></tr>
           </tbody>
         </table>
       </div>
+
+      <h3>🧹 Skill Curator — vòng đời skill tự động</h3>
+      <p>Skill tự tạo trong <code>memory/procedural/skills/</code> càng tích luỹ càng dễ "chết" — không còn ai dùng nhưng vẫn nằm mãi. <code>reference/scripts/skill_curator.py</code> xử lý việc này, đúng cơ chế <strong>Curator</strong> của Hermes: skill không dùng tới sau <strong>30 ngày</strong> chuyển <code>stale</code>, sau <strong>90 ngày</strong> chuyển <code>archived</code> (di chuyển vào <code>.archive/</code>, <strong>không bao giờ xoá thật</strong>). Dùng lại 1 skill sẽ tự đưa nó về <code>active</code>. Chạy tự động mỗi khi <code>sap-daily-learner</code> được gọi — không cần setup gì thêm.</p>
+
+      <h3>⏰ Cron thật — daily tip chạy nền qua Windows Task Scheduler</h3>
+
+      <div class="callout warning" style="background:rgba(210,153,34,.12);border-left:4px solid var(--orange);padding:14px 16px;border-radius:8px;margin:14px 0;">
+        <strong>⚠️ Mặc định TẮT (opt-in tuyệt đối)</strong>, cùng triết lý với Continuous Improvement Engine. Mỗi lần cron thật sự chạy sẽ gọi 1 phiên Claude Code (<code>claude -p</code>) thật — <strong>tốn chi phí API thật</strong> trên tài khoản của bạn. Cài xong vẫn chưa chạy gì cả cho tới khi bạn bật rõ ràng.
+      </div>
+
+      <p>Khác Hermes bản gốc (có <code>gateway daemon</code> chạy liên tục, tự poll mỗi 60 giây): plugin này không có tiến trình nền thật — dùng <strong>Windows Task Scheduler</strong> làm "cái luôn túc trực" thay cho daemon đó.</p>
+
+      <h4>Bước 1 — Cài lịch Task Scheduler (chưa chạy gì, cần quyền Administrator)</h4>
+<pre><code>Click phải reference\scripts\install-daily-learner-cron.bat → Run as administrator</code><button class="copy-btn" onclick="copyCode(this)">Sao chép</button></pre>
+      <p>Sau khi cài, task sẽ tự "tick" mỗi 5 phút nhưng vẫn no-op (không làm gì) cho tới Bước 2.</p>
+
+      <h4>Bước 2 — Bật opt-in thật sự</h4>
+
+      <div class="code-compare">
+        <div class="code-block">
+          <div class="code-label">PowerShell <span class="code-os">Windows</span></div>
+<pre><code>New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\.sap-abap-agent\cron"
+New-Item -ItemType File -Force -Path "$env:USERPROFILE\.sap-abap-agent\cron\ENABLED"</code><button class="copy-btn" onclick="copyCode(this)">Sao chép</button></pre>
+        </div>
+
+        <div class="code-block">
+          <div class="code-label">CMD <span class="code-os">Windows</span></div>
+<pre><code>if not exist "%USERPROFILE%\.sap-abap-agent\cron" mkdir "%USERPROFILE%\.sap-abap-agent\cron"
+echo. > "%USERPROFILE%\.sap-abap-agent\cron\ENABLED"</code><button class="copy-btn" onclick="copyCode(this)">Sao chép</button></pre>
+        </div>
+      </div>
+
+      <p>Hoặc set biến môi trường hệ thống <code>SAP_ABAP_AGENT_CRON_ENABLED=1</code> thay vì tạo file marker — 2 cách tương đương.</p>
+
+      <h4>Bước 3 — Thêm ít nhất 1 job</h4>
+
+      <div class="callout warning" style="background:rgba(210,153,34,.12);border-left:4px solid var(--orange);padding:14px 16px;border-radius:8px;margin:14px 0;">
+        ⚠️ Prompt bắt đầu bằng <code>/</code> (gọi thẳng 1 skill) <strong>phải thêm qua PowerShell</strong>, không dùng Git Bash — đã xác nhận qua test thật: Git Bash tự "dịch" chuỗi bắt đầu bằng <code>/</code> thành đường dẫn Windows (MSYS path-mangling), làm hỏng nội dung prompt.
+      </div>
+
+<pre><code>python reference\scripts\cron_manage.py add "$env:USERPROFILE\.sap-abap-agent" daily-tip "/sap-daily-learner cho toi 1 tip hoc SAP hom nay dua tren tien do hien tai" daily@08:00</code><button class="copy-btn" onclick="copyCode(this)">Sao chép</button></pre>
+
+      <h4>Kiểm tra trạng thái / chi phí đã dùng</h4>
+<pre><code>python reference/scripts/cron_manage.py status "$(python reference/scripts/agent_home.py)"</code><button class="copy-btn" onclick="copyCode(this)">Sao chép</button></pre>
+
+      <p>Kết quả tick được ghi vào <code>&lt;agent-home&gt;/cron/pending/</code>, rồi tự bơm vào phiên chat Claude Code kế tiếp khi bạn mở lên (SessionStart hook <code>hooks/cron_deliver.py</code>) — không có tích hợp Telegram/Slack như Hermes thật, nhưng không cần thêm thao tác nào.</p>
+
+      <p><strong>Gỡ bỏ</strong>: <code>schtasks /delete /tn "SAP ABAP Agent - Daily Learner Cron Tick" /f</code>, xoá file <code>ENABLED</code>/<code>cron_manage.py disable &lt;job-id&gt;</code> là đủ.</p>
 
       <h3>📋 User Commands</h3>
       <div class="table-wrap">
@@ -2639,8 +2688,16 @@ bash reference/scripts/update.sh</code></pre>
             <tr><td><code>"onboard [module]"</code></td><td>Tạo learning path cho module mới</td></tr>
             <tr><td><code>"tip"</code></td><td>Random tip từ module user thích</td></tr>
             <tr><td><code>"hom qua chung ta noi gi"</code></td><td>Xem lại lịch sử chat hôm qua</td></tr>
+            <tr><td><code>"curator status"</code></td><td>Skill nào đang active/stale/archived</td></tr>
+            <tr><td><code>"cron status"</code></td><td>Job cron đang có, tổng chi phí API đã dùng</td></tr>
           </tbody>
         </table>
+      </div>
+
+      <h3>👥 Chia sẻ database "SAP Skills" cho team</h3>
+      <p>Mời thêm người: (1) accept invite/mở link share Notion trước (thao tác tay), (2) người đó tự <code>/mcp</code> connect Notion <strong>bằng tài khoản của chính họ</strong> — không dùng chung tài khoản.</p>
+      <div class="callout warning" style="background:rgba(210,153,34,.12);border-left:4px solid var(--orange);padding:14px 16px;border-radius:8px;margin:14px 0;">
+        ⚠️ Cơ chế tìm database hiện tại dựa theo <strong>tên</strong> — chưa test được với 1 tài khoản Notion thứ 2 liệu search có chắc chắn tìm ra database đã được share hay không. Nếu không tìm ra, Claude sẽ <strong>tự tạo 1 database "SAP Skills" mới, riêng, không báo lỗi</strong> — mất ý nghĩa dùng chung. Người mới nên tự bảo Claude "search notion database SAP Skills" trước, kiểm tra có ra đúng database cũ (có dữ liệu sẵn) hay không trước khi để daily-learner tự chạy lần đầu.
       </div>
 
       <h3>📚 Module Knowledge Matrix</h3>
@@ -5138,6 +5195,63 @@ java -jar cdata.jdbc.sapfieldglass.jar --license</code><button class="copy-btn" 
 
     '<strong>Tích hợp:</strong> <code>sap-routing-discipline</code> trỏ tới skill này trước khi trả lời câu hỏi bị ảnh hưởng bởi edition; <code>sap-ask-consultant</code>/<code>sap-extensibility</code>/<code>sap-clean-code</code>/<code>sap-abap-sql</code> đọc kết quả để rẽ nhánh hoặc chèn cảnh báo thay vì mặc định Public Edition.':
         '<strong>Integration:</strong> <code>sap-routing-discipline</code> points to this skill before answering edition-dependent questions; <code>sap-ask-consultant</code>/<code>sap-extensibility</code>/<code>sap-clean-code</code>/<code>sap-abap-sql</code> read the result to branch or insert a warning instead of defaulting to Public Edition.',
+
+    // --- Skill Curator + real Cron + Notion sharing additions (2026-07-16) ---
+
+    'Autonomous Curator 🆕': 'Autonomous Curator 🆕',
+    '<code>skill_curator.py</code> — skill không dùng tới 30 ngày thành <code>stale</code>, 90 ngày thành <code>archived</code> (không bao giờ xoá thật)':
+        '<code>skill_curator.py</code> — a skill unused for 30 days becomes <code>stale</code>, for 90 days becomes <code>archived</code> (never actually deleted)',
+
+    'Cron Scheduling 🆕': 'Cron Scheduling 🆕',
+    'Cron thật qua Windows Task Scheduler + <code>cron_manage.py</code> — opt-in, mặc định TẮT (xem mục "Cron thật" bên dưới)':
+        'Real cron via Windows Task Scheduler + <code>cron_manage.py</code> — opt-in, OFF by default (see the "Real Cron" section below)',
+
+    'Càng học càng nhiều skill, knowledge base càng phong phú; Curator tự dọn skill không còn dùng':
+        'The more you learn, the richer your skills and knowledge base become; the Curator auto-cleans up skills no longer in use',
+
+    '🧹 Skill Curator — vòng đời skill tự động': '🧹 Skill Curator — automatic skill lifecycle',
+    'Skill tự tạo trong <code>memory/procedural/skills/</code> càng tích luỹ càng dễ "chết" — không còn ai dùng nhưng vẫn nằm mãi. <code>reference/scripts/skill_curator.py</code> xử lý việc này, đúng cơ chế <strong>Curator</strong> của Hermes: skill không dùng tới sau <strong>30 ngày</strong> chuyển <code>stale</code>, sau <strong>90 ngày</strong> chuyển <code>archived</code> (di chuyển vào <code>.archive/</code>, <strong>không bao giờ xoá thật</strong>). Dùng lại 1 skill sẽ tự đưa nó về <code>active</code>. Chạy tự động mỗi khi <code>sap-daily-learner</code> được gọi — không cần setup gì thêm.':
+        'Skills auto-created in <code>memory/procedural/skills/</code> tend to pile up and "die" over time — no longer used, but never cleaned up. <code>reference/scripts/skill_curator.py</code> handles this, using the same <strong>Curator</strong> mechanism as Hermes: a skill unused for <strong>30 days</strong> turns <code>stale</code>, and after <strong>90 days</strong> turns <code>archived</code> (moved into <code>.archive/</code>, <strong>never actually deleted</strong>). Reusing a skill automatically brings it back to <code>active</code>. Runs automatically every time <code>sap-daily-learner</code> is invoked — no extra setup needed.',
+
+    '⏰ Cron thật — daily tip chạy nền qua Windows Task Scheduler': '⏰ Real Cron — background daily tip via Windows Task Scheduler',
+
+    '<strong>⚠️ Mặc định TẮT (opt-in tuyệt đối)</strong>, cùng triết lý với Continuous Improvement Engine. Mỗi lần cron thật sự chạy sẽ gọi 1 phiên Claude Code (<code>claude -p</code>) thật — <strong>tốn chi phí API thật</strong> trên tài khoản của bạn. Cài xong vẫn chưa chạy gì cả cho tới khi bạn bật rõ ràng.':
+        '<strong>⚠️ OFF by default (strict opt-in)</strong>, same philosophy as the Continuous Improvement Engine. Every time cron actually fires it spawns a real Claude Code session (<code>claude -p</code>) — <strong>real API cost</strong> on your account. After installing, nothing runs until you explicitly enable it.',
+
+    'Khác Hermes bản gốc (có <code>gateway daemon</code> chạy liên tục, tự poll mỗi 60 giây): plugin này không có tiến trình nền thật — dùng <strong>Windows Task Scheduler</strong> làm "cái luôn túc trực" thay cho daemon đó.':
+        'Unlike the original Hermes (which has a <code>gateway daemon</code> running continuously, polling every 60 seconds): this plugin has no real background process — <strong>Windows Task Scheduler</strong> plays the "always-on" role instead of that daemon.',
+
+    'Bước 1 — Cài lịch Task Scheduler (chưa chạy gì, cần quyền Administrator)':
+        'Step 1 — Install the Task Scheduler entry (runs nothing yet, needs Administrator rights)',
+    'Sau khi cài, task sẽ tự "tick" mỗi 5 phút nhưng vẫn no-op (không làm gì) cho tới Bước 2.':
+        'After installing, the task auto-"ticks" every 5 minutes but stays a no-op until Step 2.',
+
+    'Bước 2 — Bật opt-in thật sự': 'Step 2 — Actually enable opt-in',
+    'Hoặc set biến môi trường hệ thống <code>SAP_ABAP_AGENT_CRON_ENABLED=1</code> thay vì tạo file marker — 2 cách tương đương.':
+        'Or set the system environment variable <code>SAP_ABAP_AGENT_CRON_ENABLED=1</code> instead of creating the marker file — both are equivalent.',
+
+    'Bước 3 — Thêm ít nhất 1 job': 'Step 3 — Add at least 1 job',
+    '⚠️ Prompt bắt đầu bằng <code>/</code> (gọi thẳng 1 skill) <strong>phải thêm qua PowerShell</strong>, không dùng Git Bash — đã xác nhận qua test thật: Git Bash tự "dịch" chuỗi bắt đầu bằng <code>/</code> thành đường dẫn Windows (MSYS path-mangling), làm hỏng nội dung prompt.':
+        '⚠️ A prompt starting with <code>/</code> (to call a skill directly) <strong>must be added via PowerShell</strong>, not Git Bash — confirmed via real testing: Git Bash auto-"translates" a leading <code>/</code> into a Windows path (MSYS path-mangling), corrupting the prompt content.',
+
+    'Kiểm tra trạng thái / chi phí đã dùng': 'Check status / cost so far',
+
+    'Kết quả tick được ghi vào <code>&lt;agent-home&gt;/cron/pending/</code>, rồi tự bơm vào phiên chat Claude Code kế tiếp khi bạn mở lên (SessionStart hook <code>hooks/cron_deliver.py</code>) — không có tích hợp Telegram/Slack như Hermes thật, nhưng không cần thêm thao tác nào.':
+        'Tick results are written to <code>&lt;agent-home&gt;/cron/pending/</code>, then auto-injected into your next Claude Code chat session when you open it (SessionStart hook <code>hooks/cron_deliver.py</code>) — no Telegram/Slack integration like the real Hermes, but no extra action needed either.',
+
+    '<strong>Gỡ bỏ</strong>: <code>schtasks /delete /tn "SAP ABAP Agent - Daily Learner Cron Tick" /f</code>, xoá file <code>ENABLED</code>/<code>cron_manage.py disable &lt;job-id&gt;</code> là đủ.':
+        '<strong>Removal</strong>: <code>schtasks /delete /tn "SAP ABAP Agent - Daily Learner Cron Tick" /f</code>, deleting the <code>ENABLED</code> file / <code>cron_manage.py disable &lt;job-id&gt;</code> is enough.',
+
+    '"curator status"': '"curator status"',
+    'Skill nào đang active/stale/archived': 'Which skills are active/stale/archived',
+    '"cron status"': '"cron status"',
+    'Job cron đang có, tổng chi phí API đã dùng': 'Existing cron jobs, total API cost so far',
+
+    '👥 Chia sẻ database "SAP Skills" cho team': '👥 Sharing the "SAP Skills" database with your team',
+    'Mời thêm người: (1) accept invite/mở link share Notion trước (thao tác tay), (2) người đó tự <code>/mcp</code> connect Notion <strong>bằng tài khoản của chính họ</strong> — không dùng chung tài khoản.':
+        'Inviting someone new: (1) they accept the Notion invite/share link first (manual step), (2) they run <code>/mcp</code> themselves to connect Notion <strong>using their own account</strong> — never share a single account.',
+    '⚠️ Cơ chế tìm database hiện tại dựa theo <strong>tên</strong> — chưa test được với 1 tài khoản Notion thứ 2 liệu search có chắc chắn tìm ra database đã được share hay không. Nếu không tìm ra, Claude sẽ <strong>tự tạo 1 database "SAP Skills" mới, riêng, không báo lỗi</strong> — mất ý nghĩa dùng chung. Người mới nên tự bảo Claude "search notion database SAP Skills" trước, kiểm tra có ra đúng database cũ (có dữ liệu sẵn) hay không trước khi để daily-learner tự chạy lần đầu.':
+        '⚠️ The current database-discovery mechanism matches by <strong>name</strong> — not yet verified with a second Notion account whether search reliably finds a database shared with (rather than owned by) that account. If it doesn\'t, Claude will <strong>silently create a new, separate "SAP Skills" database</strong> — defeating the point of sharing. New members should first ask Claude to "search notion database SAP Skills" and confirm it returns the existing database (with existing data) before letting daily-learner run automatically for the first time.',
 
   };
 

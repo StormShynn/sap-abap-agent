@@ -30,6 +30,60 @@ Format dựa trên [Keep a Changelog](https://keepachangelog.com/) và [Semantic
   - `README.md`: thêm cảnh báo opt-in + giới hạn phạm vi ngay đầu section "Continuous
     Improvement Engine", sửa nhãn "Ba chế độ hook" (sai số — thực tế 5 mode kể cả `status`)
     thành "Các chế độ hook".
+- 🧹 **Skill Curator cho `sap-daily-learner`** (`reference/scripts/skill_curator.py`) — vòng
+  đời `active → stale → archived` cho `memory/procedural/skills/`, lấy đúng cơ chế đã đọc
+  trực tiếp từ `github.com/NousResearch/hermes-agent` (`website/docs/user-guide/features/curator.md`):
+  ngưỡng `stale_after_days=30`/`archive_after_days=90`, gate chạy lại theo `interval_days=7`,
+  **không bao giờ xóa thật** — skill quá hạn chỉ bị di chuyển vào
+  `memory/procedural/skills/.archive/` (khôi phục được bằng cách chuyển file trở lại + dùng
+  lại 1 lần). Khác bản gốc Hermes (có gateway daemon thật, gate cả theo `min_idle_hours`) —
+  plugin này không có tiến trình nền nên chỉ gate theo `interval_days`, gọi opportunistic mỗi
+  khi `sap-daily-learner` chạy. Đã test trực tiếp (dry-run không đổi gì trên đĩa, real run
+  archive/stale đúng ngưỡng, `record-use` hồi sinh skill từ `stale`/`archived` về `active`).
+  Nối `record-use` vào `sap-ask-consultant` Bước 5 (mọi agent dùng skill cache local đều tính
+  vào usage, không chỉ riêng daily-learner). Cập nhật bảng "Hermes-like Features Mapping" và
+  review checklist trong `skills/sap-daily-learner/SKILL.md` — đồng thời sửa dòng "Cron
+  Scheduling" trong bảng đó thành ghi chú trung thực: hiện tại KHÔNG có tiến trình nền thật,
+  chỉ check `episodic/index.jsonl` trong lúc chat (khác gateway daemon poll 60s của Hermes
+  thật) — cron thật cần Task Scheduler riêng, chưa triển khai.
+- ⏰ **Cron thật cho `sap-daily-learner`** (`reference/scripts/cron_manage.py`,
+  `hooks/cron_deliver.py`, `reference/scripts/install-daily-learner-cron.bat`) — lấp khoảng
+  trống "Cron Scheduling" nêu trên, kiến trúc lấy đúng từ `NousResearch/hermes-agent`
+  (`website/docs/user-guide/features/cron.md`):
+  - `cron_manage.py`: 1 tool "action-style" (`add`/`list`/`enable`/`disable`/`remove`/`tick`/
+    `status`) quản lý `<agent-home>/cron/jobs.json`, lịch dạng `daily@HH:MM` hoặc
+    `every:<phút>m`. `tick` khi có job đến hạn sẽ spawn thật 1 phiên
+    `claude -p "<prompt>" --plugin-dir <plugin> --output-format json` (cú pháp headless đã
+    verify qua `claude-code-guide`, không đoán) — ghi cost `total_cost_usd` vào
+    `cost_log.jsonl` để theo dõi chi phí thật.
+  - File lock chống tick trùng (`.tick.lock`) copy nguyên bản `_FileLock` đã có sẵn trong
+    `hooks/error_reporter.py` thay vì viết lại.
+  - **OPT-IN tuyệt đối, mặc định TẮT** — cùng triết lý `_is_enabled()` của
+    `error_reporter.py`: cài `install-daily-learner-cron.bat` (Task Scheduler tick mỗi 5
+    phút) KHÔNG tự bật gì — phải bật riêng qua `SAP_ABAP_AGENT_CRON_ENABLED=1` hoặc file
+    marker `<agent-home>/cron/ENABLED`, và phải tự `add` ít nhất 1 job. Lý do: mỗi lần tick
+    thật sự gọi Claude Code tốn chi phí API thật, không nên tự bật ngầm.
+  - Delivery: `hooks/cron_deliver.py` (SessionStart hook mới, nối vào `hooks/hooks.json`) đọc
+    `<agent-home>/cron/pending/*.md` do tick ghi ra, bơm vào phiên chat kế tiếp làm
+    `additionalContext`, rồi chuyển file đã đọc sang `cron/delivered/` (không xoá) — thay cho
+    kênh Telegram/Slack của Hermes thật, tận dụng cơ chế injection có sẵn của Claude Code.
+  - **Bug tìm thấy qua test thật** (không chỉ đọc code): `_load_jobs()` ban đầu nuốt lỗi
+    JSON rồi trả về rỗng — khi test tạo job qua PowerShell `Set-Content -Encoding utf8` (ghi
+    kèm BOM), `jobs.json` không parse được, bị hiểu nhầm là rỗng; nếu sau đó có tick chạy và
+    lưu lại, sẽ **xoá sạch job thật của user**. Sửa: đọc bằng `utf-8-sig` (tự bóc BOM) +
+    không nuốt `JSONDecodeError` nữa (để lỗi thật sự propagate thành thông báo rõ ràng thay vì
+    âm thầm ghi đè) — áp dụng luôn cho `skill_curator.py` để nhất quán.
+  - **Gotcha tìm thấy qua test thật**: prompt bắt đầu bằng `/` (để gọi thẳng 1 skill, vd
+    `/sap-daily-learner ...`) bị Git Bash (MSYS) tự "dịch" thành đường dẫn Windows nếu thêm
+    job qua Bash tool — đã verify PowerShell không bị lỗi này, ghi rõ trong SKILL.md.
+  - Đã test: toàn bộ CRUD job, validate schedule sai định dạng, gate opt-in chặn tick khi
+    chưa bật, phát hiện job đến hạn qua `--dry-run` (không gọi API thật), và
+    `hooks/cron_deliver.py` (không có pending / có pending / archive đúng). **Chưa** tự chạy
+    `tick` thật không kèm `--dry-run` (sẽ tốn phí API thật + gọi lồng 1 phiên Claude Code) và
+    **chưa** tự chạy `install-daily-learner-cron.bat` (cần quyền Administrator, tạo tác vụ hệ
+    thống thật) — để user tự quyết định kích hoạt.
+  - Cập nhật `skills/sap-daily-learner/SKILL.md` (mục "Scheduling cơ chế", bảng Hermes-feature-
+    mapping, User Commands, Review Checklist) phản ánh đúng trạng thái mới.
 
 ### Fixed
 - 🐛 **4 bug trong `reference/mcp-server/sap_btp_agent/`** — báo bởi user qua GitHub issues
