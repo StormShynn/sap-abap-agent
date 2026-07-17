@@ -641,3 +641,159 @@ Xem `hooks/hooks.json` hiện tại làm mẫu.
 Mỗi đóng góp, dù nhỏ (sửa lỗi chính tả, thêm ví dụ, cải thiện docs), đều giúp cộng đồng SAP AI phát triển. Cảm ơn bạn đã dành thời gian!
 
 **— StormShynn & cộng đồng SAP ABAP Agent**
+
+## 🧠 Thêm Knowledge Note (cross-module / pattern)
+
+Từ v1.11.1, plugin phân biệt 2 loại file trong `reference/modules/`:
+
+| Loại | Đường dẫn chuẩn | Mục đích | Đối tượng dùng |
+|------|-----------------|-----------|------------------|
+| **Module reference** | `reference/modules/sap-<module>-cloud/SKILL.md` | Knowledge chuyên sâu cho **1 module consultant** cụ thể (SD/FI/MM/...). Bắt buộc có khi tạo agent mới (xem section "Thêm Agent mới"). | SAP consultant (end user) |
+| **Knowledge note** (cross-module / pattern) | `reference/modules/<tên-rõ-ràng>/SKILL.md` | Knowledge về **kiến trúc, integration pattern, hoặc chủ đề không thuộc 1 module consultant nào**. VD: `abap-rap-cloud/`, `fiori-elements-cloud/`, `cap-cloud/`, `sap-btp-connectivity/`, `pm-integration-patterns/`, `wm-ewm-integration/`, `gts-cloud-architecture/`. | Contributor + consultant đọc tham khảo |
+
+### Khi nào tạo Knowledge Note (không phải module reference)?
+
+Tạo knowledge note khi knowledge **không thuộc 1 module consultant nào** trong 28 modules
+hiện có, hoặc khi cần cross-module view (PM ↔ FICO, WM vs EWM, GTS vs S/4HANA, ...).
+
+**KHÔNG tạo knowledge note mới** nếu:
+- Knowledge thuộc 1 module consultant đã có → thêm vào `reference/modules/sap-<module>-cloud/SKILL.md`.
+- Knowledge quá ngắn (< 5 section, < 100 dòng) → thêm vào section "Tích hợp với skill khác" của
+  module tương ứng.
+- Knowledge chỉ là 1 command workflow → thêm vào `skills/<tên-skill>/SKILL.md` (xem section
+  "Khi nào KHÔNG nên tạo skill mới").
+
+### Template
+
+```markdown
+---
+name: <ten-knowledge-note>
+description: Knowledge note tổng hợp từ <repo1>, <repo2> — <mô tả ngắn>. Khác với
+  `sap-<module>-cloud/SKILL.md` (knowledge consultant). Dùng khi <use case>.
+effort: low
+model: haiku
+---
+
+# <Tiêu đề> — Knowledge Note
+
+## 1. Tổng quan / bối cảnh
+## 2. Kiến trúc / pattern chính
+## 3. Integration với module khác (nếu có)
+## 4. Anti-pattern
+## 5. Liên kết với các skill/agent khác
+## 6. Nguồn tham khảo
+```
+
+### Quy tắc đặt tên
+
+- **KHÔNG** dùng prefix `sap-<module>-cloud/` cho knowledge note — đó là convention của module
+  reference (consultant), gây nhầm lẫn với routing.
+- Dùng tên **gợi ý nội dung**: `<topic>-integration-patterns/`, `<topic>-architecture/`,
+  `<topic>-best-practices/`, hoặc technology name: `abap-rap-cloud/`, `cap-cloud/`,
+  `fiori-elements-cloud/`.
+- Mô tả (description) trong YAML frontmatter PHẢI ghi rõ "khác với `sap-<X>-cloud/SKILL.md`"
+  để contributor đọc biết nó không phải module reference.
+
+### Khai báo trong frontmatter (knowledge note gốc)
+
+Khác với **module reference**, knowledge note thường chỉ cần 4 fields:
+`name`, `description`, `effort`, `model` — KHÔNG cần `when_to_use`, `argument-hint`,
+`tools`. Đây là knowledge note để tra cứu, không phải instruction skill để dispatch/execute
+(xem thêm phân biệt trong `SKILL_TEMPLATE.md` mục 3 — Reference Module).
+
+### Quy trình tạo
+
+1. **Kiểm tra trùng**: `ls reference/modules/` để chắc chắn không có folder cùng tên.
+2. **Tạo file**: `mkdir reference/modules/<ten-knowledge-note>` → tạo `SKILL.md` theo template.
+3. **Mô tả nguồn tham khảo**: cuối file có mục "Nguồn tham khảo" — ghi rõ repo open-source nào
+   đã tham khảo, kèm link GitHub.
+4. **Update CI**: nếu thêm URL GitHub mới trong "Nguồn tham khảo", workflow
+   `.github/workflows/lint-inspired-by-links.yml` sẽ HEAD-check tự động — không cần làm gì.
+5. **Update CHANGELOG.md** với entry version mới.
+6. **Update `README.md`** mục "Cảm hứng (Inspired by)" nếu reference repo lần đầu xuất hiện.
+
+### Không thêm MCP server mới vào `.mcp.json` khi tạo knowledge note
+
+Knowledge note thường tham khảo các MCP server open-source (`mcp-abap-adt`, `hana-mcp-server`,
+v.v.) — **KHÔNG tự động** thêm vào `.mcp.json`. Contributor muốn dùng phải tự bật opt-in theo
+hướng dẫn trong `docs/sap-mcp-recommendations.md` (Tier 1/2/3). Lý do: bảo toàn triết lý
+"observation masking" của plugin + cài đặt nhẹ cho end-user.
+
+## ✅ Validate Inspired-by Links (tự động trong CI)
+
+Từ v1.11.2, plugin có script `reference/scripts/validate_inspired_by_links.py` quét mọi GitHub
+URL trong README/CHANGELOG/SKILL.md và HEAD-check còn resolve được không. Workflow
+`.github/workflows/lint-inspired-by-links.yml` chạy tự động:
+
+- **Mỗi push/PR**: fail job nếu có URL trả về 404 (chặn 404 leak vào main).
+- **Cron hằng ngày 06:00 UTC**: retry các link từng bị "network fail" lúc PR.
+- **`workflow_dispatch`**: chạy tay khi cần.
+
+### Khi CI fail vì URL 404
+
+1. Workflow sẽ **comment lên PR** với danh sách URL GONE.
+2. Mở file chứa URL (thường là README.md hoặc file knowledge note) → sửa hoặc xoá URL.
+3. Push lại → CI chạy lại tự động.
+
+### Chạy local
+
+```bash
+python reference/scripts/validate_inspired_by_links.py --strict
+```
+
+- Mặc định (`--concurrency 8`): in báo cáo, **không** exit non-zero khi GONE.
+- `--strict`: exit non-zero khi có URL GONE (giống CI). Dùng trong pre-commit hook.
+- Output: `[OK] / [GONE (404)] / [UNCHECKED (network fail)]` + summary số file đã quét.
+
+### Khi thêm URL GitHub mới vào project
+
+Không cần làm gì — workflow tự pick up. Chỉ cần đảm bảo:
+- URL ở dạng `https://github.com/<owner>/<repo>` (root, không sub-path).
+- Repo công khai, license cho phép tham khảo (MIT / Apache-2.0 / BSD...).
+
+Nếu repo ở private hoặc bị rate-limit GitHub HEAD, URL sẽ rơi vào `[UNCHECKED]` — không fail CI.
+
+## 🪝 Pre-commit Hook (tự chạy khi `git commit`)
+
+Từ v1.11.4, plugin có 3 check tự động chạy trước khi commit — giống CI nhưng ở local:
+
+| Check                          | Time   | Fail khi                                |
+|--------------------------------|--------|------------------------------------------|
+| `validate_plugin.py`           | < 1s   | Frontmatter lỗi, doc drift, Python syntax|
+| `validate_inspired_by_links.py --strict` | < 5s | URL GitHub 404 trong README/CHANGELOG/SKILL.md |
+| `pytest tests/`                | < 2s   | Unit test fail                          |
+
+### Cài đặt (2 cách)
+
+#### Cách A: Git hook built-in (đơn giản, không cần framework)
+
+```bash
+# Copy script co san
+cp reference/scripts/pre-commit .git/hooks/pre-commit
+chmod +x .git/hooks/pre-commit
+```
+
+#### Cách B: Pre-commit framework (khuyến nghị, contributor-friendly)
+
+```bash
+pip install pre-commit
+pre-commit install
+```
+
+Config nằm ở `.pre-commit-config.yaml`.
+
+### Skip hook (khẩn cấp)
+
+Thêm `[skip hooks]` vào commit message:
+
+```bash
+git commit -m "fix: ... [skip hooks]"
+```
+
+Hook sẽ tự động skip và vẫn cho commit. CI sẽ chạy lại check đầy đủ — không có cách nào
+"thoát" check vĩnh viễn, đây là escape hatch cho trường hợp khẩn cấp.
+
+### Không có Python?
+
+Hook tự detect — nếu không tìm thấy `python`/`python3`/`py` thì in warning và skip, **không
+block commit**. Tương thích cả WSL/Git Bash/Cygwin (script bash POSIX).

@@ -111,3 +111,40 @@ Neu co FAIL: dung, yeu cau user fix. Neu chi WARN: bao user, khong block.
 - SQL+AMDP check: skill `sap-abap-sql` — ABAP SQL patterns & performance.
 - OData check: skill `sap-odata-service` — OData V4 service review.
 - Agent `abap-reviewer` — review sau/logic nghiep vu chi tiet hon.
+
+## 7. RAG Review Pattern (bổ sung, opt-in)
+
+Lấy cảm hứng từ
+[`google/ai-abap-assistant-sample`](https://github.com/google/ai-abap-assistant-sample) (Genie for
+SAP: code explanation / code review / suggest code / suggest ABAP unit test) và
+[`Chirag-Dwivedi/SAP_ABAP_RAG_Chatbot`](https://github.com/Chirag-Dwivedi/SAP_ABAP_RAG_Chatbot)
+(pattern ingestion + retrieval). Plugin này **không thêm MCP mới vào `.mcp.json`** — tận dụng
+các tool có sẵn (`mcp-sap-docs-btp`, `cds-kb`, `WebFetch`).
+
+Khi review gặp quyết định "ranh giới" (object có released không, naming có chuẩn không, pattern
+nào là cloud-compliant), thay vì đoán, dùng luồng sau:
+
+1. **Bước A — query retrieval**: dựng câu query ngắn gọn (<200 token) từ file:line bị FAIL,
+   ví dụ `"RABAP Cloud ZCL_HTTP_CLIENT released API equivalent"`.
+2. **Bước B — truy vấn RAG mini trong plugin** (ưu tiên):
+   - `cds-kb` (đã bật) — kiểm tra xem view chuẩn nào có sẵn để thay thế.
+   - `mcp-sap-docs-btp` (đã bật) — tra cứu `released object ABAP Cloud`.
+   - `WebFetch` tới `https://help.sap.com` / `https://api.sap.com` nếu 2 nguồn trên không đủ.
+3. **Bước C — fallback về released-class table**: nếu RAG không trả về trong 2 lần thử, dùng
+   bảng trong skill `sap-released-classes` (mục 1–9) và **đánh dấu `[Unverified]`** trong
+   report — KHÔNG tự ý chấm PASS.
+4. **Bước D — output**: ghi vào ATC report mục mới "🔍 RAG lookup":
+   ```markdown
+   ### 🔍 RAG lookup
+   - File: src/zrap/zcl_xxx.clas.abap:42
+   - Query: "released API for HTTP client ABAP Cloud"
+   - Nguồn: cds-kb + mcp-sap-docs-btp
+   - Kết luận: PASS / FAIL / [Unverified]
+   - Trích dẫn: <URL ngắn hoặc 1 dòng snippet>
+   ```
+
+### Nguyên tắc (giữ đúng tinh thần plugin)
+
+- **Không tự ý bật MCP mới** để có RAG mạnh hơn — giữ `.mcp.json` nguyên trạng.
+- **Đánh `[Unverified]`** khi retrieval mơ hồ, để user xác nhận.
+- **Không commit/push** snippet ABAP nhạy cảm kèm theo trích dẫn — chỉ ghi URL công khai.

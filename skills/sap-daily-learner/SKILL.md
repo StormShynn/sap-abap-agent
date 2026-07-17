@@ -682,3 +682,45 @@ Cross-module integration patterns:
       (MSYS mangle `/...` thanh duong dan Windows, da xac nhan bang test that)
 - [ ] KHONG tu chay `install-daily-learner-cron.bat` (can quyen Administrator, tao Task
       Scheduler that) — chi huong dan user tu chay, giong tinh than khong tu commit/push
+## 10. Curriculum tham khảo bổ sung (opt-in)
+
+Tổng hợp skeleton từ 2 nguồn open-source chất lượng cao để gợi ý cho user muốn có lộ trình học
+theo SAP chính thức:
+
+- [`anfisc/abap-rap-introduction`](https://github.com/anfisc/abap-rap-introduction) — ghi chú cá
+  nhân + learning path theo tài liệu RAP chính thức của SAP.
+- [`msg-CareerPaths/sap-abap-internship`](https://github.com/msg-CareerPaths/sap-abap-internship)
+  — learning path có cấu trúc dùng cho chương trình đào tạo nội bộ.
+
+### RAP Track (ABAP Cloud / Steampunk) — skeleton
+
+Lấy theo `anfisc/abap-rap-introduction`, rút gọn thành 6 bước:
+
+1. **Hello World trong ADT**: tạo package `Z_HELLOWORLD` + class `ZCL_HELLOWORLD`, activate.
+2. **CDS view cơ bản**: define view `ZI_HELLOWORLD` với 1 data source, expose 2 field.
+3. **Behavior Definition**: tạo BDEF `ZI_HELLOWORLD` với `managed` implementation, map entity.
+4. **Behavior Implementation**: viết `ZBP_I_HELLOWORLD` (handler `create`, `update`, `delete`,
+   `read`).
+5. **Service Binding**: tạo `ZUI_HELLOWORLD_O4` (OData V4), preview, kiểm thử qua Fiori Elements.
+6. **ABAP Unit Test**: viết test class cho handler (tham khảo skill `sap-unit-test`).
+
+### ABAP Intern Track — skeleton
+
+Lấy theo `msg-CareerPaths/sap-abap-internship`, rút gọn thành 6 tuần:
+
+1. **Tuần 1**: ABAP cơ bản (data type, internal table, string, message class).
+2. **Tuần 2**: Modularization (FORM, PERFORM, METHOD, function module).
+3. **Tuần 3**: Open SQL (SELECT, JOIN, FOR ALL ENTRIES, CDS view consumption).
+4. **Tuần 4**: ALV / SAP List Viewer (classic ALV, SALV, container).
+5. **Tuần 5**: Enhancement / BAdI (User Exit, Customer Exit, classic BAdI, new BAdI cho Cloud).
+6. **Tuần 6**: ABAP Cloud / Clean Core (released object, RAP cơ bản, transport).
+
+### Cách dùng
+
+- Lệnh `onboard rap-track` -> load RAP Track skeleton + tạo 6 entry trong `LEARNING_PROGRESS.md`
+  với level `beginner`, status `pending`.
+- Lệnh `onboard abap-intern` -> tương tự với ABAP Intern Track.
+- KHÔNG tự động onboard — chỉ chạy khi user yêu cầu rõ (xem nguyên tắc "không gửi tip nếu user
+  không yêu cầu" trong `agents/sap-daily-learner.md`).
+- Sau khi hoàn thành 1 bước, tự cập nhật `LEARNING_PROGRESS.md` + tạo lesson card qua
+  `reference/scripts/lesson_card_add.py` (xem mục "Lesson Cards" của skill này).

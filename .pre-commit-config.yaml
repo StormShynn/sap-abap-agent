@@ -1,0 +1,47 @@
+# Pre-commit config cho sap-abap-agent
+#
+# 2 cach su dung:
+#   A) Framework pre-commit (khuyen nghi cho contributor moi):
+#      pip install pre-commit
+#      pre-commit install
+#      pre-commit run --all-files
+#
+#   B) Git hook built-in (khong can framework):
+#      cp reference/scripts/pre-commit .git/hooks/pre-commit
+#      chmod +x .git/hooks/pre-commit
+#
+# Ca 2 cach chay CUNG 3 check (validate_plugin + validate_inspired_by_links + pytest).
+# Hook bash co san trong reference/scripts/pre-commit cho truong hop B.
+
+default_install_hook_types: [pre-commit]
+default_stages: [pre-commit]
+fail_fast: false
+
+repos:
+  - repo: local
+    hooks:
+      - id: validate-plugin
+        name: Validate plugin structure (frontmatter, drift, syntax)
+        entry: python reference/scripts/validate_plugin.py
+        language: system
+        types: [python, markdown]
+        pass_filenames: false
+        stages: [pre-commit]
+
+      - id: validate-inspired-by-links
+        name: Validate Inspired-by GitHub URLs (no 404)
+        entry: python reference/scripts/validate_inspired_by_links.py --strict --concurrency 8
+        language: system
+        types_or: [markdown]
+        pass_filenames: false
+        stages: [pre-commit]
+
+  - repo: local
+    hooks:
+      - id: pytest
+        name: Run pytest (tests/)
+        entry: python -m pytest tests/ -q --no-header
+        language: system
+        types: [python]
+        pass_filenames: false
+        stages: [pre-commit]

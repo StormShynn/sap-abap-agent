@@ -1,0 +1,83 @@
+name: Lint Inspired-by Links
+
+# Kiem tra cac GitHub repo URL trong README/CHANGELOG/SKILL.md con song hay da 404.
+# Tool: reference/scripts/validate_inspired_by_links.py (HEAD request batch).
+# Mode strict: se fail job neu co URL tra ve 404 - reviewer phai sua truoc khi merge.
+#
+# Trigger:
+#   - moi push/PR: PR check nhanh (~30s) de chan 404 som
+#   - cron hang ngay 06:00 UTC: retry cho ca link da bi UNCHECKED (network fail luc PR)
+#   - workflow_dispatch: chay tay neu muon
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+  schedule:
+    - cron: "0 6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: "lint-links"
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Run validate_inspired_by_links.py (strict)
+        id: check
+        run: |
+          python reference/scripts/validate_inspired_by_links.py --strict --concurrency 8
+        continue-on-error: true
+
+      - name: Annotate PR with GONE list
+        if: github.event_name == 'pull_request' && steps.check.outcome == 'failure'
+        uses: actions/github-script@v8
+        with:
+          script: |
+            // Re-run o che do non-strict de lay danh sach URL GONE cho comment.
+            const { execSync } = require('child_process');
+            let out = '';
+            try {
+              out = execSync('python reference/scripts/validate_inspired_by_links.py --concurrency 8', { encoding: 'utf8' });
+            } catch (e) {
+              // Script co the exit non-zero nhung van in output - van lay.
+              out = (e.stdout || '') + (e.stderr || '');
+            }
+            const goneLines = out.split('\n').filter(l => l.includes('GONE') || l.match(/\bhttps:\/\/github\.com\/[^\s]+\/\S+/));
+            const body = [
+              '## :link: Inspired-by Links - URL 404 phat hien',
+              '',
+              'Co it nhat 1 GitHub URL trong README/CHANGELOG/SKILL.md da tra ve 404.',
+              'Vui long sua (hoac xoa neu repo khong con lien quan) roi push lai.',
+              '',
+              '```',
+              out.trim().split('\n').slice(-30).join('\n'),
+              '```',
+              '',
+              '_Tu dong boi workflow `lint-inspired-by-links.yml`._'
+            ].join('\n');
+            github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body
+            });
+
+      - name: Fail job khi GONE
+        if: steps.check.outcome == 'failure'
+        run: |
+          echo "::error::Co GitHub URL 404 trong Inspired-by - xem log job de biet chi tiet."
+          exit 1

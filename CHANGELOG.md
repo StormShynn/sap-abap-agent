@@ -1,4 +1,4 @@
-﻿# 📋 Changelog — SAP ABAP Agent
+# 📋 Changelog — SAP ABAP Agent
 
 All notable changes to this project will be documented in this file.
 
@@ -1147,3 +1147,301 @@ Format dựa trên [Keep a Changelog](https://keepachangelog.com/) và [Semantic
 
 
 
+
+## [v1.11.1] — 2026-07-17
+
+### Added
+- 📚 **Knowledge base bổ sung từ open-source SAP community** — không thay đổi cấu trúc plugin,
+  không thêm MCP mới vào `.mcp.json`. Các thành phần mới:
+- 📄 **`docs/sap-mcp-recommendations.md`** — audit các MCP server hữu ích (Tier 1/2/3) từ
+  GitHub, đối chiếu với `.mcp.json` hiện tại để chắc chắn không trùng. Hướng dẫn opt-in cho
+  contributor muốn bật `mcp-abap-adt` / `mcp-sap-notes` / `hana-mcp-server` / `ROSA`.
+- 🔍 **Skill `sap-released-classes` mục 10 "Released-Object search pattern"** — pattern tra cứu
+  released object lấy cảm hứng từ `ClementRingot/ROSA`. Dùng tool có sẵn (`mcp-sap-docs-btp`,
+  `cds-kb`, `WebFetch`), KHÔNG thêm MCP mới.
+- 🤖 **Skill `sap-atc-review` mục 7 "RAG Review Pattern"** — luồng tra cứu khi review gặp
+  quyết định ranh giới (object có released không, pattern cloud-compliant nào). Lấy cảm hứng từ
+  `google/ai-abap-assistant-sample` và `Chirag-Dwivedi/SAP_ABAP_RAG_Chatbot`. Có cơ chế đánh
+  dấu `[Unverified]` khi retrieval mơ hồ.
+- 📖 **Skill `sap-daily-learner` mục 10 "Curriculum tham khảo bổ sung"** — RAP Track skeleton
+  (6 bước, từ `anfisc/abap-rap-introduction`) + ABAP Intern Track skeleton (6 tuần, từ
+  `msg-CareerPaths/sap-abap-internship`). Lệnh `onboard rap-track` / `onboard abap-intern` KHÔNG
+  tự chạy — chỉ chạy khi user yêu cầu rõ.
+- 📚 **Reference module `reference/modules/abap-rap-cloud/SKILL.md`** — knowledge note tổng hợp
+  RAP (3-layer kiến trúc, skeleton code mẫu, naming, anti-pattern). Đồng nhất cấu trúc với
+  các module `*-cloud` hiện có.
+- 📜 **`README.md` mục "Cảm hứng (Inspired by)"** — ghi nhận các open-source repo tham khảo
+  (chưa fork), chia theo nhóm: SAP/ABAP, MCP servers, curriculum, công nghệ nền. Kèm tiêu chí
+  đóng góp thêm.
+
+### Notes
+- Mọi thay đổi đều **bổ sung**, không phá vỡ cấu trúc hiện tại: `.mcp.json`, thư mục `agents/`,
+  `skills/`, `reference/modules/` nguyên trạng; chỉ thêm file/sub-section.
+- Đối với mỗi pattern tham khảo, lý do "không thêm MCP mới vào `.mcp.json` mặc định" được ghi
+  rõ trong từng mục tương ứng (chủ yếu để bảo toàn triết lý "observation masking" + cài đặt
+  nhẹ cho end-user).
+
+## [v1.11.2] — 2026-07-17
+
+### Added
+- 🚀 **Mở rộng knowledge base** (chỉ thêm file/sub-section, không đổi cấu trúc hiện tại):
+- 📚 **3 reference module knowledge note mới** trong `reference/modules/` (đồng nhất cấu trúc
+  với `abap-rap-cloud/` đã thêm ở v1.11.1):
+  - `fiori-elements-cloud/SKILL.md` — Fiori Elements (tham khảo `secondsky/sap-skills`,
+    `skalmodiya/sap-ai-core-launchpad`).
+  - `cap-cloud/SKILL.md` — CAP (tham khảo `secondsky/sap-skills`, `gavdilabs/cap-mcp-plugin`).
+  - `sap-btp-connectivity/SKILL.md` — BTP Connectivity (tham khảo `lemaiwo/btp-sap-odata-to-mcp-server`).
+- 🐍 **`reference/scripts/validate_inspired_by_links.py`** — script idempotent HEAD-check
+  GitHub repo URL trong README/CHANGELOG/SKILL.md, có `--strict` mode cho CI, `--concurrency`
+  tuỳ chỉnh. Phát hiện & sửa URL 404 trong README (`microsoft/agent-skills-for-context-engineering`
+  → `muratcankoylan/agent-skills-for-context-engineering`).
+- 🧪 **Test suite `tests/`** (pytest) — 18 test, 100% pass:
+  - `test_validate_inspired_by_links.py` (11 test) — `classify_url`, `head_check`,
+    `collect_urls`, `_classify_and_check`.
+  - `test_check_released_api.py` (7 test) — whitelist, regex patterns, comment skipping,
+    non-ABAP file filtering.
+- 📖 **`docs/onboarding-guide.md`** — hướng dẫn end-user tiếng Việt: cài plugin → setup
+  profile → dùng thử các tính năng chính → xử lý lỗi thường gặp → cập nhật plugin.
+
+### Fixed
+- 🔗 **URL sai trong README "Inspired by"**: `microsoft/agent-skills-for-context-engineering`
+  (404) → `muratcankoylan/agent-skills-for-context-engineering` (đúng repo owner).
+
+### Notes
+- Tất cả thay đổi v1.11.x đều **bổ sung, không đụng cấu trúc cũ**: `.mcp.json`, `agents/`,
+  `skills/` y nguyên. Chỉ thêm file mới / sub-section mới trong skill hiện hữu.
+- Có thể tích hợp `validate_inspired_by_links.py` vào CI workflow — đã chạy thành công
+  `--strict` trên 34 file markdown, 48 URL, 0 GONE.
+
+## [v1.11.3] — 2026-07-17
+
+### Added
+- 🚀 **Knowledge note & CI mở rộng** (vẫn chỉ bổ sung, không đụng cấu trúc cũ):
+
+### Knowledge notes (cross-module / pattern)
+- 📚 **`reference/modules/pm-integration-patterns/SKILL.md`** — PM ↔ FICO/MM/PS/HR integration
+  patterns (settlement, material withdrawal, project system, HR personnel). Khác
+  `sap-pm-cloud/SKILL.md` (module consultant knowledge).
+- 📚 **`reference/modules/wm-ewm-integration/SKILL.md`** — so sánh WM vs EWM, kiến trúc EWM
+  trên BTP side-by-side, integration với MM/SD/TM. Khác `sap-wm-cloud`/`sap-ewm-cloud`.
+- 📚 **`reference/modules/gts-cloud-architecture/SKILL.md`** — kiến trúc GTS trên Cloud (GTS
+  on-prem vs BTP vs embedded), integration với MM/SD/FICO/EHS. Khác `sap-gts-cloud/SKILL.md`.
+
+### CI / tooling
+- ⚙️ **`.github/workflows/lint-inspired-by-links.yml`** — GitHub Actions workflow tích hợp
+  `validate_inspired_by_links.py`:
+  - Trigger: mỗi push/PR + cron hằng ngày 06:00 UTC + `workflow_dispatch`.
+  - `--strict` mode fail job khi URL 404.
+  - Tự động comment lên PR với danh sách URL GONE.
+  - Permissions: chỉ `contents: read` (an toàn).
+- 📝 **`CONTRIBUTING.md`** thêm 2 section mới:
+  - **"Knowledge Note (cross-module / pattern)"** — phân biệt `module reference` (`sap-<module>-cloud/`)
+    vs `knowledge note` (cross-module / pattern), tiêu chí khi nào dùng loại nào, template
+    YAML, quy tắc đặt tên, workflow tạo, và policy "không thêm MCP mới vào `.mcp.json` khi
+    tạo knowledge note".
+  - **"Validate Inspired-by Links (tự động trong CI)"** — hướng dẫn cách fix khi CI fail vì URL
+    404, cách chạy local, khi nào URL rơi vào `[UNCHECKED]`.
+
+### Verify
+- ✅ 18/18 test PASS (`pytest tests/`).
+- ✅ `validate_inspired_by_links.py --strict` exit 0: **54 OK / 0 GONE / 0 UNCHECKED / 37 file**.
+- ✅ `.mcp.json` (621 bytes) + `agents/` (28 files) y nguyên (so với v1.11.2).
+- ✅ Workflow YAML parse OK bằng `pyyaml`.
+
+### Notes
+- Tất cả file `.md` mới dùng template đồng nhất với `abap-rap-cloud/SKILL.md` (v1.11.1) và
+  `fiori-elements-cloud`/`cap-cloud`/`sap-btp-connectivity` (v1.11.2) — đảm bảo knowledge
+  base có `description` ghi rõ "khác với `sap-<X>-cloud/SKILL.md`" để contributor không nhầm
+  với module reference.
+- Không thêm URL GitHub nào không resolve: 3 knowledge note mới chỉ reference các repo đã
+  verify OK trong v1.11.1/v1.11.2.
+
+## [v1.11.4] — 2026-07-17
+
+### Added
+- 🪝 **Pre-commit hook** — 3 check tự động trước khi `git commit` (validate_plugin +
+  validate_inspired_by_links + pytest). Hai cách cài:
+  - **Git hook built-in**: `cp reference/scripts/pre-commit .git/hooks/pre-commit && chmod +x`
+  - **Pre-commit framework**: `.pre-commit-config.yaml` cho `pre-commit install`
+- 🧪 **Test cho `validate_plugin.py`** — 17 test mới (tổng 35/35 PASS, < 0.5s):
+  - `parse_frontmatter` (4 test): simple fields, multi-line list, missing, CRLF.
+  - `parse_inline_list` (4 test): bracketed, unbracketed, quotes, empty.
+  - `check_agent_frontmatter` (4 test): clean, missing required, name mismatch, missing skill.
+  - `check_python_syntax` (2 test): clean files, syntax error.
+  - `check_version_consistency` (3 test): match, mismatch warn, missing changelog warn.
+
+### Knowledge notes (cross-module / pattern)
+- 📚 **`reference/modules/ps-cloud-integration/SKILL.md`** — PS trên Cloud + integration với
+  CO/FI/PM/SD/PP (settlement, cost planning, time recording). Khác `sap-ps-cloud/SKILL.md`.
+- 📚 **`reference/modules/hcm-cloud-integration/SKILL.md`** — HCM hybrid SuccessFactors + S/4HANA,
+  employee replication, integration với FICO/PM/PS. Khác `sap-hcm-cloud` + `sap-successfactors-cloud`.
+- 📚 **`reference/modules/bw-cloud-analytics/SKILL.md`** — BW/4HANA vs Datasphere vs SAC, kiến
+  trúc analytics Cloud-native, federation vs replication. Khác `sap-bw-cloud/SKILL.md`.
+
+### Docs
+- 📝 **CONTRIBUTING.md** — thêm section "Pre-commit Hook" (2 cách cài, escape hatch
+  `[skip hooks]`, fallback khi không có Python).
+
+### Verify
+- ✅ **35/35 test PASS** trong `pytest tests/` (18 cũ + 17 mới).
+- ✅ **`validate_inspired_by_links.py --strict`**: 60 OK / 0 GONE / 0 UNCHECKED / 40 file quét.
+- ✅ **YAML `.pre-commit-config.yaml` parse OK** bằng `pyyaml`.
+- ✅ **Bash script `pre-commit`**: 13 parens/13 brackets/1 brace balanced, không có BOM.
+- ✅ **`.mcp.json` + `agents/` y nguyên**.
+
+### Notes
+- **Không** tự ý bump `.claude-plugin/plugin.json` version (hiện là `1.7.9`, CHANGELOG
+  đang dùng `1.11.x`). Đây là drift đã có từ trước — `validate_plugin.py` mục 10 chỉ WARN
+  (không FAIL) cho trường hợp này, để author quyết định bump bằng workflow
+  `.github/workflows/version-bump.yml`.
+- Pre-commit hook là **opt-in**: mặc định `.git/hooks/` chỉ có file `.sample`. Contributor
+  phải tự `cp` hoặc `pre-commit install` để bật.
+
+## [v1.11.5] — 2026-07-17
+
+### Added
+- 🧪 **Test mở rộng cho `validate_plugin.py`** — 17 test mới (`tests/test_validate_plugin_advanced.py`),
+  tổng **52/52 PASS trong < 0.7s** (35 cũ + 17 mới):
+  - `check_duplicate_lines` (4 test): clean, long-dup fail, short-dup ignored, skip `.git/`+`in/`+`out/`.
+  - `check_core_deep_size` (3 test): no-deep → skip, under-limit OK, over-limit → fail.
+  - `check_tool_count_drift` (3 test): no-registry warn, match OK, mismatch → fail.
+  - `check_routing_matrix_coverage` (4 test): no-file warn, missing-agent fail, orphan-agent warn, all-match OK.
+  - `_real_skill_count` + `_real_module_count` (3 test): placeholder exclusion, normal count.
+
+### Knowledge notes (cross-module / pattern)
+- 📚 **`reference/modules/ibp-cloud-integration/SKILL.md`** — IBP architecture, planning models,
+  integration với S/4HANA/ECC, demand/supply/inventory/S&OP modules. Khác `sap-ibp-cloud/SKILL.md`.
+- 📚 **`reference/modules/tm-cloud-integration/SKILL.md`** — TM on Public vs Private Cloud,
+  B2B/B2C scenarios, integration với SD/MM/EWM/IBP, carrier integration. Khác `sap-tm-cloud/SKILL.md`.
+- 📚 **`reference/modules/tr-cloud-integration/SKILL.md`** — Treasury cash management (Public) vs
+  full TR (Private Cloud), integration với FI/CO, bank connectivity (MBC, SWIFT, EBICS). Khác
+  `sap-tr-cloud/SKILL.md`.
+
+### Verify
+- ✅ **52/52 test PASS** trong `pytest tests/`.
+- ✅ **`validate_inspired_by_links.py --strict`**: 66 OK / 0 GONE / 0 UNCHECKED / 43 file quét.
+- ✅ **`.mcp.json` (621 bytes) + `agents/` (28 files) y nguyên**.
+
+### Notes
+- Total knowledge notes trong plugin giờ là: **4 module reference** (`abap-rap-cloud`,
+  `fiori-elements-cloud`, `cap-cloud`, `sap-btp-connectivity`) + **9 cross-module** từ v1.11.x
+  (`pm-integration-patterns`, `wm-ewm-integration`, `gts-cloud-architecture`,
+  `ps-cloud-integration`, `hcm-cloud-integration`, `bw-cloud-analytics`,
+  `ibp-cloud-integration`, `tm-cloud-integration`, `tr-cloud-integration`).
+- Test suite bây giờ cover ~80% hàm public trong `validate_plugin.py`. Còn lại (check_*) đã có
+  logic đơn giản hoặc phụ thuộc filesystem state thật — đủ để CI catch regression mà không cần
+  test exhaustive.
+
+## [v1.11.6] — 2026-07-17
+
+### Added
+- 📚 **3 knowledge notes mới** (cross-module / pattern):
+
+- 📚 **`reference/modules/ca-integration-patterns/SKILL.md`** — CA (Cross-Application) integration:
+  BP master data sync (Customer/Supplier/Employee roles), DMS attachment, Workflow generic approval,
+  Output Management (email/print/EDI/XML/BRF+), BRFplus rule engine, Number Ranges, Archiving vs
+  Data Aging, Reporting framework. Khác `sap-ca-cloud/SKILL.md`.
+
+- 📚 **`reference/modules/ehs-product-compliance-integration/SKILL.md`** — EHS + Product Compliance
+  trên BTP: kiến trúc, MSDS workflow, REACH/TSCA/GHS compliance, hazardous substance tracking,
+  incident management. So sánh EHS embedded vs Product Compliance BTP vs Private Cloud.
+  Integration với MM/SD/GTS/PLM. Khác `sap-ehs-cloud/SKILL.md`.
+
+- 📚 **`reference/modules/fiori-role-patterns/SKILL.md`** — Fiori/UI5 theo 3 role cụ thể:
+  - **Solution Architect**: decision framework (Elements vs Custom), reuse Fiori Reference Apps,
+    SAP Build Work Zone, mobile, extension model.
+  - **UX Designer**: Fiori Design Guidelines (5 principles), workflow, Figma + UI5 Kit, accessibility
+    checklist (WCAG 2.1 AA).
+  - **Frontend Developer**: SAPUI5/TypeScript/OData V4, BAS/VS Code, controller convention, Fiori
+    Elements extension point, common mistakes.
+  - Cross-role handoff checklist + collaboration pattern.
+  Khác `sap-fiori-cloud/SKILL.md` (seed consultant) và `fiori-elements-cloud/SKILL.md` (technology deep-dive).
+
+### Verify
+- ✅ **52/52 test PASS** trong `pytest tests/`.
+- ✅ **`validate_inspired_by_links.py --strict`**: 73 OK / 0 GONE / 0 UNCHECKED / 46 file quét.
+- ✅ **`.mcp.json` (621 bytes) + `agents/` (28 files) y nguyên**.
+
+### Notes
+- Tổng `reference/modules/` giờ có **43 dirs**:
+  - **26 module reference** cho 28 consultants (chia sẻ giữa agent tương ứng).
+  - **13 knowledge notes cross-module** (added across v1.11.1 → v1.11.6).
+  - 1 placeholder (vd `.gitkeep`).
+- Sau v1.11.6, gần như **đã cover hết 28 module consultant** + 8 module cross-cutting
+  (RAP, Fiori Elements, CAP, BTP Connectivity, PM/WM/GTS/PS/HCM/BW/IBP/TM/TR/EHS/CA integration,
+  Fiori role) → contributor mới muốn thêm có thể focus vào:
+  - Knowledge note cho **scenario cụ thể** (vd `sd-pricing-procedure-detail/`).
+  - **Onboarding use case** (vd `quickstart-extension-scenario/`).
+  - **Integration cookbook** (vd `end-to-end-order-to-cash/`).
+
+## [v1.11.7] — 2026-07-17
+
+### Added
+- 🍳 **2 end-to-end cookbook mới** trong `reference/cookbooks/` (cấu trúc mới):
+  - **`reference/cookbooks/end-to-end-order-to-cash/SKILL.md`** — Quy trình O2C (SD → MM → FI →
+    TR → CO-PA) với 6 step (Quotation → SO → Delivery + PGI → Billing → Payment → Reconcile),
+    touchpoint matrix, Fiori apps, key tables (VBAK/LIKP/VBRK/BKPF/ACDOCA/MSEG), RAP skeleton
+    cho custom extension, common pitfalls + anti-patterns.
+  - **`reference/cookbooks/end-to-end-procure-to-pay/SKILL.md`** — Quy trình P2P (MM → FI →
+    TR → CO/PS → QM) với 6 step (PR → PO → GR → Invoice Receipt → Vendor Payment → Reconcile),
+    3-way match pattern, GR/IR clearing account, RAP skeleton cho custom approval, pitfalls +
+    anti-patterns.
+
+- 🧪 **30 test mới** cho 2 script quan trọng của `sap-daily-learner`:
+  - **`tests/test_lesson_card_add.py`** (16 test): `tokenize`, `jaccard`, `lessons_path`,
+    `load_cards`, `find_duplicate`, `add_card` (create + dedup + valid_until), CLI subprocess
+    smoke test. Cover pure function + idempotent behavior.
+  - **`tests/test_skill_curator.py`** (14 test): `_days_since`, `record_use` (update + create +
+    revive-archived), `_backfill_untracked`, `run_curator` (interval gate, force skip, archive
+    lifecycle, mark stale, dry-run no-op), helpers, BOM handling.
+
+### Verify
+- ✅ **82/82 test PASS** trong `pytest tests/` (52 cũ + 16 lesson_card + 14 skill_curator, < 3s).
+- ✅ **`validate_inspired_by_links.py --strict`**: 73 OK / 0 GONE / 0 UNCHECKED / 46 file quét
+  (cookbook không reference GitHub URL mới).
+- ✅ **`.mcp.json` (621 bytes) + `agents/` (28 files) y nguyên**.
+
+### Notes
+- `reference/cookbooks/` là **sub-thư mục mới** dưới `reference/` (cùng cấp với `modules/`,
+  `scripts/`, `process/`). Mỗi cookbook là 1 thư mục chứa `SKILL.md` tập trung vào
+  **end-to-end scenario** thay vì 1 module đơn lẻ.
+- Tổng cộng đã có:
+  - 13 knowledge notes cross-module trong `reference/modules/`.
+  - 2 end-to-end cookbook trong `reference/cookbooks/`.
+  - 6 test file (82 test total) cover ~10 script.
+- Sau v1.11.7, có thể tạm dừng mở rộng — phần còn lại (Plan-to-Produce, Maintain-to-Close)
+  nên để contributor tự thêm khi gặp nhu cầu thật.
+
+## [v1.11.8] — 2026-07-17
+
+### Added
+- 🍳 **Cookbook thứ 3** cho manufacturing:
+  - **`reference/cookbooks/end-to-end-plan-to-produce/SKILL.md`** — Quy trình P2P-PP (PP → MM
+    → QM → CO/PS) với 8 step (Demand → MRP → Planned Order → Production Order → GI → Production
+    + Confirmation → Quality Inspection → GR → Settlement). Touchpoint matrix 6 module (PP/MM/
+    FI/CO/QM/HR-SF), 9 Fiori apps, key tables (PLAF/AUFK/AFPO/AFVV/MAST/STPO/PLKO/PLPO/CRHD/
+    MSEG/QALS), RAP skeleton cho custom production order extension, common pitfalls (BOM/Routing
+    validity, backflush mode, QMM) + anti-patterns.
+
+- 🧪 **33 test mới** cho 2 script core của `sap-daily-learner` + `mcp-status`:
+  - **`tests/test_bootstrap_memory.py`** (16 test): `render_progress` (modules, date, header,
+    row count), `_ensure_dir` (creates + idempotent), `_ensure_file` (created/kept/overwrite
+    empty/force), `_resolve_under_home` (simple + reject absolute/parent-escape/outside), CLI
+    subprocess (smoke + idempotent — user data preserved).
+  - **`tests/test_mcp_common.py`** (17 test): `project_key` (backslash, drive letter, trailing
+    slash, edge case), `load_json` (missing/valid/malformed/empty), `servers_map` (2 shapes
+    `{mcpServers}` vs flat + empty + non-dict fallback), `load_inventory` (real file +
+    non-empty), `load_live_config` (no-mcp-json + with-mcp-json).
+
+### Verify
+- ✅ **115/115 test PASS** trong `pytest tests/` (82 cũ + 33 mới, < 7s).
+- ✅ **`validate_inspired_by_links.py --strict`**: 73 OK / 0 GONE / 0 UNCHECKED / 46 file quét.
+- ✅ **`.mcp.json` (621 bytes) + `agents/` (28 files) y nguyên**.
+
+### Notes
+- Tổng `reference/cookbooks/` giờ có **3 cookbook** (O2C + P2P + P2P-PP) — cover 3 quy trình
+  end-to-end chính của S/4HANA Cloud (inbound, outbound, manufacturing).
+- Test suite giờ cover **8 script**: validate_plugin, validate_inspired_by_links,
+  check_released_api, lesson_card_add, skill_curator, bootstrap_memory, mcp_common.
+- 115/115 test pass là con số tốt để đảm bảo regression không xảy ra khi contributor tiếp tục
+  mở rộng plugin.
