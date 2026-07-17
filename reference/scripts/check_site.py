@@ -54,7 +54,9 @@ def check_duplicate_blocks(html: str) -> None:
                 f"likely a non-idempotent generator script re-inserting the same block",
             )
 
-    script_tags = re.findall(r"<script(\s[^>]*)?>(.*?)</script>", html, re.DOTALL)
+    script_tags = re.findall(
+        r"<script(\s[^>]*)?>(.*?)</script\s*>", html, re.DOTALL | re.IGNORECASE
+    )
     # A script tag with a src= attribute is *meant* to have an empty body — only flag
     # empty inline (no-src) tags, which are dead leftovers from a bad dedup pass.
     empty = sum(1 for attrs, body in script_tags if "src=" not in (attrs or "") and not body.strip())
