@@ -1,7 +1,19 @@
-﻿"""Helper hoi user qua stdin/stdout."""
+"""Helper hoi user qua stdin/stdout."""
 from __future__ import annotations
 
 import sys
+
+
+class UserCancelled(Exception):
+    """User da huy thu tac vu dang nhap/setup (Ctrl+C / Ctrl+D / Ctrl+Z+Enter).
+
+    Caller (CLI) bat exception nay de thoat sach, KHONG traceback, KHONG ghi
+    config/secrets moi - chi giu nguyen trang thai cu.
+    """
+
+    def __init__(self, where: str = "?"):
+        super().__init__(f"User cancelled at {where}")
+        self.where = where
 
 
 def ask(question: str, *, default: str | None = None,
@@ -13,9 +25,13 @@ def ask(question: str, *, default: str | None = None,
     hint = f" [{default}]" if default is not None else ""
     sys.stdout.write(f"{question}{hint}: ")
     sys.stdout.flush()
-    line = sys.stdin.readline()
+    try:
+        line = sys.stdin.readline()
+    except KeyboardInterrupt:
+        raise UserCancelled("ask (Ctrl+C)")
     if not line:
-        raise EOFError("User huy (Ctrl+D).")
+        # Ctrl+D / Ctrl+Z+Enter: stdin dong, khong co du lieu -> user huy.
+        raise UserCancelled("ask (stdin closed)")
     ans = line.rstrip("\n").rstrip("\r").strip()
     if not ans and default is not None:
         ans = default

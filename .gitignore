@@ -22,6 +22,7 @@ tests/
 
 # Temp scripts
 _*.py
+!__init__.py
 nul
 
 # Machine-specific wrapper (chua duong dan tuyet doi)

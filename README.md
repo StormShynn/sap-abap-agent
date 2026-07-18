@@ -1,6 +1,6 @@
 # SAP ABAP Agent (Tiếng Việt)
 
-[![Version](https://img.shields.io/badge/version-1.3.3-blue.svg)](CHANGELOG.md) [![Python](https://img.shields.io/badge/Python-3.10+-blue.svg)](https://python.org) [![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE) [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](CODE_OF_CONDUCT.md) [![Security Policy](https://img.shields.io/badge/Security-View_Policy-blue.svg)](SECURITY.md) [![Changelog](https://img.shields.io/badge/Changelog-%23ff69b4.svg)](CHANGELOG.md) [![CI/CD](https://github.com/StormShynn/sap-abap-agent/actions/workflows/deploy.yml/badge.svg)](https://github.com/StormShynn/sap-abap-agent/actions/workflows/deploy.yml) [![GitHub Pages](https://img.shields.io/github/deployments/StormShynn/sap-abap-agent/github-pages?label=GitHub%20Pages&logo=github)](https://stormshynn.github.io/sap-abap-agent/)
+[![Version](https://img.shields.io/badge/version-1.12.0-blue.svg)](CHANGELOG.md) [![Python](https://img.shields.io/badge/Python-3.10+-blue.svg)](https://python.org) [![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE) [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](CODE_OF_CONDUCT.md) [![Security Policy](https://img.shields.io/badge/Security-View_Policy-blue.svg)](SECURITY.md) [![Changelog](https://img.shields.io/badge/Changelog-%23ff69b4.svg)](CHANGELOG.md) [![CI/CD](https://github.com/StormShynn/sap-abap-agent/actions/workflows/deploy.yml/badge.svg)](https://github.com/StormShynn/sap-abap-agent/actions/workflows/deploy.yml) [![GitHub Pages](https://img.shields.io/github/deployments/StormShynn/sap-abap-agent/github-pages?label=GitHub%20Pages&logo=github)](https://stormshynn.github.io/sap-abap-agent/)
 
 Plugin Claude Code + MCP server tự động kết nối **SAP BTP / S/4HANA Cloud** để thao tác
 ABAP (đọc / tìm / syntax-check / activate). Hỗ trợ **multi-profile** — mỗi project SAP
@@ -24,6 +24,19 @@ có profile riêng (URL, tenant, secret), lưu trong **folder user** trên máy
 - **🧠 Context Engineering** (v0.6.2): trim MCP output (observation masking),
   scaffold summary giữa các layer, 2-layer module routing (CORE+DEEP), 3-tier memory
   cho daily-learner — lấy pattern từ agent-skills-for-context-engineering.
+
+
+- **🖥️ GUI desktop + system tray** (`sap-btp-agent-gui`, cần extra `[gui]`): Tkinter window với
+  4 nút lớn (Reauth / Connect / Set Active / Remove) + log console streaming real-time +
+  status bar; tray icon (pystray) với menu chuột phải + balloon thông báo. Ẩn xuống tray khi
+  bấm X. Có license dashboard riêng (720×460) với progressbar đếm ngược thời gian sống của
+  cookie/token (xanh >20%, cam 5-20%, đỏ <5%, auto-refresh 1Hz).
+- **⏱️ Early-finish cho reauth auto mode** (Playwright): thay vì đợi 30s timeout, tool kết
+  thúc sớm khi (1) user bấm Enter/OK, (2) session cookie + ADT discovery OK, hoặc (3) URL
+  ổn định 3s. Test real timing URL-stable: 4.6s thay vì 30s.
+- **🛡️ Ctrl+C handling an toàn** (`ReauthCancelled` / `UserCancelled`): không in traceback 10+
+  dòng nữa, cookie cũ KHÔNG bị save đè khi user hủy giữa luồng, browser Playwright luôn được
+  đóng, cơ chế 2-lần Ctrl+C (lần 1 cảnh báo, lần 2 trong 2s mới hủy thật).
 
 ## Đóng góp
 
@@ -223,6 +236,94 @@ sap-btp-agent reset                     # xóa TẤT CẢ (cẩn thận!)
 sap-btp-agent connect                            # test profile active
 sap-btp-agent connect project1.s4hana.cloud.sap  # test 1 profile cụ thể
 ```
+
+## GUI desktop + system tray (tùy chọn)
+
+Nếu bạn không thích gõ lệnh, cài thêm GUI + tray icon:
+
+```bash
+pip install sap-abap-agent-mcp[gui]
+```
+
+Lệnh này cài thêm `pystray` + `Pillow`. Sau khi cài xong, có thêm command `sap-btp-agent-gui`:
+
+```bash
+sap-btp-agent-gui                  # Mở GUI + tray (mặc định)
+sap-btp-agent-gui --no-tray         # Chỉ GUI, không có tray icon
+sap-btp-agent-gui --tray-only       # Chỉ tray (ẩn hoàn toàn, không cửa sổ)
+```
+
+**Giao diện GUI (780×560):**
+
+- **Profile selector** (dropdown) với badge inline hiển thị trạng thái cookie/token —
+  ví dụ `* project1.s4hana.cloud.sap  ⚠ 29m 57s` (cam = sắp hết hạn), `❌` (đỏ = hết hạn),
+  `✓ 7h 59m` (xanh = OK).
+- **4 nút lớn**: 🔐 Reauth · 🔌 Connect · ⭐ Set Active · 🗑 Remove.
+- **➕ Add** (góc trên phải): menu thả xuống với **Setup wizard** (mở CMD mới chạy
+  `sap-btp-agent setup`) và **Import from JSON backup** (chọn file `config.json`, tự
+  derive profile id từ `btpUrl`).
+- **Log console** streaming real-time từ subprocess — copy để paste vào issue khi cần debug.
+- **📋 License** (góc dưới phải): mở **License Dashboard** (Toplevel 720×460) hiển thị tất cả
+  profile với progressbar đếm ngược thời gian sống của cookie/token (xanh >20%, cam 5-20%,
+  đỏ <5%, auto-refresh 1Hz). Click vào dòng status dưới URL cũng mở dashboard.
+
+**Tray icon (Windows notification area):**
+
+- Menu chuột phải: **Reauth (active)** · **Connect (active)** · **Profiles** (sub-menu
+  chọn nhanh profile active) · **Open License Dashboard** · **Open GUI** · **Quit**.
+- Click chuột trái: toggle hiện/ẩn GUI.
+- Balloon Windows ở góc phải thông báo kết quả `reauth` / `connect`.
+- **Ẩn xuống tray khi bấm X** trên cửa sổ GUI (để thoát hẳn, dùng **Quit** trong menu tray).
+
+**Sớm hơn 30s timeout cho reauth auto mode:** tool kết thúc sớm khi (1) bạn bấm Enter trong
+terminal CLI / nút **✓ Đã đăng nhập xong** trong GUI, (2) session cookie + ADT discovery OK,
+hoặc (3) URL ổn định 3s liên tiếp. Test thực tế URL-stable: 4.6s thay vì 30s.
+
+Xem chi tiết tại `sap_btp_agent/gui/README.md`.
+
+## License dashboard (xem cookie/token còn hạn bao lâu)
+
+CLI mới `sap-btp-agent license` in trạng thái license của tất cả profile hoặc 1 profile cụ thể:
+
+```bash
+sap-btp-agent license                                # bảng tóm tắt tất cả profile
+sap-btp-agent license project1.s4hana.cloud.sap      # chi tiết 1 profile
+```
+
+**Output mẫu (danh sách):**
+
+```
+======================================================================================
+  Profile                                  Type     Status       Expires
+======================================================================================
+  *project1.s4hana.cloud.sap               cookie   ok           6h 59m
+   old.s4hana.cloud.sap                    cookie   warning      29m 57s
+   expired.s4hana.cloud.sap                cookie   expired      expired 1m 5s ago
+======================================================================================
+  (*) = active profile. Dung `sap-btp-agent license <id>` de xem chi tiet.
+```
+
+**Output mẫu (chi tiết):**
+
+```
+============================================================
+  License: project1.s4hana.cloud.sap
+============================================================
+  Type        : cookie
+  Has creds   : True
+  Expires at  : 2026-07-18 16:30:00 (7h 59m)
+  Saved at    : 2026-07-18 08:30:00
+  session_cookies: ['MYSAPSSO2', 'sap-usercontext']
+  total_cookies: 6
+  max_age_hours: 8.0
+
+  OK
+```
+
+- **Cookie expires** được ước lượng = `last_saved + cookie_max_age_hours` (mặc định 8h,
+  override bằng cách thêm `"cookieMaxAgeHours": N` vào `config.json` của profile).
+- **OAuth2 token expires** được lưu chính xác từ response `expires_in` của token endpoint.
+- **Tray notification** tự động khi mở GUI nếu có profile sắp hết hạn (<1h) hoặc đã hết hạn.
 
 ## Đăng ký MCP với Claude Code
 

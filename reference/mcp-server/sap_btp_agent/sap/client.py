@@ -5,6 +5,7 @@ Async, retry 429/5xx, auto-reconnect khi 401.
 from __future__ import annotations
 
 import asyncio
+import re
 from typing import Any
 from urllib.parse import urlencode
 
@@ -466,6 +467,183 @@ class SapClient:
             "/sap/bc/adt/runtime/dumps",
             query={"maxResults": str(top)},
         )
+
+    def edit_session(self) -> "SapEditSession":
+        """Mo 1 'phien edit' stateful cho chuoi create/lock/PUT source/unlock/
+        activate 1 object ADT. Xem SapEditSession de biet ly do can thiet."""
+        return SapEditSession(self)
+
+
+class SapEditSession:
+    """1 phien HTTP dung CHUNG 1 httpx.AsyncClient (giu nguyen cookie jar,
+    dac biet cookie 'sap-contextid') xuyen suot ca chuoi create -> lock ->
+    PUT source -> unlock -> activate cho 1 object ADT.
+
+    LY DO CAN THIET (phat hien qua test that voi package ZSD09_TEST,
+    2026-07-17): kien truc binh thuong cua SapClient (_fetch_with_retry) tao
+    1 httpx.AsyncClient MOI cho MOI request rieng le - lam mat cookie
+    'sap-contextid' ma SAP tra ve luc Lock (dung de "ghim" - pin - phien lam
+    viec vao 1 application server instance CU THE, noi lock duoc giu trong
+    bo nho). Thieu cookie nay, cac request PUT/unlock/activate tiep theo co
+    the bi route sang server KHAC khong biet gi ve lock vua tao - SAP tra loi
+    nham lan kieu 401 "not locked" / 403 "currently editing" du code da gui
+    dung lockHandle va da unlock "thanh cong" (thanh cong tren 1 server khac,
+    khong phai server dang giu lock that).
+
+    Dung header X-sap-adt-sessiontype: stateful (port tu vibing-steampunk
+    http.go, comment nguyen van: "Lock handles are session-specific - force
+    stateful, issue #88") KET HOP voi 1 httpx.AsyncClient DUY NHAT (khong tao
+    lai cho tung request, de httpx tu dong giu + gui lai moi cookie server
+    tra ve - gom ca sap-contextid) - da xac nhan hoat dong that qua test song
+    voi ZSD09_TEST (tao + activate thanh cong het toan bo chuoi).
+
+    Dung nhu:
+        async with client.edit_session() as edit:
+            await edit.create(creation_path, create_xml, transport)
+            lock_handle = await edit.lock(object_url)
+            await edit.put_source(source_url, ddl_text, lock_handle)
+            await edit.unlock(object_url, lock_handle)
+            result_xml = await edit.activate(object_url, object_name)
+    """
+
+    def __init__(self, client: "SapClient") -> None:
+        self._client = client
+        self._hc: httpx.AsyncClient | None = None
+        self._csrf_token: str = ""
+        self._authorization: str | None = None
+
+    async def __aenter__(self) -> "SapEditSession":
+        await self._client.init()
+        timeout_s = (self._client.config.get("timeoutMs") or 30000) / 1000
+
+        if self._client.use_cookie_auth:
+            cookies = self._client.cookie_auth.get_cookies()
+        else:
+            token = await self._client.auth.get_access_token()
+            self._authorization = f"Bearer {token}"
+            cookies = {}
+
+        self._hc = httpx.AsyncClient(cookies=cookies, timeout=timeout_s)
+
+        headers = {"Accept": "application/xml", "x-csrf-token": "fetch"}
+        if self._authorization:
+            headers["Authorization"] = self._authorization
+        base = self._client._base()
+        try:
+            resp = await self._hc.get(f"{base}/sap/bc/adt/core/discovery", headers=headers)
+        except Exception:
+            await self._hc.aclose()
+            raise
+        self._csrf_token = resp.headers.get("x-csrf-token", "")
+        if not self._csrf_token:
+            await self._hc.aclose()
+            raise RuntimeError("Khong lay duoc CSRF token cho edit session.")
+        return self
+
+    async def __aexit__(self, exc_type: Any, exc: Any, tb: Any) -> None:
+        if self._hc:
+            await self._hc.aclose()
+
+    def _headers(self, extra: dict[str, str] | None = None) -> dict[str, str]:
+        h = {"x-csrf-token": self._csrf_token, "X-sap-adt-sessiontype": "stateful"}
+        if self._authorization:
+            h["Authorization"] = self._authorization
+        if extra:
+            h.update(extra)
+        return h
+
+    @staticmethod
+    def _raise_if_error(resp: httpx.Response, action: str, object_url: str) -> None:
+        if resp.status_code >= 400:
+            raise RuntimeError(f"{action} {object_url} -> {resp.status_code}: {resp.text[:500]}")
+
+    async def create(self, creation_path: str, body: str, transport: str = "",
+                      content_type: str = "application/*") -> str:
+        """POST tao object shell (truoc lock). creation_path la duong dan
+        collection (vd "/sap/bc/adt/ddic/ddl/sources"), KHONG phai URL cua
+        object cu the (object chua ton tai truoc buoc nay)."""
+        base = self._client._base()
+        params = {"corrNr": transport} if transport else None
+        resp = await self._hc.post(
+            f"{base}{creation_path}", params=params,
+            content=body.encode("utf-8"),
+            headers=self._headers({"Content-Type": content_type}),
+        )
+        self._raise_if_error(resp, "Create", creation_path)
+        return resp.text
+
+    async def lock(self, object_url: str) -> str:
+        """Lock object (POST thang vao URL cua chinh object). Tra ve lock
+        handle; raise neu that bai hoac khong tim thay LOCK_HANDLE."""
+        base = self._client._base()
+        resp = await self._hc.post(
+            f"{base}{object_url}",
+            params={"_action": "LOCK", "accessMode": "MODIFY"},
+            headers=self._headers({
+                "Accept": "application/vnd.sap.as+xml;charset=UTF-8;dataname=com.sap.adt.lock.result",
+            }),
+        )
+        self._raise_if_error(resp, "Lock", object_url)
+        m = re.search(r"<LOCK_HANDLE>([^<]*)</LOCK_HANDLE>", resp.text)
+        if not m or not m.group(1):
+            raise RuntimeError(f"Lock khong tra ve LOCK_HANDLE hop le: {resp.text[:300]}")
+        return m.group(1)
+
+    async def put_source(self, source_url: str, source: str, lock_handle: str,
+                          content_type: str = "text/plain; charset=utf-8",
+                          transport: str = "") -> None:
+        base = self._client._base()
+        params: dict[str, str] = {"lockHandle": lock_handle}
+        if transport:
+            params["corrNr"] = transport
+        resp = await self._hc.put(
+            f"{base}{source_url}", params=params,
+            content=source.encode("utf-8"),
+            headers=self._headers({"Content-Type": content_type}),
+        )
+        self._raise_if_error(resp, "PUT source", source_url)
+
+    async def unlock(self, object_url: str, lock_handle: str) -> None:
+        base = self._client._base()
+        resp = await self._hc.post(
+            f"{base}{object_url}",
+            params={"_action": "UNLOCK", "lockHandle": lock_handle},
+            headers=self._headers(),
+        )
+        self._raise_if_error(resp, "Unlock", object_url)
+
+    async def activate(self, object_url: str, object_name: str) -> str:
+        return await self.activate_multi([(object_url, object_name)])
+
+    async def activate_multi(self, refs: list[tuple[str, str]]) -> str:
+        """Activate NHIEU object cung luc trong 1 request (nhieu
+        adtcore:objectReference trong cung 1 body) - can cho BDEF: xac nhan
+        tu nhieu nguon doc lap (marcellourbani/vscode_abap_remote_fs,
+        jfilak/sapcli, fr0ster/mcp-abap-adt-clients, 2026-07-18) rang
+        activate 1 Behavior Definition phai gom CA class implement behavior
+        no trong CUNG 1 request /sap/bc/adt/activation - thieu buoc nay
+        activate co the fail hoac cho ket qua sai. refs: list[(object_url,
+        object_name)], object dau tien nen la object chinh (dung cho thong
+        bao loi neu co)."""
+        base = self._client._base()
+        refs_xml = "\n".join(
+            f'  <adtcore:objectReference adtcore:uri="{url}" adtcore:name="{name}"/>'
+            for url, name in refs
+        )
+        body = (
+            '<?xml version="1.0" encoding="UTF-8"?>\n'
+            '<adtcore:objectReferences xmlns:adtcore="http://www.sap.com/adt/core">\n'
+            f'{refs_xml}\n'
+            '</adtcore:objectReferences>'
+        )
+        resp = await self._hc.post(
+            f"{base}/sap/bc/adt/activation",
+            params={"method": "activate", "preauditRequested": "true"},
+            content=body.encode("utf-8"),
+            headers=self._headers({"Content-Type": "application/xml"}),
+        )
+        self._raise_if_error(resp, "Activate", refs[0][0] if refs else "")
+        return resp.text
 
 
 async def _maybe_await(value: Any) -> Any:

@@ -21,10 +21,13 @@ dependencies = [
 win-dpapi = ["pywin32>=306"]
 mac-keychain = ["keyring>=24"]
 playwright = ["playwright>=1.40"]
+gui = ["pystray>=0.19", "Pillow>=10.0"]
 dev = ["pytest>=8"]
 
 [project.scripts]
 sap-btp-agent = "sap_btp_agent.cli:main"
+sap-btp-agent-gui = "sap_btp_agent.gui:main"
+
 
 [tool.setuptools.packages.find]
 where = ["."]

@@ -6,6 +6,81 @@ Format dựa trên [Keep a Changelog](https://keepachangelog.com/) và [Semantic
 
 ---
 
+## [v1.12.0] - 2026-07-18
+
+### Added
+
+- GUI desktop + system tray (sap_btp_agent/gui/__init__.py, app.py, tray.py, runner.py,
+  entry point moi sap-btp-agent-gui) - Tkinter GUI 780x560 voi 4 nut lon (Reauth / Connect /
+  Set Active / Remove) + log console streaming real-time + status bar; system tray icon
+  (pystray + Pillow) voi menu chuot phai (Reauth active, Connect, Profiles sub-menu, Open
+  License Dashboard, Open GUI, Quit); click chuot phai tray -> balloon Windows thong bao
+  ket qua reauth/connect. An xuong tray thay vi thoat khi bam X.
+  - pip install sap-abap-agent-mcp[gui] (extra moi, them pystray>=0.19 + Pillow>=10).
+  - Cac mode CLI: sap-btp-agent-gui, sap-btp-agent-gui --no-tray, sap-btp-agent-gui --tray-only.
+  - README rieng trong gui/README.md.
+- Nut + Add (Menubutton) thay the + New cu - menu tha xuong 2 lua chon:
+  - Setup wizard (interactive)... - mo CMD moi chay sap-btp-agent setup (wizard tu hoi URL).
+  - Import from JSON backup... - chon file config.json, tu derive profile id tu btpUrl,
+    dang ky vao registry (secrets.json phai copy thu cong vi ma hoa DPAPI).
+- License dashboard (sap_btp_agent/license.py, gui/_open_license_window) - module rieng
+  cho biet cookie/token con han bao lau:
+  - get_cookie_status(pid) / get_oauth_status(pid) / get_profile_status(pid) /
+    list_all_statuses() / warning_profiles().
+  - Khi save cookie (SapCookieAuth.save_cookies) them saved_at + cookie_expires_at +
+    cookie_max_age_hours (default 8h, override qua config.json).
+  - Khi save OAuth token them token_expires_at + saved_at + alias access_token.
+  - Heuristic uoc luong: neu khong co expires_at -> last_saved + max_age_hours.
+  - Threshold warning: con duoi 1h -> warning, qua 0 -> expired.
+- GUI badge + dashboard progressbar real-time:
+  - Combo box profile co badge inline (vd project1... [29m 57s], [expired], [7h 59m]).
+  - License label duoi URL doi text + mau theo trang thai (do/cam/xanh), dong ho dem
+    nguoc moi giay qua root.after(1000, _tick_countdown).
+  - License dashboard moi (Toplevel 720x460) voi progressbar cho tung profile,
+    color-coded (>20% xanh, 5-20% cam, <5% do), auto-refresh 1Hz.
+  - _humanize_duration show giay khi < 1h: 90s -> "1m 30s", expired "-90s -> "expired 1m 30s ago".
+- Early-finish cho reauth auto mode - 3 dieu kien ket thuc som (thay vi doi 30s timeout):
+  1. External signal - user bam Enter trong CLI hoac nut "Done" trong GUI
+     (GUI touch file marker SAP_BTP_EARLY_FINISH_FILE, subprocess watch qua asyncio task).
+  2. Session cookie + ADT discovery OK - phat hien xong -> finish ngay.
+  3. URL on dinh 3s (15 polls lien tiep 200ms) - finish som ngay ca khi chua co session.
+  - Test real timing: URL stable case 4.60s thay vi 30s timeout.
+- CLI moi sap-btp-agent license:
+  - sap-btp-agent license - bang tom tat tat ca profile (Profile, Type, Status, Expires).
+  - sap-btp-agent license <profile-id> - chi tiet 1 profile.
+  - Tray notify warning profiles khi GUI start (max 3 notification).
+
+### Changed
+
+- Fix Ctrl+C handling toan dien (2 turn truoc):
+  - asyncio.run in traceback 10+ dong khi KeyboardInterrupt -> gio _make_runner() chi
+    in 1 dong thong bao sach, khong traceback.
+  - web_login_popup raise ReauthCancelled thay vi tra ReauthResult rong khi:
+    Ctrl+C khi chua paste gi; EOF (Ctrl+D / Ctrl+Z+Enter) khi stdin rong; paste cookie rac
+    (khong co session-cookie) -> cookie cu KHONG bi save de.
+  - web_login_auto Playwright wrap trong try/finally + except KeyboardInterrupt -> browser
+    luon dong khi Ctrl+C, raise ReauthCancelled neu cookie khong co session-cookie.
+  - _cmd_reauth validate cookie 1 lan cuoi: phai co session-cookie (MYSAPSSO2 /
+    SAP_SESSIONID) moi save, khong luu cookie rac.
+  - Co che 2-lan Ctrl+C (cli/_cancel.py): lan 1 chi canh bao, lan 2 trong 2s moi huy that
+    (counter reset sau 2s).
+  - ask() raise UserCancelled thay vi EOFError khi EOF/Ctrl+C.
+  - _read_cookie_paste raise UserCancelled khi Ctrl+C.
+
+### Fixed
+
+- NameError: name threading is not defined trong _cmd_reauth (CLI auto mode) - them
+  import threading o dau cli/__init__.py. Loi xay ra khi chay sap-btp-agent reauth tu
+  tray menu hoac subprocess khong co stdin TTY.
+- Btn + New khong co gi xay ra - tk.simpledialog khong duoc import o dau file,
+  click -> AttributeError silent. Fix bang import day du va doi sang Menubutton + Add.
+- License label khong cap nhat khi chuyen profile - sua _on_profile_changed goi
+  _update_license_label luon.
+- Tray crash khi thieu pystray - them try/except quanh TrayController.start() de
+  GUI van chay du khong co tray.
+
+---
+
 ## [v1.11.0] — 2026-07-16
 
 ### Added
@@ -639,7 +714,7 @@ Format dựa trên [Keep a Changelog](https://keepachangelog.com/) và [Semantic
 ### Cleanup
 - Da xac nhan `scripts/setup_mcp_fr0ster.py` la du dinh don dep (khong phai giu lam fallback) va
   don triet de toan bo dau vet huong fr0ster ban dau, gom ca phan NGOAI repo (khong nam trong git):
-  - Go dang ky 2 MCP server chet o user scope (`mcp-abap-adt-my428100`, `mcp-abap-adt-my440301` —
+  - Go dang ky 2 MCP server chet o user scope (`mcp-abap-adt-project1`, `mcp-abap-adt-project2` —
     ca 2 deu bao "✘ Failed to connect" vi `.env` chua bao gio duoc dien SAP_USERNAME/PASSWORD that,
     xac nhan script cu tung chay nhung chua hoan tat setup).
   - Xoa `mcp-abap-adt.env` trong 2 profile folder + `mcp-abap-adt-config.yaml` dung chung tai

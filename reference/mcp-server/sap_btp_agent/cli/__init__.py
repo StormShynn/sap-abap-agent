@@ -14,6 +14,7 @@ import asyncio
 import json
 import os
 import sys
+import threading
 from typing import Any
 
 from ..sap.auth import (
@@ -32,6 +33,10 @@ from ..config.profile import (
     upsert_profile,
 )
 from ..config.secrets import save_secrets
+from ..sap.auth import ReauthCancelled
+from .prompt import UserCancelled
+from . import _cancel as _sig
+
 from ..config.store import (
     SERVICE_TYPE_DEFAULT,
     SERVICE_TYPES,
@@ -77,15 +82,16 @@ def main() -> None:
     cmd = args[0]
     cmd_args = args[1:]
 
+    runner = _make_runner()
     if cmd == "setup":
         url = cmd_args[0] if cmd_args else ""
-        asyncio.run(_wizard_setup(url))
+        runner(_wizard_setup, url)
     elif cmd == "connect":
-        asyncio.run(_cmd_connect(cmd_args[0] if cmd_args else None))
+        runner(_cmd_connect, cmd_args[0] if cmd_args else None)
     elif cmd == "reauth":
-        asyncio.run(_cmd_reauth(cmd_args[0] if cmd_args else None))
+        runner(_cmd_reauth, cmd_args[0] if cmd_args else None)
     elif cmd == "profiles" and cmd_args:
-        asyncio.run(_cmd_profiles(cmd_args[0], cmd_args[1] if len(cmd_args) > 1 else None))
+        runner(_cmd_profiles, cmd_args[0], cmd_args[1] if len(cmd_args) > 1 else None)
     elif cmd == "reset":
         _cmd_reset()
     elif cmd == "doctor":
@@ -93,9 +99,34 @@ def main() -> None:
         run_doctor()
     elif cmd == "mcp-setup":
         _cmd_mcp_setup()
+    elif cmd == "license":
+        _cmd_license(cmd_args[0] if cmd_args else None)
     else:
         print(f"  ❌ Unknown command: {cmd}")
         _show_help()
+
+
+def _make_runner():
+    """Tra ve ham runner(coro_fn, *args) chay coroutine va bat 3 loai cancel:
+
+    - KeyboardInterrupt: in 1 dong thong bao gon, KHONG in traceback (mac dinh
+      asyncio.run tu Python 3.11+ in traceback dai 10+ dong rat kho chiu).
+    - ReauthCancelled: in thong bao huy cu the, thoat code 0 (khong phai loi).
+    - UserCancelled: nhu ReauthCancelled nhung cho setup wizard (prompt.ask,
+      _read_cookie_paste) - huy setup/ghi config ban dau.
+
+    Tat ca duong di khac (return binh thuong, exception that bai) giu nguyen.
+    """
+    def runner(coro_fn, *args):
+        try:
+            asyncio.run(coro_fn(*args))
+        except ReauthCancelled as err:
+            print(f"\n  ⏹  Huy dang nhap lai ({err.where}). Cookie cu KHONG bi thay doi.")
+        except UserCancelled as err:
+            print(f"\n  ⏹  Da huy tai buoc nhap ({err.where}). Config KHONG bi thay doi.")
+        except KeyboardInterrupt:
+            print("\n  ⏹  Da huy (Ctrl+C). Cookie cu KHONG bi thay doi.")
+    return runner
 
 
 def _show_help() -> None:
@@ -422,25 +453,159 @@ async def _cmd_reauth(profile_id: str | None) -> None:
     header(f"Dang nhap lai — {pid}")
     info(f"Re-auth mode: {'Auto (Playwright)' if reauth_mode == 'auto' else 'Manual (paste cookie)'}")
 
-    cookie_auth = SapCookieAuth(pid, reauth_handler=reauth_handler)
-    await cookie_auth.init()
+    # Wire "early finish" signal: cho auto mode, 2 cach de ket thuc som:
+    #  1. GUI: SAP_BTP_EARLY_FINISH_FILE duoc touch -> asyncio.Event set.
+    #  2. CLI: user bam Enter -> stdin doc 1 dong -> asyncio.Event set.
+    early_event = None
+    import asyncio as _aio
+    import os as _os
+    early_event = _aio.Event()
+
+    marker_path = _os.environ.get("SAP_BTP_EARLY_FINISH_FILE")
+    is_tty = sys.stdin and sys.stdin.isatty()
+
+    if marker_path:
+        # GUI mode: watch file marker qua asyncio loop (khong can thread rieng)
+        async def _watch_file():
+            from pathlib import Path as _P
+            while not early_event.is_set():
+                if _P(marker_path).exists():
+                    early_event.set()
+                    break
+                await _aio.sleep(0.1)
+        _aio.get_event_loop().create_task(_watch_file())
+    elif is_tty and reauth_mode == "auto":
+        # CLI mode: thread rieng doc stdin (Enter)
+        def _stdin_watcher():
+            try:
+                line = sys.stdin.readline()
+                if line is not None:
+                    early_event.set()
+            except Exception:
+                pass
+        threading.Thread(target=_stdin_watcher, daemon=True).start()
+
+    # Bat handler Ctrl+C 2-lan: lan 1 canh bao, lan 2 huy that.
+    # Khoi phuc default handler khi xong (ke ca khi raise).
+    _sig.install_double_ctrl_c(ReauthCancelled, lambda w: ReauthCancelled(w))
     try:
-        result = await cookie_auth.reauth()
+        cookie_auth = SapCookieAuth(pid, reauth_handler=reauth_handler)
+        await cookie_auth.init()
+        try:
+            result = await cookie_auth.reauth(ctx={"early_finish_event": early_event})
+        except ReauthCancelled:
+            # Da in thong bao chi tiet trong handler (web_login_popup/auto).
+            # KHONG save gi ca, thoat sach.
+            return
+        except Exception as err:
+            print(f"  ❌ Dang nhap lai that bai: {err}")
+            return
+
+        if not result.cookies:
+            # Phong truong hop handler tu custom tra ReauthResult rong ma khong raise.
+            print("  ⚠️ Khong lay duoc cookie moi (co the ban da huy hoac timeout).")
+            print("     Cookie cu KHONG bi thay doi.")
+            return
+
+        # Validate 1 lan cuoi truoc khi save: cookie moi phai chua session-cookie.
+        # Neu khong co -> reject, giu nguyen cookie cu con han.
+        from ..sap.auth import _session_cookie_names as _scn
+        if not _scn(result.cookies):
+            print("  ❌ Cookie moi khong chua session-cookie (MYSAPSSO2/SAP_SESSIONID).")
+            print("     Cookie cu KHONG bi thay doi. Thu lai va copy DUNG cookies.")
+            return
+
+        await cookie_auth.save_cookies()
+        print()
+        ok(f"Da cap nhat cookie cho profile '{pid}'.")
+        info(f"Kiem tra lai: sap-btp-agent connect {pid}")
+    finally:
+        _sig.uninstall()
+
+
+
+
+# ===== LICENSE =====================================================
+
+def _cmd_license(profile_id):
+    """In trang thai license (cookie/token) cua 1 hoac tat ca profile.
+
+    Args:
+        profile_id: neu None -> in tat ca profile. Neu co -> in chi tiet 1 profile.
+    """
+    from .. import license as _lic
+
+    if profile_id:
+        # In chi tiet 1 profile
+        try:
+            st = _lic.get_profile_status(profile_id)
+        except Exception as err:
+            print(f"  Loi doc license: {err}")
+            return
+
+        print()
+        print("=" * 60)
+        print(f"  License: {profile_id}")
+        print("=" * 60)
+        print(f"  Type        : {st['type']}")
+        print(f"  Has creds   : {st['has_credentials']}")
+        if st["expires_at"]:
+            import datetime as _dt
+            exp_dt = _dt.datetime.fromtimestamp(st["expires_at"])
+            print(f"  Expires at  : {exp_dt.strftime('%Y-%m-%d %H:%M:%S')} ({st['expires_in_human']})")
+        else:
+            print(f"  Expires at  : (unknown)")
+        if st.get("last_saved"):
+            import datetime as _dt
+            sv_dt = _dt.datetime.fromtimestamp(st["last_saved"])
+            print(f"  Saved at    : {sv_dt.strftime('%Y-%m-%d %H:%M:%S')}")
+        if st.get("extra"):
+            for k, v in st["extra"].items():
+                print(f"  {k:11s}: {v}")
+        print()
+        if st["is_expired"]:
+            print(f"  EXPIRED - chay: sap-btp-agent reauth {profile_id}")
+        elif st["is_warning"]:
+            print(f"  Expiring soon ({st['expires_in_human']}) - can chuan bi reauth")
+        else:
+            print("  OK")
+        print()
+        return
+
+    # Bang tom tat tat ca profile
+    try:
+        statuses = _lic.list_all_statuses()
     except Exception as err:
-        print(f"  ❌ Dang nhap lai that bai: {err}")
+        print(f"  Loi: {err}")
         return
 
-    if not result.cookies:
-        print("  ⚠️ Khong lay duoc cookie moi (co the ban da huy hoac timeout).")
+    if not statuses:
+        print("  (chua co profile nao - chay: sap-btp-agent setup <url>)")
         return
 
-    await cookie_auth.save_cookies()
     print()
-    ok(f"Da cap nhat cookie cho profile '{pid}'.")
-    info(f"Kiem tra lai: sap-btp-agent connect {pid}")
+    print("=" * 86)
+    print(f"  {'Profile':<40} {'Type':<8} {'Status':<12} {'Expires':<16}")
+    print("=" * 86)
+    for s in statuses:
+        marker = "*" if s["is_active"] else " "
+        if not s["has_credentials"]:
+            status = "no creds"
+        elif s["is_expired"]:
+            status = "expired"
+        elif s["is_warning"]:
+            status = "warning"
+        else:
+            status = "ok"
+        pid_disp = (marker + s["profile_id"])[:40]
+        print(f"  {pid_disp:<40} {s['type']:<8} {status:<12} {s['expires_in_human']:<16}")
+    print("=" * 86)
+    print("  (*) = active profile. Dung `sap-btp-agent license <id>` de xem chi tiet.")
+    print()
 
 
 # ===== PROFILES ====================================================
+
 
 async def _cmd_profiles(subcmd: str, arg: str | None) -> None:
     if subcmd == "list":
@@ -625,7 +790,7 @@ def _read_cookie_paste() -> str:
     sys.stdout.flush()
     first = sys.stdin.readline()
     if not first:
-        return ""
+        raise UserCancelled("cookie paste (stdin closed)")
     first_line = first.rstrip("\n").rstrip("\r")
     if not _looks_like_netscape_text(first_line):
         return first_line.strip()
@@ -640,8 +805,10 @@ def _read_cookie_paste() -> str:
             if not line:
                 break
             lines.append(line.rstrip("\n").rstrip("\r"))
-    except (EOFError, KeyboardInterrupt):
-        pass
+    except KeyboardInterrupt:
+        if not lines:
+            raise UserCancelled("cookie paste (Ctrl+C)")
+        # da paste du lieu roi -> silent fallthrough
     return "\n".join(lines)
 
 

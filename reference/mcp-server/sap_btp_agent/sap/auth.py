@@ -1,4 +1,4 @@
-﻿"""OAuth2 + Cookie-based auth cho SAP BTP (xsuaa / IAS / SAP GUI).
+"""OAuth2 + Cookie-based auth cho SAP BTP (xsuaa / IAS / SAP GUI).
 
 Ho tro:
   - client_credentials (clientId + clientSecret)
@@ -33,7 +33,19 @@ class ReauthResult:
     expires_at: float = 0.0
 
 
-ReauthHandler = Callable[[dict[str, Any]], Coroutine[Any, Any, ReauthResult]]
+ReauthHandler = Callable[[dict[str, Any]], Coroutine[Any, Any, "ReauthResult"]]
+
+
+class ReauthCancelled(Exception):
+    """User da huy thu cong (Ctrl+C / EOF) giua luong dang nhap lai.
+
+    Caller (CLI) bat exception nay de thoat sach: KHONG traceback, KHONG save
+    cookie rac/cookie rong len disk, KHONG dong cookie cu con han.
+    """
+
+    def __init__(self, where: str = "?"):
+        super().__init__(f"Reauth cancelled at {where}")
+        self.where = where
 
 
 # ===== Stampede protection =========================================
@@ -148,6 +160,10 @@ class SapAuth:
             "refreshToken": data.get("refresh_token"),
             "expiresAt": expires_at,
             "tokenUrl": token_url,
+            # Aliases cho license module (get_oauth_status).
+            "access_token": token,
+            "token_expires_at": expires_at,
+            "saved_at": time.time(),
         })
         return token
 
@@ -244,9 +260,27 @@ class SapCookieAuth:
         return result
 
     async def save_cookies(self) -> None:
-        """Luu cookies hien tai vao secrets de dung lai sau."""
+        """Luu cookies hien tai vao secrets de dung lai sau.
+
+        Dong thoi luu saved_at + cookie_expires_at (uoc luong = now + 8h) de
+        license module co the canh bao sap het han.
+        """
         from ..config.secrets import update_secrets as upsert
-        await upsert(self.profile_id, {"cookies": self._cookies})
+        import time as _t
+        now = _t.time()
+        # Uoc luong: 8h cho SAP cookie (co the override qua config cookieMaxAgeHours)
+        try:
+            from ..config.store import load_config
+            cfg = load_config(self.profile_id)
+            max_age_h = float(cfg.get("cookieMaxAgeHours", 8.0))
+        except Exception:
+            max_age_h = 8.0
+        await upsert(self.profile_id, {
+            "cookies": self._cookies,
+            "saved_at": now,
+            "cookie_expires_at": now + max_age_h * 3600,
+            "cookie_max_age_hours": max_age_h,
+        })
 
     async def invalidate(self) -> None:
         """Xoa cookies + reset stampede."""
@@ -352,28 +386,40 @@ async def web_login_popup(ctx: dict[str, Any]) -> ReauthResult:
         while True:
             line = sys.stdin.readline()
             if not line:
+                # Ctrl+D / Ctrl+Z+Enter: stdin dong, KHONG co du lieu -> huy that
+                if not lines:
+                    raise ReauthCancelled("cookie paste (stdin closed)")
                 break
             lines.append(line.strip())
-    except (EOFError, KeyboardInterrupt):
-        pass
+    except KeyboardInterrupt:
+        # Ctrl+C: phan biet voi user paste xong roi muon thoat.
+        # Neu chua co gi paste -> huy that. Neu da co 1+ dong -> tiep tuc xu ly.
+        if not lines:
+            print()
+            raise ReauthCancelled("cookie paste (Ctrl+C)")
+        # co du lieu roi -> silent fallthrough, xu ly tiep ben duoi
 
     cookie_str = " ".join(lines)
     if not cookie_str.strip():
         print("\n  ⚠️ Khong nhan duoc cookie. Thu lai sau.")
-        return ReauthResult()
+        raise ReauthCancelled("cookie paste (empty)")
 
     cookies = _parse_cookie_string(cookie_str)
 
     if await _verify_discovery_session(base_url, cookies):
         print(f"\n  ✅ Da nhan {len(cookies)} cookies - xac nhan goi duoc ADT discovery. Tiep tuc!")
+        return ReauthResult(cookies=cookies)
     elif _session_cookie_names(cookies):
         print(f"\n  ⚠️ Da nhan {len(cookies)} cookies (co ten giong session) nhung goi thu "
               f"discovery van chua qua - co the client/quyen ADT chua du, hoac dang nhap chua xong.")
+        print("     Van chap nhan vi co session-cookie. Neu lan sau bi loi, hay copy lai cookies.")
+        return ReauthResult(cookies=cookies)
     else:
-        print(f"\n  ⚠️ Da nhan {len(cookies)} cookies nhung khong thay MYSAPSSO2 / SAP_SESSIONID.")
-        print("     Co the can dang nhap lai hoac copy dung cookies.")
-
-    return ReauthResult(cookies=cookies)
+        # Paste chi co cookie rac (VD 1 dong debug) -> KHONG save de tranh
+        # ghi de cookie cu con han trong secrets.json.
+        print(f"\n  ❌ Da nhan {len(cookies)} cookies nhung khong thay MYSAPSSO2 / SAP_SESSIONID.")
+        print("     Cookie cu cua ban KHONG bi thay doi. Thu lai va copy DUNG cookies tu DevTools.")
+        raise ReauthCancelled("cookie paste (no session cookie)")
 
 
 async def web_login_auto(ctx: dict[str, Any]) -> ReauthResult:
@@ -401,7 +447,10 @@ async def web_login_auto(ctx: dict[str, Any]) -> ReauthResult:
     print("  Sau khi dang nhap xong, browser se tu dong dong.")
     print()
 
-    async with async_playwright() as pw:
+    pw = None
+    browser = None
+    try:
+        pw = await async_playwright().start()
         browser = await _launch_real_browser(pw)
         context = await browser.new_context()
         page = await context.new_page()
@@ -429,49 +478,126 @@ async def web_login_auto(ctx: dict[str, Any]) -> ReauthResult:
             # tuc redirect, vong poll ben duoi se tu kiem tra tiep.
             pass
 
-        print("  👉 Vui long dang nhap trong cua so trinh duyet (cho toi 10 giay)...")
+            # In huong dan cho user biet co the ket thuc som
+        print("  👉 Vui long dang nhap trong cua so trinh duyet (timeout 30s)...")
+        print("     (Bam Ctrl+C de HUY va giu nguyen cookie cu - khong bi ghi de)")
+        print("     (Hoac BAM ENTER trong terminal / nut OK trong GUI de KET THUC SOM)")
 
         # Cho user dang nhap that su: poll session cookie xuat hien, KHONG dung
         # wait_for_url("**/sap/bc/adt/**") vi URL vua goto() da khop pattern nay
         # ngay lap tuc (chua he dang nhap), khien code chay tiep qua som.
         #
-        # Chi thay ten cookie (vd sap-usercontext) la CHUA DU: trong luong IAS/SAML
-        # cookie nay co the xuat hien o 1 buoc redirect trung gian, truoc khi ICF
-        # thuc su cap session cho ADT - dung cookie luc do se van bi tu choi (200
-        # kem trang HTML logon) du "nhin tuong" da dang nhap xong. Nen verify bang
-        # 1 request GET discovery that truoc khi coi la logged_in.
-        # TAM giam tu 300s (5 phut) xuong 10s de debug nhanh vu "Please wait" bi
-        # ket o SAML ACS (my440301) - tang lai 300 sau khi xong, 10s qua ngan cho
-        # mot luot dang nhap/MFA that.
+        # 3 dieu kien de considered "user da dang nhap xong" (tinh theo thu tu uu tien):
+        #  1. External signal: ctx[early_finish_event].is_set() (user bam Enter/OK)
+        #  2. Session cookie xuat hien + verify discovery OK (session that su)
+        #  3. URL on dinh 3s lien tiep (user da ket thuc thao tac, co the SSO nhanh)
+        #
+        # Trong ca 3 truong hop, verify them 1 request GET discovery that de chan
+        # truong hop session cookie xuat hien o buoc redirect trung gian cua SAML/IAS.
+
+        # Lay early_finish_event (co the None neu caller khong cung cap)
+        early_event = ctx.get("early_finish_event")
+
+        URL_STABLE_S = 3.0  # URL giu nguyen 3s -> coi nhu user da xong
+        POLL_INTERVAL_S = 0.2
+        # So poll lien tiep de co 3s o dinh (poll 200ms)
+        URL_STABLE_POLLS = int(URL_STABLE_S / POLL_INTERVAL_S)
+
         deadline = time.monotonic() + 30
         logged_in = False
+        last_url = ""
+        url_stable_count = 0
+        finish_reason = ""
+
         while time.monotonic() < deadline:
             current_cookies = {c["name"]: c["value"] for c in await context.cookies()}
-            if _session_cookie_names(current_cookies) and await _verify_discovery_session(base_url, current_cookies):
+            current_url = page.url
+            has_session = bool(_session_cookie_names(current_cookies))
+            discovery_ok = False
+            if has_session:
+                discovery_ok = await _verify_discovery_session(base_url, current_cookies)
+
+            # Dieu kien 1: external signal (user bam Enter/OK)
+            if early_event is not None and early_event.is_set():
+                if has_session and discovery_ok:
+                    finish_reason = "user-confirmed"
+                    logged_in = True
+                    break
+                else:
+                    print("  ⏳ User bam nút OK nhung chua co session hop le, cho them...")
+                    early_event.clear()  # reset, doi lan nua
+
+            # Dieu kien 2: session + discovery OK (session that su)
+            if has_session and discovery_ok:
+                finish_reason = "session-detected"
                 logged_in = True
                 break
-            await page.wait_for_timeout(1000)
+
+            # Dieu kien 3: URL on dinh (poll lien tiep thay URL khong doi)
+            if current_url == last_url and current_url:
+                url_stable_count += 1
+            else:
+                url_stable_count = 0
+                last_url = current_url
+            if url_stable_count >= URL_STABLE_POLLS:
+                # URL on dinh 3s nhung chua co session -> van thu lay cookies hien
+                # tai (co the user da o trang loi hoac SSO da xong nhung cookie ten khac).
+                finish_reason = "url-stable"
+                logged_in = has_session  # chi logged_in neu co session
+                break
+
+            await page.wait_for_timeout(int(POLL_INTERVAL_S * 1000))
+
+        if not logged_in and not finish_reason:
+            print("  ⏰ Timeout 30s. Lay cookies hien tai...")
+            finish_reason = "timeout"
+
+        if finish_reason == "user-confirmed":
+            print("  ✓ User da xac nhan (Enter/OK) - lay cookies.")
+        elif finish_reason == "url-stable":
+            print(f"  ✓ URL on dinh {URL_STABLE_S}s - lay cookies.")
+        elif finish_reason == "session-detected":
+            print("  ✓ Session cookie + ADT discovery OK - lay cookies.")
 
         if logged_in:
             # Cho request/redirect cuoi cung (sau submit form) hoan tat truoc khi doc cookie
             await page.wait_for_timeout(1500)
-        else:
-            print("  ⏰ Timeout cho login. Lay cookies hien tai...")
 
         cookies_raw = await context.cookies()
         cookies = {c["name"]: c["value"] for c in cookies_raw}
-        await browser.close()
+    except KeyboardInterrupt:
+        print()
+        raise ReauthCancelled("Playwright login (Ctrl+C)")
+    finally:
+        # Dam bao browser + Playwright luon duoc dong khi:
+        #  - User bam Ctrl+C giua luong (KeyboardInterrupt)
+        #  - Timeout 30s ma chua dang nhap xong
+        #  - Exception bat ky khi mo browser
+        if browser is not None:
+            try:
+                await browser.close()
+            except Exception:
+                pass
+        if pw is not None:
+            try:
+                await pw.stop()
+            except Exception:
+                pass
 
     if cookies:
         found = _session_cookie_names(cookies)
         if found:
             print(f"  ✅ Da lay duoc {len(cookies)} cookies (gom {', '.join(found)}). Tiep tuc!")
+            return ReauthResult(cookies=cookies)
         else:
-            print(f"  ⚠️ Da lay {len(cookies)} cookies nhung thieu session cookies.")
-    else:
-        print("  ❌ Khong lay duoc cookies nao.")
+            # Cookie khong co session-cookie -> KHONG save de tranh ghi de cookie
+            # cu con han trong secrets.json.
+            print(f"  ❌ Da lay {len(cookies)} cookies nhung thieu session cookies (MYSAPSSO2/SAP_SESSIONID).")
+            print("     Cookie cu cua ban KHONG bi thay doi. Thu lai va dam bao da dang nhap xong.")
+            raise ReauthCancelled("Playwright login (no session cookie)")
 
-    return ReauthResult(cookies=cookies)
+    print("  ❌ Khong lay duoc cookies nao.")
+    raise ReauthCancelled("Playwright login (no cookies)")
 
 
 def _parse_cookie_string(cookie_str: str) -> dict[str, str]:
@@ -551,3 +677,4 @@ async def _maybe_await(value: Any) -> Any:
     if asyncio.iscoroutine(value):
         return await value
     return value
+
