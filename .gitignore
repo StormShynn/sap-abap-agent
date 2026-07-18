@@ -18,6 +18,7 @@ dist/
 # Tests
 test-results/
 test/
+tests/
 
 # Temp scripts
 _*.py
@@ -55,3 +56,8 @@ mcp-abap-adt-*.env
 # Other
 in/
 out/
+
+# docs/sap-knowledge/: cac index/catalog SINH TU codebase THAT cua khach hang (khong phai
+# chi "nhac ten" - doi ten label khong du de an danh vi noi dung ben trong van la object/field/
+# path THAT). Cac file .md con lai trong docs/sap-knowledge/ da duoc doi ten/an danh, giu lai binh
+# thuong. Xem chi tiet quyet dinh trong PR/trao doi voi Claude.
