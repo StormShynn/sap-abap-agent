@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "sap-abap-agent-mcp"
 version = "1.12.0"
-description = "MCP server tu dong ket noi SAP BTP (multi-profile) - rewrite Python"
+description = "MCP server tự động kết nối SAP BTP (multi-profile) - rewrite Python"
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }

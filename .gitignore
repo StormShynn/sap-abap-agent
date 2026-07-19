@@ -20,14 +20,12 @@ test-results/
 test/
 tests/
 !reference/mcp-server/tests/
+!hooks/hook_tests/
 
 # Temp scripts
 _*.py
 !__init__.py
-nul
 
-# Machine-specific wrapper (chua duong dan tuyet doi)
-scripts/run_sync_skills.bat
 
 # Sync skills daemon runtime state (per-machine; *.log da duoc rule rieng o tren)
 .sap-abap-agent/sync_skills.lock

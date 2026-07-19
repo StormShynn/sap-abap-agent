@@ -6,7 +6,7 @@ Format dựa trên [Keep a Changelog](https://keepachangelog.com/) và [Semantic
 
 ---
 
-## [v1.12.0] - 2026-07-18
+## [v1.12.0] — 2026-07-18
 
 ### Added
 
@@ -1520,3 +1520,5 @@ Format dựa trên [Keep a Changelog](https://keepachangelog.com/) và [Semantic
   check_released_api, lesson_card_add, skill_curator, bootstrap_memory, mcp_common.
 - 115/115 test pass là con số tốt để đảm bảo regression không xảy ra khi contributor tiếp tục
   mở rộng plugin.
+
+

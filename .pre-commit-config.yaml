@@ -10,8 +10,8 @@
 #      cp reference/scripts/pre-commit .git/hooks/pre-commit
 #      chmod +x .git/hooks/pre-commit
 #
-# Ca 2 cach chay CUNG 3 check (validate_plugin + validate_inspired_by_links + pytest).
-# Hook bash co san trong reference/scripts/pre-commit cho truong hop B.
+# Ca 2 cach chay CUNG 3 check (validate_plugin + validate_inspired_by_links + pytest)
+# CONG voi ruff (chỉ thêm, không thay đổi logic hiện có).
 
 default_install_hook_types: [pre-commit]
 default_stages: [pre-commit]
@@ -46,5 +46,41 @@ repos:
         pass_filenames: false
         stages: [pre-commit]
 
+  # Public hooks (download 1 lan qua `pre-commit install`).
+  # Version pinned theo khoang thoi gian hien tai (2026-Q3).
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.7.4
+    hooks:
+      - id: ruff
+        name: ruff (lint)
+        args: [--fix, --exit-non-zero-on-fix]
+        types_or: [python]
+        pass_filenames: false
+        stages: [pre-commit]
 
+      - id: ruff-format
+        name: ruff (format)
+        types_or: [python]
+        pass_filenames: false
+        stages: [pre-commit]
 
+  # Standard hygiene checks (trailing whitespace, EOL, file size, JSON/YAML).
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+        args: [--markdown-linebreak-ext=md]
+      - id: end-of-file-fixer
+      - id: check-merge-conflict
+      - id: check-case-conflict
+      - id: check-json
+      - id: check-yaml
+      - id: check-toml
+      - id: mixed-line-ending
+        args: [--fix=lf]
+      - id: check-added-large-files
+        args: [--maxkb=1024]  # 1MB/file - chan nho file 5MB nhu released-objects-index.json
+        exclude: |
+          (?x)^(
+            docs/sap-knowledge/released-objects-index\.json
+          )$

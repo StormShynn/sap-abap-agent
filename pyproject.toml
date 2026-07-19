@@ -1,0 +1,52 @@
+# Root pyproject.toml: CHUA goi build backend, chi dung de centralize
+# tool config (ruff, pytest, coverage, mypy) cho toan repo.
+#
+# - Build thuc su cua MCP server van o `reference/mcp-server/pyproject.toml`.
+# - Hook pre-commit (validate_plugin, pytest) da dung Python stdlib va
+#   pip-installed packages, khong can build context o day.
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+extend-exclude = [
+    "reference/.vscode-extensions",  # vendored TS extension
+    "tests/__Du_an",                  # ABAP git fixture (binary .pack)
+    "node_modules",
+]
+
+[tool.ruff.lint]
+# Tap trung vao nhom loi thuc te (E/W/F/I/B/UP/SIM) - tranh nhom qua chat
+# (security, comprehensions) se gay nhieu warning cho code cu.
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "B",   # bugbear (common pitfalls)
+    "UP",  # pyupgrade
+    "SIM", # simplify
+]
+ignore = [
+    "E501",   # line too long (da co line-length config)
+    "B008",   # function call in default argument (hay xuat hien trong Click/Typer pattern)
+    "SIM108", # use ternary operator (style only)
+]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+testpaths = [
+    "tests",
+    "reference/mcp-server/tests",
+    "hooks/hook_tests",
+]
+addopts = [
+    "-q",
+    "--no-header",
+    "-p",
+    "no:cacheprovider",
+]
+# Luu y: collect_ignore_glob KHONG phai option ini ma la conftest.py API
+# (xem reference/mcp-server/tests/conftest.py). Khong dat o day.

@@ -22,3 +22,39 @@ updates:
           - "minor"
           - "patch"
     open-pull-requests-limit: 5
+
+  # MCP server Python deps (kept in sync with reference/mcp-server/pyproject.toml).
+  - package-ecosystem: "pip"
+    directory: "/reference/mcp-server"
+    schedule:
+      interval: "weekly"
+      day: "tuesday"
+      time: "09:00"
+      timezone: "Asia/Saigon"
+    commit-message:
+      prefix: "ci(pip)"
+      prefix-development: "ci(pip-dev)"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "ci"
+    groups:
+      python-runtime:
+        patterns:
+          - "mcp"
+          - "httpx"
+          - "cryptography"
+        update-types:
+          - "minor"
+          - "patch"
+      python-extras:
+        patterns:
+          - "pywin32"
+          - "keyring"
+          - "playwright"
+          - "pystray"
+          - "Pillow"
+        update-types:
+          - "minor"
+          - "patch"
+    open-pull-requests-limit: 5

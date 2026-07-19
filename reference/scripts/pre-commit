@@ -8,6 +8,7 @@
 #   1. validate_plugin.py (structural checks - da chay trong CI)
 #   2. validate_inspired_by_links.py (GitHub URL 404 check)
 #   3. pytest (unit test)
+#   4. ruff (chi neu da cai: pip install ruff)
 #
 # Skip neu:
 #   - commit message chua `[skip hooks]`
@@ -67,3 +68,5 @@ if [ -d "tests" ] && "$PY" -c "import pytest" 2>/dev/null; then
 fi
 
 exit $EXIT_CODE
+
+

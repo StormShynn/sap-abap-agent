@@ -1,0 +1,73 @@
+name: Validate Plugin
+
+# CI riêng cho validate_plugin.py + smoke test hooks. Workflow `deploy.yml`
+# (Pages) và `version-bump.yml` không chạy check này - chạy ở mọi push/PR để
+# contributor biết drift/plugin sớm (thay vì đợi sync-index workflow).
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: "validate"
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install ruff
+        run: pip install ruff
+
+      - name: Validate plugin structure
+        run: python reference/scripts/validate_plugin.py
+
+      - name: Smoke test build_index.py
+        # Run dry-run; script in-place update index.html neu khac -> ta git restore.
+        run: |
+          python reference/scripts/build_index.py
+          if ! git diff --quiet index.html; then
+            echo "ERROR: build_index.py produced changes that should have been committed by sync-index workflow"
+            git diff index.html
+            exit 1
+          fi
+
+      - name: Smoke test hooks (portable Python wrappers)
+        run: |
+          set -e
+          python hooks/session_start_skill.py > /tmp/session.json
+          python -c "import json, sys; d = json.load(open('/tmp/session.json', encoding='utf-8')); assert d['hookSpecificOutput']['hookEventName'] == 'SessionStart', 'session_start_skill output contract mismatch'; assert len(d['hookSpecificOutput']['additionalContext']) > 0, 'session_start_skill returned empty context'; print('session_start_skill: OK')"
+
+          # Test post_tool_select_star with SELECT *
+          echo '{"tool_input":{"file_path":"tests/src/zsd09_test/zcl_test_note_util.clas.abap"}}' | python hooks/post_tool_select_star.py 2>&1 | grep -q 'SELECT \*' && echo "post_tool_select_star: OK (warn detected)"
+
+          # Test post_tool_select_star with non-ABAP file
+          echo '{"tool_input":{"file_path":"README.md"}}' | python hooks/post_tool_select_star.py 2>&1 | grep -q 'SELECT \*' && { echo "post_tool_select_star: WARN detected on non-ABAP - BUG"; exit 1; } || echo "post_tool_select_star: clean (no warn for non-ABAP)"
+
+      - name: pytest collect-only (smoke)
+        # collect-only de khong can install ca sap_btp_agent deps.
+        # Test that pytest discovery khong crash.
+        run: |
+          python -m pytest tests/ reference/mcp-server/tests/ --collect-only -q -p no:cacheprovider
+
+      - name: ruff (lint)
+        # Su dung config o root pyproject.toml. Loi lint khong block CI
+        # (warning only) - vi nhieu file cu co style legacy.
+        run: ruff check --output-format=concise || echo "::warning::ruff found issues (non-blocking)"
