@@ -29,44 +29,12 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Extract version from CHANGELOG
-        id: version
-        run: |
-          VERSION=$(grep -oP '^## \[v?\K[^\]]+' CHANGELOG.md | head -1)
-          echo "version=v$VERSION" >> "$GITHUB_OUTPUT"
-          echo "latest version: v$VERSION"
-
-      - name: Count agents
-        id: agents
-        run: |
-          COUNT=$(ls -1 agents/*.md 2>/dev/null | wc -l)
-          echo "count=$COUNT" >> "$GITHUB_OUTPUT"
-          echo "agents: $COUNT"
-
-      - name: Count skills (exclude placeholder)
-        id: skills
-        run: |
-          TOTAL=$(ls -d skills/*/ 2>/dev/null | wc -l)
-          PLACEHOLDER=0
-          [ -d "skills/sap-user-skills" ] && PLACEHOLDER=1
-          COUNT=$((TOTAL - PLACEHOLDER))
-          echo "count=$COUNT" >> "$GITHUB_OUTPUT"
-          echo "skills: $COUNT"
-
+      # Gop 3 step (extract version + count agents + count skills + sed) thanh 1
+      # script Python portable. Logic giong nguyen (cung regex pattern).
       - name: Sync version + counts into index.html
+        id: sync
         run: |
-          VERSION="${{ steps.version.outputs.version }}"
-          AGENTS="${{ steps.agents.outputs.count }}"
-          SKILLS="${{ steps.skills.outputs.count }}"
-
-          echo "Syncing: version=$VERSION agents=$AGENTS skills=$SKILLS"
-
-          # Sidebar line
-          sed -i "s/v[0-9]\+\.[0-9]\+\.[0-9]\+ · [0-9]\+ agents · [0-9]\+ skills/${VERSION} · ${AGENTS} agents · ${SKILLS} skills/g" index.html
-
-          # Also update "25 modules + N skills" / "N modules · N skills" patterns
-          sed -i "s/v[0-9]\+\.[0-9]\+\.[0-9]\+ · [0-9]\+ modules · [0-9]\+ skills/${VERSION} · ${AGENTS} agents · ${SKILLS} skills/g" index.html
-          sed -i "s/v[0-9]\+\.[0-9]\+\.[0-9]\+ · [0-9]\+ modules + [0-9]\+ skills/${VERSION} · ${AGENTS} agents · ${SKILLS} skills/g" index.html
+          python reference/scripts/build_index.py
 
       - name: Commit and push
         run: |

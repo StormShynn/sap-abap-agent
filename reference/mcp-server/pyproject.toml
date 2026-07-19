@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "sap-abap-agent-mcp"
-version = "1.8.0"
+version = "1.12.0"
 description = "MCP server tu dong ket noi SAP BTP (multi-profile) - rewrite Python"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -33,3 +33,4 @@ sap-btp-agent-gui = "sap_btp_agent.gui:main"
 where = ["."]
 include = ["sap_btp_agent*"]
 exclude = ["tests*"]
+
