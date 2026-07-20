@@ -579,6 +579,9 @@ def _cmd_license(profile_id):
         print("=" * 60)
         print(f"  License: {profile_id}")
         print("=" * 60)
+        print(f"  Type        : {st['type']}")
+        creds_state = "available" if st.get("has_credentials") else "missing"
+        print(f"  Credentials : {creds_state}")
         print(f"  Type        : {_safe_display_value('type', st['type'])}")
         print(f"  Has creds   : {st['has_credentials']}")
         if st["expires_at"]:
