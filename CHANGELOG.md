@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 Format dựa trên [Keep a Changelog](https://keepachangelog.com/) và [Semantic Versioning](https://semver.org/).
 
 ---
+
+## [v1.12.18] — 2026-07-20
+
+### Changed
+
+- Auto-bumped by CI (version-bump.yml).
+
 ## [v1.12.17] — 2026-07-20
 
 ### Changed
