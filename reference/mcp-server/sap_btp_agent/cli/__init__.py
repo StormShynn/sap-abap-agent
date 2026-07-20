@@ -615,7 +615,7 @@ def _cmd_license(profile_id):
         if st["is_expired"]:
             print(f"  EXPIRED - chay: sap-btp-agent reauth {profile_id}")
         elif st["is_warning"]:
-            print(f"  Expiring soon ({st['expires_in_human']}) - can chuan bi reauth")
+            print("  Expiring soon - can chuan bi reauth")
         else:
             print("  OK")
         print()
