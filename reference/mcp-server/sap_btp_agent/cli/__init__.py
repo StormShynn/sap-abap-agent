@@ -548,7 +548,8 @@ def _cmd_license(profile_id):
         print(f"  License: {profile_id}")
         print("=" * 60)
         print(f"  Type        : {st['type']}")
-        print(f"  Has creds   : {st['has_credentials']}")
+        creds_state = "available" if st.get("has_credentials") else "missing"
+        print(f"  Credentials : {creds_state}")
         if st["expires_at"]:
             import datetime as _dt
             exp_dt = _dt.datetime.fromtimestamp(st["expires_at"])
@@ -560,8 +561,10 @@ def _cmd_license(profile_id):
             sv_dt = _dt.datetime.fromtimestamp(st["last_saved"])
             print(f"  Saved at    : {sv_dt.strftime('%Y-%m-%d %H:%M:%S')}")
         if st.get("extra"):
+            safe_extra_keys = {"token_endpoint", "scope"}
             for k, v in st["extra"].items():
-                print(f"  {k:11s}: {v}")
+                if k in safe_extra_keys and v is not None:
+                    print(f"  {k:11s}: [set]")
         print()
         if st["is_expired"]:
             print(f"  EXPIRED - chay: sap-btp-agent reauth {profile_id}")
