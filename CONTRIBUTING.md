@@ -796,6 +796,36 @@ git commit -m "fix: ... [skip hooks]"
 Hook sẽ tự động skip và vẫn cho commit. CI sẽ chạy lại check đầy đủ — không có cách nào
 "thoát" check vĩnh viễn, đây là escape hatch cho trường hợp khẩn cấp.
 
+### GitHub Actions version pinning
+
+Workflow hien dung floating major version (vi du `@v7`, `@v6`). Dependabot
+(`.github/dependabot.yml`) se tu dong PR update khi co major version moi.
+
+De pin SHA chinh xac (production-grade security), thay `@v7` bang
+`@<full-sha> # v7.0.0` - nhung can update thu cong moi khi action co release.
+
+Trade-off:
+- **Floating `@v7`**: tu update, nhung co the gay break khi action co breaking change.
+- **SHA `@abc123 # v7.0.0`**: an toan, kho break, nhung can update manual.
+- **Hybrid `@v7.0.0`**: tu update trong minor, can review major. Khuyen nghi.
+
+Hien tai repo dung floating major + Dependabot auto-PR - chap nhan duoc cho
+plugin private/internal. Khi promote thanh production, nen chuyen sang SHA
+hoac hybrid.
+
+### Branch protection (khi mo PR)
+
+Repo su dung GitHub branch protection rule de enforce chat luong:
+
+- **Require PR** truoc khi merge vao `main` (khong push truc tiep)
+- **Require 1 approval** - moi PR can it nhat 1 nguoi approve
+- **Require CI pass** - 7 workflow (deploy, sync-index, validate, codeql,
+  lint-inspired-by-links, security-scan, version-bump) phai xanh
+- **CODEOWNERS auto-assign**: moi PR se tu dong assign `@StormShynn` lam
+  reviewer (xem `.github/CODEOWNERS`)
+
+Setting dat o: Settings > Branches > Branch protection rules > `main`.
+
 ### License header (SPDX / REUSE 3.0)
 
 Tu v1.13.0, plugin tu thu [REUSE 3.0](https://reuse.software/) de khai bao license

@@ -81,3 +81,27 @@ Workflow `.github/workflows/validate.yml` chạy pytest collect-only ở mỗi p
 
 Hiện tại repo chưa chạy test thật trên CI — chỉ chạy local qua pre-commit hook
 (`python -m pytest ... -p no:cacheprovider`).
+
+
+## 4 nhom test (update v1.12.x)
+
+### Root tests/
+Test cho cac script trong `reference/scripts/`:
+- test_bootstrap_memory.py, test_check_released_api.py, test_lesson_card_add.py
+- test_mcp_common.py, test_skill_curator.py
+- test_validate_inspired_by_links.py, test_validate_plugin.py, test_validate_plugin_advanced.py
+
+### hooks/hook_tests/
+Test cho hook wrapper (SessionStart JSON contract, PostToolUse SELECT * warning):
+- test_hooks_wrapper.py (11 test)
+
+### reference/mcp-server/tests/
+Script test cu (11 file, khong phai pytest function). Chay truc tiep:
+```bash
+python tests/test_auto1.py  # vi du
+```
+
+### reference/scripts/ (verified by smoke)
+- `build_index.py` - smoke test boi validate.yml CI
+- `verify_modules_consistency.py` - warning-only
+- `scan_clear_text_logging.py` - warning-only

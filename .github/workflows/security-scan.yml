@@ -40,6 +40,24 @@ jobs:
           # HIGH findings -> exit 1 (block merge)
           # MEDIUM findings -> print only, non-blocking
 
+      - name: Run bandit (Python security linter)
+        # Bandit phat hien cac pattern security chuan trong Python (SQL injection,
+        # hard-coded password, weak crypto, ...). Bo sung cho security_scan.py
+        # (custom rule tu code review). MEDIUM severity khong block.
+        run: |
+          pip install bandit
+          # Scan Python source cua MCP server + hooks + scripts.
+          # Skip test files + node_modules.
+          bandit -r reference/mcp-server/sap_btp_agent hooks reference/scripts             --skip B101  # B101 = assert (test code only - khong phai security issue thuc te)
+            --exclude '*/tests/*,*/__pycache__/*,*/build/*'
+          # MEDIUM va LOW findings: khong block. HIGH findings: bandit exit 1.
+
+      - name: Scan clear-text logging
+        # Custom check (scan_clear_text_logging.py) - phat hien print() secret/token/password.
+        # Warning only, vi co nhieu false positive trong comment/docstring.
+        run: |
+          python reference/scripts/scan_clear_text_logging.py || true
+
       - name: Upload SARIF (optional)
         if: always()
         continue-on-error: true

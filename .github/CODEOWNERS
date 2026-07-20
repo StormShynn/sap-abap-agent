@@ -1,0 +1,20 @@
+# CODEOWNERS - GitHub auto-assign reviewer cho tung path.
+# Format: pattern    @owner (user hoac team)
+# Pattern cuoi cung la pattern cuoi cung cua file.
+# Doc: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Default owner cho moi file
+*       @StormShynn
+
+# Critical paths - can review ky hon (neu co maintainer khac)
+# /reference/mcp-server/sap_btp_agent/    @StormShynn
+# /hooks/                                   @StormShynn
+
+# Documentation/docs
+# /docs/                                    @StormShynn
+# /README.md                                @StormShynn
+
+# CI/CD
+# /.github/workflows/                       @StormShynn
+
+# Moi owner duoc gan cho moi PR tu dong (neu branch protection bat Require review).

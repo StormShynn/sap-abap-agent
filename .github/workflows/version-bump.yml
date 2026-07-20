@@ -97,6 +97,23 @@ jobs:
           jq --arg v "${{ steps.version.outputs.new }}" '(.plugins[] | select(.name=="sap-abap-agent") | .version) = $v' .claude-plugin/marketplace.json > /tmp/marketplace.json
           mv /tmp/marketplace.json .claude-plugin/marketplace.json
 
+      # Auto-prepend entry vao CHANGELOG.md de tranh drift giua plugin.json
+      # va CHANGELOG.md (validate_plugin.py se warn neu 2 source lech nhau).
+      # Dung template: ## [vX.Y.Z] - YYYY-MM-DD + section "Auto-bumped by CI".
+      - name: Prepend CHANGELOG entry
+        if: always()
+        run: |
+          NEW_VERSION="${{ steps.version.outputs.new }}"
+          TODAY=$(date -u +%Y-%m-%d)
+          ENTRY="## [v${NEW_VERSION}] \u2014 ${TODAY}\n\n### Changed\n\n- Auto-bumped by CI (version-bump.yml).\n"
+          # Insert sau header (sau line dau tien chua `---` cua mo ta file).
+          # Su dung awk de them entry sau line `---` thu 4 (sau header mo ta).
+          awk -v entry="## [v${NEW_VERSION}] \u2014 ${TODAY}\n\n### Changed\n\n- Auto-bumped by CI (version-bump.yml).\n" '
+            /^---$/ && count++ == 3 { print; print ""; printf "%s\n", entry; next }
+            { print }
+          ' CHANGELOG.md > /tmp/CHANGELOG.md
+          mv /tmp/CHANGELOG.md CHANGELOG.md
+
       - name: Sync mcp-server package version (pyproject.toml, CLI help, README)
         if: steps.changes.outputs.mcp == 'true'
         run: |
@@ -129,7 +146,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add .claude-plugin/plugin.json .claude-plugin/marketplace.json index.html
+          git add .claude-plugin/plugin.json .claude-plugin/marketplace.json CHANGELOG.md index.html
           if [[ "${{ steps.changes.outputs.mcp }}" == "true" ]]; then
             git add reference/mcp-server/pyproject.toml \
                      reference/mcp-server/sap_btp_agent/cli/__init__.py \

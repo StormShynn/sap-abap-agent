@@ -44,6 +44,12 @@ _SIDEBAR_PATTERNS = [
     re.compile(r"v\d+\.\d+(?:\.\d+)?\s*\u00b7\s*\d+\s+modules\s*\u00b7\s*\d+\s+skills"),
     # vX.Y.Z \u00b7 N modules + M skills   (fallback)
     re.compile(r"v\d+\.\d+(?:\.\d+)?\s*\u00b7\s*\d+\s+modules\s*\+\s*\d+\s+skills"),
+    # <small>vX.Y.Z \u00b7 N agents \u00b7 M skills</small> (HTML wrap)
+    re.compile(r"(<small>)v\d+\.\d+(?:\.\d+)?\s*\u00b7\s*\d+\s+agents\s*\u00b7\s*\d+\s+skills(</small>)"),
+    # <span class="header-version">vX.Y.Z \u00b7 N agents \u00b7 M skills</span>
+    re.compile(r"(class=\"header-version\">)v\d+\.\d+(?:\.\d+)?\s*\u00b7\s*\d+\s+agents\s*\u00b7\s*\d+\s+skills"),
+    # Plain text: SAP ABAP Agent &middot; vX.Y.Z \u00b7 N agents \u00b7 M skills
+    re.compile(r"((?:&middot;)\s+)v\d+\.\d+(?:\.\d+)?\s*\u00b7\s*\d+\s+agents\s*\u00b7\s*\d+\s+skills"),
 ]
 
 # Pattern cho CDS view count trong index.html.
@@ -135,9 +141,25 @@ def update_index_html(
     text = INDEX_HTML.read_text(encoding="utf-8")
     new_text = text
 
-    # Sidebar / footer (version + counts) - moi pattern chi match 1 lan
+    # Sidebar / footer (version + counts)
+    # 3 pattern don gian (replace toan bo match = new_line)
+    # 3 pattern co HTML wrap (su dung capture groups de giu lai tags)
     new_line = f"v{version} \u00b7 {agent_count} agents \u00b7 {skill_count} skills"
-    for pat in _SIDEBAR_PATTERNS:
+
+    # Patterns with capture groups (keep HTML intact)
+    # Moi pattern wrap co 1 hoac 2 capture groups (prefix va optional suffix).
+    # Re.sub callback xu ly ca 2 truong hop.
+    wrap_patterns = _SIDEBAR_PATTERNS[3:]  # <small>, header-version, &middot;
+    for pat in wrap_patterns:
+        def _sub_wrap(m):
+            prefix = m.group(1) if m.lastindex and m.lastindex >= 1 else ""
+            suffix = m.group(2) if m.lastindex and m.lastindex >= 2 else ""
+            return f"{prefix}{new_line}{suffix}"
+        new_text = pat.sub(_sub_wrap, new_text, count=1)
+
+    # Simple patterns (no HTML wrap)
+    simple_patterns = _SIDEBAR_PATTERNS[:3]
+    for pat in simple_patterns:
         new_text = pat.sub(new_line, new_text, count=1)
 
     # CDS view count (chi update neu detect duoc) - match tat ca occurrence nhung
