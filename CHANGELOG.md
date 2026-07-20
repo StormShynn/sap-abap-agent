@@ -251,6 +251,13 @@ Format dựa trên [Keep a Changelog](https://keepachangelog.com/) và [Semantic
 
 ---
 
+## [v1.12.15] u2014 2026-07-20
+
+### Changed
+
+- Auto-bumped by CI (version-bump.yml).
+
+
 ## [v1.9.0] — 2026-07-15
 
 ### Added
