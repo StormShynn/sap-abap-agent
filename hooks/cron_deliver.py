@@ -15,6 +15,7 @@ khoi mo duoc.
 """
 from __future__ import annotations
 
+import contextlib
 import json
 import os
 import sys
@@ -63,10 +64,8 @@ def main() -> int:
 
         DELIVERED_DIR.mkdir(parents=True, exist_ok=True)
         for f in delivered:
-            try:
+            with contextlib.suppress(OSError):
                 f.replace(DELIVERED_DIR / f.name)
-            except OSError:
-                pass
         return 0
     except Exception:
         return 0

@@ -53,6 +53,7 @@ Requirements:
 
 from __future__ import annotations
 
+import contextlib
 import hashlib
 import json
 import os
@@ -197,10 +198,8 @@ class _FileLock:
 
     def __exit__(self, *exc: Any) -> None:
         if self._acquired:
-            try:
+            with contextlib.suppress(OSError):
                 self.path.unlink(missing_ok=True)
-            except OSError:
-                pass
 
 
 KNOWN_ISSUES_LOCK = ERROR_REPORTS_DIR / "known_issues.lock"
@@ -535,7 +534,7 @@ def _summarize_diff(old_string: str, new_string: str) -> str:
         return f"Xoa {abs(added)} dong code"
     else:
         # Cùng số dòng → kiểm tra thay đổi ký tự
-        changes = sum(1 for a, b in zip(old_lines, new_lines) if a != b)
+        changes = sum(1 for a, b in zip(old_lines, new_lines, strict=False) if a != b)
         if changes:
             return f"Sua {changes} dong code"
     return "Dieu chinh code"

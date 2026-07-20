@@ -13,7 +13,7 @@ sys.modules["playwright"] = MagicMock()
 sys.modules["playwright.async_api"] = MagicMock()
 sys.modules["playwright.async_api"].async_playwright = fake_pw_module
 
-from sap_btp_agent.sap.auth import web_login_auto
+from sap_btp_agent.sap.auth import web_login_auto  # noqa: E402
 
 
 async def case_1():

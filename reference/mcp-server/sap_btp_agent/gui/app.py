@@ -16,6 +16,7 @@ Cau truc:
 """
 from __future__ import annotations
 
+import contextlib
 import queue
 import tkinter as tk
 from tkinter import messagebox, ttk
@@ -284,10 +285,8 @@ class SapBtpGui:
     def _tick_countdown(self) -> None:
         """Update license label moi giay de hien thi countdown real-time."""
         if self._countdown_pid:
-            try:
+            with contextlib.suppress(Exception):
                 self._update_license_label(self._countdown_pid)
-            except Exception:
-                pass
         # Reschedule sau 1s (1000ms)
         self.root.after(1000, self._tick_countdown)
 
@@ -620,10 +619,8 @@ class SapBtpGui:
 
         # Tick moi 1s de update countdown
         def _tick_dashboard():
-            try:
+            with contextlib.suppress(Exception):
                 self._tick_dashboard_rows(win)
-            except Exception:
-                pass
             try:
                 if win.winfo_exists():
                     win.after(1000, _tick_dashboard)
@@ -797,10 +794,8 @@ class SapBtpGui:
 
     def _notify_tray(self, message: str) -> None:
         if self._tray is not None:
-            try:
+            with contextlib.suppress(Exception):
                 self._tray.notify(message)
-            except Exception:
-                pass
 
     def hide_to_tray(self) -> None:
         """An cua so xuong system tray (goi tu tray khi user click Close)."""
@@ -823,10 +818,8 @@ class SapBtpGui:
                 parent=self.root,
             ):
                 return
-            try:
+            with contextlib.suppress(Exception):
                 self._job.cancel()
-            except Exception:
-                pass
 
         if self._tray is not None:
             # An xuong tray thay vi exit that su

@@ -1,4 +1,5 @@
 ﻿import asyncio
+import contextlib
 import sys
 from unittest.mock import AsyncMock, MagicMock, patch
 
@@ -10,7 +11,7 @@ sys.modules["playwright.async_api"].async_playwright = MagicMock(
     return_value=fake_pw_instance
 )
 
-from sap_btp_agent.sap.auth import web_login_auto
+from sap_btp_agent.sap.auth import web_login_auto  # noqa: E402
 
 
 def make_fake_browser():
@@ -62,13 +63,12 @@ async def case_2():
 
         import time
         t0 = time.monotonic()
-        try:
+        with contextlib.suppress(Exception):
             await web_login_auto({
                 "base_url": "https://my440301.s4hana.cloud.sap",
                 "profile_id": "test",
             })
-        except Exception:
-            pass  # co the raise ReauthCancelled do khong co session
+            # co the raise ReauthCancelled do khong co session
         elapsed = time.monotonic() - t0
         print(f"  elapsed: {elapsed:.2f}s (target ~5-6s)")
         assert elapsed < 8.0

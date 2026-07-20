@@ -4,6 +4,7 @@ Moi profile = 1 folder trong profiles/<id>/ chua config.json + secrets.json.
 """
 from __future__ import annotations
 
+import contextlib
 import json
 import shutil
 from datetime import datetime, timezone
@@ -54,10 +55,8 @@ def _save_registry(reg: dict[str, Any]) -> None:
     content = json.dumps(reg, ensure_ascii=False, indent=2)
     file.write_text(content, encoding="utf-8")
     mirror_write_text(file, content)
-    try:
+    with contextlib.suppress(Exception):
         os_chmod(file, 0o600)
-    except Exception:
-        pass
 
 
 def is_valid_profile_id(id_: str) -> bool:

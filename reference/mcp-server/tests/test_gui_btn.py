@@ -14,8 +14,8 @@ def fake_touch():
     gui.btn_done.configure(state="disabled")
 
 # Set up marker file de test touch
-import os
-import tempfile
+import os  # noqa: E402
+import tempfile  # noqa: E402
 
 fd, p = tempfile.mkstemp(prefix="sap_early_test_", suffix=".path")
 os.close(fd)

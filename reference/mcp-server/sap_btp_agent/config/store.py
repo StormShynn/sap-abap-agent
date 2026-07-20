@@ -4,6 +4,7 @@ File: profiles/<id>/config.json
 """
 from __future__ import annotations
 
+import contextlib
 import json
 import os
 import re
@@ -121,10 +122,8 @@ def save_config(profile_id: str | None, partial: dict[str, Any]) -> dict[str, An
     content = json.dumps(merged, ensure_ascii=False, indent=2)
     file.write_text(content, encoding="utf-8")
     mirror_write_text(file, content)
-    try:
+    with contextlib.suppress(Exception):
         os.chmod(file, 0o600)
-    except Exception:
-        pass
     return {"id": pid, "config": merged}
 
 

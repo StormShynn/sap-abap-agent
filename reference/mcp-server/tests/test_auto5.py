@@ -10,7 +10,7 @@ sys.modules["playwright.async_api"].async_playwright = MagicMock(
     return_value=fake_pw_instance
 )
 
-from sap_btp_agent.sap.auth import web_login_auto
+from sap_btp_agent.sap.auth import web_login_auto  # noqa: E402
 
 
 def make_fake_browser():

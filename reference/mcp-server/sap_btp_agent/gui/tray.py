@@ -10,6 +10,7 @@ Tinh nang:
 """
 from __future__ import annotations
 
+import contextlib
 import threading
 from typing import TYPE_CHECKING
 
@@ -86,17 +87,13 @@ class TrayController:
         def on_activate(icon, item=None):
             self.gui.show_from_tray()
         # pystray: su dung default action (left click) la show
-        try:
+        with contextlib.suppress(Exception):
             self._icon.on_activate = on_activate
-        except Exception:
-            pass
 
         # Chay icon o thread rieng (pystray.Icon.run la blocking)
         def runner():
-            try:
+            with contextlib.suppress(Exception):
                 self._icon.run()
-            except Exception:
-                pass
 
         self._thread = threading.Thread(target=runner, daemon=True, name="tray-icon")
         self._thread.start()
@@ -104,19 +101,15 @@ class TrayController:
     def stop(self) -> None:
         """Dung tray icon."""
         if self._icon is not None:
-            try:
+            with contextlib.suppress(Exception):
                 self._icon.stop()
-            except Exception:
-                pass
 
     def notify(self, message: str, title: str = "SAP BTP Agent") -> None:
         """Hien balloon/toast notification."""
         if self._icon is None:
             return
-        try:
+        with contextlib.suppress(Exception):
             self._icon.notify(message, title=title)
-        except Exception:
-            pass
 
     def _build_menu(self):
         """Xay menu context - tao moi moi lan goi de profile list luon moi."""
@@ -193,10 +186,8 @@ class TrayController:
 
         def on_line(line: str):
             # Push vao GUI log neu cua so dang mo
-            try:
+            with contextlib.suppress(Exception):
                 self.gui._line_queue.put(("line", f"[tray] {line}"))
-            except Exception:
-                pass
 
         def on_done(rc: int):
             if rc == 0:

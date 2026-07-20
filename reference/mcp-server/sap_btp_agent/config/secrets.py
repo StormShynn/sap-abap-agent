@@ -11,6 +11,7 @@ Chien luoc ma hoa (uu tien):
 from __future__ import annotations
 
 import base64
+import contextlib
 import json
 import os
 import socket
@@ -149,10 +150,8 @@ async def save_secrets(profile_id: str | None, secrets: dict[str, Any]) -> dict[
     content = json.dumps(blob, ensure_ascii=False, indent=2)
     file.write_text(content, encoding="utf-8")
     mirror_write_text(file, content, sensitive=True)
-    try:
+    with contextlib.suppress(Exception):
         os.chmod(file, 0o600)
-    except Exception:
-        pass
     return {"id": pid, "file": str(file)}
 
 
@@ -184,8 +183,6 @@ async def update_secrets(profile_id: str | None, partial: dict[str, Any]) -> dic
 async def clear_secrets(profile_id: str | None) -> dict[str, Any]:
     pid = await _ensure_id(profile_id)
     file = get_profile_secrets_file(pid)
-    try:
+    with contextlib.suppress(Exception):
         file.unlink(missing_ok=True)
-    except Exception:
-        pass
     return {"id": pid}

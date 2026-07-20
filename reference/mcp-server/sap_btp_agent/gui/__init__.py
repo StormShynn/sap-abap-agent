@@ -8,6 +8,7 @@ Su dung:
 from __future__ import annotations
 
 import argparse
+import contextlib
 import sys
 
 
@@ -48,10 +49,8 @@ def main() -> int:
         gui.run()
     finally:
         if tray is not None:
-            try:
+            with contextlib.suppress(Exception):
                 tray.stop()
-            except Exception:
-                pass
 
     return 0
 

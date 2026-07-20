@@ -5,6 +5,7 @@ Async, retry 429/5xx, auto-reconnect khi 401.
 from __future__ import annotations
 
 import asyncio
+import contextlib
 import re
 from typing import Any
 from urllib.parse import urlencode
@@ -318,10 +319,9 @@ class SapClient:
     async def _keep_alive_loop(self, interval_s: float) -> None:
         while True:
             await asyncio.sleep(interval_s)
-            try:
+            with contextlib.suppress(Exception):
                 await self.check_write_access()
-            except Exception:
-                pass  # best-effort - loi that su se lo dien o lan goi tool tiep theo
+                # best-effort - loi that su se lo dien o lan goi tool tiep theo
 
     def _build_url(self, path: str, query: dict[str, Any] | None) -> str:
         base = path if path.startswith("http") else f"{self._base()}/{path.lstrip('/')}"

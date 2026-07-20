@@ -50,6 +50,7 @@ Output: JSON ra stdout.
 from __future__ import annotations
 
 import argparse
+import contextlib
 import json
 import os
 import subprocess
@@ -114,10 +115,8 @@ class _FileLock:
 
     def __exit__(self, *exc: Any) -> None:
         if self._acquired:
-            try:
+            with contextlib.suppress(OSError):
                 self.path.unlink(missing_ok=True)
-            except OSError:
-                pass
 
 
 # ── Paths ────────────────────────────────────────────────────────────────────────────

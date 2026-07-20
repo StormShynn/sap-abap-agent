@@ -7,6 +7,7 @@ Self-limiting by construction: the sentinel is consumed (deleted) the moment
 it is used to block, so the same pending edit can never trigger a second
 block. Combined with the stop_hook_active check, this cannot loop.
 """
+import contextlib
 import json
 import os
 import re
@@ -52,10 +53,8 @@ def main():
         sys.exit(0)
 
     if mode == "mark-verified":
-        try:
+        with contextlib.suppress(Exception):
             os.remove(path)
-        except Exception:
-            pass
         sys.exit(0)
 
     if mode == "check-stop":

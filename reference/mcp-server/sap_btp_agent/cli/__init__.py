@@ -861,7 +861,7 @@ def _read_cookie_paste() -> str:
             lines.append(line.rstrip("\n").rstrip("\r"))
     except KeyboardInterrupt:
         if not lines:
-            raise UserCancelled("cookie paste (Ctrl+C)")
+            raise UserCancelled("cookie paste (Ctrl+C)") from None
         # da paste du lieu roi -> silent fallthrough
     return "\n".join(lines)
 

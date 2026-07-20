@@ -28,7 +28,7 @@ def ask(question: str, *, default: str | None = None,
     try:
         line = sys.stdin.readline()
     except KeyboardInterrupt:
-        raise UserCancelled("ask (Ctrl+C)")
+        raise UserCancelled("ask (Ctrl+C)") from None
     if not line:
         # Ctrl+D / Ctrl+Z+Enter: stdin dong, khong co du lieu -> user huy.
         raise UserCancelled("ask (stdin closed)")

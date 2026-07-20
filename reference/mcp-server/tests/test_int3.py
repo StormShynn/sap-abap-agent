@@ -69,6 +69,6 @@ async def main():
         elapsed = time.monotonic() - t0
         print(f"\n[main] _cmd_reauth done in {elapsed:.2f}s")
 
-import asyncio
+import asyncio  # noqa: E402
 
 asyncio.run(main())

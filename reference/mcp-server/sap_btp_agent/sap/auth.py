@@ -10,6 +10,7 @@ Ho tro:
 from __future__ import annotations
 
 import asyncio
+import contextlib
 import os
 import time
 from collections.abc import Callable, Coroutine, Iterable
@@ -401,7 +402,7 @@ async def web_login_popup(ctx: dict[str, Any]) -> ReauthResult:
         # Neu chua co gi paste -> huy that. Neu da co 1+ dong -> tiep tuc xu ly.
         if not lines:
             print()
-            raise ReauthCancelled("cookie paste (Ctrl+C)")
+            raise ReauthCancelled("cookie paste (Ctrl+C)") from None
         # co du lieu roi -> silent fallthrough, xu ly tiep ben duoi
 
     cookie_str = " ".join(lines)
@@ -475,15 +476,13 @@ async def web_login_auto(ctx: dict[str, Any]) -> ReauthResult:
         page.on("download", lambda dl: asyncio.ensure_future(dl.cancel()))
 
         login_url = f"{base_url.rstrip('/')}/sap/bc/adt/"
-        try:
+        with contextlib.suppress(Exception):
             await page.goto(login_url)
-        except Exception:
             # SSO redirect (Kerberos 401, SAML...) hay khien goto() bao loi
             # ERR_ABORTED ngay lap tuc - khong fatal, browser van o lai va tiep
             # tuc redirect, vong poll ben duoi se tu kiem tra tiep.
-            pass
 
-            # In huong dan cho user biet co the ket thuc som
+        # In huong dan cho user biet co the ket thuc som
         print("  👉 Vui long dang nhap trong cua so trinh duyet (timeout 30s)...")
         print("     (Bam Ctrl+C de HUY va giu nguyen cookie cu - khong bi ghi de)")
         print("     (Hoac BAM ENTER trong terminal / nut OK trong GUI de KET THUC SOM)")
@@ -572,22 +571,18 @@ async def web_login_auto(ctx: dict[str, Any]) -> ReauthResult:
         cookies = {c["name"]: c["value"] for c in cookies_raw}
     except KeyboardInterrupt:
         print()
-        raise ReauthCancelled("Playwright login (Ctrl+C)")
+        raise ReauthCancelled("Playwright login (Ctrl+C)") from None
     finally:
         # Dam bao browser + Playwright luon duoc dong khi:
         #  - User bam Ctrl+C giua luong (KeyboardInterrupt)
         #  - Timeout 30s ma chua dang nhap xong
         #  - Exception bat ky khi mo browser
         if browser is not None:
-            try:
+            with contextlib.suppress(Exception):
                 await browser.close()
-            except Exception:
-                pass
         if pw is not None:
-            try:
+            with contextlib.suppress(Exception):
                 await pw.stop()
-            except Exception:
-                pass
 
     if cookies:
         found = _session_cookie_names(cookies)
