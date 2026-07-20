@@ -549,6 +549,13 @@ def _is_sensitive_key(key: str) -> bool:
 def _safe_display_value(key: str, value: Any) -> str:
     if _is_sensitive_key(key):
         return "***REDACTED***"
+
+    k = (key or "").lower()
+    if k == "type":
+        allowed_types = {"oauth2", "cookie"}
+        v = str(value).lower()
+        return v if v in allowed_types else "***REDACTED***"
+
     return str(value)
 
 
@@ -623,7 +630,8 @@ def _cmd_license(profile_id):
         else:
             status = "ok"
         pid_disp = (marker + s["profile_id"])[:40]
-        print(f"  {pid_disp:<40} {s['type']:<8} {status:<12} {s['expires_in_human']:<16}")
+        type_disp = _safe_display_value("type", s["type"])
+        print(f"  {pid_disp:<40} {type_disp:<8} {status:<12} {s['expires_in_human']:<16}")
     print("=" * 86)
     print("  (*) = active profile. Dung `sap-btp-agent license <id>` de xem chi tiet.")
     print()
