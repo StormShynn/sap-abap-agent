@@ -1,9 +1,10 @@
 ---
 name: sap-scaffold-cds
 description: |
-  Sinh CDS view skeleton (interface, consumption, metadata extension) tu field list trong
-  INTAKE.md/TECHNICAL_SPEC.md — dung cho pattern chi-read (bao cao, list/detail khong save).
-  Dung khi TECHNICAL_SPEC.md da chon pattern "3-layer CDS" (khong RAP/CRUD).
+  Buoc 3 (nhanh chi-read) trong pipeline "FS -> INTAKE -> TECHNICAL_SPEC -> scaffold code ->
+  review -> test". Sinh CDS view skeleton (interface, consumption, metadata extension) tu field
+  list trong INTAKE.md/TECHNICAL_SPEC.md — dung cho pattern chi-read (bao cao, list/detail khong
+  save). Dung khi TECHNICAL_SPEC.md da chon pattern "3-layer CDS" (khong RAP/CRUD).
   KHONG dung khi can CRUD (dung sap-scaffold-rap).
 when_to_use: |
   "sinh CDS view tu TECHNICAL_SPEC nay", "tao interface view read-only cho bao cao",

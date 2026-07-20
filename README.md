@@ -86,16 +86,13 @@ sap-abap-agent/
 |   |       sap-released-classes, sap-abap-sql, sap-badi-enhancement,
 |   |       sap-authorization, sap-odata-service, sap-rap-events,
 |   |       sap-cloud-migration, sap-btp-connectivity, sap-btp-best-practices)
-+-- agents/
-|   +-- sap-ask-consultant/    # Auto-scoring routing — dispatch tới 28 agents:
-|   |   +-- 25 module consultants (SD, FI, MM, CO, PP, QM, PM, WM, PS, HCM,
-|   |   |   BW, Basis, TM, TR, Ariba, CA, GTS, EHS, IBP, EWM, Fiori, CAP,
-|   |   |   CPI, SuccessFactors, BTP Admin)
-|   |   +-- sap-docs-researcher       # CDS view & Docs Research
-|   |   +-- sap-daily-learner         # Daily SAP Learning (Hermes-like)
-|   |   +-- abap-reviewer             # Review code ABAP Cloud
-|   +-- sap-btp-admin-consultant-cloud  # BTP Platform Administration
-|   +-- sap-cap-consultant-cloud        # CAP (Cloud Application Programming)
++-- agents/                    # 28 file .md — dispatch tự động qua skill sap-ask-consultant ở trên
+|   +-- 25 module consultants (SD, FI, MM, CO, PP, QM, PM, WM, PS, HCM,
+|   |   BW, Basis, TM, TR, Ariba, CA, GTS, EHS, IBP, EWM, Fiori, CAP,
+|   |   CPI, SuccessFactors, BTP Admin)
+|   +-- sap-docs-researcher       # CDS view & Docs Research
+|   +-- sap-daily-learner         # Daily SAP Learning (Hermes-like)
+|   +-- abap-reviewer             # Review code ABAP Cloud
 +-- hooks/                   # Cảnh báo SELECT * (PostToolUse) + routing (SessionStart)
 +-- reference/
     +-- modules/             # Kiến thức module cho từng consultant
@@ -369,7 +366,7 @@ remote (cds-kb-mcp và mcp-sap-docs), dùng `claude mcp add` với transport `ss
 Cách 1 — `claude mcp add` (nếu Claude Code hỗ trợ `--transport sse`):
 
 ```bash
-claude mcp add --transport sse cds-kb --url https://cds-kb-mcp-production.up.railway.app/sse
+claude mcp add --transport sse cds-kb --url https://cds-kb-mcp-kit-production.up.railway.app/sse
 # Nếu primary không truy cập được, dùng fallback:
 # claude mcp add --transport sse cds-kb --url https://cds-kb-mcp.cfapps.ap21.hana.ondemand.com/sse
 ```
@@ -381,7 +378,7 @@ Cách 2 — `supergateway` (tương thích với mọi IDE hỗ trợ MCP: Curso
   "mcpServers": {
     "cds-kb": {
       "command": "npx",
-      "args": ["-y", "supergateway@2.0.0", "--sse", "https://cds-kb-mcp-production.up.railway.app/sse"]
+      "args": ["-y", "supergateway@2.0.0", "--sse", "https://cds-kb-mcp-kit-production.up.railway.app/sse"]
     }
   }
 }
@@ -519,8 +516,8 @@ liên tục — **mỗi ngày plugin càng ít lỗi hơn**:
 > <summary><b>PowerShell</b> (Windows)</summary>
 >
 > ```powershell
-> New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\.sap-btp-agent\error-reports"
-> New-Item -ItemType File -Force -Path "$env:USERPROFILE\.sap-btp-agent\error-reports\ENABLED"
+> New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\.sap-abap-agent\error-reports"
+> New-Item -ItemType File -Force -Path "$env:USERPROFILE\.sap-abap-agent\error-reports\ENABLED"
 > ```
 >
 > </details>
@@ -529,8 +526,8 @@ liên tục — **mỗi ngày plugin càng ít lỗi hơn**:
 > <summary><b>CMD</b> (Windows)</summary>
 >
 > ```cmd
-> if not exist "%USERPROFILE%\.sap-btp-agent\error-reports" mkdir "%USERPROFILE%\.sap-btp-agent\error-reports"
-> echo. > "%USERPROFILE%\.sap-btp-agent\error-reports\ENABLED"
+> if not exist "%USERPROFILE%\.sap-abap-agent\error-reports" mkdir "%USERPROFILE%\.sap-abap-agent\error-reports"
+> echo. > "%USERPROFILE%\.sap-abap-agent\error-reports\ENABLED"
 > ```
 >
 > </details>
@@ -539,7 +536,7 @@ liên tục — **mỗi ngày plugin càng ít lỗi hơn**:
 > <summary><b>bash / zsh / Git Bash / WSL</b> (macOS, Linux)</summary>
 >
 > ```bash
-> mkdir -p ~/.sap-btp-agent/error-reports && touch ~/.sap-btp-agent/error-reports/ENABLED
+> mkdir -p ~/.sap-abap-agent/error-reports && touch ~/.sap-abap-agent/error-reports/ENABLED
 > ```
 >
 > </details>
@@ -613,7 +610,7 @@ echo '{}' | python hooks/error_reporter.py status
 Output mẫu:
 ```json
 {
-  "plugin_version": "1.5.0",
+  "plugin_version": "1.12.0",
   "total_logged_errors": 12,
   "total_logged_fixes": 3,
   "active_error_groups_24h": 2,
@@ -634,20 +631,20 @@ Output mẫu:
 #### Ai cũng có local report — không cần GitHub
 
 Dù có GitHub auth hay không, error report **luôn được save thành file Markdown**
-tại `~/.sap-btp-agent/error-reports/reports/` — ai cũng đọc được, không cần Dù có GitHub auth hay không, error report **luôn được save thành file Markdown**
-tại `~/.sap-btp-agent/error-reports/reports/` — ai cũng đọc được, không cần token.
+tại `~/.sap-abap-agent/error-reports/reports/` — ai cũng đọc được, không cần Dù có GitHub auth hay không, error report **luôn được save thành file Markdown**
+tại `~/.sap-abap-agent/error-reports/reports/` — ai cũng đọc được, không cần token.
 
 <details>
 <summary><b>PowerShell / CMD</b> (Windows)</summary>
 
 ```powershell
 # PowerShell
-Get-ChildItem "$env:USERPROFILE\.sap-btp-agent\error-reports\reports\"
+Get-ChildItem "$env:USERPROFILE\.sap-abap-agent\error-reports\reports\"
 ```
 
 ```cmd
 :: CMD
-dir "%USERPROFILE%\.sap-btp-agent\error-reports\reports\"
+dir "%USERPROFILE%\.sap-abap-agent\error-reports\reports\"
 ```
 
 </details>
@@ -656,7 +653,7 @@ dir "%USERPROFILE%\.sap-btp-agent\error-reports\reports\"
 <summary><b>bash / zsh / Git Bash / WSL</b> (macOS, Linux)</summary>
 
 ```bash
-ls ~/.sap-btp-agent/error-reports/reports/
+ls ~/.sap-abap-agent/error-reports/reports/
 ```
 
 </details>
@@ -1220,14 +1217,18 @@ cp /path/to/FS_xxx.docx "$(python -c 'from sap_btp_agent.config.paths import get
 # 2. Quyết định kiến trúc (managed/unmanaged/CDS/class)
 # -> skill sap-write-technical-spec -> out/<ticket>/TECHNICAL_SPEC.md
 
+# (gate an toàn) Đo hệ thống thật + xác nhận package/namespace trước khi tạo object thật
+# -> skill sap-bootstrap-system-context + sap-deployment-target
+
 # 3. Sinh skeleton code
-# -> skill sap-scaffold-rap (CRUD/RAP) hoặc sap-scaffold-cds (chỉ-read) -> out/<ticket>/src/
+# -> skill sap-scaffold-rap (CRUD/RAP) hoặc sap-scaffold-cds (chỉ-read)
+#    hoặc sap-scaffold-cds-analytics (Cube/Dimension/Analytical Query) -> out/<ticket>/src/
 
 # 4. Review naming/released-API/clean-ABAP
 # -> skill sap-atc-review -> out/<ticket>/ATC_REVIEW.md
 
 # 5. Sinh ABAP Unit test
-# -> skill sap-unit-test
+# -> skill sap-unit-test hoặc sap-cds-unit-test (CDS view/RAP BO qua Test Double Framework)
 
 # 6. Checklist đóng ticket (activation/ATC/test/transport/abapGit)
 # -> skill sap-finish-ticket -> out/<ticket>/FINISH_CHECKLIST.md
@@ -1290,12 +1291,8 @@ Script tự động: git pull plugin → tải wheel `.whl` mới nhất từ Gi
 
 ## Trạng thái
 
-v1.3.3 — **28 agents (25 modules + 1 researcher + 1 daily learner + 1 reviewer)** với auto-scoring routing engine,
-CDS KB, SAP Docs Research, ABAP Cloud clean code, extensibility, key user toolkit, Hermes-like self-improving learning.
-**Mới:** Fiori/UI5, CAP, CPI, SuccessFactors, BTP Admin consultants; state của plugin
-(`sap-daily-learner`, cache, session/handoff) chuyển từ project-relative sang
-`%USERPROFILE%\.sap-abap-agent\` dùng, kèm script tự dọn cache/log quá 7 ngày
-(xem CHANGELOG v1.3.3).
+Xem [`CHANGELOG.md`](CHANGELOG.md) để biết trạng thái/tính năng mới nhất — mục này không còn
+duy trì số liệu riêng để tránh lệch với badge version ở đầu file.
 
 ## Cảm hứng (Inspired by)
 

@@ -25,8 +25,8 @@ disallowedTools: [Write, Edit]
 - ✅ User hoi rieng ve bao mat 1 doan code/class/CDS view cu the.
 - ❌ KHONG dung de hoc "cach lam auth cho dung" — dung skill `sap-authorization` (skill nay chi
   PHAT HIEN thieu sot, khong day cach sua chi tiet, tranh trung noi dung).
-- ❌ KHONG thay the `security_scan.py`/skill `sap-document-sync` — cai do quet ma nguon CUA CHINH
-  PLUGIN nay (Python/TS/JS), con skill nay quet code ABAP CUA KHACH HANG.
+- ❌ KHONG thay the `reference/scripts/security_scan.py` — cai do quet ma nguon CUA CHINH PLUGIN
+  nay (Python/TS/JS), con skill nay quet code ABAP CUA KHACH HANG.
 
 ## Trieu hoc nguyen: vi sao can rieng 1 skill
 

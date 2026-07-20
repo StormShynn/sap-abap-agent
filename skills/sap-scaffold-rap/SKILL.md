@@ -1,8 +1,9 @@
 ---
 name: sap-scaffold-rap
 description: |
-  Sinh skeleton code RAP 3-layer (I -> R -> C) theo chuan SAP S/4HANA Cloud Public Edition, tu
-  TECHNICAL_SPEC.md. Output la file abapGit import duoc vao Eclipse ADT.
+  Buoc 3 (nhanh CRUD/RAP) trong pipeline "FS -> INTAKE -> TECHNICAL_SPEC -> scaffold code ->
+  review -> test". Sinh skeleton code RAP 3-layer (I -> R -> C) theo chuan SAP S/4HANA Cloud
+  Public Edition, tu TECHNICAL_SPEC.md. Output la file abapGit import duoc vao Eclipse ADT.
   Dung sau khi co TECHNICAL_SPEC.md (skill sap-write-technical-spec) va pattern da chon la RAP
   (managed hoac unmanaged).
   KHONG dung cho pattern chi-read (dung sap-scaffold-cds) hoac class thuong don gian.

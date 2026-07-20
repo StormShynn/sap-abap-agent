@@ -111,6 +111,9 @@ Neu co FAIL: dung, yeu cau user fix. Neu chi WARN: bao user, khong block.
 - SQL+AMDP check: skill `sap-abap-sql` — ABAP SQL patterns & performance.
 - OData check: skill `sap-odata-service` — OData V4 service review.
 - Agent `abap-reviewer` — review sau/logic nghiep vu chi tiet hon.
+- Skill `sap-cloud-migration` — khi dang phan tich/lap ke hoach migration code CU (on-prem/ECC),
+  khac voi skill nay tap trung review code MOI vua scaffold; ca 2 cung doc chung nhom ma loi ATC
+  (`CLOUD_READINESS`, `USE_RELEASED_OBJECT`...).
 
 ## 7. RAG Review Pattern (bổ sung, opt-in)
 

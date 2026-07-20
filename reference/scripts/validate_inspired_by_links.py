@@ -5,6 +5,7 @@ Quet cac file:
   - README.md
   - CHANGELOG.md
   - reference/modules/*/SKILL.md
+  - skills/*/SKILL.md
   - docs/sap-mcp-recommendations.md
 
 Trich GitHub repo URL dang `https://github.com/<owner>/<repo>` (khong phai sub-path, khong phai
@@ -41,6 +42,14 @@ TARGET_FILES = [
 def _module_skills() -> list[str]:
     out = []
     for d in (ROOT / "reference" / "modules").glob("*/SKILL.md"):
+        out.append(str(d.relative_to(ROOT)))
+    return out
+
+
+# Tat ca skills/<name>/SKILL.md (skill dispatch that su, khac voi reference/modules/ o tren)
+def _plugin_skills() -> list[str]:
+    out = []
+    for d in (ROOT / "skills").glob("*/SKILL.md"):
         out.append(str(d.relative_to(ROOT)))
     return out
 
@@ -93,7 +102,7 @@ def head_check(url: str, timeout: float = 8.0) -> str:
 def collect_urls() -> dict[str, list[str]]:
     """Quet cac file target, tra ve {file_relpath: [url, ...]}."""
     found: dict[str, list[str]] = {}
-    files = list(TARGET_FILES) + _module_skills()
+    files = list(TARGET_FILES) + _module_skills() + _plugin_skills()
     for rel in files:
         p = ROOT / rel
         if not p.exists():

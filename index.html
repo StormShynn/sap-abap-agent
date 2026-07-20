@@ -1325,7 +1325,7 @@ claude mcp add --transport http notion https://mcp.notion.com/mcp</code><button 
     <section id="error-reporting">
       <h2><span class="section-icon">🐛</span> Báo cáo lỗi tự động (Continuous Improvement)</h2>
 
-      <p><strong>Error reporter</strong> chạy ngầm qua hook system, tự động phát hiện lỗi runtime (lệnh bash fail, MCP tool lỗi, activate fail...) rồi <strong>ghi file Markdown local</strong> tại <code>%USERPROFILE%\.sap-btp-agent\error-reports\reports\</code> (Windows) hoặc <code>~/.sap-btp-agent/error-reports/reports/</code> (macOS/Linux). Nếu có GitHub auth, sẽ tự tạo issue để dev fix — <strong>mỗi ngày plugin càng ít lỗi hơn</strong>.</p>
+      <p><strong>Error reporter</strong> chạy ngầm qua hook system, tự động phát hiện lỗi runtime (lệnh bash fail, MCP tool lỗi, activate fail...) rồi <strong>ghi file Markdown local</strong> tại <code>%USERPROFILE%\.sap-abap-agent\error-reports\reports\</code> (Windows) hoặc <code>~/.sap-abap-agent/error-reports/reports/</code> (macOS/Linux). Nếu có GitHub auth, sẽ tự tạo issue để dev fix — <strong>mỗi ngày plugin càng ít lỗi hơn</strong>.</p>
 
       <div class="callout warning" style="background:rgba(210,153,34,.12);border-left:4px solid var(--orange);padding:14px 16px;border-radius:8px;margin:14px 0;">
         <strong>⚠️ Mặc định TẮT (opt-in).</strong> Tính năng chỉ chạy khi bạn bật rõ ràng — không tự động thu thập gì nếu bạn không bật. Phần "đính code fix vào issue" chỉ gửi code của chính plugin này lên issue, không bao giờ đính kèm code ABAP/project nội bộ của bạn.
@@ -1358,19 +1358,19 @@ claude mcp add --transport http notion https://mcp.notion.com/mcp</code><button 
       <div class="code-compare">
         <div class="code-block">
           <div class="code-label">PowerShell <span class="code-os">Windows</span></div>
-<pre><code>New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\.sap-btp-agent\error-reports"
-New-Item -ItemType File -Force -Path "$env:USERPROFILE\.sap-btp-agent\error-reports\ENABLED"</code><button class="copy-btn" onclick="copyCode(this)">Sao chép</button></pre>
+<pre><code>New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\.sap-abap-agent\error-reports"
+New-Item -ItemType File -Force -Path "$env:USERPROFILE\.sap-abap-agent\error-reports\ENABLED"</code><button class="copy-btn" onclick="copyCode(this)">Sao chép</button></pre>
         </div>
 
         <div class="code-block">
           <div class="code-label">CMD <span class="code-os">Windows</span></div>
-<pre><code>if not exist "%USERPROFILE%\.sap-btp-agent\error-reports" mkdir "%USERPROFILE%\.sap-btp-agent\error-reports"
-echo. > "%USERPROFILE%\.sap-btp-agent\error-reports\ENABLED"</code><button class="copy-btn" onclick="copyCode(this)">Sao chép</button></pre>
+<pre><code>if not exist "%USERPROFILE%\.sap-abap-agent\error-reports" mkdir "%USERPROFILE%\.sap-abap-agent\error-reports"
+echo. > "%USERPROFILE%\.sap-abap-agent\error-reports\ENABLED"</code><button class="copy-btn" onclick="copyCode(this)">Sao chép</button></pre>
         </div>
 
         <div class="code-block">
           <div class="code-label">bash / zsh / Git Bash / WSL <span class="code-os">macOS · Linux</span></div>
-<pre><code>mkdir -p ~/.sap-btp-agent/error-reports && touch ~/.sap-btp-agent/error-reports/ENABLED</code><button class="copy-btn" onclick="copyCode(this)">Sao chép</button></pre>
+<pre><code>mkdir -p ~/.sap-abap-agent/error-reports && touch ~/.sap-abap-agent/error-reports/ENABLED</code><button class="copy-btn" onclick="copyCode(this)">Sao chép</button></pre>
         </div>
       </div>
 
@@ -1395,22 +1395,22 @@ echo. > "%USERPROFILE%\.sap-btp-agent\error-reports\ENABLED"</code><button class
       </div>
 
       <h3>Bước 3 — Xem file report (Markdown local, không cần GitHub)</h3>
-      <p>Mỗi lỗi được save thành 1 file <code>.md</code> hoàn chỉnh tại <code>~/.sap-btp-agent/error-reports/reports/</code>. Dù không có GitHub auth bạn vẫn đọc và share được:</p>
+      <p>Mỗi lỗi được save thành 1 file <code>.md</code> hoàn chỉnh tại <code>~/.sap-abap-agent/error-reports/reports/</code>. Dù không có GitHub auth bạn vẫn đọc và share được:</p>
 
       <div class="code-compare">
         <div class="code-block">
           <div class="code-label">PowerShell <span class="code-os">Windows</span></div>
-<pre><code>Get-ChildItem "$env:USERPROFILE\.sap-btp-agent\error-reports\reports\"</code><button class="copy-btn" onclick="copyCode(this)">Sao chép</button></pre>
+<pre><code>Get-ChildItem "$env:USERPROFILE\.sap-abap-agent\error-reports\reports\"</code><button class="copy-btn" onclick="copyCode(this)">Sao chép</button></pre>
         </div>
 
         <div class="code-block">
           <div class="code-label">CMD <span class="code-os">Windows</span></div>
-<pre><code>dir "%USERPROFILE%\.sap-btp-agent\error-reports\reports\"</code><button class="copy-btn" onclick="copyCode(this)">Sao chép</button></pre>
+<pre><code>dir "%USERPROFILE%\.sap-abap-agent\error-reports\reports\"</code><button class="copy-btn" onclick="copyCode(this)">Sao chép</button></pre>
         </div>
 
         <div class="code-block">
           <div class="code-label">bash / zsh / Git Bash / WSL <span class="code-os">macOS · Linux</span></div>
-<pre><code>ls ~/.sap-btp-agent/error-reports/reports/</code><button class="copy-btn" onclick="copyCode(this)">Sao chép</button></pre>
+<pre><code>ls ~/.sap-abap-agent/error-reports/reports/</code><button class="copy-btn" onclick="copyCode(this)">Sao chép</button></pre>
         </div>
       </div>
 
@@ -3449,7 +3449,7 @@ java -jar cdata.jdbc.sapfieldglass.jar --license</code><button class="copy-btn" 
             <tr><td>0</td><td><code>sap-doc-to-md</code></td><td>FS.docx → FS.md</td><td>Convert Word sang Markdown (bảng/heading giữ nguyên) để AI đọc được nội dung FS.</td></tr>
             <tr><td>1</td><td><code>sap-analyze-function-spec</code></td><td>FS.md → INTAKE.md</td><td>Chuẩn hoá yêu cầu thành 8 mục cố định, đánh dấu field thiếu "Nguồn", liệt kê câu hỏi cần làm rõ (mục 6), đánh giá mức rủi ro (Tiny/Normal/High-risk).</td></tr>
             <tr><td>2</td><td><code>sap-write-technical-spec</code></td><td>INTAKE.md → TECHNICAL_SPEC.md</td><td>Áp decision tree chọn pattern (class thường / 3-layer CDS / RAP managed / RAP unmanaged), tìm CDS-API nguồn qua agent consultant phân hệ, liệt kê object cần tạo + test plan.</td></tr>
-            <tr><td>2.5</td><td><code>sap-bootstrap-system-context</code></td><td>MCP ADT → system-context.md (cache)</td><td>(Tuỳ chọn) Dò hệ thống ABAP thật qua MCP trước khi scaffold lần đầu trên 1 hệ thống lạ — lấy đúng quy ước đặt tên/field admin đang dùng thay vì đoán theo chuẩn chung.</td></tr>
+            <tr><td>2.5</td><td><code>sap-bootstrap-system-context</code> + <code>sap-deployment-target</code></td><td>MCP ADT → system-context.md (cache)</td><td>(Gate an toàn) Dò hệ thống ABAP thật qua MCP trước khi scaffold lần đầu trên 1 hệ thống lạ — lấy đúng quy ước đặt tên/field admin đang dùng, đồng thời xác nhận package deploy + rào chắn Z/Y trước khi tạo object thật.</td></tr>
             <tr><td>2.6</td><td><code>sap-cloud-dictionary</code></td><td>TECHNICAL_SPEC.md → Domain/Data Element/Table</td><td>Tạo Domain, Data Element, Database Table (hoặc CDS Table Entity) bằng cú pháp source-code ABAP Cloud (<code>define domain/data element/table</code>) trước khi scaffold CDS/RAP ở bước sau.</td></tr>
             <tr><td>3a</td><td><code>sap-scaffold-rap</code></td><td>TECHNICAL_SPEC.md → src/ (RAP)</td><td>Sinh skeleton RAP 3-layer (I→R→C) khi pattern cần CRUD — kèm 7 gotcha BDEF đã verify thực tế (comment syntax, field control, numbering UUID, action con...).</td></tr>
             <tr><td>3b</td><td><code>sap-scaffold-cds</code></td><td>TECHNICAL_SPEC.md → src/ (CDS)</td><td>Sinh CDS view (interface/consumption/MDE) khi pattern chỉ-read — kèm annotation reference + 6 gotcha activate CDS.</td></tr>

@@ -284,7 +284,7 @@ Neu da cai dat MCP server, co the tao truc tiep tu AI:
 
 | MCP Server | Tools tao dictionary | Cach dung |
 |------------|---------------------|-----------|
-| **`sap-dict-bridge`** (khuyen dung — native cua repo nay) | `sap_create_domain`, `sap_create_data_element`, `sap_create_table` | Tai su dung cookie auth co san cua `sap-btp-agent` (khong can basic auth/config rieng nhu fr0ster). Dang ky: `claude mcp add --transport stdio sap-dict-bridge -- python -m sap_btp_agent.bridge_server`. Test: `python scripts/test_dict_bridge.py [profile_id]`. |
+| **`sap-dict-bridge`** (khuyen dung — native cua repo nay) | `sap_create_domain`, `sap_create_data_element`, `sap_create_table` | Tai su dung cookie auth co san cua `sap-btp-agent` (khong can basic auth/config rieng nhu fr0ster). Dang ky: `claude mcp add --transport stdio sap-dict-bridge -- python -m sap_btp_agent.bridge_server`. Kiem tra: restart Claude Code sau khi dang ky, roi thu tao 1 domain — xem `python reference/scripts/mcp_status.py` neu server khong xuat hien. |
 | `fr0ster/mcp-abap-adt` | `CreateDomain`, `CreateDataElement`, `CreateTable` | Prompt: "Tao domain + data element + table". [Da thu trong du an nay roi thay bang `sap-dict-bridge` o tren de tai su dung cookie auth co san — xem `reference/mcp-guides/mcp-sap-adt.md` neu van muon dung ban goc.] |
 | `ARC-1` | `abap_create_object` | Prompt + XML payload |
 | SAP Official ADT MCP | Qua extension ADT MCP | Zero-config trong VS Code ADT |

@@ -116,6 +116,13 @@ ATC_MAINTENANCE → Create checkpoint group → Run all custom code
 - **ALV Grid**: Chuyen sang CDS + Fiori.
 - **BDC/Batch Input**: Chuyen sang OData API + EML.
 
+## Skill lien quan
+
+- `sap-atc-review` — checklist ATC tu dong hoa (naming/released-API/clean-ABAP) chay SAU khi
+  scaffold code moi; dung skill nay (`sap-cloud-migration`) khi PHAN TICH/lap ke hoach migration
+  code CU co san, dung `sap-atc-review` khi review code MOI vua sinh — 2 skill cung doc chung
+  1 nhom ma loi ATC (`CLOUD_READINESS`, `USE_RELEASED_OBJECT`...) tu 2 goc do khac nhau.
+
 ## Nguon tham khao
 
 - SAP ATC documentation

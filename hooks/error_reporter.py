@@ -20,7 +20,7 @@ Khi Claude trả lời cách fix lỗi và viết code sửa:
   - report giai đoạn 2: add comment fix vào GitHub issue có sẵn
   → Issue trở thành "error + solution" hoàn chỉnh 📖
 
-Storage: ~/.sap-btp-agent/error-reports/
+Storage: ~/.sap-abap-agent/error-reports/
   error_log.jsonl     — append-only log của mọi error detected
   fix_log.jsonl       — append-only log của mọi fix detected
   known_issues.json   — cache issue đã tạo (hash → issue info)
@@ -32,7 +32,7 @@ và exit(0). Không ảnh hưởng đến luồng chính của Claude Code.
 Opt-in (mặc định TẮT): script không log/tạo issue gì cả trừ khi user bật
 rõ ràng bằng 1 trong 2 cách:
   1. Env var SAP_ABAP_AGENT_ERROR_REPORTING=1 (hoặc true/yes/on)
-  2. Tạo file marker: ~/.sap-btp-agent/error-reports/ENABLED
+  2. Tạo file marker: ~/.sap-abap-agent/error-reports/ENABLED
 Lý do: cài plugin Claude Code không bắt buộc user phải có GitHub auth, và
 việc thu thập error/code silently mà không hỏi trước là vi phạm quyền riêng
 tư — xem _is_enabled().
@@ -70,7 +70,7 @@ from typing import Any
 
 AGENT_HOME = Path(os.environ.get(
     "SAP_ABAP_AGENT_HOME",
-    Path.home() / ".sap-btp-agent",
+    Path.home() / ".sap-abap-agent",
 ))
 ERROR_REPORTS_DIR = AGENT_HOME / "error-reports"
 ERROR_LOG = ERROR_REPORTS_DIR / "error_log.jsonl"
@@ -102,7 +102,7 @@ def _is_enabled() -> bool:
     thap error/code silently ma khong hoi truoc la vi pham quyen rieng tu.
     Bat bang 1 trong 2 cach:
       1. Env var SAP_ABAP_AGENT_ERROR_REPORTING=1 (hoac true/yes/on)
-      2. Tao file marker: ~/.sap-btp-agent/error-reports/ENABLED
+      2. Tao file marker: ~/.sap-abap-agent/error-reports/ENABLED
     """
     env = os.environ.get("SAP_ABAP_AGENT_ERROR_REPORTING", "").strip().lower()
     if env in ("1", "true", "yes", "on"):

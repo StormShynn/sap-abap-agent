@@ -51,6 +51,12 @@ disallowedTools: [Bash]
 | `tools` | ❌ | `[Read, Write, Edit, ...]` | Tools được phép (mặc định: tất cả) |
 | `disallowedTools` | ❌ | `[Bash]` | Tools bị cấm |
 
+> ⚠️ `tools`/`disallowedTools` là **auto-approve hint**, KHÔNG phải sandbox kỹ thuật — Claude Code
+> vẫn có thể gọi 1 tool không nằm trong `tools`/nằm trong `disallowedTools`, chỉ là sẽ không được
+> tự động approve (dừng lại hỏi user). Đừng dựa vào 2 field này như 1 rào chắn bảo mật chắc chắn
+> (vd để đảm bảo 1 skill "chỉ đọc") — cách chặn chắc chắn duy nhất là không viết logic gọi Write/
+> Edit/Bash trong luồng xử lý mặc định của skill đó.
+
 > 💡 Claude Code **không có UI hover/click để xem trước nội dung skill** — chỉ có dòng mô tả rút gọn khi gõ `/` (hoặc lệnh `/skills`). Viết `description`/`when_to_use` sao cho phần đầu đã đủ rõ "dùng khi nào" là cách duy nhất để tận dụng tốt phần hiển thị có sẵn.
 
 ### Template nội dung

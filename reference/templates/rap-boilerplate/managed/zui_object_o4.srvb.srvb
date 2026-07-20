@@ -4,7 +4,7 @@
     <SERVICE_BINDING>
       <BINDING_TYPE>0</BINDING_TYPE>
       <VERSION>4</VERSION>
-      <NAME>ZUI_<OBJECT>_V4</NAME>
+      <NAME>ZUI_<OBJECT>_O4</NAME>
     </SERVICE_BINDING>
   </asx:values>
 </asx:abap>

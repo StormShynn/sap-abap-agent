@@ -24,15 +24,11 @@ import sys
 from pathlib import Path
 from typing import Any
 
+from mcp_common import load_inventory
+
 SCRIPT_DIR = Path(__file__).resolve().parent
-INVENTORY_PATH = SCRIPT_DIR / "mcp_inventory.json"
 PROJECT_ROOT = SCRIPT_DIR.parent.parent
 MCP_JSON_PATH = PROJECT_ROOT / ".mcp.json"
-
-
-def load_inventory() -> list[dict[str, Any]]:
-    data = json.loads(INVENTORY_PATH.read_text(encoding="utf-8"))
-    return data["servers"]
 
 
 def group_servers(servers: list[dict]) -> dict[str, list[dict]]:

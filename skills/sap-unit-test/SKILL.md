@@ -1,6 +1,7 @@
 ---
 name: sap-unit-test
 description: |
+  Buoc 5 trong pipeline "FS -> INTAKE -> TECHNICAL_SPEC -> scaffold code -> review -> test".
   Sinh ABAP Unit test class cho method/behavior da scaffold. Dung sau khi scaffold code
   (sap-scaffold-rap/cds) va co method public can test, hoac INTAKE.md co edge case o muc 6.
 when_to_use: |
