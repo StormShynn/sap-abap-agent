@@ -582,7 +582,6 @@ def _cmd_license(profile_id):
         creds_state = "available" if st.get("has_credentials") else "missing"
         print(f"  Credentials : {creds_state}")
         print(f"  Type        : {_safe_display_value('type', st['type'])}")
-        print(f"  Has creds   : {st['has_credentials']}")
         if st["expires_at"]:
             import datetime as _dt
             exp_dt = _dt.datetime.fromtimestamp(st["expires_at"])
