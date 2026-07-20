@@ -82,7 +82,7 @@ async def case_2():
         import time
         t0 = time.monotonic()
         try:
-            result = await web_login_auto({
+            await web_login_auto({
                 "base_url": "https://my440301.s4hana.cloud.sap",
                 "profile_id": "test",
             })

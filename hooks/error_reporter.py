@@ -313,10 +313,7 @@ def _is_meaningful_error(error_type: str, error_message: str) -> bool:
         if "error" in msg_lower or "exception" in msg_lower:
             return True
 
-    if error_type in ("edit_error",):
-        return True
-
-    return False
+    return error_type in ("edit_error",)
 
 
 def _extract_details(payload: dict) -> dict | None:
@@ -435,7 +432,7 @@ def _find_matching_errors(file_path: str, new_code: str, session_id: str) -> lis
     errors = _read_log(ERROR_LOG, max_age_days=7)
     related: list[dict] = []
     file_path_lower = file_path.lower()
-    new_code_lower = new_code.lower()[:500]  # chỉ lấy phần đầu cho performance
+    new_code.lower()[:500]  # chỉ lấy phần đầu cho performance
 
     # Trích keywords kỹ thuật từ code mới (tên class, method, table, field...)
     code_keywords = set()
@@ -812,7 +809,7 @@ def _try_add_comment_via_api(issue_url: str, comment_body: str) -> bool:
     )
 
     try:
-        with urllib.request.urlopen(req, timeout=30) as resp:
+        with urllib.request.urlopen(req, timeout=30):
             print(f"[error-reporter] Added fix comment via API to issue #{issue_num}", file=sys.stderr)
             return True
     except urllib.error.HTTPError as exc:
@@ -1161,9 +1158,11 @@ def _run_status() -> None:
     total_fixes = 0
     try:
         if ERROR_LOG.exists():
-            total_errors = sum(1 for _ in open(ERROR_LOG, encoding="utf-8"))
+            with open(ERROR_LOG, encoding="utf-8") as _f:
+                total_errors = sum(1 for _ in _f)
         if FIX_LOG.exists():
-            total_fixes = sum(1 for _ in open(FIX_LOG, encoding="utf-8"))
+            with open(FIX_LOG, encoding="utf-8") as _f:
+                total_fixes = sum(1 for _ in _f)
     except OSError:
         pass
 

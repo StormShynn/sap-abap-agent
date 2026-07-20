@@ -11,7 +11,6 @@ Usage:
 from __future__ import annotations
 
 import asyncio
-import json
 import os
 import sys
 import threading
@@ -613,7 +612,7 @@ def _cmd_license(profile_id):
             print(f"  {'token_endpoint':11s}: {'[SET]' if token_endpoint else '(empty)'}")
             print(f"  {'scope':11s}: {'[SET]' if scope else '(empty)'}")
 
-            unknown_keys = [key for key in extra.keys() if key not in {"token_endpoint", "scope"}]
+            unknown_keys = [key for key in extra if key not in {"token_endpoint", "scope"}]
             if unknown_keys:
                 print("  extra      : [REDACTED]")
         print()
@@ -692,7 +691,7 @@ async def _cmd_profiles(subcmd: str, arg: str | None) -> None:
             return
         try:
             cfg = await asyncio.to_thread(load_config, pid)
-            secrets = await load_secrets(pid)
+            await load_secrets(pid)
             print()
             header(f"Profile: {pid}")
             for k, v in cfg.items():

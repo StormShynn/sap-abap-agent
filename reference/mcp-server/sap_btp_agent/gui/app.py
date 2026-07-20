@@ -411,7 +411,7 @@ class SapBtpGui:
         # Goi CLI de dang ky profile (se copy file vao app_dir)
         from ..config.profile import upsert_profile
         try:
-            result = upsert_profile(pid, url=url)
+            upsert_profile(pid, url=url)
         except Exception as err:
             messagebox.showerror("Import failed", str(err))
             return

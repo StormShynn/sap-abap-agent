@@ -1,0 +1,50 @@
+﻿chore: tier 6 - manual safe ruff fixes (56 -> 37 errors, 19 fixes applied)
+
+Tier 5 da fix auto 105+ loi ruff (167 -> 56) bang `ruff check --fix`. Tier 6
+xu ly 19 loi con lai bang tay (khong auto-fix duoc do ruff classify la
+unsafe nhung thuc ra khong doi logic).
+
+Manual fixes (all SAFE - no behavior change):
+
+1) hooks/error_reporter.py:
+   - SIM115 x2 (1161, 1163): `sum(1 for _ in open(...))` -> `with open(...) as _f: sum(...)`.
+     Dam bao file duoc dong ngay ca khi generator bi break som.
+
+2) reference/mcp-server/sap_btp_agent/cli/__init__.py:
+   - F401: remove unused `import json` (khong dung den).
+
+3) reference/mcp-server/sap_btp_agent/gui/__init__.py:
+   - F401: remove unused `import threading` (khong dung den).
+
+4) reference/mcp-server/sap_btp_agent/sap/auth.py:
+   - SIM102 (97): merge nested `if` thanh 1 if voi `and`:
+     `if A and B and C:` (logic giong nguyen, chi sua syntax).
+   - Ruff --fix (unsafe): F841 unused `btp_url` (Q1 da fix).
+
+5) reference/mcp-server/sap_btp_agent/sap/client.py:
+   - SIM102 (254): same pattern - merge nested if.
+   - Ruff --fix (unsafe): F841 unused `t`, SIM103 needless-bool.
+
+6) reference/scripts/setup_labels.py:
+   - E741: rename ambiguous var `l` -> `label` (tranh nham voi so 1/I).
+
+7) reference/scripts/validate_inspired_by_links.py:
+   - Ruff --fix (unsafe): F841 unused `n_skip`.
+
+8) reference/mcp-server/sap_btp_agent/gui/app.py:
+   - Ruff --fix (unsafe): F841 unused `result`.
+
+9-10) reference/mcp-server/tests/test_auto2.py + test_auto3.py:
+    - Ruff --fix (unsafe): F841 unused `result`.
+
+Con lai 37 loi ruff (KHONG sua theo rule "khong sua logic code"):
+  - 23 SIM105: try/except/pass -> contextlib.suppress (doi exception scope).
+  - 9  E402:  module-import-not-at-top (co the can thu tu import dac biet).
+  - 4  B904:  raise-without-from-inside-except (doi __cause__/__context__).
+  - 1  B905:  zip-without-explicit-strict (doi behavior trong py3.10+).
+
+Verified:
+  - ruff check . --statistics: 37 errors (giam tu 56).
+  - python reference/scripts/validate_plugin.py: 1 warning (version-drift
+    vi CI da auto-bump 1.12.15 -> 1.12.16, se tu dong resolve o tier sau).
+  - python -m pytest tests/ hooks/hook_tests/ --collect-only -q: OK.

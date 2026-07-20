@@ -94,10 +94,13 @@ class SapAuth:
     async def init(self) -> None:
         self.config = await _maybe_await(load_config(self.profile_id))
         self.secrets = await load_secrets(self.profile_id)
-        if self.secrets.get("accessToken") and self.secrets.get("expiresAt"):
-            if time.time() < self.secrets["expiresAt"] - SAFETY_MARGIN_S:
-                self._mem_token = self.secrets["accessToken"]
-                self._mem_expires_at = float(self.secrets["expiresAt"])
+        if (
+            self.secrets.get("accessToken")
+            and self.secrets.get("expiresAt")
+            and time.time() < self.secrets["expiresAt"] - SAFETY_MARGIN_S
+        ):
+            self._mem_token = self.secrets["accessToken"]
+            self._mem_expires_at = float(self.secrets["expiresAt"])
 
     def is_ready(self) -> bool:
         return bool(self.config and self.config.get("btpUrl") and self.config.get("clientId"))
@@ -118,7 +121,7 @@ class SapAuth:
         return await self._fetch_new_token()
 
     async def _fetch_new_token(self) -> str:
-        btp_url = self.config["btpUrl"].rstrip("/")
+        self.config["btpUrl"].rstrip("/")
         client_id = self.config["clientId"]
         auth_mode = self.config.get("authMode", "oauth2")
         scope = self.config.get("scope", "")

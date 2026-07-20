@@ -143,7 +143,7 @@ def run(strict: bool, concurrency: int) -> int:
     # Sort cho output on dinh: theo owner/repo/file.
     all_results.sort(key=lambda x: (x[1].owner, x[1].repo, x[0]))
 
-    n_ok = n_gone = n_unchecked = n_skip = 0
+    n_ok = n_gone = n_unchecked = 0
     by_status: dict[str, list[CheckResult]] = {"ok": [], "gone": [], "unchecked": []}
     for _, res in all_results:
         by_status.setdefault(res.status, []).append(res)

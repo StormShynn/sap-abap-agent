@@ -123,7 +123,7 @@ def _update_label(token: str, label: dict[str, Any]) -> bool:
 
 def main() -> None:
     print(f"🔧 Setting up GitHub labels for {REPO}...")
-    print(f"   Labels: {', '.join(l['name'] for l in LABELS)}")
+    print(f"   Labels: {', '.join(label['name'] for label in LABELS)}")
     print()
 
     token = _get_token()

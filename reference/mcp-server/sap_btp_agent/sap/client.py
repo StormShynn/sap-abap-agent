@@ -219,9 +219,7 @@ class SapClient:
                 await self.cookie_auth.save_cookies()
                 return True
             # Stampede skip: thread khac da lay cookies, thu retry
-            if self.cookie_auth.get_cookies():
-                return True
-            return False
+            return bool(self.cookie_auth.get_cookies())
         except Exception as err:
             raise RuntimeError(f"Re-auth that bai: {err}") from err
 
@@ -253,12 +251,16 @@ class SapClient:
             "GET", url, headers, None, timeout_s, 2, cookies=cookies,
         )
 
-        if self._looks_unauthenticated(resp) and self.use_cookie_auth and self.config.get("autoReconnect", True):
-            if await self._handle_cookie_reauth():
-                resp = await self._fetch_with_retry(
-                    "GET", url, headers, None, timeout_s, 2,
-                    cookies=self.cookie_auth.get_cookies(),
-                )
+        if (
+            self._looks_unauthenticated(resp)
+            and self.use_cookie_auth
+            and self.config.get("autoReconnect", True)
+            and await self._handle_cookie_reauth()
+        ):
+            resp = await self._fetch_with_retry(
+                "GET", url, headers, None, timeout_s, 2,
+                cookies=self.cookie_auth.get_cookies(),
+            )
 
         token = resp.headers.get("x-csrf-token", "")
         if not token:
@@ -392,7 +394,7 @@ class SapClient:
     async def read_source(self, object_uri: str, object_type: str) -> Any:
         from urllib.parse import quote
         enc = quote(object_uri, safe="")
-        t = quote(object_type, safe="")
+        quote(object_type, safe="")
         kind = "classes" if object_type == "CLAS" else "programs"
         path = f"/sap/bc/adt/oo/{kind}/{enc}/source/main"
         return await self.get(path, headers={"Accept": "text/plain"}, is_json=False)
