@@ -6,6 +6,87 @@ Format dựa trên [Keep a Changelog](https://keepachangelog.com/) và [Semantic
 
 ---
 
+## [v1.12.15] — 2026-07-20
+
+### Added
+
+- **Tier 4 enhancements** (drift fix, smart bump, coverage, security):
+  - `reference/scripts/build_index.py`: mo rong `_SIDEBAR_PATTERNS` them 3 pattern
+    (`<small>`, `class="header-version"`, `&middot;`) de fix drift `index.html`.
+  - `.github/workflows/version-bump.yml`: them step "Prepend CHANGELOG entry" —
+    auto-them `## [vX.Y.Z] — DATE` + section "Auto-bumped by CI" vao dau
+    CHANGELOG.md sau moi lan bump. Fix hoan toan validate_plugin warning.
+  - `.github/workflows/validate.yml`: them `--cov-fail-under=60` cho pytest-cov
+    (hien warning-only, se tang dan 60->70->80 khi them test).
+  - `.github/CODEOWNERS`: assign `@StormShynn` default cho moi path + comment
+    cho critical paths.
+  - `reference/scripts/scan_clear_text_logging.py`: quet `hooks/scripts/` cho
+    pattern print(secret|token|password|api_key). Warning only.
+  - `.github/workflows/security-scan.yml`: them `bandit` + `scan_clear_text_logging.py`.
+  - `CONTRIBUTING.md`: them section "Branch protection" + "GitHub Actions version pinning".
+
+## [v1.12.3 – v1.12.14] — 2026-07-20
+
+### Security
+
+- **CodeQL clear-text logging fixes** (alerts #5, #6, #7, #9, #16, #21, #22, #23):
+  fix 8 vị trí in/print sensitive info (cookie, token, password, secret) ra log.
+  Sua bang cach mask gia tri (chi in 4 ki tu dau + `***`) trong:
+  - `reference/mcp-server/sap_btp_agent/cli/__init__.py`
+  - `reference/mcp-server/sap_btp_agent/sap/auth.py`
+  - `reference/mcp-server/sap_btp_agent/config/secrets.py`
+  - `reference/mcp-server/sap_btp_agent/config/store.py`
+  - và một số file khac.
+
+## [v1.12.2] — 2026-07-20
+
+### Changed
+
+- Cross-session sync (commit `f012ddf`):
+  - `README.md`: stale claim fixes + cleanup.
+  - `SKILL_TEMPLATE.md`: format update.
+  - `hooks/error_reporter.py`: small fix.
+  - `index.html`: content update.
+  - `reference/modules_learn/glimmering-yawning-frog.md`: xoa (stale module).
+  - `reference/templates/rap-boilerplate/managed/zui_object_v4.srvb.srvb` rename
+    thanh `zui_object_o4.srvb.srvb`.
+  - `skills/sap-user-skills/.gitkeep` -> `README.md` (placeholder chinh thuc).
+
+## [v1.12.1] — 2026-07-20
+
+### Added
+
+- **Tier 1-3 enhancements** (commit `73d68b2`, `dd2206f`, `d566cd1`):
+  - Sync version manifests to v1.12.0 (plugin.json, pyproject.toml, marketplace.json).
+  - `.gitignore`: them rules cho build artifacts (`/index.head.tmp`,
+    `/index.tail.tmp`, `/translations.tmp`) + negation `!reference/mcp-server/tests/`.
+  - Move 11 `_test_*.py` scripts tu `reference/mcp-server/` root vao
+    `reference/mcp-server/tests/` (rename `test_*.py` cho pytest auto-discover).
+  - Them `hooks/session_start_skill.py` (portable Python wrapper thay 2
+    SessionStart shell pipeline sed+bash) + `hooks/post_tool_select_star.py`.
+  - Them `reference/scripts/build_index.py` (gop 4 step trong sync-index.yml
+    thanh 1 script Python portable). Workflow giam tu 81 lines xuong 43 lines.
+  - Them "Drop .tmp artifacts" step trong `.github/workflows/deploy.yml`.
+  - Split `SKILL_AUDIT.md` (74KB) thanh `docs/audits/2026-Q3-skill-rationalization.md`
+    + `docs/audits/README.md`. Root `SKILL_AUDIT.md` giu lam 435-byte redirect.
+- **Auto-sync CDS view count** trong `build_index.py` (alert fix):
+  detect DDLS released count tu `docs/sap-knowledge/released-objects-index.json`,
+  update `index.html` pattern "N,NNN CDS views" (single regex).
+- **Dev tooling**:
+  - `.editorconfig`: utf-8, LF, indent 4 (Python) / 2 (MD/YAML/JSON/ABAP).
+  - Root `pyproject.toml`: tool.ruff (E/W/F/I/B/UP/SIM, line=100, target=py310),
+    tool.pytest.ini_options.
+  - `.pre-commit-config.yaml`: them ruff-pre-commit + pre-commit-hooks (v5.0.0):
+    trailing-whitespace, end-of-file-fixer, check-yaml/json/toml/merge-conflict/
+    case-conflict, mixed-line-ending (LF), check-added-large-files.
+- **Dependabot** + **CI validate.yml**:
+  - `.github/dependabot.yml`: pip ecosystem cho reference/mcp-server
+    (groups: python-runtime, python-extras), weekly Tuesday schedule, prefix "ci(pip)".
+  - `.github/workflows/validate.yml`: runs on push/PR, validate_plugin.py +
+    smoke test build_index.py + hooks wrapper + pytest collect-only + ruff.
+- **CHANGELOG date format consistency**: "## [v1.12.0] - DATE" (hyphen) ->
+  "## [v1.12.0] — DATE" (em-dash) de align voi 11 entry con lai.
+
 ## [v1.12.0] — 2026-07-18
 
 ### Added

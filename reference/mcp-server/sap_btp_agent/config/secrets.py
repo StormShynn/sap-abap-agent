@@ -16,7 +16,6 @@ import os
 import socket
 from dataclasses import dataclass
 from getpass import getuser
-from pathlib import Path
 from typing import Any
 
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
@@ -30,9 +29,8 @@ _AES_KEY_SALT = "sap-btp-agent-v1"
 
 def _derive_key() -> bytes:
     """Scrypt key tu hostname + username. Dung cho AES-256-GCM."""
-    salt = f"{socket.gethostname()}|{getuser()}|{_AES_KEY_SALT}".encode("utf-8")
+    salt = f"{socket.gethostname()}|{getuser()}|{_AES_KEY_SALT}".encode()
     # scrypt: 32 bytes key, 16 bytes salt -> 32 bytes output
-    from cryptography.hazmat.primitives import hashes
     from cryptography.hazmat.primitives.kdf.scrypt import Scrypt
     kdf = Scrypt(salt=salt, length=32, n=2**15, r=8, p=1)
     return kdf.derive(b"sap-btp-agent")

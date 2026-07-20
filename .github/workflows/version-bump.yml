@@ -131,16 +131,10 @@ jobs:
 
       - name: Sync version into index.html
         run: |
-          VERSION="v${{ steps.version.outputs.new }}"
-          AGENTS=$(ls -1 agents/*.md 2>/dev/null | wc -l)
-          SKILLS=$(ls -d skills/*/ 2>/dev/null | wc -l)
-          [[ -d skills/sap-user-skills ]] && SKILLS=$((SKILLS - 1))
-
-          echo "Syncing index.html: version=$VERSION agents=$AGENTS skills=$SKILLS"
-
-          sed -i "s/v[0-9]\+\.[0-9]\+\.[0-9]\+ · [0-9]\+ agents · [0-9]\+ skills/${VERSION} · ${AGENTS} agents · ${SKILLS} skills/g" index.html
-          sed -i "s/v[0-9]\+\.[0-9]\+\.[0-9]\+ · [0-9]\+ modules · [0-9]\+ skills/${VERSION} · ${AGENTS} agents · ${SKILLS} skills/g" index.html
-          sed -i "s/v[0-9]\+\.[0-9]\+\.[0-9]\+ · [0-9]\+ modules + [0-9]\+ skills/${VERSION} · ${AGENTS} agents · ${SKILLS} skills/g" index.html
+          # Reuse Python script (DRY - sync-index.yml cung dung build_index.py).
+          # CHANGELOG.md da duoc prepend o step truoc, nen build_index.py se
+          # doc duoc version moi tu do. Cung regex pattern, cung output.
+          python reference/scripts/build_index.py
 
       - name: Commit and push
         run: |

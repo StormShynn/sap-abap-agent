@@ -1,6 +1,8 @@
-﻿import os, subprocess, sys, tempfile, threading, time
+﻿import os
+import tempfile
+import time
 from pathlib import Path
-from unittest.mock import MagicMock, AsyncMock, patch
+from unittest.mock import AsyncMock, MagicMock, patch
 
 fd, marker = tempfile.mkstemp(prefix="sap_early_test_", suffix=".path")
 os.close(fd)
@@ -24,7 +26,6 @@ env["SAP_BTP_APPDIR_OVERRIDE"] = testdir
 # de verify logic file-marker
 async def main():
     from sap_btp_agent.cli import _cmd_reauth
-    from sap_btp_agent.sap.auth import ReauthCancelled
 
     mock_auth = MagicMock()
     mock_auth.init = AsyncMock()
@@ -36,7 +37,7 @@ async def main():
         if ev:
             print(f"[mock] waiting for event (set={ev.is_set()})...")
             await ev.wait()
-            print(f"[mock] event SET! continuing.")
+            print("[mock] event SET! continuing.")
         return MagicMock(cookies={'SAP_SESSIONID_HL8_080': 'abc'}, access_token='', expires_at=0)
     mock_auth.reauth = fake_reauth
     mock_auth.save_cookies = AsyncMock()
@@ -69,4 +70,5 @@ async def main():
         print(f"\n[main] _cmd_reauth done in {elapsed:.2f}s")
 
 import asyncio
+
 asyncio.run(main())

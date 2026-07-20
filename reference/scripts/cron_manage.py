@@ -90,7 +90,7 @@ class _FileLock:
         self.wait_s = wait_s
         self._acquired = False
 
-    def __enter__(self) -> "_FileLock":
+    def __enter__(self) -> _FileLock:
         self.path.parent.mkdir(parents=True, exist_ok=True)
         deadline = time.time() + self.wait_s
         while True:

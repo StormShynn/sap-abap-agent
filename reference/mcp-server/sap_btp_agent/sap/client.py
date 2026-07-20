@@ -13,7 +13,6 @@ import httpx
 
 from .auth import (
     ReauthHandler,
-    ReauthResult,
     ReauthStampedeGuard,
     SapAuth,
     SapCookieAuth,
@@ -468,7 +467,7 @@ class SapClient:
             query={"maxResults": str(top)},
         )
 
-    def edit_session(self) -> "SapEditSession":
+    def edit_session(self) -> SapEditSession:
         """Mo 1 'phien edit' stateful cho chuoi create/lock/PUT source/unlock/
         activate 1 object ADT. Xem SapEditSession de biet ly do can thiet."""
         return SapEditSession(self)
@@ -506,13 +505,13 @@ class SapEditSession:
             result_xml = await edit.activate(object_url, object_name)
     """
 
-    def __init__(self, client: "SapClient") -> None:
+    def __init__(self, client: SapClient) -> None:
         self._client = client
         self._hc: httpx.AsyncClient | None = None
         self._csrf_token: str = ""
         self._authorization: str | None = None
 
-    async def __aenter__(self) -> "SapEditSession":
+    async def __aenter__(self) -> SapEditSession:
         await self._client.init()
         timeout_s = (self._client.config.get("timeoutMs") or 30000) / 1000
 

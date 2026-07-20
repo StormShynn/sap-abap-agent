@@ -16,8 +16,6 @@ import sys
 import tempfile
 from pathlib import Path
 
-import pytest
-
 HOOKS_DIR = Path(__file__).resolve().parent.parent
 SESSION_HOOK = HOOKS_DIR / "session_start_skill.py"
 SELECT_STAR_HOOK = HOOKS_DIR / "post_tool_select_star.py"

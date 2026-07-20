@@ -1,20 +1,49 @@
 # CODEOWNERS - GitHub auto-assign reviewer cho tung path.
 # Format: pattern    @owner (user hoac team)
-# Pattern cuoi cung la pattern cuoi cung cua file.
+# Pattern cuoi cung la pattern cuoi cung cua file (last match wins).
 # Doc: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+#
+# Hien tai chi co 1 maintainer (@StormShynn) nen cac rule deu assign cung
+# nguoi, NHUNG pattern rieng giup:
+#   1. Document rang cac path khac nhau can review level khac nhau
+#   2. De dang them reviewer khac sau nay (uncomment dong tuong ung)
+#   3. GitHub auto-suggest reviewer cho PR theo path dang review
 
-# Default owner cho moi file
-*       @StormShynn
+# --- Critical paths (security, auth, secrets) ---
+/reference/mcp-server/sap_btp_agent/config/    @StormShynn
+/reference/mcp-server/sap_btp_agent/sap/auth.py @StormShynn
+/reference/mcp-server/sap_btp_agent/license.py  @StormShynn
 
-# Critical paths - can review ky hon (neu co maintainer khac)
-# /reference/mcp-server/sap_btp_agent/    @StormShynn
-# /hooks/                                   @StormShynn
+# --- MCP server source code ---
+/reference/mcp-server/sap_btp_agent/    @StormShynn
+/reference/mcp-server/pyproject.toml    @StormShynn
 
-# Documentation/docs
-# /docs/                                    @StormShynn
-# /README.md                                @StormShynn
+# --- Hooks (Claude Code session safety) ---
+/hooks/                                @StormShynn
 
-# CI/CD
-# /.github/workflows/                       @StormShynn
+# --- CI/CD workflows (build, deploy, security) ---
+/.github/workflows/                    @StormShynn
+/.github/CODEOWNERS                    @StormShynn
 
-# Moi owner duoc gan cho moi PR tu dong (neu branch protection bat Require review).
+# --- Documentation ---
+/docs/                                 @StormShynn
+/README.md                             @StormShynn
+/CHANGELOG.md                          @StormShynn
+/CONTRIBUTING.md                       @StormShynn
+
+# --- Skills & agents (high-level entry points) ---
+/agents/                               @StormShynn
+/skills/                               @StormShynn
+/.claude-plugin/                       @StormShynn
+
+# --- Tests ---
+/tests/                                @StormShynn
+/reference/mcp-server/tests/           @StormShynn
+
+# --- Build / tooling config ---
+/Makefile                              @StormShynn
+/pyproject.toml                        @StormShynn
+/index.html                            @StormShynn
+
+# --- Default fallback (catch-all) ---
+*                                       @StormShynn

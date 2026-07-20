@@ -173,7 +173,7 @@ class _FileLock:
         self.wait_s = wait_s
         self._acquired = False
 
-    def __enter__(self) -> "_FileLock":
+    def __enter__(self) -> _FileLock:
         _ensure_dir()
         deadline = time.time() + self.wait_s
         while True:
@@ -380,9 +380,7 @@ def _extract_details(payload: dict) -> dict | None:
                 error_type = "abap_syntax_error"
             elif "activate" in err_lower:
                 error_type = "abap_activate_error"
-            elif "401" in err_lower or "unauthorized" in err_lower or "auth" in err_lower:
-                error_type = "sap_error"
-            elif "403" in err_lower or "forbidden" in err_lower:
+            elif "401" in err_lower or "unauthorized" in err_lower or "auth" in err_lower or "403" in err_lower or "forbidden" in err_lower:
                 error_type = "sap_error"
 
     # ── Edit/Write errors ──────────────────────────────────────────

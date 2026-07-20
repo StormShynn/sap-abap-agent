@@ -23,11 +23,11 @@ from __future__ import annotations
 import argparse
 import re
 import sys
+import urllib.request
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass
 from pathlib import Path
 from urllib.parse import urlparse
-import urllib.request
 
 ROOT = Path(__file__).resolve().parent.parent.parent
 
@@ -169,7 +169,7 @@ def run(strict: bool, concurrency: int) -> int:
             seen.add(key)
             print(f"  - {res.owner}/{res.repo:<30} {res.url}")
 
-    print(f"\n=== summary ===")
+    print("\n=== summary ===")
     print(f"  OK        : {n_ok}")
     print(f"  GONE (404): {n_gone}")
     print(f"  UNCHECKED : {n_unchecked}  (network fail, khong phai loi)")

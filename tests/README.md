@@ -55,6 +55,26 @@ trong `conftest.py` để pytest skip chúng.
 python -m pytest hooks/hook_tests/ -v
 ```
 
+## Makefile shortcuts (optional)
+
+Repo co `Makefile` o root cung cap shortcut cho cac task pho bien:
+
+```bash
+make help            # Liet ke tat ca target
+make test            # Chay pytest that (root tests + hooks/hook_tests)
+make test-collect    # Chi collect, khong run (smoke test discovery)
+make lint            # Chay ruff lint
+make format          # Auto-format code (ruff)
+make coverage        # Test + coverage report (fail-under=60)
+make security        # Security scan (custom + bandit)
+make validate        # validate_plugin.py (10 check)
+make sync-index      # Build lai index.html (giong sync-index.yml)
+make pre-commit-install  # Chi cai pre-commit framework (Python-only)
+```
+
+Luu y: Makefile dung GNU Make. Tren Windows, can Git Bash hoac WSL.
+Native NMAKE khong support (Makefile su dung `## help` convention cua GNU Make).
+
 ## Convention khi viết test mới
 
 1. **Tên file**: `test_<script_name>.py` (không có prefix `_` để pytest auto-discover).

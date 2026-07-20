@@ -1,7 +1,7 @@
 ﻿"""Test web_login_auto voi mock playwright qua sys.modules."""
 import asyncio
 import sys
-from unittest.mock import MagicMock, AsyncMock
+from unittest.mock import AsyncMock, MagicMock, patch
 
 # Mock toan bo playwright module TRUOC khi import auth
 fake_pw_module = MagicMock()
@@ -14,6 +14,7 @@ sys.modules["playwright.async_api"] = MagicMock()
 sys.modules["playwright.async_api"].async_playwright = fake_pw_module
 
 from sap_btp_agent.sap.auth import web_login_auto
+
 
 async def case_1():
     """early_event set after 0.5s -> finish som."""
@@ -97,7 +98,6 @@ async def case_2():
             print("  CASE 2 raised as expected")
 
 async def main():
-    from unittest.mock import patch
     await case_1()
     await case_2()
     print("=== ALL PASS ===")

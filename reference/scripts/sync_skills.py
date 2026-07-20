@@ -17,14 +17,13 @@ Cai dat crontab (macOS/Linux):
   */5 * * * * cd /path/to/sap-abap-agent && python reference/scripts/sync_skills.py
 """
 
-import os
-import sys
-import time
-import subprocess
 import argparse
+import os
 import platform
-from pathlib import Path
+import subprocess
+import time
 from datetime import datetime
+from pathlib import Path
 
 # === CONFIG ===
 REPO_DIR = Path(__file__).resolve().parent.parent.parent  # mac dinh: repo root (file nay nam o reference/scripts/)
@@ -174,7 +173,7 @@ def run_daemon(interval: int):
         log(f"⚠️ Da co instance sync dang chay (PID: {LOCK_FILE.read_text().strip()}). Thoat.")
         return
 
-    log(f"🔄 Skill Sync Daemon BAT DAU")
+    log("🔄 Skill Sync Daemon BAT DAU")
     log(f"📁 Repo: {REPO_DIR}")
     log(f"⏰ Interval: {interval}s ({interval // 60} phut)")
     log(f"📝 Log: {LOG_FILE}")

@@ -62,6 +62,10 @@ out/
 # personal git excludesFile cua tung may (may/CI khac se khong tu chan)
 .claude/settings.local.json
 
+# VS Code workspace settings (per-machine, khong track)
+.vscode/
+!/.vscode/extensions.json  # neu co file nay trong repo thi track
+
 # Du lieu du an/khach hang that dung lam fixture cuc bo khi dev (KHONG BAO GIO track) - rule
 # rieng, khong chi dua vao dong "tests/" chung o tren (repo da co tien le track file trong
 # tests/ nen dong do khong con la rao chan chac chan)

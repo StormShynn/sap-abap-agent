@@ -4,9 +4,10 @@
 - Case 3: timeout 30s (khong co gi) -> fallback (khong test vi lau)
 """
 import asyncio
-import sys
-from unittest.mock import patch, MagicMock, AsyncMock
-from sap_btp_agent.sap.auth import web_login_auto, ReauthCancelled
+from unittest.mock import AsyncMock, MagicMock, patch
+
+from sap_btp_agent.sap.auth import web_login_auto
+
 
 async def case_1_early_event():
     """User set early_event sau 0.5s -> finish som ~ 0.5s + 1.5s wait = ~2s."""
@@ -98,7 +99,7 @@ async def case_2_url_stable():
             # van tra cookies (khong save trong _cmd_reauth).
             # Trong test, raise ReauthCancelled o nhanh "no session cookie" duoi.
             # CASE 2 chi test finish som, khong quan tam cookies content.
-            print(f"  CASE 2 elapsed OK (finish som < 7s)")
+            print("  CASE 2 elapsed OK (finish som < 7s)")
 
 async def main():
     await case_1_early_event()

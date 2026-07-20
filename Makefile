@@ -8,7 +8,7 @@ RUFF   ?= ruff
 PYTEST ?= pytest
 
 .PHONY: help install lint format test test-collect coverage security validate \
-        build sync-index pre-commit clean version-check
+        build sync-index pre-commit pre-commit-install clean version-check
 
 help:                ## Hien thi help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
@@ -57,6 +57,10 @@ build:              ## Build wheel cho MCP server
 pre-commit:         ## Copy git hook built-in + install framework
 	cp reference/scripts/pre-commit .git/hooks/pre-commit
 	chmod +x .git/hooks/pre-commit
+	$(PIP) install pre-commit
+	pre-commit install
+
+pre-commit-install: ## Chi cai pre-commit framework (Python-only, khong copy hook shell)
 	$(PIP) install pre-commit
 	pre-commit install
 

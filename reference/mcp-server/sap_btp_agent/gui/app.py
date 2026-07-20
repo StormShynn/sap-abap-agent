@@ -17,21 +17,19 @@ Cau truc:
 from __future__ import annotations
 
 import queue
-import sys
-import threading
 import tkinter as tk
-from tkinter import messagebox, simpledialog, ttk
-from typing import Any, Callable, Optional
+from tkinter import messagebox, ttk
+from typing import Any
 
-from . import runner
 from .. import license as _lic
 from ..config.profile import (
-    get_current_active,
     list_profiles,
     set_active_profile,
+)
+from ..config.profile import (
     remove_profile as remove_profile_registry,
 )
-
+from . import runner
 
 # Mau sac (Tone Windows 11-ish)
 COLOR_BG = "#f3f3f3"
@@ -54,20 +52,20 @@ class SapBtpGui:
         self.root.configure(bg=COLOR_BG)
 
         # Tray reference (set sau khi TrayController khoi dong)
-        self._tray: Optional[Any] = None
+        self._tray: Any | None = None
 
         # Job hien tai (1 tien trinh subprocess chay 1 luc)
-        self._job: Optional[runner.Job] = None
+        self._job: runner.Job | None = None
         # Early-finish marker file (GUI tao file de CLI subprocess phat hien
         # user bam nut "✓ Đa xong" trong GUI).
         self._early_finish_file = None
 
         # Queue truyen dong tu worker thread -> GUI thread (Tkinter mainloop)
-        self._line_queue: "queue.Queue[tuple[str, str]]" = queue.Queue()
+        self._line_queue: queue.Queue[tuple[str, str]] = queue.Queue()
         # moi entry: (kind, text); kind in {"line", "done"}
 
         # Live countdown: profile_id hien tai dang select (None neu khong co)
-        self._countdown_pid: Optional[str] = None
+        self._countdown_pid: str | None = None
         # Vi tri dang chon trong combo (de update label sau khi _refresh_profiles)
         self._selected_idx: int = -1
 
@@ -326,7 +324,7 @@ class SapBtpGui:
             return f"⚠ {st['expires_in_human']}"
         return f"✓ {st['expires_in_human']}"
 
-    def _selected_profile_id(self) -> Optional[str]:
+    def _selected_profile_id(self) -> str | None:
         idx = self.profile_combo.current()
         if 0 <= idx < len(self._profiles):
             return self._profiles[idx]["id"]
@@ -372,7 +370,7 @@ class SapBtpGui:
         """Import profile tu file config.json backup (BTW: khong import secrets vi
         secrets.json da ma hoa DPAPI, chi may cua user moi giai ma duoc)."""
         from tkinter import filedialog
-        from pathlib import Path as _P
+
         from ..config.profile import derive_profile_id_from_url
 
         path = filedialog.askopenfilename(
@@ -386,7 +384,7 @@ class SapBtpGui:
         # Doc file JSON
         try:
             import json
-            with open(path, "r", encoding="utf-8") as f:
+            with open(path, encoding="utf-8") as f:
                 data = json.load(f)
         except Exception as err:
             messagebox.showerror("Import failed", f"Khong doc duoc file JSON:\n{err}")
@@ -637,7 +635,7 @@ class SapBtpGui:
         win.protocol("WM_DELETE_WINDOW",
                      lambda: (setattr(self, "_license_win", None), win.destroy()))
 
-    def _refresh_license_dashboard(self, win: "tk.Toplevel") -> None:
+    def _refresh_license_dashboard(self, win: tk.Toplevel) -> None:
         """Tao lai cac row trong dashboard (goi khi user bam Refresh hoac moi mo)."""
         try:
             statuses = _lic.list_all_statuses()
@@ -716,7 +714,7 @@ class SapBtpGui:
         # Initial tick
         self._tick_dashboard_rows(win)
 
-    def _tick_dashboard_rows(self, win: "tk.Toplevel") -> None:
+    def _tick_dashboard_rows(self, win: tk.Toplevel) -> None:
         """Update progressbar + countdown cho moi profile trong dashboard."""
         import time as _t
         now = _t.time()
@@ -744,9 +742,7 @@ class SapBtpGui:
             # Color theo %
             from sap_btp_agent.license import format_expires_in_human
             text = format_expires_in_human(expires_at)
-            if pct <= 0:
-                w["countdown"].configure(text=text, fg=COLOR_DANGER)
-            elif pct < 5:
+            if pct <= 0 or pct < 5:
                 w["countdown"].configure(text=text, fg=COLOR_DANGER)
             elif pct < 20:
                 w["countdown"].configure(text=text, fg="#ca5010")

@@ -61,7 +61,7 @@ def scan_file(path: Path) -> list[str]:
 
 def main() -> int:
     if not any(d.is_dir() for d in SCAN_DIRS):
-        print(f"WARNING: scan dirs khong ton tai", file=sys.stderr)
+        print("WARNING: scan dirs khong ton tai", file=sys.stderr)
         return 0
 
     total: list[str] = []

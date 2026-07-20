@@ -18,8 +18,7 @@ import shlex
 import subprocess
 import sys
 import threading
-from typing import Callable, Optional
-
+from collections.abc import Callable
 
 # Sap-btp-agent entry point (cung ten trong pyproject [project.scripts])
 CLI_BIN = "sap-btp-agent"
@@ -40,7 +39,7 @@ def _resolve_executable() -> list[str]:
 
 
 def start(args: list[str], on_line: Callable[[str], None],
-          on_done: Callable[[int], None], *, env_extra: Optional[dict] = None) -> "Job":
+          on_done: Callable[[int], None], *, env_extra: dict | None = None) -> Job:
     """Chay subprocess, stream stdout/sterr -> on_line, khi xong goi on_done.
 
     Args:
@@ -92,7 +91,7 @@ def start(args: list[str], on_line: Callable[[str], None],
     return job
 
 
-def start_new_console(args: list[str], on_done: Optional[Callable[[int], None]] = None) -> "Job":
+def start_new_console(args: list[str], on_done: Callable[[int], None] | None = None) -> Job:
     """Chay subprocess trong cua so CMD moi (CREATE_NEW_CONSOLE).
 
     Dung cho wizard `setup` (nhap URL, OAuth, cookie paste...) - vi can
@@ -123,7 +122,7 @@ class Job:
         self.proc = proc
         self.cmd = cmd
         self.new_console = new_console
-        self._thread: Optional[threading.Thread] = None
+        self._thread: threading.Thread | None = None
 
     @property
     def pid(self) -> int:

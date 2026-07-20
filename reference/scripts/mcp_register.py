@@ -17,7 +17,6 @@ Server duoc chia 3 nhom:
 from __future__ import annotations
 
 import json
-import os
 import shutil
 import subprocess
 import sys
@@ -361,7 +360,7 @@ def main() -> int:
     error_count = sum(1 for s in results.values() if s == "error")
 
     print(f"\n  {ok_count} registered, {manual_count} manual, {skipped_count} skipped, {error_count} errors")
-    print(f"\n  Sau khi register xong, khoi dong lai Claude Code de nhan server moi.")
+    print("\n  Sau khi register xong, khoi dong lai Claude Code de nhan server moi.")
     print("  Kiem tra bang: python reference/scripts/mcp_status.py")
     return 0 if error_count == 0 else 1
 

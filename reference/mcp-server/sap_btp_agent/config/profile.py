@@ -11,8 +11,8 @@ from pathlib import Path
 from typing import Any
 
 from .paths import (
-    get_app_dir,
     get_active_profile_id,
+    get_app_dir,
     get_profile_dir,
     get_profiles_dir,
     get_registry_file,

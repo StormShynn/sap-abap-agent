@@ -40,7 +40,6 @@ import os
 import re
 from typing import Any
 
-from ..config.profile import get_current_active
 from ..sap.client import SapClient
 
 DDIC_TYPE_MAP = {

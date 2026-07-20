@@ -7,13 +7,10 @@ from __future__ import annotations
 import json
 import os
 import re
-from pathlib import Path
 from typing import Any
 
 from .paths import get_profile_config_file, mirror_write_text
 from .profile import ensure_app_dir, get_current_active
-
-
 
 # ===== Service type taxonomy ============================================
 # Schema moi (2026-07): phan biet ro giua cac bien the SAP

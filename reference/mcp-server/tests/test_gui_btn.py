@@ -1,5 +1,4 @@
-﻿import threading
-from sap_btp_agent.gui.app import SapBtpGui
+﻿from sap_btp_agent.gui.app import SapBtpGui
 
 gui = SapBtpGui()
 gui._tray = type("FakeTray", (), {"notify": lambda self, msg: None})()
@@ -15,7 +14,9 @@ def fake_touch():
     gui.btn_done.configure(state="disabled")
 
 # Set up marker file de test touch
-import tempfile, os
+import os
+import tempfile
+
 fd, p = tempfile.mkstemp(prefix="sap_early_test_", suffix=".path")
 os.close(fd)
 os.unlink(p)

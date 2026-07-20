@@ -71,7 +71,7 @@ def main():
         errors = [i for i in issues if i['severity'] == 'ERROR']
         warns = [i for i in issues if i['severity'] == 'WARN']
         if not issues:
-            print(f'✅ Released API check passed: 0 issues.')
+            print('✅ Released API check passed: 0 issues.')
             return 0
         print(f'Released API check: {len(errors)} error(s), {len(warns)} warning(s)')
         print()

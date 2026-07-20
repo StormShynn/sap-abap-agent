@@ -12,13 +12,14 @@ from __future__ import annotations
 import asyncio
 import os
 import time
+from collections.abc import Callable, Coroutine, Iterable
 from dataclasses import dataclass, field
-from typing import Any, Callable, Coroutine, Iterable
+from typing import Any
 
 import httpx
 
-from ..config.store import load_config
 from ..config.secrets import load_secrets, update_secrets
+from ..config.store import load_config
 
 SAFETY_MARGIN_S = 30  # refresh som 30s truoc khi het han
 
@@ -265,8 +266,9 @@ class SapCookieAuth:
         Dong thoi luu saved_at + cookie_expires_at (uoc luong = now + 8h) de
         license module co the canh bao sap het han.
         """
-        from ..config.secrets import update_secrets as upsert
         import time as _t
+
+        from ..config.secrets import update_secrets as upsert
         now = _t.time()
         # Uoc luong: 8h cho SAP cookie (co the override qua config cookieMaxAgeHours)
         try:

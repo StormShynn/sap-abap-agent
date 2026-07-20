@@ -17,12 +17,6 @@ import sys
 import threading
 from typing import Any
 
-from ..sap.auth import (
-    _looks_like_netscape_text,
-    _parse_cookie_string,
-    _parse_netscape_cookie_text,
-    _session_cookie_names,
-)
 from ..config.profile import (
     derive_profile_id_from_url,
     get_current_active,
@@ -33,19 +27,25 @@ from ..config.profile import (
     upsert_profile,
 )
 from ..config.secrets import save_secrets
-from ..sap.auth import ReauthCancelled
-from .prompt import UserCancelled
-from . import _cancel as _sig
-
 from ..config.store import (
     SERVICE_TYPE_DEFAULT,
     SERVICE_TYPES,
+    load_config,
     normalize_btp_url,
     normalize_service_type,
     save_config,
-    load_config,
 )
-from .prompt import ask, header, info, ok, warn
+from ..sap.auth import (
+    ReauthCancelled,
+    _looks_like_netscape_text,
+    _parse_cookie_string,
+    _parse_netscape_cookie_text,
+    _session_cookie_names,
+)
+from . import _cancel as _sig
+from .prompt import UserCancelled, ask, header, info, ok, warn
+
+
 def _ask_service() -> str:
     """Hoi service type voi schema moi (s4hc_(private)/s4hc_(public)/btp/onprem).
 
@@ -350,9 +350,9 @@ async def _wizard_setup(url: str) -> None:
 # ===== CONNECT =====================================================
 
 async def _cmd_connect(profile_id: str | None) -> None:
-    from ..sap.client import SapClient
-    from ..sap.auth import web_login_popup, web_login_auto
     from ..config.store import load_config
+    from ..sap.auth import web_login_auto, web_login_popup
+    from ..sap.client import SapClient
 
     try:
         cfg = await asyncio.to_thread(load_config, profile_id)
@@ -431,8 +431,8 @@ async def _cmd_reauth(profile_id: str | None) -> None:
     lenh nay chi doc lai config da luu roi kich hoat thang buoc lay cookie -
     dung khi chi can dang nhap lai vi session het han, khong doi gi khac.
     """
-    from ..sap.auth import SapCookieAuth, web_login_popup, web_login_auto
     from ..config.store import load_config
+    from ..sap.auth import SapCookieAuth, web_login_auto, web_login_popup
 
     try:
         cfg = await asyncio.to_thread(load_config, profile_id)
@@ -600,7 +600,7 @@ def _cmd_license(profile_id):
                 exp_state = "valid"
             print(f"  Expires at  : {exp_dt.strftime('%Y-%m-%d %H:%M:%S')} ({exp_state})")
         else:
-            print(f"  Expires at  : (unknown)")
+            print("  Expires at  : (unknown)")
         if st.get("last_saved"):
             import datetime as _dt
             sv_dt = _dt.datetime.fromtimestamp(st["last_saved"])
@@ -684,8 +684,8 @@ async def _cmd_profiles(subcmd: str, arg: str | None) -> None:
             print(f"  ❌ {err}")
 
     elif subcmd == "show":
-        from ..config.store import load_config
         from ..config.secrets import load_secrets
+        from ..config.store import load_config
         pid = arg or get_current_active()
         if not pid:
             print("  ❌ Chua co profile nao.")
@@ -825,7 +825,7 @@ def _cmd_mcp_setup() -> None:
 def _load_cookies_from_file(filepath: str) -> dict[str, str]:
     """Load cookies tu Netscape-format cookie file."""
     try:
-        with open(os.path.expanduser(filepath), "r", encoding="utf-8") as f:
+        with open(os.path.expanduser(filepath), encoding="utf-8") as f:
             text = f.read()
     except (FileNotFoundError, PermissionError) as err:
         warn(f"Khong doc duoc file: {err}")

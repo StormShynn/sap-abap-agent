@@ -12,9 +12,14 @@ Vi tri luu: giong agent_home.py - mac dinh %USERPROFILE%\\.sap-abap-agent\\ (Win
 ~/.sap-abap-agent/ (macOS/Linux); override qua SAP_ABAP_AGENT_HOME.
 """
 from __future__ import annotations
-import argparse, json, os, sys
+
+import argparse
+import json
+import os
+import sys
 from datetime import date
 from pathlib import Path
+
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from agent_home import get_agent_home
 
@@ -64,7 +69,7 @@ def _ensure_file(path, default_content, *, force=False):
         try:
             existing = path.read_text(encoding="utf-8")
         except OSError as exc:
-            raise RuntimeError("Khong doc duoc {}: {}".format(path, exc)) from exc
+            raise RuntimeError(f"Khong doc duoc {path}: {exc}") from exc
         if existing.strip() and not force:
             return "kept"
         path.write_text(default_content, encoding="utf-8")
@@ -81,7 +86,7 @@ def _resolve_under_home(home, subpath):
     try:
         candidate.relative_to(root)
     except ValueError as exc:
-        raise ValueError("Path phai nam trong <agent-home>: {}".format(subpath)) from exc
+        raise ValueError(f"Path phai nam trong <agent-home>: {subpath}") from exc
     return candidate
 
 
@@ -162,7 +167,7 @@ def main():
             ensure_files=ensure_files,
         )
     except Exception as exc:
-        print("[bootstrap-memory] LOI: {}".format(exc), file=sys.stderr)
+        print(f"[bootstrap-memory] LOI: {exc}", file=sys.stderr)
         return 1
     print(json.dumps(result, ensure_ascii=False, indent=2))
     return 0

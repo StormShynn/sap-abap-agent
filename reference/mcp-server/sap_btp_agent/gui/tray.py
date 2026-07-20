@@ -11,7 +11,7 @@ Tinh nang:
 from __future__ import annotations
 
 import threading
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from .app import SapBtpGui
@@ -46,10 +46,10 @@ def _make_icon_image():
 class TrayController:
     """Dieu khien icon tray (pystray)."""
 
-    def __init__(self, gui: "SapBtpGui"):
+    def __init__(self, gui: SapBtpGui):
         self.gui = gui
         self._icon = None
-        self._thread: Optional[threading.Thread] = None
+        self._thread: threading.Thread | None = None
         self._ready = threading.Event()
 
     def start(self) -> None:
@@ -70,10 +70,9 @@ class TrayController:
                 else:
                     self.notify(f"{label}: con {s['expires_in_human']} (sap het han)",
                                 title="License warning")
-        except Exception as err:
+        except Exception:
             pass  # khong anh huong start icon
-        from pystray import Icon, Menu, MenuItem
-        import pystray
+        from pystray import Icon
 
         icon_img = _make_icon_image()
         self._icon = Icon(
@@ -125,7 +124,7 @@ class TrayController:
 
         def get_profile_items():
             try:
-                from ..config.profile import list_profiles, set_active_profile, get_current_active
+                from ..config.profile import list_profiles, set_active_profile
                 data = list_profiles()
                 active = data.get("active")
                 items = []

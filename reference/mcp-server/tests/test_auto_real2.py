@@ -1,7 +1,7 @@
 ﻿import asyncio
 import sys
 import time
-from unittest.mock import MagicMock, AsyncMock, patch
+from unittest.mock import AsyncMock, MagicMock, patch
 
 sys.modules["playwright"] = MagicMock()
 sys.modules["playwright.async_api"] = MagicMock()
@@ -12,6 +12,7 @@ sys.modules["playwright.async_api"].async_playwright = MagicMock(
 )
 
 from sap_btp_agent.sap.auth import web_login_auto
+
 
 async def real_sleep(ms):
     await asyncio.sleep(ms / 1000)

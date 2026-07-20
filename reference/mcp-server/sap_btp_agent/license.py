@@ -18,14 +18,11 @@ Su dung:
 """
 from __future__ import annotations
 
-import json
 import time
-from pathlib import Path
 from typing import Any
 
-from .config.profile import get_current_active, list_profiles
+from .config.profile import list_profiles
 from .config.secrets import load_secrets
-
 
 # Heuristic: SAP cookie session mac dinh 8h. Co the config trong config.json
 # (sap_session_max_age_hours) de override.

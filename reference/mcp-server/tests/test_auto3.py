@@ -1,6 +1,6 @@
 ﻿import asyncio
 import sys
-from unittest.mock import MagicMock, AsyncMock, patch
+from unittest.mock import AsyncMock, MagicMock, patch
 
 # Mock playwright module TRUOC khi import auth
 sys.modules["playwright"] = MagicMock()
@@ -12,6 +12,7 @@ sys.modules["playwright.async_api"].async_playwright = MagicMock(
 )
 
 from sap_btp_agent.sap.auth import web_login_auto
+
 
 def make_fake_browser():
     fake_browser = MagicMock()
