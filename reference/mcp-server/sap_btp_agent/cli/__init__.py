@@ -527,6 +527,31 @@ async def _cmd_reauth(profile_id: str | None) -> None:
 
 # ===== LICENSE =====================================================
 
+def _is_sensitive_key(key: str) -> bool:
+    k = (key or "").lower()
+    sensitive_markers = (
+        "password",
+        "passwd",
+        "secret",
+        "token",
+        "access_token",
+        "refresh_token",
+        "authorization",
+        "cookie",
+        "session",
+        "client_secret",
+        "apikey",
+        "api_key",
+    )
+    return any(marker in k for marker in sensitive_markers)
+
+
+def _safe_display_value(key: str, value: Any) -> str:
+    if _is_sensitive_key(key):
+        return "***REDACTED***"
+    return str(value)
+
+
 def _cmd_license(profile_id):
     """In trang thai license (cookie/token) cua 1 hoac tat ca profile.
 
@@ -547,7 +572,7 @@ def _cmd_license(profile_id):
         print("=" * 60)
         print(f"  License: {profile_id}")
         print("=" * 60)
-        print(f"  Type        : {st['type']}")
+        print(f"  Type        : {_safe_display_value('type', st['type'])}")
         print(f"  Has creds   : {st['has_credentials']}")
         if st["expires_at"]:
             import datetime as _dt
@@ -561,7 +586,7 @@ def _cmd_license(profile_id):
             print(f"  Saved at    : {sv_dt.strftime('%Y-%m-%d %H:%M:%S')}")
         if st.get("extra"):
             for k, v in st["extra"].items():
-                print(f"  {k:11s}: {v}")
+                print(f"  {k:11s}: {_safe_display_value(k, v)}")
         print()
         if st["is_expired"]:
             print(f"  EXPIRED - chay: sap-btp-agent reauth {profile_id}")
