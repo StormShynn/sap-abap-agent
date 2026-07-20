@@ -332,6 +332,13 @@ Format dựa trên [Keep a Changelog](https://keepachangelog.com/) và [Semantic
 
 ---
 
+## [v1.12.17] u2014 2026-07-20
+
+### Changed
+
+- Auto-bumped by CI (version-bump.yml).
+
+
 ## [v1.12.16] u2014 2026-07-20
 
 ### Changed
