@@ -527,6 +527,38 @@ async def _cmd_reauth(profile_id: str | None) -> None:
 
 # ===== LICENSE =====================================================
 
+def _is_sensitive_key(key: str) -> bool:
+    k = (key or "").lower()
+    sensitive_markers = (
+        "password",
+        "passwd",
+        "secret",
+        "token",
+        "access_token",
+        "refresh_token",
+        "authorization",
+        "cookie",
+        "session",
+        "client_secret",
+        "apikey",
+        "api_key",
+    )
+    return any(marker in k for marker in sensitive_markers)
+
+
+def _safe_display_value(key: str, value: Any) -> str:
+    if _is_sensitive_key(key):
+        return "***REDACTED***"
+
+    k = (key or "").lower()
+    if k == "type":
+        allowed_types = {"oauth2", "cookie"}
+        v = str(value).lower()
+        return v if v in allowed_types else "***REDACTED***"
+
+    return str(value)
+
+
 def _cmd_license(profile_id):
     """In trang thai license (cookie/token) cua 1 hoac tat ca profile.
 
@@ -547,7 +579,7 @@ def _cmd_license(profile_id):
         print("=" * 60)
         print(f"  License: {profile_id}")
         print("=" * 60)
-        print(f"  Type        : {st['type']}")
+        print(f"  Type        : {_safe_display_value('type', st['type'])}")
         print(f"  Has creds   : {st['has_credentials']}")
         if st["expires_at"]:
             import datetime as _dt
@@ -563,6 +595,8 @@ def _cmd_license(profile_id):
             safe_extra_keys = {"token_endpoint", "scope"}
             sensitive_markers = ("token", "secret", "password", "cookie", "authorization", "auth")
             for k, v in st["extra"].items():
+                presence = "set" if v else "(empty)"
+                print(f"  {k:11s}: {presence}")
                 key_l = str(k).lower()
                 if k in safe_extra_keys:
                     print(f"  {k:11s}: [SET]")
@@ -606,7 +640,8 @@ def _cmd_license(profile_id):
         else:
             status = "ok"
         pid_disp = (marker + s["profile_id"])[:40]
-        print(f"  {pid_disp:<40} {s['type']:<8} {status:<12} {s['expires_in_human']:<16}")
+        type_disp = _safe_display_value("type", s["type"])
+        print(f"  {pid_disp:<40} {type_disp:<8} {status:<12} {s['expires_in_human']:<16}")
     print("=" * 86)
     print("  (*) = active profile. Dung `sap-btp-agent license <id>` de xem chi tiet.")
     print()
