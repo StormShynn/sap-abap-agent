@@ -43,6 +43,7 @@ from ..config.store import (
     normalize_btp_url,
     normalize_service_type,
     save_config,
+    load_config,
 )
 from .prompt import ask, header, info, ok, warn
 def _ask_service() -> str:
@@ -581,7 +582,11 @@ def _cmd_license(profile_id):
         print("=" * 60)
         creds_state = "available" if st.get("has_credentials") else "missing"
         print(f"  Credentials : {creds_state}")
-        raw_type = str(st.get("type", "")).lower()
+        try:
+            cfg = load_config(profile_id)
+        except Exception:
+            cfg = {}
+        raw_type = str((cfg or {}).get("authMode", "oauth2")).lower()
         safe_type = raw_type if raw_type in {"oauth2", "cookie"} else "***REDACTED***"
         print(f"  Type        : {safe_type}")
         if st["expires_at"]:
