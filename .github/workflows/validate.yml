@@ -67,6 +67,18 @@ jobs:
         run: |
           python -m pytest tests/ reference/mcp-server/tests/ --collect-only -q -p no:cacheprovider
 
+      - name: Run pytest with coverage (root tests only)
+        # Chi chay test cho `tests/` root (reference/scripts/, hooks/).
+        # Skip reference/mcp-server/tests/ vi can install deps cua MCP server.
+        run: |
+          pip install pytest-cov
+          python -m pytest tests/ hooks/hook_tests/ \
+            --cov=reference/scripts \
+            --cov=hooks \
+            --cov-report=xml:coverage.xml \
+            --cov-report=term-missing:skip-covered \
+            -q --no-header -p no:cacheprovider || echo "::warning::Some tests failed (non-blocking at smoke level)"
+
       - name: ruff (lint)
         # Su dung config o root pyproject.toml. Loi lint khong block CI
         # (warning only) - vi nhieu file cu co style legacy.

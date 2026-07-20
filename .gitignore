@@ -19,6 +19,7 @@ dist/
 test-results/
 test/
 tests/
+!tests/README.md
 !reference/mcp-server/tests/
 !hooks/hook_tests/
 
@@ -33,7 +34,7 @@ _*.py
 # Personal learning progress (state rieng cua tung user, khong track)
 .sap-abap-agent/LEARNING_PROGRESS.md
 skills/sap-user-skills/*
-!skills/sap-user-skills/.gitkeep
+!skills/sap-user-skills/README.md
 
 # Session handoff / scaffold working state (ca nhan, khong track)
 .sap-abap-agent/sessions/
@@ -56,6 +57,18 @@ mcp-abap-adt-*.env
 # Other
 in/
 out/
+
+# Local Claude Code settings (per-machine hooks/permissions) - phai o day, khong chi dua vao
+# personal git excludesFile cua tung may (may/CI khac se khong tu chan)
+.claude/settings.local.json
+
+# Du lieu du an/khach hang that dung lam fixture cuc bo khi dev (KHONG BAO GIO track) - rule
+# rieng, khong chi dua vao dong "tests/" chung o tren (repo da co tien le track file trong
+# tests/ nen dong do khong con la rao chan chac chan)
+tests/__Du_an/
+tests/src/
+!tests/README.md
+!tests/__Du_an/README.md
 
 # docs/sap-knowledge/: cac index/catalog SINH TU codebase THAT cua khach hang (khong phai
 # chi "nhac ten" - doi ten label khong du de an danh vi noi dung ben trong van la object/field/

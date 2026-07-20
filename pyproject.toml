@@ -50,3 +50,29 @@ addopts = [
 ]
 # Luu y: collect_ignore_glob KHONG phai option ini ma la conftest.py API
 # (xem reference/mcp-server/tests/conftest.py). Khong dat o day.
+
+
+[tool.coverage.run]
+branch = true
+source = [
+    "reference/mcp-server/sap_btp_agent",
+    "hooks",
+]
+omit = [
+    "*/tests/*",
+    "*/__pycache__/*",
+    "*/.pytest_cache/*",
+    "reference/.vscode-extensions/*",
+]
+
+[tool.coverage.report]
+precision = 1
+show_missing = true
+skip_covered = false
+exclude_lines = [
+    "pragma: no cover",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+    "raise NotImplementedError",
+    "...",
+]

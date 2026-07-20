@@ -755,13 +755,16 @@ Nếu repo ở private hoặc bị rate-limit GitHub HEAD, URL sẽ rơi vào `[
 
 ## 🪝 Pre-commit Hook (tự chạy khi `git commit`)
 
-Từ v1.11.4, plugin có 3 check tự động chạy trước khi commit — giống CI nhưng ở local:
+Từ v1.12.0, plugin có 6 check tự động chạy trước khi commit — giống CI nhưng ở local:
 
 | Check                          | Time   | Fail khi                                |
 |--------------------------------|--------|------------------------------------------|
 | `validate_plugin.py`           | < 1s   | Frontmatter lỗi, doc drift, Python syntax|
 | `validate_inspired_by_links.py --strict` | < 5s | URL GitHub 404 trong README/CHANGELOG/SKILL.md |
 | `pytest tests/`                | < 2s   | Unit test fail                          |
+| `ruff check --fix`             | < 1s   | Lint error (E/W/F/I/B/UP/SIM) trong `.py` |
+| `ruff format`                  | < 1s   | Format mismatch (auto-fix)               |
+| `pre-commit-hooks`             | < 1s   | trailing-whitespace, EOF fixer, large files |
 
 ### Cài đặt (2 cách)
 
@@ -793,7 +796,53 @@ git commit -m "fix: ... [skip hooks]"
 Hook sẽ tự động skip và vẫn cho commit. CI sẽ chạy lại check đầy đủ — không có cách nào
 "thoát" check vĩnh viễn, đây là escape hatch cho trường hợp khẩn cấp.
 
+### License header (SPDX / REUSE 3.0)
+
+Tu v1.13.0, plugin tu thu [REUSE 3.0](https://reuse.software/) de khai bao license
+cho moi file. Hai cach:
+
+1. **SPDX header** trong file (uu tien cho source code):
+   ```python
+   # SPDX-FileCopyrightText: 2026 <contributor>
+   # SPDX-License-Identifier: MIT
+   ```
+2. **`REUSE.toml`** o root: them rule neu file/pattern khong phu hop header
+   (vd binary file, file tu gen).
+
+File KHONG co license se bi `reuse lint` warning. CI chua enforce - chi canh bao.
+Doc `REUSE.toml` o root de xem rules hien tai.
+
 ### Không có Python?
 
 Hook tự detect — nếu không tìm thấy `python`/`python3`/`py` thì in warning và skip, **không
 block commit**. Tương thích cả WSL/Git Bash/Cygwin (script bash POSIX).
+
+### Ruff (linter + formatter)
+
+Tu v1.12.0, pre-commit hook con chay ruff de:
+
+- **Lint** (`ruff check`): bat loi pyflakes/pycodestyle/isort/bugbear/pyupgrade/simplify
+  - Config o root `pyproject.toml` section `[tool.ruff]`
+  - Ignore mot so warning cho code cu (E501, B008, SIM108)
+- **Format** (`ruff format`): tu dong sua indent/style
+- **Chay local** (khong can pre-commit framework):
+  ```bash
+  pip install ruff
+  ruff check --fix .
+  ruff format .
+  ```
+- **Tat ruff** trong pre-commit (khi can push nhanh):
+  ```bash
+  SKIP=ruff git commit -m "..."
+  ```
+
+### Pre-commit hooks (chuan)
+
+Ngoai ruff, con co cac standard check:
+
+- `trailing-whitespace`: xoa space cuoi dong (giu line break cho Markdown)
+- `end-of-file-fixer`: them newline cuoi file
+- `check-merge-conflict`: chan commit conflict marker `<<<<<<<`
+- `check-yaml/json/toml`: validate syntax cac config file
+- `mixed-line-ending --fix=lf`: chuan hoa EOL = LF (tru `.bat`/`.ps1` da config rieng trong `.editorconfig`)
+- `check-added-large-files`: chan file > 1MB (loai tru `released-objects-index.json` da duoc annotate)

@@ -89,6 +89,14 @@ jobs:
           mv /tmp/plugin.json .claude-plugin/plugin.json
           echo "new=$NEW_VERSION" >> "$GITHUB_OUTPUT"
 
+      # Mirror plugin version vao plugin entry trong marketplace.json (Claude Code
+      # marketplace field "version" giup marketplace detect plugin update nhanh hon).
+      - name: Bump version in marketplace.json
+        if: always()
+        run: |
+          jq --arg v "${{ steps.version.outputs.new }}" '(.plugins[] | select(.name=="sap-abap-agent") | .version) = $v' .claude-plugin/marketplace.json > /tmp/marketplace.json
+          mv /tmp/marketplace.json .claude-plugin/marketplace.json
+
       - name: Sync mcp-server package version (pyproject.toml, CLI help, README)
         if: steps.changes.outputs.mcp == 'true'
         run: |
@@ -121,7 +129,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add .claude-plugin/plugin.json index.html
+          git add .claude-plugin/plugin.json .claude-plugin/marketplace.json index.html
           if [[ "${{ steps.changes.outputs.mcp }}" == "true" ]]; then
             git add reference/mcp-server/pyproject.toml \
                      reference/mcp-server/sap_btp_agent/cli/__init__.py \

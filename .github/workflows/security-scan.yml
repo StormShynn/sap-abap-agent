@@ -1,0 +1,48 @@
+name: Security Scan
+
+# Chay security_scan.py (custom static analysis) o moi push/PR.
+# Day la BO SUNG cho codeql.yml (phan tich TypeScript cho vendored extension).
+# security_scan.py quet Python (MCP server + hooks + scripts) + TS (vendored).
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  security-events: write  # de upload SARIF neu muon
+
+concurrency:
+  group: "security"
+  cancel-in-progress: true
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Run security scan (HIGH/MEDIUM findings)
+        run: |
+          python reference/scripts/security_scan.py
+          # HIGH findings -> exit 1 (block merge)
+          # MEDIUM findings -> print only, non-blocking
+
+      - name: Upload SARIF (optional)
+        if: always()
+        continue-on-error: true
+        run: |
+          echo "TODO: convert scan output to SARIF and upload to code-scanning UI."
+          echo "Hien tai security_scan.py chi in text, chua emit SARIF."

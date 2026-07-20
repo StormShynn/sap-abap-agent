@@ -22,7 +22,12 @@ win-dpapi = ["pywin32>=306"]
 mac-keychain = ["keyring>=24"]
 playwright = ["playwright>=1.40"]
 gui = ["pystray>=0.19", "Pillow>=10.0"]
-dev = ["pytest>=8"]
+dev = [
+    "pytest>=8",
+    "pytest-cov>=5",
+    "ruff>=0.7",
+    "build>=1.0",    # de build wheel release
+]
 
 [project.scripts]
 sap-btp-agent = "sap_btp_agent.cli:main"

@@ -1,0 +1,21 @@
+# .gitattributes - Git LFS tracking for large data files.
+#
+# File `docs/sap-knowledge/released-objects-index.json` (5.5MB, 37K objects)
+# se di chuyen sang Git LFS de:
+#   - Giam .git/ size (5.5MB -> 5.5MB pointer)
+#   - Clone nhanh hon cho contributor chi can source code
+#   - Khong anh huong audit/CI (LFS object van download trong CI)
+#
+# Setup:
+#   git lfs install                 # 1 lan / user
+#   git lfs track --list            # verify rule co hieu luc
+#   git rm --cached docs/sap-knowledge/released-objects-index.json
+#   git add docs/sap-knowledge/released-objects-index.json .gitattributes
+#   git commit -m "chore: move released-objects-index.json to LFS"
+#
+# Sau khi migrate, contributor clone se khong tu dong download 5.5MB (can:
+#   git lfs install
+#   git lfs pull
+# ).
+
+docs/sap-knowledge/released-objects-index.json filter=lfs diff=lfs merge=lfs -text
