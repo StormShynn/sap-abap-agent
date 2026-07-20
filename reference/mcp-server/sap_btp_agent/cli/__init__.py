@@ -569,7 +569,7 @@ def _cmd_license(profile_id):
                 elif any(m in key_l for m in sensitive_markers):
                     print(f"  {k:11s}: [REDACTED]")
                 else:
-                    print(f"  {k:11s}: [HIDDEN]")
+                    print("  extra      : [HIDDEN]")
         print()
         if st["is_expired"]:
             print(f"  EXPIRED - chay: sap-btp-agent reauth {profile_id}")
