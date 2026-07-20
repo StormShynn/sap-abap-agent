@@ -592,10 +592,9 @@ def _cmd_license(profile_id):
             sv_dt = _dt.datetime.fromtimestamp(st["last_saved"])
             print(f"  Saved at    : {sv_dt.strftime('%Y-%m-%d %H:%M:%S')}")
         if st.get("extra"):
-            safe_extra_keys = {"token_endpoint", "scope"}
             for k, v in st["extra"].items():
-                display_value = str(v) if k in safe_extra_keys else "***REDACTED***"
-                print(f"  {k:11s}: {display_value}")
+                presence = "set" if v else "(empty)"
+                print(f"  {k:11s}: {presence}")
         print()
         if st["is_expired"]:
             print(f"  EXPIRED - chay: sap-btp-agent reauth {profile_id}")
