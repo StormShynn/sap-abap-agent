@@ -5,6 +5,44 @@ All notable changes to this project will be documented in this file.
 Format dựa trên [Keep a Changelog](https://keepachangelog.com/) và [Semantic Versioning](https://semver.org/).
 
 ---
+## [v1.12.17] — 2026-07-20
+
+### Changed
+
+- Tier 6 - manual safe ruff fixes (56 -> 37 errors, 19 fixes applied):
+  - `hooks/error_reporter.py`: SIM115 x2 - `open(...)` -> `with open(...) as _f:`
+    (dam bao file dong ngay ca khi generator bi break som).
+  - `reference/mcp-server/sap_btp_agent/cli/__init__.py`: F401 - remove
+    unused `import json`.
+  - `reference/mcp-server/sap_btp_agent/gui/__init__.py`: F401 - remove
+    unused `import threading`.
+  - `reference/mcp-server/sap_btp_agent/sap/auth.py`: SIM102 - merge nested
+    `if` thanh 1 if voi `and` (logic giong nguyen, chi sua syntax).
+  - `reference/mcp-server/sap_btp_agent/sap/client.py`: SIM102 - same pattern.
+  - `reference/scripts/setup_labels.py`: E741 - rename ambiguous var `l`
+    -> `label` (tranh nham voi so 1/I).
+  - Con lai 37 loi ruff (SIM105, E402, B904, B905) KHONG sua theo rule
+    'khong sua logic code' (se fix trong PR rieng sau khi review).
+
+## [v1.12.16] — 2026-07-20
+
+### Changed
+
+- Tier 5 enhancements (ruff auto-fix + sync + CODEOWNERS + Makefile):
+  - 36 files changed, +258 / -133 lines.
+  - `ruff check --fix`: 167 -> 56 errors (105+ safe auto-fixes).
+  - `.github/workflows/version-bump.yml` step 'Sync version into index.html':
+    thay 3 lenh `sed -i` bang `python reference/scripts/build_index.py` (DRY).
+  - `tests/README.md`: them section 'Makefile shortcuts' voi bang lenh `make`.
+  - `.github/CODEOWNERS`: chi tiet hoa per-path reviewer (11 path-specific rules).
+  - `.gitignore`: them rule `.vscode/` (per-machine editor settings).
+  - `Makefile`: them target `pre-commit-install` (Python-only, khong copy hook shell).
+  - `reference/mcp-server/tests/test_auto2.py`: fix F821 undefined `patch`
+    (them vao `from unittest.mock import ...`).
+  - Tier 7 fix: workflow `version-bump.yml` - 2 bug fix:
+    1. `count++ == 3` -> `count++ == 0` (insert sau 1st `---` thay vi 4th).
+    2. `\u2014` (literal) -> `—` (em-dash that) trong ENTRY definition.
+
 
 ## [v1.12.15] — 2026-07-20
 
@@ -331,27 +369,6 @@ Format dựa trên [Keep a Changelog](https://keepachangelog.com/) và [Semantic
   user tự thử với 1 class/CDS view thật sau khi merge.
 
 ---
-
-## [v1.12.17] u2014 2026-07-20
-
-### Changed
-
-- Auto-bumped by CI (version-bump.yml).
-
-
-## [v1.12.16] u2014 2026-07-20
-
-### Changed
-
-- Auto-bumped by CI (version-bump.yml).
-
-
-## [v1.12.15] u2014 2026-07-20
-
-### Changed
-
-- Auto-bumped by CI (version-bump.yml).
-
 
 ## [v1.9.0] — 2026-07-15
 

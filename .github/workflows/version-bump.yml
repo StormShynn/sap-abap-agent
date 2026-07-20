@@ -105,11 +105,15 @@ jobs:
         run: |
           NEW_VERSION="${{ steps.version.outputs.new }}"
           TODAY=$(date -u +%Y-%m-%d)
-          ENTRY="## [v${NEW_VERSION}] \u2014 ${TODAY}\n\n### Changed\n\n- Auto-bumped by CI (version-bump.yml).\n"
+          ENTRY="## [v${NEW_VERSION}] — ${TODAY}\n\n### Changed\n\n- Auto-bumped by CI (version-bump.yml).\n"
           # Insert sau header (sau line dau tien chua `---` cua mo ta file).
           # Su dung awk de them entry sau line `---` thu 4 (sau header mo ta).
-          awk -v entry="## [v${NEW_VERSION}] \u2014 ${TODAY}\n\n### Changed\n\n- Auto-bumped by CI (version-bump.yml).\n" '
-            /^---$/ && count++ == 3 { print; print ""; printf "%s\n", entry; next }
+          awk -v entry="## [v${NEW_VERSION}] — ${TODAY}\n\n### Changed\n\n- Auto-bumped by CI (version-bump.yml).\n" '
+            # Insert right after the 1st `---` line (header end). `count++ == 0`
+            # means: 1st match -> count is 0, 0==0 TRUE, triggers. Later matches
+            # are skipped. Truoc day dung `count++ == 3` (4th match) nen cac entry
+            # moi bi insert o giua file thay vi o dau.
+            /^---$/ && count++ == 0 { print; print ""; printf "%s\n", entry; next }
             { print }
           ' CHANGELOG.md > /tmp/CHANGELOG.md
           mv /tmp/CHANGELOG.md CHANGELOG.md
