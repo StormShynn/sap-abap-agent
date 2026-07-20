@@ -44,7 +44,7 @@ jobs:
 
       - name: Annotate PR with GONE list
         if: github.event_name == 'pull_request' && steps.check.outcome == 'failure'
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           script: |
             // Re-run o che do non-strict de lay danh sach URL GONE cho comment.
