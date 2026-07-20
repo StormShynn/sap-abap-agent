@@ -565,7 +565,7 @@ def _cmd_license(profile_id):
             for k, v in st["extra"].items():
                 key_l = str(k).lower()
                 if k in safe_extra_keys:
-                    print(f"  {k:11s}: {v}")
+                    print(f"  {k:11s}: [SET]")
                 elif any(m in key_l for m in sensitive_markers):
                     print(f"  {k:11s}: [REDACTED]")
                 else:
