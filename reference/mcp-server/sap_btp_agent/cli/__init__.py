@@ -586,7 +586,13 @@ def _cmd_license(profile_id):
         if st["expires_at"]:
             import datetime as _dt
             exp_dt = _dt.datetime.fromtimestamp(st["expires_at"])
-            print(f"  Expires at  : {exp_dt.strftime('%Y-%m-%d %H:%M:%S')} ({st['expires_in_human']})")
+            if st.get("is_expired"):
+                exp_state = "expired"
+            elif st.get("is_warning"):
+                exp_state = "expiring_soon"
+            else:
+                exp_state = "valid"
+            print(f"  Expires at  : {exp_dt.strftime('%Y-%m-%d %H:%M:%S')} ({exp_state})")
         else:
             print(f"  Expires at  : (unknown)")
         if st.get("last_saved"):
