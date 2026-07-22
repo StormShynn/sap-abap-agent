@@ -1234,7 +1234,8 @@
 <span class="branch">│</span>   <span class="branch">├──</span> <span class="highlight">sap-doc-to-md/</span>         <span class="file"> ← Convert Word/Excel → Markdown</span>
 <span class="branch">│</span>   <span class="branch">├──</span> <span class="highlight">sap-routing-discipline/</span><span class="file"> ← SessionStart routing hook</span>
 <span class="branch">│</span>   <span class="branch">├──</span> <span class="highlight">sap-mcp-status/</span>        <span class="file"> ← MCP server audit script</span>
-<span class="branch">│</span>   <span class="branch">└──</span> <span class="highlight">...</span>                    <span class="file"> ← 31 other skills (codegen, scaffold, review, test, security)</span>
+<span class="branch">│</span>   <span class="branch">├──</span> <span class="highlight">sap-package-backup/</span>    <span class="file"> ← Backup Z*/YY1 qua ADT REST (cảm hứng abapGit)</span>
+<span class="branch">│</span>   <span class="branch">└──</span> <span class="highlight">...</span>                    <span class="file"> ← 32 other skills (codegen, scaffold, review, test, security)</span>
 <span class="branch">├──</span> <span class="highlight">reference/process/</span>      <span class="file"> ← Context engineering (trim, summary, module-routing)</span>
 <span class="branch">├──</span> <span class="highlight">reference/mcp-guides/</span>   <span class="file"> ← MCP setup guides (ADT, GUI, SuccessFactors)</span>
 <span class="branch">├──</span> <span class="highlight">reference/modules/</span>       <span class="file"> ← 43 module knowledge bases</span>
@@ -1264,14 +1265,15 @@
         <li>Cài MCP Server từ file wheel:</li>
       </ol>
 
-      <pre><code><span class="hl-com"># Cài MCP Server — không cần clone repo</span>
-pip install https://github.com/StormShynn/sap-abap-agent/releases/download/mcp-server-v0.3.0/sap_abap_agent_mcp-0.3.0-py3-none-any.whl
+      <pre><code><span class="hl-com"># Cài MCP Server — không cần clone repo (kiểm tra bản mới nhất tại
+# https://github.com/StormShynn/sap-abap-agent/releases, tìm tag mcp-server-v*)</span>
+pip install https://github.com/StormShynn/sap-abap-agent/releases/download/mcp-server-v1.12.18/sap_abap_agent_mcp-1.12.18-py3-none-any.whl
 
 <span class="hl-com"># Trên Windows, thêm win-dpapi</span>
-pip install "sap_abap_agent_mcp-0.3.0-py3-none-any.whl[win-dpapi]"
+pip install "sap_abap_agent_mcp-1.12.18-py3-none-any.whl[win-dpapi]"
 
 <span class="hl-com"># Muốn dùng Cookie Auth kiểu tự mở browser đăng nhập (Auto mode)</span>
-pip install "sap_abap_agent_mcp-0.3.0-py3-none-any.whl[playwright]"
+pip install "sap_abap_agent_mcp-1.12.18-py3-none-any.whl[playwright]"
 playwright install chromium
 
 <span class="hl-com"># Kiểm tra môi trường — chạy được dù PATH chưa đúng</span>
@@ -4201,8 +4203,6 @@ java -jar cdata.jdbc.sapfieldglass.jar --license</code><button class="copy-btn" 
     "ngân hàng, dòng tiền": "bank, cash flow",
     "hải quan, xuất nhập khẩu": "customs, import/export",
     "môi trường, an toàn, hóa chất": "environment, safety, chemicals",
-    " Chi tiết từng Agent (21 files)": " Agent Details (21 files)",
-    "18 module consultants + 1 docs researcher + 1 daily learner (được ": "18 module consultants + 1 docs researcher + 1 daily learner (which is ",
     " tự động dispatch) + 1 abap-reviewer (gọi thủ công). Mỗi agent đều ": " auto-dispatched) + 1 abap-reviewer (called manually). Every agent ",
     "chỉ tư vấn/review — không tự sửa code": "only advises/reviews — never edits code itself",
     " (không có quyền Write/Edit), chạy trên model ": " (no Write/Edit permission), running on model ",
@@ -4863,7 +4863,6 @@ java -jar cdata.jdbc.sapfieldglass.jar --license</code><button class="copy-btn" 
     ': FI↔CO, PP→QM→MM, PM→MM→FI, v.v.': ': FI↔CO, PP→QM→MM, PM→MM→FI, etc.',
     'Parallel dispatch': 'Parallel Dispatch',
     ': Tất cả module >= threshold dispatch song song': ': All modules >= threshold dispatched in parallel',
-    'Danh sách 18 module consultants': '18 Module Consultants',
     'Ví dụ routing': 'Routing Examples',
     'Câu hỏi': 'Question',
     'Dispatch': 'Dispatch',
@@ -4905,7 +4904,6 @@ java -jar cdata.jdbc.sapfieldglass.jar --license</code><button class="copy-btn" 
     'Sau bước này, các MCP tool và 28 agents sẽ sẵn sàng trong Claude Code.': 'After this, MCP tools & 28 agents will be ready in Claude Code.',
 
     // --- Features grid updates ---
-    '18 module consultants': '18 module consultants',
     'Auto-scoring routing engine. Hỏi câu hỏi nghiệp vụ, AI tự dispatch consultant phù hợp hoặc nhiều module song song.': 'Auto-scoring routing engine. Ask business questions, AI auto-dispatches the right consultant or multiple modules in parallel.',
     'Keyword scoring + coupling': 'Keyword scoring + coupling',
     'Mỗi module có keyword matrix weight 3/2/1. Module coupling tự động dispatch các module liên quan.': 'Each module has a weighted keyword matrix (3/2/1). Module coupling auto-dispatches related modules.',
@@ -4914,7 +4912,6 @@ java -jar cdata.jdbc.sapfieldglass.jar --license</code><button class="copy-btn" 
 
     // --- Sidebar new nav items ---
     'Consultant System': 'Consultant System',
-    '18 module consultants': '18 module consultants',
     'Auto-scoring routing': 'Auto-scoring routing',
 
     // --- Quick start prompts ---
@@ -4922,7 +4919,6 @@ java -jar cdata.jdbc.sapfieldglass.jar --license</code><button class="copy-btn" 
     'Tim CDS view cho sales order + hoi SD': 'Find CDS view for sales order + ask SD',
 
     // --- Footer ---
-    '18 module consultants + 1 researcher': '18 module consultants + 1 researcher',
 
     // --- Hero feature cards ---
 

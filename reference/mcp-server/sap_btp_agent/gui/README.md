@@ -6,7 +6,7 @@ GUI desktop + system tray cho `sap-btp-agent`, giup thao tac khong can nho lenh.
 
 ```
 pip install sap-abap-agent-mcp[gui]
-`
+```
 
 Lenh nay cai them `pystray` + `Pillow` (icon tray). Sau khi cai xong, co them command `sap-btp-agent-gui`.
 
