@@ -19,6 +19,7 @@ Sau do update `index.html` (in-place) theo cac pattern giong workflow cu:
 Thoat 0 neu khong co gi thay doi, 1 neu co loi parse. Khong pha logic - chi
 chuyen `sed` shell pipeline thanh Python portable (chay duoc tren Windows).
 """
+
 from __future__ import annotations
 
 import json
@@ -45,19 +46,32 @@ _SIDEBAR_PATTERNS = [
     # vX.Y.Z \u00b7 N modules + M skills   (fallback)
     re.compile(r"v\d+\.\d+(?:\.\d+)?\s*\u00b7\s*\d+\s+modules\s*\+\s*\d+\s+skills"),
     # <small>vX.Y.Z \u00b7 N agents \u00b7 M skills</small> (HTML wrap)
-    re.compile(r"(<small>)v\d+\.\d+(?:\.\d+)?\s*\u00b7\s*\d+\s+agents\s*\u00b7\s*\d+\s+skills(</small>)"),
+    re.compile(
+        r"(<small>)v\d+\.\d+(?:\.\d+)?\s*\u00b7\s*\d+\s+agents\s*\u00b7\s*\d+\s+skills(</small>)"
+    ),
     # <span class="header-version">vX.Y.Z \u00b7 N agents \u00b7 M skills</span>
-    re.compile(r"(class=\"header-version\">)v\d+\.\d+(?:\.\d+)?\s*\u00b7\s*\d+\s+agents\s*\u00b7\s*\d+\s+skills"),
+    re.compile(
+        r"(class=\"header-version\">)v\d+\.\d+(?:\.\d+)?\s*\u00b7\s*\d+\s+agents\s*\u00b7\s*\d+\s+skills"
+    ),
     # Plain text: SAP ABAP Agent &middot; vX.Y.Z \u00b7 N agents \u00b7 M skills
-    re.compile(r"((?:&middot;)\s+)v\d+\.\d+(?:\.\d+)?\s*\u00b7\s*\d+\s+agents\s*\u00b7\s*\d+\s+skills"),
+    re.compile(
+        r"((?:&middot;)\s+)v\d+\.\d+(?:\.\d+)?\s*\u00b7\s*\d+\s+agents\s*\u00b7\s*\d+\s+skills"
+    ),
 ]
 
 # Pattern cho CDS view count trong index.html.
 # Dung 1 regex duy nhat (khong lien tiep) de tranh khop loi 7,7,355.
 # Group 1: so thap phan co dau phay (7,355) HOAC so nguyen (7355).
-_CDS_PATTERN = re.compile(
-    r"(\d{1,3}(?:,\d{3})+|\d+)\s+CDS\s+views"
-)
+_CDS_PATTERN = re.compile(r"(\d{1,3}(?:,\d{3})+|\d+)\s+CDS\s+views")
+
+# Pattern cho 2 dong comment trong khoi ASCII-art file-tree (vd dong ~1225,
+# ~1240) - RIENG voi _SIDEBAR_PATTERNS o tren (sidebar/footer), 2 cai nay
+# tung bi bo sot (khong co pattern nao dong bo) khien
+# validate_plugin.py::check_index_html_counts() FAIL moi khi so skill/module
+# thuc te tren dia thay doi nhung 2 dong nay khong ai sua tay. Them o day de
+# dong bo tu dong, giong het cach _SIDEBAR_PATTERNS/_CDS_PATTERN da lam.
+_SKILL_IMPL_PATTERN = re.compile(r"\d+\s+skill implementations")
+_MODULE_KB_PATTERN = re.compile(r"\d+\s+module knowledge bases")
 
 
 def read_changelog_version() -> str | None:
@@ -89,6 +103,14 @@ def count_skills() -> int:
     if (skills_dir / "sap-user-skills").is_dir():
         total -= 1
     return max(total, 0)
+
+
+def count_modules() -> int:
+    """Dem thu muc `reference/modules/*/` (giong _real_module_count() trong validate_plugin.py)."""
+    modules_dir = REPO_ROOT / "reference" / "modules"
+    if not modules_dir.is_dir():
+        return 0
+    return sum(1 for p in modules_dir.iterdir() if p.is_dir())
 
 
 def count_cds_views() -> int | None:
@@ -128,6 +150,7 @@ def update_index_html(
     version: str,
     agent_count: int,
     skill_count: int,
+    module_count: int,
     cds_count: int | None,
 ) -> bool:
     """Ap dung cac pattern regex len `index.html`. Tra ve True neu co thay doi.
@@ -151,10 +174,12 @@ def update_index_html(
     # Re.sub callback xu ly ca 2 truong hop.
     wrap_patterns = _SIDEBAR_PATTERNS[3:]  # <small>, header-version, &middot;
     for pat in wrap_patterns:
+
         def _sub_wrap(m):
             prefix = m.group(1) if m.lastindex and m.lastindex >= 1 else ""
             suffix = m.group(2) if m.lastindex and m.lastindex >= 2 else ""
             return f"{prefix}{new_line}{suffix}"
+
         new_text = pat.sub(_sub_wrap, new_text, count=1)
 
     # Simple patterns (no HTML wrap)
@@ -169,6 +194,10 @@ def update_index_html(
         # Dung sub voi count=0 (all) nhung pattern chi khop 1 dang (comma-or-not) moi lan
         # de tranh cap so bi noi vao nhau.
         new_text = _CDS_PATTERN.sub(cds_str, new_text)
+
+    # Dong comment file-tree (xem ghi chu tai dinh nghia pattern o tren).
+    new_text = _SKILL_IMPL_PATTERN.sub(f"{skill_count} skill implementations", new_text)
+    new_text = _MODULE_KB_PATTERN.sub(f"{module_count} module knowledge bases", new_text)
 
     if new_text == text:
         print(f"No changes to {INDEX_HTML.name}")
@@ -188,9 +217,10 @@ def main() -> int:
         return 1
     agents = count_agents()
     skills = count_skills()
+    modules = count_modules()
     cds = count_cds_views()
-    print(f"version=v{version} agents={agents} skills={skills} cds={cds}")
-    update_index_html(version, agents, skills, cds)
+    print(f"version=v{version} agents={agents} skills={skills} modules={modules} cds={cds}")
+    update_index_html(version, agents, skills, modules, cds)
     return 0
 
 

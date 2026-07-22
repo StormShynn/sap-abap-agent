@@ -6,6 +6,26 @@ Format dựa trên [Keep a Changelog](https://keepachangelog.com/) và [Semantic
 
 ---
 
+## [v1.12.19] — 2026-07-22
+
+### Added
+
+- Skill moi `sap-package-backup` — backup source ABAP toan bo package Z*
+  (de quy sub-package) + custom field/logic YY1* (Key User Extensibility)
+  qua ADT REST, lay cam hung tu co che serialize cua abapGit (dat ten file
+  kieu `<ten>.<loai>.<phan>`, thu muc theo package hierarchy — xem
+  docs.abapgit.org/user-guide/reference/folders-filenames.html).
+  - `reference/scripts/backup_packages.py`: import truc tiep `SapClient`
+    (bypass giao thuc MCP) — de quy `list_packages()` theo package hierarchy,
+    dispatch endpoint ADT REST rieng cho tung loai object (CLAS/INTF/DDLS/
+    DDLX/DCLS/SRVD/BDEF/DOMA/DTEL/TABL/SRVB/PROG), tim YY1* qua quickSearch,
+    ghi manifest JSON kem `known_limitations` ro rang.
+  - **Gioi han da biet** (ghi trong SKILL.md + manifest, khong an di): cau
+    truc XML nodestructure/quickSearch chua test song tren tenant that (co
+    `--inspect` de kiem tra truoc); YY1 chi backup duoc object co TADIR entry
+    khop ten pattern, KHONG backup duoc metadata "business context" cua app
+    Custom Fields and Logic; MSAG/FUGR chua ho tro.
+
 ## [v1.12.18] — 2026-07-20
 
 ### Changed

@@ -82,6 +82,7 @@ sap-abap-agent/
 |   +-- sap-routing-discipline/     # SessionStart hook - ép check routing
 |   +-- sap-mcp-status/             # Audit MCP server registration
 |   +-- sap-security-review/        # Quét bảo mật ABAP Cloud (OWASP-style, gọi từ abap-reviewer)
+|   +-- sap-package-backup/         # Backup source Z*/YY1 qua ADT REST (cảm hứng abapGit)
 |   +-- ... (12 skills khác: mcp-sap-notes, mcp-sap-concur, mcp-sap-fieldglass,
 |   |       sap-released-classes, sap-abap-sql, sap-badi-enhancement,
 |   |       sap-authorization, sap-odata-service, sap-rap-events,
