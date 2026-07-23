@@ -1,0 +1,33 @@
+version = 1
+
+# REUSE 3.0 compliance - khai bao license cho tung file/pattern.
+# File nao KHONG match rule nao se bi `reuse lint` flag (warning, khong block CI).
+#
+# SPDX header day du (nen them vao moi source file moi):
+#   # SPDX-FileCopyrightText: 2026 StormShynn
+#   # SPDX-License-Identifier: MIT
+#
+# Test locally:
+#   pip install reuse
+#   reuse lint
+
+[[annotations]]
+path = ["**/*.py", "**/*.md", "**/*.yml", "**/*.yaml", "**/*.json", "**/*.toml"]
+SPDX-FileCopyrightText = "2026 StormShynn"
+SPDX-License-Identifier = "MIT"
+
+[[annotations]]
+path = ["docs/sap-knowledge/**/*.md"]
+SPDX-FileCopyrightText = "2026 SAP SE (sample objects, anonymized for documentation)"
+SPDX-License-Identifier = "MIT"
+
+# File dac biet
+[[annotations]]
+path = "index.html"
+SPDX-FileCopyrightText = "2026 StormShynn"
+SPDX-License-Identifier = "MIT"
+
+[[annotations]]
+path = "docs/sap-knowledge/released-objects-index.json"
+SPDX-FileCopyrightText = "2026 SAP SE (synthesized object catalog, anonymized)"
+SPDX-License-Identifier = "MIT"

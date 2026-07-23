@@ -1,0 +1,49 @@
+name: Sync index.html From Changelog & Readme
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - "CHANGELOG.md"
+      - "README.md"
+      - "agents/*.md"
+      - "skills/*/SKILL.md"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: "sync-index"
+  cancel-in-progress: true
+
+jobs:
+  sync:
+    if: >-
+      github.actor != 'github-actions[bot]' &&
+      !contains(github.event.head_commit.message, '[skip sync-index]')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      # Gop 3 step (extract version + count agents + count skills + sed) thanh 1
+      # script Python portable. Logic giong nguyen (cung regex pattern).
+      - name: Sync version + counts into index.html
+        id: sync
+        run: |
+          python reference/scripts/build_index.py
+
+      - name: Commit and push
+        run: |
+          if git diff --quiet index.html; then
+            echo "No changes to index.html"
+          else
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add index.html
+            git commit -m "chore: sync index.html version/counts from CHANGELOG/README [skip sync-index]"
+            git push
+          fi

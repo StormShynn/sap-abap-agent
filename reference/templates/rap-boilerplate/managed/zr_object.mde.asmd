@@ -1,0 +1,30 @@
+@Metadata.layer: #CORE
+annotate entity ZR_<OBJECT> with
+{
+  @UI: {
+    lineItem: [
+      { position: 10, importance: #HIGH, label: 'ID' }
+    ]
+  }
+  <KeyField>;
+
+  @UI: {
+    lineItem: [
+      { position: 20, label: 'Field 1' }
+    ],
+    fieldGroup: [
+      { position: 10, qualifier: 'GeneralData', label: 'Field 1' }
+    ]
+  }
+  <Field1>;
+
+  @Search: { defaultSearchElement: true }
+  <Field1>;
+
+  @UI: {
+    fieldGroup: [
+      { position: 20, qualifier: 'GeneralData', label: 'Field 2' }
+    ]
+  }
+  <Field2>;
+}
