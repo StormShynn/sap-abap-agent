@@ -552,12 +552,12 @@ skills/sap-user-skills/                # Auto-created skills (cá nhân), KHÔNG
 .sap-abap-agent/sessions/              # Handoff/scaffold working state (cá nhân)
 .sap-abap-agent/handoff/               # Handoff docs (cá nhân)
 .sap-abap-agent/sync_skills.lock       # Lock file của daemon sync_skills.py
-.sap-abap-agent/dev-mirror/            # Dev mirror của sap-btp-agent profiles (xem dưới)
+.sap-abap-agent/dev-mirror/            # Dev mirror của mcp-sap-connect profiles (xem dưới)
 _*.py                                  # Script Python tạm (VD: _add_trans.py)
 nul                                    # File tạm trên Windows
 ```
 
-### 🏠 `SAP_ABAP_AGENT_HOME` cho state của plugin sap-abap-agent (khác `sap-btp-agent` bên dưới)
+### 🏠 `SAP_ABAP_AGENT_HOME` cho state của plugin sap-abap-agent (khác `mcp-sap-connect` bên dưới)
 
 Các skill kể trên ghi state cá nhân qua `reference/scripts/agent_home.py` — mặc định
 `%USERPROFILE%\.sap-abap-agent\` (Windows) / `~/.sap-abap-agent/` (macOS/Linux), **không phải**
@@ -570,23 +570,23 @@ thay vì mở `%USERPROFILE%`:
 setx SAP_ABAP_AGENT_HOME "D:\__StormShyn\sap-abap-agent\.sap-abap-agent"
 ```
 
-Khác với `SAP_BTP_AGENT_DEV_MIRROR` bên dưới (ghi thêm 1 bản, vẫn giữ bản chính ở
+Khác với `MCP_SAP_CONNECT_DEV_MIRROR` bên dưới (ghi thêm 1 bản, vẫn giữ bản chính ở
 `%USERPROFILE%`), `SAP_ABAP_AGENT_HOME` là **override hẳn** (không mirror) — khi đặt biến này,
 state chỉ ghi vào project, không ghi vào `%USERPROFILE%` nữa. Đừng đặt biến này khi dùng plugin
 thật (không phải dev/test) — end user thật không bao giờ đặt biến này nên hành vi của họ không đổi.
 
-Đây là cơ chế RIÊNG, KHÁC với `SAP_BTP_AGENT_HOME`/`SAP_BTP_AGENT_DEV_MIRROR` ngay dưới đây
-(dùng cho `sap-btp-agent` - MCP server kết nối SAP BTP, không liên quan skill/memory của plugin).
+Đây là cơ chế RIÊNG, KHÁC với `MCP_SAP_CONNECT_HOME`/`MCP_SAP_CONNECT_DEV_MIRROR` ngay dưới đây
+(dùng cho `mcp-sap-connect` - MCP server kết nối SAP BTP, không liên quan skill/memory của plugin).
 
-### 🪞 Dev mirror cho `sap-btp-agent` (chỉ dành cho người đang build plugin này)
+### 🪞 Dev mirror cho `mcp-sap-connect` (chỉ dành cho người đang build plugin này)
 
-Mặc định `sap-btp-agent` chỉ ghi profile vào `%USERPROFILE%\.sap-btp-agent\` (hoặc
-`SAP_BTP_AGENT_HOME` nếu bạn override) — đúng như hành vi end user thật sẽ gặp. Nếu bạn đang
+Mặc định `mcp-sap-connect` chỉ ghi profile vào `%USERPROFILE%\.mcp-sap-connect\` (hoặc
+`MCP_SAP_CONNECT_HOME` nếu bạn override) — đúng như hành vi end user thật sẽ gặp. Nếu bạn đang
 sửa code MCP server và muốn tiện xem `config.json`/`profiles.json` ngay trong project thay vì
 mở `%USERPROFILE%`, đặt thêm biến môi trường:
 
 ```powershell
-setx SAP_BTP_AGENT_DEV_MIRROR "D:\__StormShyn\sap-abap-agent\.sap-abap-agent\dev-mirror"
+setx MCP_SAP_CONNECT_DEV_MIRROR "D:\__StormShyn\sap-abap-agent\.sap-abap-agent\dev-mirror"
 ```
 
 Sau khi mở terminal/Claude Code mới, mọi lần ghi `config.json`/`profiles.json` sẽ được ghi
@@ -595,15 +595,15 @@ hành vi ghi vào `%USERPROFILE%` vẫn giữ nguyên như cũ, chỉ là ghi th
 
 `secrets.json` (client_secret/token đã mã hóa) **mặc định KHÔNG** được mirror dù có bật biến
 trên — muốn bật thêm (không khuyến khích, vì dữ liệu nhạy cảm nhân đôi chỗ lưu) thì đặt thêm
-`SAP_BTP_AGENT_DEV_MIRROR_SECRETS=1`.
+`MCP_SAP_CONNECT_DEV_MIRROR_SECRETS=1`.
 
-Cùng biến `SAP_BTP_AGENT_DEV_MIRROR` này cũng áp dụng cho `reference/scripts/office_to_md.py`
+Cùng biến `MCP_SAP_CONNECT_DEV_MIRROR` này cũng áp dụng cho `reference/scripts/office_to_md.py`
 (skill `sap-doc-to-md`): khi bật, file `.md` + ảnh trong `<ten-file>_assets/` sinh ra từ
 `in/`→`out/` sẽ được ghi thêm 1 bản vào `<mirror>/out/...` bên trong project — vẫn giữ nguyên
-`%USERPROFILE%\.sap-btp-agent\out\` là nơi ghi chính. Lưu ý tài liệu FS là dữ liệu nghiệp vụ
+`%USERPROFILE%\.mcp-sap-connect\out\` là nơi ghi chính. Lưu ý tài liệu FS là dữ liệu nghiệp vụ
 khách hàng — chỉ bật mirror này khi đang test bằng tài liệu giả/không nhạy cảm.
 
-Biến `SAP_BTP_AGENT_DEV_MIRROR`/`SAP_BTP_AGENT_DEV_MIRROR_SECRETS` không bao giờ được đặt mặc
+Biến `MCP_SAP_CONNECT_DEV_MIRROR`/`MCP_SAP_CONNECT_DEV_MIRROR_SECRETS` không bao giờ được đặt mặc
 định — end user cài plugin thật sự sẽ không bao giờ bật tính năng này, hành vi của họ không đổi.
 
 ### Hooks convention

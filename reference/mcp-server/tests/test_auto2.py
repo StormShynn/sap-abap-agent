@@ -1,4 +1,4 @@
-﻿"""Test web_login_auto voi mock playwright qua sys.modules."""
+"""Test web_login_auto voi mock playwright qua sys.modules."""
 import asyncio
 import sys
 from unittest.mock import AsyncMock, MagicMock, patch
@@ -13,7 +13,7 @@ sys.modules["playwright"] = MagicMock()
 sys.modules["playwright.async_api"] = MagicMock()
 sys.modules["playwright.async_api"].async_playwright = fake_pw_module
 
-from sap_btp_agent.sap.auth import web_login_auto  # noqa: E402
+from mcp_sap_connect.sap.auth import web_login_auto  # noqa: E402
 
 
 async def case_1():
@@ -39,11 +39,11 @@ async def case_1():
     fake_context.new_page = AsyncMock(return_value=fake_page)
     fake_browser.new_context = AsyncMock(return_value=fake_context)
 
-    with patch("sap_btp_agent.sap.auth._launch_real_browser",
+    with patch("mcp_sap_connect.sap.auth._launch_real_browser",
                new=AsyncMock(return_value=fake_browser)), \
-         patch("sap_btp_agent.sap.auth._verify_discovery_session",
+         patch("mcp_sap_connect.sap.auth._verify_discovery_session",
                new=AsyncMock(return_value=True)), \
-         patch("sap_btp_agent.sap.auth.webbrowser"):
+         patch("mcp_sap_connect.sap.auth.webbrowser"):
 
         import time
         t0 = time.monotonic()
@@ -73,11 +73,11 @@ async def case_2():
     fake_context.new_page = AsyncMock(return_value=fake_page)
     fake_browser.new_context = AsyncMock(return_value=fake_context)
 
-    with patch("sap_btp_agent.sap.auth._launch_real_browser",
+    with patch("mcp_sap_connect.sap.auth._launch_real_browser",
                new=AsyncMock(return_value=fake_browser)), \
-         patch("sap_btp_agent.sap.auth._verify_discovery_session",
+         patch("mcp_sap_connect.sap.auth._verify_discovery_session",
                new=AsyncMock(return_value=False)), \
-         patch("sap_btp_agent.sap.auth.webbrowser"):
+         patch("mcp_sap_connect.sap.auth.webbrowser"):
 
         import time
         t0 = time.monotonic()

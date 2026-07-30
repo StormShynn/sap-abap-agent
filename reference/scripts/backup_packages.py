@@ -10,9 +10,9 @@ metadata co cau truc de abapGit that pull nguoc lai duoc) - muc tieu la co 1
 ban backup doc duoc/diff duoc bang git, KHONG PHAI 1 repo abapGit day du
 round-trip. Xem "known_limitations" trong manifest sinh ra sau moi lan chay.
 
-Dung SapClient (reference/mcp-server/sap_btp_agent/sap/client.py) IMPORT TRUC
+Dung SapClient (reference/mcp-server/mcp_sap_connect/sap/client.py) IMPORT TRUC
 TIEP, khong qua giao thuc MCP - cung 1 pattern da dung trong
-skills/sap-doc-to-md/SKILL.md (goi `python -c "from sap_btp_agent... "`). Ly
+skills/sap-doc-to-md/SKILL.md (goi `python -c "from mcp_sap_connect... "`). Ly
 do: backup "full" 1 package co the co hang tram object - goi tool MCP tung
 object mot (moi lan qua JSON-RPC + LLM doc lai ket qua) rat cham/ton token;
 import thang SapClient cho phep 1 vong lap async goi truc tiep HTTP, chi in
@@ -67,8 +67,8 @@ from datetime import datetime
 from pathlib import Path
 from xml.etree import ElementTree as ET
 
-from sap_btp_agent.config.paths import get_out_dir
-from sap_btp_agent.sap.client import SapClient
+from mcp_sap_connect.config.paths import get_out_dir
+from mcp_sap_connect.sap.client import SapClient
 
 # ===== Object type dispatch (xem docstring muc 1 ve do tin cay) ===========
 
@@ -571,7 +571,7 @@ def build_arg_parser() -> argparse.ArgumentParser:
     )
     p.add_argument("--profile", default="", help="Profile SAP (de trong = active).")
     p.add_argument(
-        "--out", default="", help="Thu muc output (mac dinh: out dir cua sap-btp-agent/backups/)."
+        "--out", default="", help="Thu muc output (mac dinh: out dir cua mcp-sap-connect/backups/)."
     )
     p.add_argument(
         "--label",

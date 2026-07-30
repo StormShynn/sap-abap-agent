@@ -5,16 +5,16 @@
 Plugin Claude Code + MCP server tự động kết nối **SAP BTP / S/4HANA Cloud** để thao tác
 ABAP (đọc / tìm / syntax-check / activate). Hỗ trợ **multi-profile** — mỗi project SAP
 có profile riêng (URL, tenant, secret), lưu trong **folder user** trên máy
-(`%USERPROFILE%\.sap-btp-agent\` Windows, `~/.sap-btp-agent/` macOS/Linux).
+(`%USERPROFILE%\.mcp-sap-connect\` Windows, `~/.mcp-sap-connect/` macOS/Linux).
 
 ## Nổi bật
 
 - **🧠 SAP Consultant System (28 agents)**: Routing tự động bằng auto-scoring engine. 25 module
   consultants cho SD, FI, MM, CO, PP, QM, PM, WM, PS, HCM, BW, Basis, TM, TR, Ariba, CA, GTS, EHS,
   IBP, EWM, Fiori/UI5, CAP, CPI, SuccessFactors, BTP Admin + Docs Researcher + Daily Learner + Reviewer.
-- **🔌 SAP BTP Connection**: `sap-btp-agent` — kết nối S/4HANA Cloud, đọc/activate ABAP, multi-profile.
+- **🔌 SAP BTP Connection**: `mcp-sap-connect` — kết nối S/4HANA Cloud, đọc/activate ABAP, multi-profile.
 - **🧱 DDIC Dictionary Bridge**: `sap-dict-bridge` MCP server (`sap_create_domain`/`sap_create_data_element`/
-  `sap_create_table`) — tạo Domain/Data Element/Table trực tiếp qua cookie auth của `sap-btp-agent`
+  `sap_create_table`) — tạo Domain/Data Element/Table trực tiếp qua cookie auth của `mcp-sap-connect`
   (xem skill `sap-cloud-dictionary`).
 - **📚 CDS Knowledge Base**: Tra cứu 7,355 CDS views released qua semantic search.
 - **📖 SAP Docs Research**: Tra cứu SAP Help, Community, API Hub, Fiori App Library.
@@ -26,7 +26,7 @@ có profile riêng (URL, tenant, secret), lưu trong **folder user** trên máy
   cho daily-learner — lấy pattern từ agent-skills-for-context-engineering.
 
 
-- **🖥️ GUI desktop + system tray** (`sap-btp-agent-gui`, cần extra `[gui]`): Tkinter window với
+- **🖥️ GUI desktop + system tray** (`mcp-sap-connect-gui`, cần extra `[gui]`): Tkinter window với
   4 nút lớn (Reauth / Connect / Set Active / Remove) + log console streaming real-time +
   status bar; tray icon (pystray) với menu chuột phải + balloon thông báo. Ẩn xuống tray khi
   bấm X. Có license dashboard riêng (720×460) với progressbar đếm ngược thời gian sống của
@@ -114,7 +114,7 @@ sap-abap-agent/
     |   +-- validate_plugin.py, sync_skills.py, office_to_md.py,
     |   +-- security_scan.py, update.ps1, update.sh, ...
     +-- mcp-server/          # MCP server Python (multi-profile)
-        +-- sap_btp_agent/
+        +-- mcp_sap_connect/
         |   +-- config/        # paths, profile (registry), store, secrets
         |   +-- sap/           # auth (OAuth2), client (REST + auto-reconnect)
         |   +-- tools/         # registry các tool MCP (có tham số `profile`)
@@ -146,7 +146,7 @@ pip install "sap_abap_agent_mcp-1.8.0-py3-none-any.whl[playwright]"
 playwright install chromium
 ```
 
-Sau bước cài, bạn sẽ có lệnh `sap-btp-agent` trong PATH (entry point khai báo trong `pyproject.toml`).
+Sau bước cài, bạn sẽ có lệnh `mcp-sap-connect` trong PATH (entry point khai báo trong `pyproject.toml`).
 
 <details>
 <summary>Dev / contributor: cài từ source (editable install)</summary>
@@ -157,7 +157,7 @@ cd sap-abap-agent/reference/mcp-server
 pip install -e .[win-dpapi,playwright]
 ```
 
-Dùng khi bạn muốn sửa code MCP server (`reference/mcp-server/sap_btp_agent/`) và thay đổi có hiệu lực ngay
+Dùng khi bạn muốn sửa code MCP server (`reference/mcp-server/mcp_sap_connect/`) và thay đổi có hiệu lực ngay
 không cần build lại wheel. Build wheel mới để release:
 
 ```bash
@@ -171,21 +171,21 @@ python -m build --wheel
 **Kiểm tra ngay sau khi cài** (khuyến dùng, dành cho mọi người — không cần dùng AI để debug):
 
 ```bash
-python -m sap_btp_agent.doctor
+python -m mcp_sap_connect.doctor
 ```
 
-Lệnh này chạy được **ngay cả khi `sap-btp-agent` chưa nằm trong PATH** (lỗi thường gặp nhất trên Windows: `pip`
+Lệnh này chạy được **ngay cả khi `mcp-sap-connect` chưa nằm trong PATH** (lỗi thường gặp nhất trên Windows: `pip`
 cài vào user-scheme site-packages vì không có quyền viết vào Python gốc, VD `%APPDATA%\Python\PythonXY\Scripts`,
 folder này thường không tự động có trong PATH). Doctor sẽ tự phát hiện và in sẵn lệnh PowerShell để fix, kèm
 kiểm tra các dependency hay bị thiếu ngầm (pywin32/DPAPI, playwright+chromium...). Sau khi đã cài xong và PATH
-đúng, có thể gọi lại qua `sap-btp-agent doctor`.
+đúng, có thể gọi lại qua `mcp-sap-connect doctor`.
 
 ## Thêm project SAP mới
 
 Cách nhanh nhất — truyền URL trực tiếp:
 
 ```bash
-sap-btp-agent setup https://project1.s4hana.cloud.sap
+mcp-sap-connect setup https://project1.s4hana.cloud.sap
 ```
 
 Wizard sẽ tự sinh profile id từ hostname (`project1.s4hana.cloud.sap`) và hỏi phương thức xác thực (chọn 1-4):
@@ -205,7 +205,7 @@ Sau đó hỏi thêm Region, service type (s4hc_(private) / s4hc_(public) / btp 
 Thông tin được lưu riêng trong `profiles/<id>/`:
 
 ```
-%USERPROFILE%\.sap-btp-agent\profiles\project1.s4hana.cloud.sap\
+%USERPROFILE%\.mcp-sap-connect\profiles\project1.s4hana.cloud.sap\
 +-- config.json     <- URL, tenant, client_id, region, service (không nhạy cảm)
 +-- secrets.json    <- client_secret / token (ĐÃ MÃ HÓA)
 ```
@@ -213,7 +213,7 @@ Thông tin được lưu riêng trong `profiles/<id>/`:
 **Thêm project thứ 2, 3...** cũng dễ:
 
 ```bash
-sap-btp-agent setup https://project1.s4hana.cloud.sap
+mcp-sap-connect setup https://project1.s4hana.cloud.sap
 ```
 
 Mỗi project sẽ có profile riêng, secret riêng (mã hóa độc lập).
@@ -221,18 +221,18 @@ Mỗi project sẽ có profile riêng, secret riêng (mã hóa độc lập).
 ## Quản lý nhiều profile
 
 ```bash
-sap-btp-agent profiles list             # liệt kê profile (* = active)
-sap-btp-agent profiles use project1     # chọn profile active
-sap-btp-agent profiles show             # xem chi tiết profile active
-sap-btp-agent profiles remove project2  # xóa 1 profile
-sap-btp-agent reset                     # xóa TẤT CẢ (cẩn thận!)
+mcp-sap-connect profiles list             # liệt kê profile (* = active)
+mcp-sap-connect profiles use project1     # chọn profile active
+mcp-sap-connect profiles show             # xem chi tiết profile active
+mcp-sap-connect profiles remove project2  # xóa 1 profile
+mcp-sap-connect reset                     # xóa TẤT CẢ (cẩn thận!)
 ```
 
 ## Kiểm tra kết nối
 
 ```bash
-sap-btp-agent connect                            # test profile active
-sap-btp-agent connect project1.s4hana.cloud.sap  # test 1 profile cụ thể
+mcp-sap-connect connect                            # test profile active
+mcp-sap-connect connect project1.s4hana.cloud.sap  # test 1 profile cụ thể
 ```
 
 ## GUI desktop + system tray (tùy chọn)
@@ -243,12 +243,12 @@ Nếu bạn không thích gõ lệnh, cài thêm GUI + tray icon:
 pip install sap-abap-agent-mcp[gui]
 ```
 
-Lệnh này cài thêm `pystray` + `Pillow`. Sau khi cài xong, có thêm command `sap-btp-agent-gui`:
+Lệnh này cài thêm `pystray` + `Pillow`. Sau khi cài xong, có thêm command `mcp-sap-connect-gui`:
 
 ```bash
-sap-btp-agent-gui                  # Mở GUI + tray (mặc định)
-sap-btp-agent-gui --no-tray         # Chỉ GUI, không có tray icon
-sap-btp-agent-gui --tray-only       # Chỉ tray (ẩn hoàn toàn, không cửa sổ)
+mcp-sap-connect-gui                  # Mở GUI + tray (mặc định)
+mcp-sap-connect-gui --no-tray         # Chỉ GUI, không có tray icon
+mcp-sap-connect-gui --tray-only       # Chỉ tray (ẩn hoàn toàn, không cửa sổ)
 ```
 
 **Giao diện GUI (780×560):**
@@ -258,7 +258,7 @@ sap-btp-agent-gui --tray-only       # Chỉ tray (ẩn hoàn toàn, không cửa
   `✓ 7h 59m` (xanh = OK).
 - **4 nút lớn**: 🔐 Reauth · 🔌 Connect · ⭐ Set Active · 🗑 Remove.
 - **➕ Add** (góc trên phải): menu thả xuống với **Setup wizard** (mở CMD mới chạy
-  `sap-btp-agent setup`) và **Import from JSON backup** (chọn file `config.json`, tự
+  `mcp-sap-connect setup`) và **Import from JSON backup** (chọn file `config.json`, tự
   derive profile id từ `btpUrl`).
 - **Log console** streaming real-time từ subprocess — copy để paste vào issue khi cần debug.
 - **📋 License** (góc dưới phải): mở **License Dashboard** (Toplevel 720×460) hiển thị tất cả
@@ -277,15 +277,15 @@ sap-btp-agent-gui --tray-only       # Chỉ tray (ẩn hoàn toàn, không cửa
 terminal CLI / nút **✓ Đã đăng nhập xong** trong GUI, (2) session cookie + ADT discovery OK,
 hoặc (3) URL ổn định 3s liên tiếp. Test thực tế URL-stable: 4.6s thay vì 30s.
 
-Xem chi tiết tại `sap_btp_agent/gui/README.md`.
+Xem chi tiết tại `mcp_sap_connect/gui/README.md`.
 
 ## License dashboard (xem cookie/token còn hạn bao lâu)
 
-CLI mới `sap-btp-agent license` in trạng thái license của tất cả profile hoặc 1 profile cụ thể:
+CLI mới `mcp-sap-connect license` in trạng thái license của tất cả profile hoặc 1 profile cụ thể:
 
 ```bash
-sap-btp-agent license                                # bảng tóm tắt tất cả profile
-sap-btp-agent license project1.s4hana.cloud.sap      # chi tiết 1 profile
+mcp-sap-connect license                                # bảng tóm tắt tất cả profile
+mcp-sap-connect license project1.s4hana.cloud.sap      # chi tiết 1 profile
 ```
 
 **Output mẫu (danh sách):**
@@ -298,7 +298,7 @@ sap-btp-agent license project1.s4hana.cloud.sap      # chi tiết 1 profile
    old.s4hana.cloud.sap                    cookie   warning      29m 57s
    expired.s4hana.cloud.sap                cookie   expired      expired 1m 5s ago
 ======================================================================================
-  (*) = active profile. Dung `sap-btp-agent license <id>` de xem chi tiet.
+  (*) = active profile. Dung `mcp-sap-connect license <id>` de xem chi tiet.
 ```
 
 **Output mẫu (chi tiết):**
@@ -333,13 +333,13 @@ sap-btp-agent license project1.s4hana.cloud.sap      # chi tiết 1 profile
 > (`~/.mcp-switch/store.json`) rồi ghi lại config native của từng tool khi bạn bật/tắt.
 > Độc lập với plugin này, không bắt buộc.
 
-`sap-btp-agent` gọi không có argument sẽ chạy MCP stdio server (`sap_btp_agent/server.py`), serve các tool
+`mcp-sap-connect` gọi không có argument sẽ chạy MCP stdio server (`mcp_sap_connect/server.py`), serve các tool
 bên dưới qua JSON-RPC. Đã test end-to-end (initialize -> tools/list -> tools/call) trước khi công bố.
 
 Dùng lệnh `claude mcp add` (Claude Code không còn dùng file `mcp_servers.json`):
 
 ```bash
-claude mcp add --transport stdio sap-btp -- sap-btp-agent
+claude mcp add --transport stdio sap-btp -- mcp-sap-connect
 ```
 
 Mặc định là scope `local` (chỉ máy này, chỉ project hiện tại). Dùng `--scope user` để dùng được ở mọi project,
@@ -1030,11 +1030,11 @@ Chi tiết đầy đủ (bao gồm bảng so sánh Memory/Skill Creation/Curator
 ```powershell
 # Terminal 1: Claude 1 với profile A
 $env:SAP_BTP_PROFILE = "project1.s4hana.cloud.sap"
-sap-btp-agent
+mcp-sap-connect
 
 # Terminal 2: Claude 2 với profile B
 $env:SAP_BTP_PROFILE = "project2.s4hana.cloud.sap"
-sap-btp-agent
+mcp-sap-connect
 ```
 
 </details>
@@ -1045,11 +1045,11 @@ sap-btp-agent
 ```cmd
 :: Terminal 1: Claude 1 với profile A
 set SAP_BTP_PROFILE=project1.s4hana.cloud.sap
-sap-btp-agent
+mcp-sap-connect
 
 :: Terminal 2: Claude 2 với profile B
 set SAP_BTP_PROFILE=project2.s4hana.cloud.sap
-sap-btp-agent
+mcp-sap-connect
 ```
 
 </details>
@@ -1059,10 +1059,10 @@ sap-btp-agent
 
 ```bash
 # Terminal 1: Claude 1 với profile A
-SAP_BTP_PROFILE=project1.s4hana.cloud.sap sap-btp-agent
+SAP_BTP_PROFILE=project1.s4hana.cloud.sap mcp-sap-connect
 
 # Terminal 2: Claude 2 với profile B
-SAP_BTP_PROFILE=project2.s4hana.cloud.sap sap-btp-agent
+SAP_BTP_PROFILE=project2.s4hana.cloud.sap mcp-sap-connect
 ```
 
 </details>
@@ -1070,8 +1070,8 @@ SAP_BTP_PROFILE=project2.s4hana.cloud.sap sap-btp-agent
 ## Cấu hình folder
 
 ```
-%USERPROFILE%\.sap-btp-agent\   (Windows)
-~/.sap-btp-agent/               (macOS/Linux)
+%USERPROFILE%\.mcp-sap-connect\   (Windows)
+~/.mcp-sap-connect/               (macOS/Linux)
 +-- profiles.json                <- registry (danh sách + active)
 +-- profiles/
 |   +-- <profile-id>/            <- 1 folder / project SAP
@@ -1093,12 +1093,12 @@ Cache/log trong đó tự dọn theo tuổi (mặc định 7 ngày, xem
 
 ## Env
 
-Các biến môi trường quan trọng (đặt **trước khi** chạy `sap-btp-agent` / `claude`):
+Các biến môi trường quan trọng (đặt **trước khi** chạy `mcp-sap-connect` / `claude`):
 
 | Tên biến | Ý nghĩa |
 |----------|---------|
 | `SAP_BTP_PROFILE=<id>` | Khóa profile cho 1 lần chạy (ưu tiên registry) |
-| `SAP_BTP_AGENT_HOME=/path` | Đổi folder cấu hình (test, multi-tenant) |
+| `MCP_SAP_CONNECT_HOME=/path` | Đổi folder cấu hình (test, multi-tenant) |
 | `GITHUB_TOKEN=ghp_xxx` | Token GitHub (tự tạo issue khi error reporter bật) |
 | `SAP_ABAP_AGENT_ERROR_REPORTING=1` | Bật error reporter (xem mục Error Reporting ở trên) |
 
@@ -1201,15 +1201,15 @@ consultants + 1 researcher + 1 daily learner + 1 reviewer** bằng cơ chế **k
 
 8 skill nối tiếp nhau, biến Function Spec (`.docx` khách hàng gửi) thành code ABAP đã activate,
 review, test và sẵn sàng release, theo chuẩn RAP/CDS. File trung gian đặt trong `in/`/`out/` — **thư mục local per-user, KHÔNG nằm trong
-git repo**: `%USERPROFILE%\.sap-btp-agent\in\` + `...\out\` (Windows) hoặc `~/.sap-btp-agent/in/` +
+git repo**: `%USERPROFILE%\.mcp-sap-connect\in\` + `...\out\` (Windows) hoặc `~/.mcp-sap-connect/in/` +
 `.../out/` (macOS/Linux), cùng nơi lưu profile/secrets kết nối SAP BTP (xem mục "Cấu hình folder").
 Lý do: tài liệu FS và output sinh ra là dữ liệu nghiệp vụ/khách hàng, không nên nằm chung với
-source code plugin (rủi ro commit nhầm lên repo public). Có thể đổi qua env `SAP_BTP_AGENT_HOME`.
-Lấy đúng đường dẫn: `python -c "from sap_btp_agent.config.paths import get_in_dir; print(get_in_dir())"`.
+source code plugin (rủi ro commit nhầm lên repo public). Có thể đổi qua env `MCP_SAP_CONNECT_HOME`.
+Lấy đúng đường dẫn: `python -c "from mcp_sap_connect.config.paths import get_in_dir; print(get_in_dir())"`.
 
 ```bash
 # 0. Đặt FS vào in/ (thư mục local per-user ở trên), convert sang markdown
-cp /path/to/FS_xxx.docx "$(python -c 'from sap_btp_agent.config.paths import get_in_dir; print(get_in_dir())')/"
+cp /path/to/FS_xxx.docx "$(python -c 'from mcp_sap_connect.config.paths import get_in_dir; print(get_in_dir())')/"
 # -> skill sap-doc-to-md (reference/scripts/office_to_md.py, không tham số) -> out/FS_xxx.md
 
 # 1. Phân tích FS -> chuẩn hóa yêu cầu
@@ -1287,8 +1287,8 @@ Script tự động: git pull plugin → tải wheel `.whl` mới nhất từ Gi
 | `401 Unauthorized`                  | Client_secret sai / hết hạn. Chạy `setup <profile-id>`    |
 | `404 /oauth/token`                  | Sửa `tokenUrl` trong `profiles/<id>/secrets.json`         |
 | `Khong giai ma duoc secret`         | Đổi máy. Chạy `setup <profile-id>` để tạo lại             |
-| `Chua co profile nao`               | Chạy `sap-btp-agent setup <URL>`                          |
-| `'sap-btp-agent' is not recognized` | PATH thiếu folder chứa entry point. Chạy `python -m sap_btp_agent.doctor` để tự phát hiện + lấy lệnh fix |
+| `Chua co profile nao`               | Chạy `mcp-sap-connect setup <URL>`                          |
+| `'mcp-sap-connect' is not recognized` | PATH thiếu folder chứa entry point. Chạy `python -m mcp_sap_connect.doctor` để tự phát hiện + lấy lệnh fix |
 
 ## Trạng thái
 

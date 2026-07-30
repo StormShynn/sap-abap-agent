@@ -244,7 +244,7 @@ class SapCookieAuth:
         if self._reauth_handler is None:
             raise RuntimeError(
                 "Cookie session expired nhung khong co reauth_handler. "
-                "Hay cau hinh reauth_handler hoac chay lai sap-btp-agent setup."
+                "Hay cau hinh reauth_handler hoac chay lai mcp-sap-connect setup."
             )
 
         merged_ctx = {

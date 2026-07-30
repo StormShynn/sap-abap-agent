@@ -1,4 +1,4 @@
-"""System tray icon cho sap-btp-agent (pystray).
+"""System tray icon cho mcp-sap-connect (pystray).
 
 Tinh nang:
 - Icon nam trong system tray (Windows: notification area).
@@ -77,7 +77,7 @@ class TrayController:
 
         icon_img = _make_icon_image()
         self._icon = Icon(
-            "sap-btp-agent",
+            "mcp-sap-connect",
             icon_img,
             title="SAP BTP Agent",
             menu=self._build_menu(),

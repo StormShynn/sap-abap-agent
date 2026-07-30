@@ -1,4 +1,4 @@
-﻿import os
+import os
 import tempfile
 import time
 from pathlib import Path
@@ -25,7 +25,7 @@ env["SAP_BTP_APPDIR_OVERRIDE"] = testdir
 # Test truc tiep: import va run async function, khong qua subprocess
 # de verify logic file-marker
 async def main():
-    from sap_btp_agent.cli import _cmd_reauth
+    from mcp_sap_connect.cli import _cmd_reauth
 
     mock_auth = MagicMock()
     mock_auth.init = AsyncMock()
@@ -44,10 +44,10 @@ async def main():
 
     fake_cfg = {'authMode': 'cookie', 'reauthMode': 'auto', 'btpUrl': 'https://example.com'}
 
-    with patch('sap_btp_agent.config.store.load_config', return_value=fake_cfg), \
-         patch('sap_btp_agent.config.secrets.load_secrets', new=AsyncMock(return_value={'cookies': {}})), \
-         patch('sap_btp_agent.config.secrets.update_secrets', new=AsyncMock(return_value={})), \
-         patch('sap_btp_agent.cli.__init__.SapCookieAuth', return_value=mock_auth):
+    with patch('mcp_sap_connect.config.store.load_config', return_value=fake_cfg), \
+         patch('mcp_sap_connect.config.secrets.load_secrets', new=AsyncMock(return_value={'cookies': {}})), \
+         patch('mcp_sap_connect.config.secrets.update_secrets', new=AsyncMock(return_value={})), \
+         patch('mcp_sap_connect.cli.__init__.SapCookieAuth', return_value=mock_auth):
 
         # Patch sys.stdin de khong bi block o thread watcher (TTY check)
         import sys as _sys

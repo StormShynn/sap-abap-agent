@@ -57,7 +57,7 @@ Khi dispatch nhieu module song song (vd SD + FI + CO), **tong token** = tong COR
 
 ### Tier 2.2 - Output tool-result masking (KV-cache friendly)
 
-Khi tool output (cds-kb-mcp, sap-docs, sap-btp-agent) > ~2K token (~8KB text):
+Khi tool output (cds-kb-mcp, sap-docs, mcp-sap-connect) > ~2K token (~8KB text):
 1. KHONG paste full vao context.
 2. Doc `reference/process/sap-context-tool-result-trim.md` va ap dung (Pattern A/B/C/D tuy tool).
 3. Chi paste compact summary + path den cache file.
@@ -101,4 +101,4 @@ Khi user hoi ve "lich su" / "hom qua" / "truoc do":
   routing module.
 - Skill `sap-service-type-context` (R9) - xac dinh edition (s4hc_(private)/s4hc_(public)/btp/
   onprem) truoc khi tra loi cau hoi bi anh huong boi edition; doc offline tu config cua
-  sap-btp-agent, hoi user neu chua xac dinh duoc.
+  mcp-sap-connect, hoi user neu chua xac dinh duoc.

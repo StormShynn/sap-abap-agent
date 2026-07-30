@@ -1,4 +1,4 @@
-﻿"""Test integration: subprocess CLI doc env var SAP_BTP_EARLY_FINISH_FILE."""
+"""Test integration: subprocess CLI doc env var SAP_BTP_EARLY_FINISH_FILE."""
 import os
 import subprocess
 import sys
@@ -20,7 +20,7 @@ proc = subprocess.Popen(
     [sys.executable, "-c", """
 import asyncio
 import os, sys
-from sap_btp_agent.cli.__init__ import _cmd_reauth
+from mcp_sap_connect.cli.__init__ import _cmd_reauth
 from unittest.mock import patch, MagicMock
 
 # Mock config
@@ -31,7 +31,7 @@ fake_cfg = {
 }
 
 async def main():
-    with patch('sap_btp_agent.cli.__init__.load_config', return_value=fake_cfg):
+    with patch('mcp_sap_connect.cli.__init__.load_config', return_value=fake_cfg):
         await _cmd_reauth('test.s4hana.cloud.sap')
 
 try:

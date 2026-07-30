@@ -84,7 +84,7 @@ DEFAULT_CONFIG: dict[str, Any] = {
 def load_config(profile_id: str | None = None) -> dict[str, Any]:
     pid = profile_id or get_current_active()
     if not pid:
-        raise RuntimeError("Chua co profile nao. Chay: sap-btp-agent setup")
+        raise RuntimeError("Chua co profile nao. Chay: mcp-sap-connect setup")
     ensure_app_dir()
     file = get_profile_config_file(pid)
     if not file.exists():
@@ -108,7 +108,7 @@ def load_config(profile_id: str | None = None) -> dict[str, Any]:
 def save_config(profile_id: str | None, partial: dict[str, Any]) -> dict[str, Any]:
     pid = profile_id or get_current_active()
     if not pid:
-        raise RuntimeError("Chua co profile nao. Chay: sap-btp-agent setup")
+        raise RuntimeError("Chua co profile nao. Chay: mcp-sap-connect setup")
     ensure_app_dir()
     file = get_profile_config_file(pid)
     file.parent.mkdir(parents=True, exist_ok=True, mode=0o700)

@@ -1,4 +1,4 @@
-"""GUI chinh cho sap-btp-agent (Tkinter).
+"""GUI chinh cho mcp-sap-connect (Tkinter).
 
 Cau truc:
   +---------------------------------------------------------------+
@@ -9,7 +9,7 @@ Cau truc:
   +---------------------------------------------------------------+
   | Log:                                                            |
   | +-----------------------------------------------------------+ |
-  | |  ... lines streamed from sap-btp-agent ...               | |
+  | |  ... lines streamed from mcp-sap-connect ...               | |
   | +-----------------------------------------------------------+ |
   | [Clear] [Copy]                          [Status: idle / busy] |
   +---------------------------------------------------------------+
@@ -360,7 +360,7 @@ class SapBtpGui:
         if url and url.strip():
             args.append(url.strip())
 
-        self._append_log(f"$ sap-btp-agent {' '.join(args)}  (mo cua so CMD moi)\n")
+        self._append_log(f"$ mcp-sap-connect {' '.join(args)}  (mo cua so CMD moi)\n")
         runner.start_new_console(args, on_done=self._on_setup_done)
         self.status_var.set("Setup dang chay (cua so CMD rieng)...")
         self._notify_tray("Setup dang chay trong cua so CMD rieng.")
@@ -420,7 +420,7 @@ class SapBtpGui:
             f"Da dang ky profile: {pid}\n"
             f"URL: {url}\n\n"
             "Tiep theo hay copy secrets.json vao:\n"
-            f"  %APPDATA%\\Python\\Python314\\site-packages\\sap_btp_agent\\profiles\\{pid}\\",
+            f"  %APPDATA%\\Python\\Python314\\site-packages\\mcp_sap_connect\\profiles\\{pid}\\",
         )
         self._refresh_profiles()
         self._notify_tray(f"Da import profile: {pid}")
@@ -460,7 +460,7 @@ class SapBtpGui:
         # Enable nut OK
         self.btn_done.configure(state="normal")
 
-        self._append_log(f"$ sap-btp-agent reauth {pid}\n")
+        self._append_log(f"$ mcp-sap-connect reauth {pid}\n")
         self._set_buttons_state(busy=True)
         self.status_var.set("Dang dang nhap lai...")
 
@@ -480,7 +480,7 @@ class SapBtpGui:
             messagebox.showinfo("Busy", "Hay doi lenh hien tai ket thuc truoc.")
             return
 
-        self._append_log(f"$ sap-btp-agent connect {pid}\n")
+        self._append_log(f"$ mcp-sap-connect connect {pid}\n")
         self._set_buttons_state(busy=True)
         self.status_var.set("Dang test ket noi...")
 
@@ -650,7 +650,7 @@ class SapBtpGui:
 
         if not statuses:
             tk.Label(
-                rows_frame, text="(chua co profile nao - chay: sap-btp-agent setup <url>)",
+                rows_frame, text="(chua co profile nao - chay: mcp-sap-connect setup <url>)",
                 font=("Segoe UI", 9), bg=COLOR_BG, fg=COLOR_MUTED,
             ).pack(anchor="w", padx=8, pady=8)
             return
@@ -737,7 +737,7 @@ class SapBtpGui:
             w["progress"]["value"] = pct
 
             # Color theo %
-            from sap_btp_agent.license import format_expires_in_human
+            from mcp_sap_connect.license import format_expires_in_human
             text = format_expires_in_human(expires_at)
             if pct <= 0 or pct < 5:
                 w["countdown"].configure(text=text, fg=COLOR_DANGER)
@@ -824,7 +824,7 @@ class SapBtpGui:
         if self._tray is not None:
             # An xuong tray thay vi exit that su
             self.hide_to_tray()
-            self._notify_tray("Sap-btp-agent van chay (click icon de mo lai).")
+            self._notify_tray("mcp-sap-connect van chay (click icon de mo lai).")
         else:
             self.root.destroy()
 

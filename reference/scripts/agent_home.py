@@ -1,18 +1,18 @@
 #!/usr/bin/env python3
 """Xac dinh thu muc luu state cua CHINH plugin Claude Code sap-abap-agent.
 
-Day la ban tuong duong cua reference/mcp-server/sap_btp_agent/config/paths.py nhung danh
+Day la ban tuong duong cua reference/mcp-server/mcp_sap_connect/config/paths.py nhung danh
 cho cac skill cua plugin nay (sap-daily-learner, sap-analyze-function-spec, sap-handoff, sap-routing-discipline)
 va cac reference process (reference/process/sap-context-tool-result-trim.md,
 reference/process/sap-scaffold-context-summary.md)
-- khac voi sap_btp_agent (MCP server ket noi SAP BTP, dung %USERPROFILE%\\.sap-btp-agent\\).
+- khac voi mcp_sap_connect (MCP server ket noi SAP BTP, dung %USERPROFILE%\\.mcp-sap-connect\\).
 
 Vi sao can file rieng: cac skill tren la markdown instruction (khong phai Python package cai
 qua pip), duoc Claude Code chay ad hoc bang bash/python. Khi plugin duoc cai that (marketplace
 hoac git clone o noi khac repo dang lam viec), thu muc lam viec hien tai (cwd) la project cua
 END USER dang mo, KHONG phai thu muc cai plugin - nen KHONG the dung duong dan tuong doi kieu
 "<workspace>/.sap-abap-agent/..." de luu state on dinh. Phai dung 1 thu muc co dinh theo may/
-user, giong het cach paths.py da lam cho sap_btp_agent.
+user, giong het cach paths.py da lam cho mcp_sap_connect.
 
 Mac dinh:
     Windows: %USERPROFILE%\\.sap-abap-agent\\

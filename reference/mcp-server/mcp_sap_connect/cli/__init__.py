@@ -1,12 +1,12 @@
-"""CLI entry point: sap-btp-agent setup / connect / profiles / reset.
+"""CLI entry point: mcp-sap-connect setup / connect / profiles / reset.
 
 Usage:
-  sap-btp-agent                              Chay MCP stdio server (khong argument)
-  sap-btp-agent setup https://xxx.s4hana.cloud.sap
-  sap-btp-agent connect [profile-id]
-  sap-btp-agent profiles list|use|show|remove <id>
-  sap-btp-agent reset
-  sap-btp-agent --help
+  mcp-sap-connect                              Chay MCP stdio server (khong argument)
+  mcp-sap-connect setup https://xxx.s4hana.cloud.sap
+  mcp-sap-connect connect [profile-id]
+  mcp-sap-connect profiles list|use|show|remove <id>
+  mcp-sap-connect reset
+  mcp-sap-connect --help
 """
 from __future__ import annotations
 
@@ -61,10 +61,10 @@ def _ask_service() -> str:
             raw = ask(f"Service type ({opts})", default=SERVICE_TYPE_DEFAULT)
 
 def main() -> None:
-    """Entry point: sap-btp-agent <command> [args...]
+    """Entry point: mcp-sap-connect <command> [args...]
 
     Khong co argument -> chay MCP stdio server (dung khi Claude Code/Desktop
-    spawn qua `claude mcp add ... -- sap-btp-agent`). Co argument -> CLI thuong.
+    spawn qua `claude mcp add ... -- mcp-sap-connect`). Co argument -> CLI thuong.
     """
     # Console Windows mac dinh cp1252 -> in emoji (❌✅⚠️...) se UnicodeEncodeError.
     if sys.stdout.encoding and sys.stdout.encoding.lower() not in ("utf-8", "utf8"):
@@ -149,15 +149,15 @@ def _show_help() -> None:
     print("  (Khong argument = chay MCP stdio server, dung cho claude mcp add)")
     print()
     print("  Examples:")
-    print("    sap-btp-agent setup https://xxx.s4hana.cloud.sap")
-    print("    sap-btp-agent mcp-setup")
-    print("    sap-btp-agent connect")
-    print("    sap-btp-agent reauth")
-    print("    sap-btp-agent profiles list")
-    print("    sap-btp-agent doctor")
+    print("    mcp-sap-connect setup https://xxx.s4hana.cloud.sap")
+    print("    mcp-sap-connect mcp-setup")
+    print("    mcp-sap-connect connect")
+    print("    mcp-sap-connect reauth")
+    print("    mcp-sap-connect profiles list")
+    print("    mcp-sap-connect doctor")
     print()
-    print("  Neu 'sap-btp-agent' khong duoc nhan dien (not recognized), chay:")
-    print("    python -m sap_btp_agent.doctor")
+    print("  Neu 'mcp-sap-connect' khong duoc nhan dien (not recognized), chay:")
+    print("    python -m mcp_sap_connect.doctor")
     print()
 
 
@@ -340,7 +340,7 @@ async def _wizard_setup(url: str) -> None:
     info(f"Auth mode: {auth_mode}")
     info(f"URL: {url}")
     print()
-    info("Ban co the kiem tra ket noi bang: sap-btp-agent connect")
+    info("Ban co the kiem tra ket noi bang: mcp-sap-connect connect")
     print()
     if ask("Dang ky MCP servers voi Claude Code ngay?", default="y").lower() in ("", "y", "yes"):
         _cmd_mcp_setup()
@@ -399,7 +399,7 @@ async def _cmd_connect(profile_id: str | None) -> None:
         if auth_mode == "cookie":
             print()
             print("  💡 Dang nhap lai (nhanh hon, khong hoi lai tu dau nhu setup):")
-            print(f"     sap-btp-agent reauth {pid}")
+            print(f"     mcp-sap-connect reauth {pid}")
         return
 
     # Doc (GET) va ghi (POST/PUT/DELETE) la 2 dieu kien khac nhau - GET co the qua
@@ -418,7 +418,7 @@ async def _cmd_connect(profile_id: str | None) -> None:
         if auth_mode == "cookie":
             print()
             print("  💡 Dang nhap lai (nhanh hon, khong hoi lai tu dau nhu setup):")
-            print(f"     sap-btp-agent reauth {pid}")
+            print(f"     mcp-sap-connect reauth {pid}")
 
 
 # ===== REAUTH (dang nhap lai / lay cookie moi, khong can setup lai tu dau) ==
@@ -518,7 +518,7 @@ async def _cmd_reauth(profile_id: str | None) -> None:
         await cookie_auth.save_cookies()
         print()
         ok(f"Da cap nhat cookie cho profile '{pid}'.")
-        info(f"Kiem tra lai: sap-btp-agent connect {pid}")
+        info(f"Kiem tra lai: mcp-sap-connect connect {pid}")
     finally:
         _sig.uninstall()
 
@@ -617,7 +617,7 @@ def _cmd_license(profile_id):
                 print("  extra      : [REDACTED]")
         print()
         if st["is_expired"]:
-            print(f"  EXPIRED - chay: sap-btp-agent reauth {profile_id}")
+            print(f"  EXPIRED - chay: mcp-sap-connect reauth {profile_id}")
         elif st["is_warning"]:
             print("  Expiring soon - can chuan bi reauth")
         else:
@@ -633,7 +633,7 @@ def _cmd_license(profile_id):
         return
 
     if not statuses:
-        print("  (chua co profile nao - chay: sap-btp-agent setup <url>)")
+        print("  (chua co profile nao - chay: mcp-sap-connect setup <url>)")
         return
 
     print()
@@ -654,7 +654,7 @@ def _cmd_license(profile_id):
         type_disp = _safe_display_value("type", s["type"])
         print(f"  {pid_disp:<40} {type_disp:<8} {status:<12} {s['expires_in_human']:<16}")
     print("=" * 86)
-    print("  (*) = active profile. Dung `sap-btp-agent license <id>` de xem chi tiet.")
+    print("  (*) = active profile. Dung `mcp-sap-connect license <id>` de xem chi tiet.")
     print()
 
 
@@ -712,10 +712,10 @@ async def _cmd_profiles(subcmd: str, arg: str | None) -> None:
 
     else:
         print("  Usage:")
-        print("    sap-btp-agent profiles list")
-        print("    sap-btp-agent profiles use <id>")
-        print("    sap-btp-agent profiles show [id]")
-        print("    sap-btp-agent profiles remove <id>")
+        print("    mcp-sap-connect profiles list")
+        print("    mcp-sap-connect profiles use <id>")
+        print("    mcp-sap-connect profiles show [id]")
+        print("    mcp-sap-connect profiles remove <id>")
 
 
 # ===== RESET =======================================================
@@ -744,7 +744,7 @@ def _cmd_mcp_setup() -> None:
     claude_path = shutil.which("claude")
     if not claude_path:
         warn("Khong tim thay 'claude' trong PATH.")
-        info("Hay cai Claude Code truoc, roi chay lai: sap-btp-agent mcp-setup")
+        info("Hay cai Claude Code truoc, roi chay lai: mcp-sap-connect mcp-setup")
         info("Download: https://claude.ai/download")
         return
 
@@ -776,10 +776,10 @@ def _cmd_mcp_setup() -> None:
     # --- Core servers (bat buoc) ---
     header("Core servers (bat buoc)")
     ok("Dang ky sap-btp...")
-    _register("sap-btp", "stdio", cmd="sap-btp-agent")
+    _register("sap-btp", "stdio", cmd="mcp-sap-connect")
     ok("Dang ky sap-dict-bridge...")
     _register("sap-dict-bridge", "stdio", cmd="python",
-              args=["-m", "sap_btp_agent.bridge_server"])
+              args=["-m", "mcp_sap_connect.bridge_server"])
 
     # --- Remote SSE servers (bat buoc - chi can URL) ---
     header("Remote servers (bat buoc)")

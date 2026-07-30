@@ -1,4 +1,4 @@
-﻿"""Test with REAL sleep (khong mock wait_for_timeout) de verify timing that."""
+"""Test with REAL sleep (khong mock wait_for_timeout) de verify timing that."""
 import asyncio
 import sys
 import time
@@ -12,7 +12,7 @@ sys.modules["playwright.async_api"].async_playwright = MagicMock(
     return_value=fake_pw_instance
 )
 
-from sap_btp_agent.sap.auth import web_login_auto  # noqa: E402
+from mcp_sap_connect.sap.auth import web_login_auto  # noqa: E402
 
 
 async def case_url_stable_real_timing():
@@ -29,9 +29,9 @@ async def case_url_stable_real_timing():
     fc.new_page = AsyncMock(return_value=fp)
     fb.new_context = AsyncMock(return_value=fc)
 
-    with patch("sap_btp_agent.sap.auth._launch_real_browser",
+    with patch("mcp_sap_connect.sap.auth._launch_real_browser",
                new=AsyncMock(return_value=fb)), \
-         patch("sap_btp_agent.sap.auth._verify_discovery_session",
+         patch("mcp_sap_connect.sap.auth._verify_discovery_session",
                new=AsyncMock(return_value=False)):
 
         t0 = time.monotonic()

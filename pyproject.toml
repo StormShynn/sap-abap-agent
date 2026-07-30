@@ -55,7 +55,7 @@ addopts = [
 [tool.coverage.run]
 branch = true
 source = [
-    "reference/mcp-server/sap_btp_agent",
+    "reference/mcp-server/mcp_sap_connect",
     "hooks",
 ]
 omit = [

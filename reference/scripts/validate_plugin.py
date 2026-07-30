@@ -192,7 +192,7 @@ def check_duplicate_lines() -> None:
 
 
 def check_tool_count_drift() -> None:
-    registry = ROOT / "reference" / "mcp-server" / "sap_btp_agent" / "tools" / "registry.py"
+    registry = ROOT / "reference" / "mcp-server" / "mcp_sap_connect" / "tools" / "registry.py"
     if not registry.exists():
         warn("tool-drift", "registry.py not found, skipping tool-count check")
         return

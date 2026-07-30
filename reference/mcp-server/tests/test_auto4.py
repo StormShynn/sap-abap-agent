@@ -1,4 +1,4 @@
-﻿import asyncio
+import asyncio
 import contextlib
 import sys
 from unittest.mock import AsyncMock, MagicMock, patch
@@ -11,7 +11,7 @@ sys.modules["playwright.async_api"].async_playwright = MagicMock(
     return_value=fake_pw_instance
 )
 
-from sap_btp_agent.sap.auth import web_login_auto  # noqa: E402
+from mcp_sap_connect.sap.auth import web_login_auto  # noqa: E402
 
 
 def make_fake_browser():
@@ -36,9 +36,9 @@ async def case_1():
         event.set()
     asyncio.create_task(_set())
 
-    with patch("sap_btp_agent.sap.auth._launch_real_browser",
+    with patch("mcp_sap_connect.sap.auth._launch_real_browser",
                new=AsyncMock(return_value=make_fake_browser())), \
-         patch("sap_btp_agent.sap.auth._verify_discovery_session",
+         patch("mcp_sap_connect.sap.auth._verify_discovery_session",
                new=AsyncMock(return_value=True)):
 
         import time
@@ -56,9 +56,9 @@ async def case_1():
 
 async def case_2():
     print("=== CASE 2: URL stable 3s (no event, no session) ===")
-    with patch("sap_btp_agent.sap.auth._launch_real_browser",
+    with patch("mcp_sap_connect.sap.auth._launch_real_browser",
                new=AsyncMock(return_value=make_fake_browser())), \
-         patch("sap_btp_agent.sap.auth._verify_discovery_session",
+         patch("mcp_sap_connect.sap.auth._verify_discovery_session",
                new=AsyncMock(return_value=False)):
 
         import time

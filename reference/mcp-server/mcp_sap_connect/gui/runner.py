@@ -1,4 +1,4 @@
-"""Wrapper chay sap-btp-agent qua subprocess va stream stdout/stderr.
+"""Wrapper chay mcp-sap-connect qua subprocess va stream stdout/stderr.
 
 Thiet ke de goi tu ca GUI (Tkinter) lan tray (pystray):
 
@@ -20,22 +20,22 @@ import sys
 import threading
 from collections.abc import Callable
 
-# Sap-btp-agent entry point (cung ten trong pyproject [project.scripts])
-CLI_BIN = "sap-btp-agent"
+# mcp-sap-connect entry point (cung ten trong pyproject [project.scripts])
+CLI_BIN = "mcp-sap-connect"
 
 
 def _resolve_executable() -> list[str]:
     """Tra ve command de chay CLI.
 
     - Windows: uu tien .exe (pip cai entry point) de khong bi console popup.
-    - Moi truong dev: fallback ve `python -m sap_btp_agent.cli`.
+    - Moi truong dev: fallback ve `python -m mcp_sap_connect.cli`.
     """
     import shutil
     found = shutil.which(CLI_BIN)
     if found:
         return [found]
     # Dev mode
-    return [sys.executable, "-m", "sap_btp_agent.cli"]
+    return [sys.executable, "-m", "mcp_sap_connect.cli"]
 
 
 def start(args: list[str], on_line: Callable[[str], None],

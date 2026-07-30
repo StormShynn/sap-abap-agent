@@ -1,8 +1,8 @@
 """MCP stdio server: serve cac tool SAP BTP (sap_ping, sap_search, ...) qua JSON-RPC.
 
-Day la phan transport con thieu truoc day -- `sap-btp-agent` goi khong co
+Day la phan transport con thieu truoc day -- `mcp-sap-connect` goi khong co
 subcommand (setup/connect/profiles/reset) se chay server nay, dung cho
-`claude mcp add --transport stdio sap-btp -- sap-btp-agent`.
+`claude mcp add --transport stdio sap-btp -- mcp-sap-connect`.
 """
 from __future__ import annotations
 
@@ -20,7 +20,7 @@ def _build_server() -> Server:
     tools = build_tools()
     tools_by_name = {t["name"]: t for t in tools}
 
-    server: Server = Server("sap-btp-agent")
+    server: Server = Server("mcp-sap-connect")
 
     @server.list_tools()
     async def handle_list_tools() -> list[types.Tool]:

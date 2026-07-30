@@ -16,7 +16,7 @@ Claude Code plugin + MCP server (Python) cho SAP S/4HANA Cloud Public Edition.
 - 28 agents (module consultants + 3 cross-cutting)
 - 43 skills (pipelines + reference docs)
 - 6 GitHub Actions workflows
-- MCP server source: `reference/mcp-server/sap_btp_agent/`
+- MCP server source: `reference/mcp-server/mcp_sap_connect/`
 
 ## Truoc khi sua gi
 
@@ -29,7 +29,7 @@ Claude Code plugin + MCP server (Python) cho SAP S/4HANA Cloud Public Edition.
 
 ## Quy tac code
 
-- **KHONG sua logic** cua source trong `reference/mcp-server/sap_btp_agent/` khi khong duoc yeu cau.
+- **KHONG sua logic** cua source trong `reference/mcp-server/mcp_sap_connect/` khi khong duoc yeu cau.
 - **Moi skill** = 1 file `skills/<name>/SKILL.md`. Co frontmatter (name, description, model).
 - **Moi agent** = 1 file `agents/<name>.md`. Co frontmatter (name, description, tools, skills).
 - **Hook moi** (PostToolUse, PreToolUse, ...): them vao `hooks/` (Python portable, khong shell).

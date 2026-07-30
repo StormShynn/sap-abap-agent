@@ -284,14 +284,14 @@ Neu da cai dat MCP server, co the tao truc tiep tu AI:
 
 | MCP Server | Tools tao dictionary | Cach dung |
 |------------|---------------------|-----------|
-| **`sap-dict-bridge`** (khuyen dung — native cua repo nay) | `sap_create_domain`, `sap_create_data_element`, `sap_create_table` | Tai su dung cookie auth co san cua `sap-btp-agent` (khong can basic auth/config rieng nhu fr0ster). Dang ky: `claude mcp add --transport stdio sap-dict-bridge -- python -m sap_btp_agent.bridge_server`. Kiem tra: restart Claude Code sau khi dang ky, roi thu tao 1 domain — xem `python reference/scripts/mcp_status.py` neu server khong xuat hien. |
+| **`sap-dict-bridge`** (khuyen dung — native cua repo nay) | `sap_create_domain`, `sap_create_data_element`, `sap_create_table` | Tai su dung cookie auth co san cua `mcp-sap-connect` (khong can basic auth/config rieng nhu fr0ster). Dang ky: `claude mcp add --transport stdio sap-dict-bridge -- python -m mcp_sap_connect.bridge_server`. Kiem tra: restart Claude Code sau khi dang ky, roi thu tao 1 domain — xem `python reference/scripts/mcp_status.py` neu server khong xuat hien. |
 | `fr0ster/mcp-abap-adt` | `CreateDomain`, `CreateDataElement`, `CreateTable` | Prompt: "Tao domain + data element + table". [Da thu trong du an nay roi thay bang `sap-dict-bridge` o tren de tai su dung cookie auth co san — xem `reference/mcp-guides/mcp-sap-adt.md` neu van muon dung ban goc.] |
 | `ARC-1` | `abap_create_object` | Prompt + XML payload |
 | SAP Official ADT MCP | Qua extension ADT MCP | Zero-config trong VS Code ADT |
 
 ✅ **Da fix (2026-07-12)**: `sap_create_table` truoc day co bug — tham so `fields[].key` khong tu
 them tu khoa `key` vao truoc ten field trong DDL sinh ra (chi quyet dinh co `not null` hay khong).
-Da sua trong `_build_table_ddl` (`reference/mcp-server/sap_btp_agent/tools/dictionary.py`): field
+Da sua trong `_build_table_ddl` (`reference/mcp-server/mcp_sap_connect/tools/dictionary.py`): field
 moi truyen `{"name": "<ten>", "key": "true"}` (khong can go san chu "key " trong ten) gio sinh dung
 `key <ten> : ...` — da verify qua goi ham truc tiep, doi chieu output ca 2 kieu goi (ten da co "key
 " san / ten thuong + flag `key`) deu ra dung DDL.

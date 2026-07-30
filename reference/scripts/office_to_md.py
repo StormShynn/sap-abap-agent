@@ -4,7 +4,7 @@ Convert file .docx/.xlsx/.xls sang Markdown (.md), phuc vu lam ngu canh cho AI
 doc hieu tai lieu nghiep vu (FS/BP/...) va sinh code/xu ly logic ABAP.
 
 Mac dinh doc/ghi trong thu muc local per-user "in/"/"out/" duoi
-%USERPROFILE%\\.sap-btp-agent\\ (Windows) hoac ~/.sap-btp-agent/ (macOS/Linux) - CUNG cho voi
+%USERPROFILE%\\.mcp-sap-connect\\ (Windows) hoac ~/.mcp-sap-connect/ (macOS/Linux) - CUNG cho voi
 noi luu profile/secrets ket noi SAP BTP, KHONG nam trong git repo (tai lieu FS thuong la du
 lieu nghiep vu/khach hang khong nen commit chung voi source code plugin).
 
@@ -31,7 +31,7 @@ import markdownify
 import pandas as pd
 
 try:
-    from sap_btp_agent.config.paths import (
+    from mcp_sap_connect.config.paths import (
         get_in_dir,
         get_out_dir,
         mirror_write_bytes,
@@ -42,8 +42,8 @@ try:
     DEFAULT_OUTPUT_DIR = get_out_dir()
 except ImportError:
     print(
-        "[canh bao] Khong import duoc sap_btp_agent (chua cai `sap-btp-agent`?) - "
-        "fallback ve thu muc in/ va out/ trong repo. Cai bang: pip install sap-btp-agent-mcp "
+        "[canh bao] Khong import duoc mcp_sap_connect (chua cai `mcp-sap-connect`?) - "
+        "fallback ve thu muc in/ va out/ trong repo. Cai bang: pip install mcp-sap-connect-mcp "
         "(xem reference/mcp-server/) de dung dung thu muc local chuan.",
         file=sys.stderr,
     )

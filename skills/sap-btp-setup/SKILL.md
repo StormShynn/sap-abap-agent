@@ -3,7 +3,7 @@ name: sap-btp-setup
 description: Ho tro setup & xu ly su co ket noi SAP BTP qua MCP (multi-profile). Dung khi user muon ket noi SAP BTP, hoi ve BTP/ADT/ABAP system, OAuth2, hoac gap loi authentication khi dung sap_* tool.
 when_to_use: |
   "setup SAP BTP cho <url>", "loi authentication khi dung sap_* tool", "them profile SAP moi",
-  "'sap-btp-agent' is not recognized".
+  "'mcp-sap-connect' is not recognized".
 effort: medium
 model: haiku
 ---
@@ -15,7 +15,7 @@ model: haiku
 Khi user co URL moi (VD: `https://project1.s4hana.cloud.sap`), chi can chay:
 
 ```bash
-sap-btp-agent setup https://project1.s4hana.cloud.sap
+mcp-sap-connect setup https://project1.s4hana.cloud.sap
 ```
 
 Wizard tu sinh profile id tu hostname URL, hoi phuong thuc xac thuc, roi hoi cac thong tin tuong ung, luu rieng vao folder user.
@@ -43,17 +43,17 @@ Neu user noi "muon mo web nhap user/pass tu lay cookie" -- chinh la **option 3**
 
 ## MCP server
 
-`sap-btp-agent` goi khong co argument se chay MCP stdio server (`sap_btp_agent/server.py`), serve dung
+`mcp-sap-connect` goi khong co argument se chay MCP stdio server (`mcp_sap_connect/server.py`), serve dung
 7 tool `sap_*` qua JSON-RPC cho Claude Code / Claude Desktop. Da test end-to-end (initialize -> tools/list ->
 tools/call) truoc khi cong bo. Neu user hoi vi sao tool `sap_*` khong xuat hien / khong goi duoc trong Claude,
-kiem tra theo thu tu: (1) da `claude mcp add` dung chua, (2) da co profile nao chua (`sap-btp-agent profiles list`),
+kiem tra theo thu tu: (1) da `claude mcp add` dung chua, (2) da co profile nao chua (`mcp-sap-connect profiles list`),
 (3) loi cu the tu `sap_ping` -- thuong la do secret/cookie sai hon la do transport.
 
 ## Cau hinh folder
 
 ```
-%USERPROFILE%\.sap-btp-agent\   (Windows)
-~/.sap-btp-agent/               (macOS/Linux)
+%USERPROFILE%\.mcp-sap-connect\   (Windows)
+~/.mcp-sap-connect/               (macOS/Linux)
 +-- profiles.json                <- registry (danh sach + active)
 +-- profiles/
 |   +-- project1.s4hana.cloud.sap/
@@ -72,16 +72,16 @@ kiem tra theo thu tu: (1) da `claude mcp add` dung chua, (2) da co profile nao c
 ## Quan ly profile
 
 ```bash
-sap-btp-agent profiles list
-sap-btp-agent profiles use project1.s4hana.cloud.sap
-sap-btp-agent profiles show
-sap-btp-agent profiles remove project1.s4hana.cloud.sap
+mcp-sap-connect profiles list
+mcp-sap-connect profiles use project1.s4hana.cloud.sap
+mcp-sap-connect profiles show
+mcp-sap-connect profiles remove project1.s4hana.cloud.sap
 ```
 
 ## Env
 
 - `SAP_BTP_PROFILE=project1` -- khoa profile cho 1 lan chay (uu tien registry)
-- `SAP_BTP_AGENT_HOME=/path` -- doi folder cau hinh (test, multi-tenant)
+- `MCP_SAP_CONNECT_HOME=/path` -- doi folder cau hinh (test, multi-tenant)
 
 ## Tool MCP
 
@@ -97,13 +97,13 @@ Moi tool deu co tham so `profile` (de trong = active):
 
 ## Xu ly su co
 
-- `401 Unauthorized`: client_secret sai / het han. Chay `sap-btp-agent setup <profile-id>` de cap nhat.
+- `401 Unauthorized`: client_secret sai / het han. Chay `mcp-sap-connect setup <profile-id>` de cap nhat.
 - `404 /oauth/token`: URL token sai. Vao `profiles/<id>/secrets.json`, sua `tokenUrl` (vd: doi `/oauth/token` thanh `/oauth2/token` neu dung IAS).
 - `Khong giai ma duoc secret`: Doi may / hostname. Chay lai `setup <profile-id>`.
-- `'sap-btp-agent' is not recognized as an internal or external command` (Windows, rat hay gap): PATH khong
+- `'mcp-sap-connect' is not recognized as an internal or external command` (Windows, rat hay gap): PATH khong
   co folder chua entry point (thuong do pip cai vao user-scheme scripts dir, VD `%APPDATA%\Python\PythonXY\Scripts`,
-  khong tu dong nam trong PATH). Bao user chay `python -m sap_btp_agent.doctor` -- lenh nay chay duoc du
+  khong tu dong nam trong PATH). Bao user chay `python -m mcp_sap_connect.doctor` -- lenh nay chay duoc du
   PATH sai, tu phat hien va in san lenh PowerShell de fix. Khong tu doan/sua PATH thay user neu chua chay doctor.
-- Muon xoa het: `sap-btp-agent reset`.
-- Muon kiem tra toan bo moi truong (PATH, pywin32, playwright...): `sap-btp-agent doctor` (hoac
-  `python -m sap_btp_agent.doctor` neu PATH chua dung).
+- Muon xoa het: `mcp-sap-connect reset`.
+- Muon kiem tra toan bo moi truong (PATH, pywin32, playwright...): `mcp-sap-connect doctor` (hoac
+  `python -m mcp_sap_connect.doctor` neu PATH chua dung).

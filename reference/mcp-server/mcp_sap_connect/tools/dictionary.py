@@ -1,7 +1,7 @@
 """
 ADT Dictionary Bridge — Tao Domain, Data Element, Database Table, CDS View,
 Service Definition, Service Binding, Interface, Package bang cookie auth tu
-sap-btp-agent (SapClient).
+mcp-sap-connect (SapClient).
 
 Thay vi dung fr0ster/mcp-abap-adt (can basic auth), module nay goi truc tiep
 ADT REST API thong qua SapClient da co cookie auth + auto re-auth (browser popup).
@@ -235,7 +235,7 @@ async def _check_transportable_edit(client: SapClient, package: str) -> str | No
     Theo yeu cau nguoi dung (2026-07-17): moi tool tao object trong module nay
     CHI duoc phep ghi vao package local - khong co co che opt-in/env var nao
     de vuot qua rao nay (khac ban dau port tu vibing-steampunk co cho
-    SAP_BTP_AGENT_ALLOW_TRANSPORTABLE_EDITS lam co che bat lai - da bo, vi he
+    mcp_sap_connect_ALLOW_TRANSPORTABLE_EDITS lam co che bat lai - da bo, vi he
     thong dang thao tac la he thong khach hang THAT, khong phai sandbox).
     Muon ghi vao package that (transportable) phai sua code nay tuong minh,
     khong duoc bat qua bien moi truong. Tra ve None neu OK (package local),
@@ -1521,7 +1521,7 @@ def build_dict_tools() -> list[dict[str, Any]]:
             "name": "sap_create_table",
             "description": (
                 "Tao Database Table ABAP Cloud MOI (define table ...), gan dung package. Dung cookie "
-                "auth sap-btp-agent. Tu dong them admin fields (created_by, created_at...) neu thieu. "
+                "auth mcp-sap-connect. Tu dong them admin fields (created_by, created_at...) neu thieu. "
                 "CHI cho phep package local ($TMP/$*) - package that (transportable) bi CHAN TUYET DOI, khong co cach bat qua."
             ),
             "inputSchema": {

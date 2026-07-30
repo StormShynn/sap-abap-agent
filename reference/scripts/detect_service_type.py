@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Xac dinh service type (edition) cua profile sap-btp-agent dang active - KHONG goi MCP.
+"""Xac dinh service type (edition) cua profile mcp-sap-connect dang active - KHONG goi MCP.
 
 Doc truc tiep profiles/<id>/config.json (field "service", vd s4hc_(private)/s4hc_(public)/
 btp/onprem) thay vi goi tool sap_ping de suy ra edition - re hon (khong round-trip mang qua
@@ -14,7 +14,7 @@ Edition. Script nay la buoc "do offline" dau tien de skill sap-service-type-cont
 dung ngu canh truoc khi tra loi, tranh hoi lai user neu da co san.
 
 Thu tu resolve profile active (dung y het
-reference/mcp-server/sap_btp_agent/config/{paths,profile}.py - xem file do neu can doi chieu):
+reference/mcp-server/mcp_sap_connect/config/{paths,profile}.py - xem file do neu can doi chieu):
     1. --profile <id> (tham so dong lenh, ep cu the)
     2. Env SAP_BTP_PROFILE (uu tien cao nhat neu khong truyen --profile)
     3. registry profiles.json -> field "active"
@@ -26,14 +26,14 @@ Sau khi co profile id, doc profiles/<id>/config.json:
     - File ton tai nhung thieu/rong/sai "service" -> source = "config_default" (day chi la gia
       tri fallback, CHUA chac user da tung xac nhan - nen hoi lai)
     - Khong tim thay profile dir / config.json -> source = "not_configured" (vd workflow
-      abapgit-local thuan, hoac dung MCP ADT khac ngoai sap-btp-agent - phai hoi thang user)
+      abapgit-local thuan, hoac dung MCP ADT khac ngoai mcp-sap-connect - phai hoi thang user)
 
 Output: 1 khoi JSON ra stdout, vd:
     {
       "profile": "project1.s4hana.cloud.sap",
       "service": "s4hc_(public)",
       "source": "config",
-      "configPath": "C:\\Users\\xxx\\.sap-btp-agent\\profiles\\project1.s4hana.cloud.sap\\config.json",
+      "configPath": "C:\\Users\\xxx\\.mcp-sap-connect\\profiles\\project1.s4hana.cloud.sap\\config.json",
       "note": null
     }
 
@@ -57,18 +57,18 @@ import sys
 from pathlib import Path
 from typing import Any
 
-APP_DIR_NAME = ".sap-btp-agent"
+APP_DIR_NAME = ".mcp-sap-connect"
 
-# Phai khop 100% voi reference/mcp-server/sap_btp_agent/config/store.py
+# Phai khop 100% voi reference/mcp-server/mcp_sap_connect/config/store.py
 # (SERVICE_TYPES / SERVICE_TYPE_ALIASES). Day la ban DOC-ONLY, khong import package
-# sap_btp_agent de tranh phu thuoc package do phai pip-install/import duoc tu noi script
+# mcp_sap_connect de tranh phu thuoc package do phai pip-install/import duoc tu noi script
 # nay chay (reference/scripts/ la stdlib-only, chay ad hoc qua Bash tool).
 SERVICE_TYPES = ("s4hc_(private)", "s4hc_(public)", "btp", "onprem")
 SERVICE_TYPE_ALIASES = {"s4hc": "s4hc_(public)"}
 
 
 def _get_app_dir() -> Path:
-    override = os.environ.get("SAP_BTP_AGENT_HOME", "").strip()
+    override = os.environ.get("mcp_sap_connect_HOME", "").strip()
     if override:
         return Path(override).resolve()
     return Path.home() / APP_DIR_NAME
@@ -85,7 +85,7 @@ def _resolve_active_profile(explicit: str | None) -> tuple[str | None, str]:
 
     registry_file = _get_app_dir() / "profiles.json"
     if not registry_file.exists():
-        return None, "khong co profiles.json (chua tung chay 'sap-btp-agent setup')"
+        return None, "khong co profiles.json (chua tung chay 'mcp-sap-connect setup')"
     try:
         data = json.loads(registry_file.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError) as err:

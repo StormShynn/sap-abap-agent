@@ -13,7 +13,7 @@ Cung cap cac ham get_*_status(profile_id) tra ve dict:
   }
 
 Su dung:
-  from sap_btp_agent.license import get_cookie_status, format_expires_in_human
+  from mcp_sap_connect.license import get_cookie_status, format_expires_in_human
   print(get_cookie_status('project1.s4hana.cloud.sap'))
 """
 from __future__ import annotations

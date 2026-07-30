@@ -44,7 +44,7 @@ Wizard `sap-btp-setup` sẽ hỏi:
 - **Client ID / Secret** (Service Key từ BTP Cockpit).
 - **Token URL** (thường là `https://<tenant>.authentication.sap.hana.ondemand.com/oauth/token`).
 - **Profile name** (vd: `dev`, `prod`, `sandbox`).
-- **Folder lưu secret** (mặc định `%USERPROFILE%\.sap-btp-agent\<profile>\secrets.json`).
+- **Folder lưu secret** (mặc định `%USERPROFILE%\.mcp-sap-connect\<profile>\secrets.json`).
 
 Sau khi setup, verify:
 
@@ -60,7 +60,7 @@ MCP server `sap-dict-bridge` cần Python ≥ 3.10:
 
 ```powershell
 python --version    # phai >= 3.10
-pip install sap-btp-agent
+pip install mcp-sap-connect
 ```
 
 ## 4. (Tuỳ chọn) Bật MCP server bổ sung
@@ -108,7 +108,7 @@ cơ chế" — KHÔNG bật mặc định (tốn chi phí API).
 | `404 /oauth/token`                   | Sửa `tokenUrl` trong profile.                              |
 | `Khong giai ma duoc secret`          | Đổi máy. Chạy `setup <profile-id>` để tạo lại.            |
 | `Chua co profile nao`                | Chạy `setup <URL>` để tạo profile đầu tiên.                |
-| `'sap-btp-agent' is not recognized`  | PATH thiếu entry point. Chạy `python -m sap_btp_agent.doctor` để tự phát hiện. |
+| `'mcp-sap-connect' is not recognized`  | PATH thiếu entry point. Chạy `python -m mcp_sap_connect.doctor` để tự phát hiện. |
 | Skill không hiển thị                 | Khởi động lại Claude Code sau khi cài plugin.             |
 
 ## 8. Cập nhật plugin

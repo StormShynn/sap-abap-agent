@@ -1,15 +1,15 @@
 {
   "mcpServers": {
-    "sap-btp": {
+    "sap-connect": {
       "type": "stdio",
-      "command": "sap-btp-agent"
+      "command": "mcp-sap-connect"
     },
     "sap-dict-bridge": {
       "type": "stdio",
       "command": "python",
       "args": [
         "-m",
-        "sap_btp_agent.bridge_server"
+        "mcp_sap_connect.bridge_server"
       ]
     },
     "cds-kb": {

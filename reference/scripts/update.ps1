@@ -1,7 +1,7 @@
 #!/usr/bin/env pwsh
 <#
 .SYNOPSIS
-    Sap-btp-agent & plugin auto-update — tu dong update moi nhat tu GitHub Releases
+    mcp-sap-connect & plugin auto-update — tu dong update moi nhat tu GitHub Releases
 .DESCRIPTION
     - Tai wheel .whl moi nhat tu GitHub Release (mcp-server-v*)
     - pip install --upgrade
@@ -71,15 +71,15 @@ catch {
 # 3. pip install
 Write-Host "[3/3] pip install --upgrade ..." -ForegroundColor Yellow
 
-# Neu sap-btp-agent.exe dang chay (vd MCP server dang duoc Claude Code giu ket
+# Neu mcp-sap-connect.exe dang chay (vd MCP server dang duoc Claude Code giu ket
 # noi), pip khong ghi de duoc file .exe khoa boi tien trinh do (WinError 32).
 # Dong het truoc khi cai - an toan vi day chi la entry-point script, khong mat
 # du lieu; ket noi MCP se tu ket noi lai sau khi restart Claude Code.
-Get-Process -Name "sap-btp-agent" -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
+Get-Process -Name "mcp-sap-connect" -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
 
 pip install --upgrade "$wheelPath"
 if ($LASTEXITCODE -eq 0) {
-    Write-Host "  OK sap-btp-agent updated to v$version" -ForegroundColor Green
+    Write-Host "  OK mcp-sap-connect updated to v$version" -ForegroundColor Green
 } else {
     Write-Host "  !! pip install failed" -ForegroundColor Red
     exit 1
@@ -90,5 +90,5 @@ Remove-Item -Recurse -Force $tempDir -ErrorAction SilentlyContinue
 
 Write-Host ""
 Write-Host "=== Done ===" -ForegroundColor Cyan
-Write-Host "sap-btp-agent version: v$version" -ForegroundColor Green
-sap-btp-agent --help
+Write-Host "mcp-sap-connect version: v$version" -ForegroundColor Green
+mcp-sap-connect --help

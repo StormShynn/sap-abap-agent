@@ -39,8 +39,8 @@ Khoi dong lai Claude Code de nhan server moi.
 ## ─── 3 servers co the auto-register ngay ───
 
 ```bash
-claude mcp add --transport stdio sap-btp -- sap-btp-agent
-claude mcp add --transport stdio sap-dict-bridge -- python -m sap_btp_agent.bridge_server
+claude mcp add --transport stdio sap-btp -- mcp-sap-connect
+claude mcp add --transport stdio sap-dict-bridge -- python -m mcp_sap_connect.bridge_server
 claude mcp add --transport sse cds-kb --url https://cds-kb-mcp-production.up.railway.app/sse
 ```
 

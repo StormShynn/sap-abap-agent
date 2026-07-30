@@ -1,6 +1,6 @@
-# sap-btp-agent GUI
+# mcp-sap-connect GUI
 
-GUI desktop + system tray cho `sap-btp-agent`, giup thao tac khong can nho lenh.
+GUI desktop + system tray cho `mcp-sap-connect`, giup thao tac khong can nho lenh.
 
 ## Cai dat
 
@@ -8,7 +8,7 @@ GUI desktop + system tray cho `sap-btp-agent`, giup thao tac khong can nho lenh.
 pip install sap-abap-agent-mcp[gui]
 ```
 
-Lenh nay cai them `pystray` + `Pillow` (icon tray). Sau khi cai xong, co them command `sap-btp-agent-gui`.
+Lenh nay cai them `pystray` + `Pillow` (icon tray). Sau khi cai xong, co them command `mcp-sap-connect-gui`.
 
 Neu muon dung auto-login (`reauthMode=auto`) thi cai them:
 ```
@@ -19,9 +19,9 @@ python -m playwright install chromium
 ## Su dung
 
 ```
-sap-btp-agent-gui                  # Mo GUI + tray (mac dinh)
-sap-btp-agent-gui --no-tray         # Chi GUI, khong co tray icon
-sap-btp-agent-gui --tray-only       # Chi tray (an hoan toan, khong cua so)
+mcp-sap-connect-gui                  # Mo GUI + tray (mac dinh)
+mcp-sap-connect-gui --no-tray         # Chi GUI, khong co tray icon
+mcp-sap-connect-gui --tray-only       # Chi tray (an hoan toan, khong cua so)
 ```
 
 ## Giao dien
@@ -35,7 +35,7 @@ sap-btp-agent-gui --tray-only       # Chi tray (an hoan toan, khong cua so)
 +---------------------------------------------------------------+
 | Log:                                                            |
 | +-----------------------------------------------------------+ |
-| |  ... output tu sap-btp-agent ...                         | |
+| |  ... output tu mcp-sap-connect ...                         | |
 | +-----------------------------------------------------------+ |
 | [Clear] [Copy]                          [Status: Ready]      |
 +---------------------------------------------------------------+
@@ -45,11 +45,11 @@ sap-btp-agent-gui --tray-only       # Chi tray (an hoan toan, khong cua so)
 
 | Nut | Tuong duong CLI | Mo ta |
 |---|---|---|
-| Reauth | `sap-btp-agent reauth <profile>` | Mo browser + paste cookie moi |
-| Connect | `sap-btp-agent connect <profile>` | Test ket noi ADT (read + write) |
-| Set Active | `sap-btp-agent profiles use <id>` | Chuyen profile active |
-| Remove | `sap-btp-agent profiles remove <id>` | Xoa profile (kem confirm) |
-| + New | `sap-btp-agent setup <URL>` (cua so CMD rieng) | Wizard setup (vi can nhap nhieu) |
+| Reauth | `mcp-sap-connect reauth <profile>` | Mo browser + paste cookie moi |
+| Connect | `mcp-sap-connect connect <profile>` | Test ket noi ADT (read + write) |
+| Set Active | `mcp-sap-connect profiles use <id>` | Chuyen profile active |
+| Remove | `mcp-sap-connect profiles remove <id>` | Xoa profile (kem confirm) |
+| + New | `mcp-sap-connect setup <URL>` (cua so CMD rieng) | Wizard setup (vi can nhap nhieu) |
 
 ## System tray
 
@@ -94,19 +94,19 @@ Neu dang co 1 subprocess chay (`reauth`/`connect`) thi se hoi confirm truoc khi 
 
 ### Log console
 
-Moi output tu `sap-btp-agent` duoc stream real-time vao o log phia duoi GUI. Khi gap loi, copy log nay paste vao GitHub issue de debug.
+Moi output tu `mcp-sap-connect` duoc stream real-time vao o log phia duoi GUI. Khi gap loi, copy log nay paste vao GitHub issue de debug.
 
 ## So sanh GUI vs CLI
 
 | Tac vu | CLI | GUI |
 |---|---|---|
-| Setup wizard | `sap-btp-agent setup <url>` (terminal) | Nut **+ New** (mo CMD moi) |
-| Reauth | `sap-btp-agent reauth` | Nut **Reauth** hoac menu tray |
-| Connect | `sap-btp-agent connect` | Nut **Connect** |
-| Profiles list | `sap-btp-agent profiles list` | Combo box + menu tray |
-| Switch active | `sap-btp-agent profiles use <id>` | Nut **Set Active** hoac menu tray |
-| Remove | `sap-btp-agent profiles remove <id>` | Nut **Remove** (co confirm) |
-| Doctor | `sap-btp-agent doctor` | (chua co - chay CLI neu can) |
+| Setup wizard | `mcp-sap-connect setup <url>` (terminal) | Nut **+ New** (mo CMD moi) |
+| Reauth | `mcp-sap-connect reauth` | Nut **Reauth** hoac menu tray |
+| Connect | `mcp-sap-connect connect` | Nut **Connect** |
+| Profiles list | `mcp-sap-connect profiles list` | Combo box + menu tray |
+| Switch active | `mcp-sap-connect profiles use <id>` | Nut **Set Active** hoac menu tray |
+| Remove | `mcp-sap-connect profiles remove <id>` | Nut **Remove** (co confirm) |
+| Doctor | `mcp-sap-connect doctor` | (chua co - chay CLI neu can) |
 
 ## Troubleshooting
 

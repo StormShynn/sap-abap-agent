@@ -1,12 +1,12 @@
-"""Shared fixtures/paths for sap-btp-agent tests.
+"""Shared fixtures/paths for mcp-sap-connect tests.
 
-Cac test file o day thuong dung sys.path.insert de import sap_btp_agent,
+Cac test file o day thuong dung sys.path.insert de import mcp_sap_connect,
 nen ta them <repo>/reference/mcp-server/ vao sys.path ngay khi pytest khoi dong.
 """
 import sys
 from pathlib import Path
 
-# Cho phep `import sap_btp_agent` khi chay pytest tu root hoac tu tests/.
+# Cho phep `import mcp_sap_connect` khi chay pytest tu root hoac tu tests/.
 _MCP_SERVER_DIR = Path(__file__).resolve().parent.parent
 if str(_MCP_SERVER_DIR) not in sys.path:
     sys.path.insert(0, str(_MCP_SERVER_DIR))

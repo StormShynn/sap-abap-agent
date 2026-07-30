@@ -1,12 +1,12 @@
 """
 SAP Dict Bridge MCP Server — Tao Domain, Data Element, Database Table
-bang cookie auth sap-btp-agent (khong can basic auth).
+bang cookie auth mcp-sap-connect (khong can basic auth).
 
 Chay nhu 1 MCP server rieng:
-  python -m sap_btp_agent.bridge_server
+  python -m mcp_sap_connect.bridge_server
 
 Dang ky voi Claude Code:
-  claude mcp add --transport stdio sap-dict-bridge -- python -m sap_btp_agent.bridge_server
+  claude mcp add --transport stdio sap-dict-bridge -- python -m mcp_sap_connect.bridge_server
 """
 from __future__ import annotations
 

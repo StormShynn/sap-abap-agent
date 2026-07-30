@@ -1,9 +1,9 @@
-"""GUI cho sap-btp-agent: cua so Tkinter + system tray icon.
+"""GUI cho mcp-sap-connect: cua so Tkinter + system tray icon.
 
 Su dung:
-    sap-btp-agent-gui              # mo GUI + tray
-    sap-btp-agent-gui --no-tray    # chi GUI
-    sap-btp-agent-gui --tray-only  # chi tray (khong cua so)
+    mcp-sap-connect-gui              # mo GUI + tray
+    mcp-sap-connect-gui --no-tray    # chi GUI
+    mcp-sap-connect-gui --tray-only  # chi tray (khong cua so)
 """
 from __future__ import annotations
 
@@ -13,7 +13,7 @@ import sys
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(prog="sap-btp-agent-gui")
+    parser = argparse.ArgumentParser(prog="mcp-sap-connect-gui")
     parser.add_argument("--no-tray", action="store_true",
                         help="Chi mo GUI, khong chay tray icon.")
     parser.add_argument("--tray-only", action="store_true",

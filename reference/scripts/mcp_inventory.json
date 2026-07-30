@@ -7,9 +7,9 @@
       "transport": "stdio",
       "envVars": [],
       "doc": "commands/sap-connect.md",
-      "description": "Main sap-btp-agent server: profiles, search, read source, activate",
+      "description": "Main mcp-sap-connect server: profiles, search, read source, activate",
       "config": {
-        "command": "sap-btp-agent",
+        "command": "mcp-sap-connect",
         "args": [],
         "env": {}
       }
@@ -20,10 +20,10 @@
       "transport": "stdio",
       "envVars": [],
       "doc": "skills/sap-cloud-dictionary/SKILL.md",
-      "description": "DDIC create (Domain/DataElement/Table) via sap-btp-agent's cookie auth",
+      "description": "DDIC create (Domain/DataElement/Table) via mcp-sap-connect's cookie auth",
       "config": {
         "command": "python",
-        "args": ["-m", "sap_btp_agent.bridge_server"],
+        "args": ["-m", "mcp_sap_connect.bridge_server"],
         "env": {}
       }
     },

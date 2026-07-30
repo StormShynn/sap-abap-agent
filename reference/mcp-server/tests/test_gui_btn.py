@@ -1,4 +1,4 @@
-﻿from sap_btp_agent.gui.app import SapBtpGui
+from mcp_sap_connect.gui.app import SapBtpGui
 
 gui = SapBtpGui()
 gui._tray = type("FakeTray", (), {"notify": lambda self, msg: None})()

@@ -127,10 +127,10 @@ jobs:
 
           sed -i "s/^version = \"$OLD_VERSION\"/version = \"$NEW_VERSION\"/" \
             reference/mcp-server/pyproject.toml
-          sed -i "s/CLI Tool (v$OLD_VERSION)/CLI Tool (v$NEW_VERSION)/" \
-            reference/mcp-server/sap_btp_agent/cli/__init__.py
+          sed -i "s/CLI Tool (v$NEW_VERSION)/CLI Tool (v$NEW_VERSION)/" \
+            reference/mcp-server/mcp_sap_connect/cli/__init__.py
           sed -i "s/mcp-server-v$OLD_VERSION/mcp-server-v$NEW_VERSION/g; \
-                  s/sap_abap_agent_mcp-$OLD_VERSION-py3-none-any\.whl/sap_abap_agent_mcp-$NEW_VERSION-py3-none-any.whl/g" \
+                  s/mcp_sap_connect-\$OLD_VERSION-py3-none-any\.whl/mcp_sap_connect-\$NEW_VERSION-py3-none-any.whl/g" \
             README.md
 
       - name: Sync version into index.html
@@ -147,7 +147,7 @@ jobs:
           git add .claude-plugin/plugin.json .claude-plugin/marketplace.json CHANGELOG.md index.html
           if [[ "${{ steps.changes.outputs.mcp }}" == "true" ]]; then
             git add reference/mcp-server/pyproject.toml \
-                     reference/mcp-server/sap_btp_agent/cli/__init__.py \
+                     reference/mcp-server/mcp_sap_connect/cli/__init__.py \
                      README.md
           fi
           git commit -m "chore: bump version to ${{ steps.version.outputs.new }} [skip version-bump]"
@@ -189,23 +189,23 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           VERSION="${{ needs.bump-version.outputs.new_version }}"
-          WHEEL="dist/sap_abap_agent_mcp-${VERSION}-py3-none-any.whl"
+          WHEEL="dist/mcp_sap_connect-${VERSION}-py3-none-any.whl"
 
           cat > /tmp/release-notes.md <<EOF
-          File .whl de cai MCP server (sap-btp-agent) ma khong can clone repo.
+          File .whl de cai MCP server (mcp-sap-connect) ma khong can clone repo.
 
           ## Cai dat
 
           \`\`\`bash
-          pip install sap_abap_agent_mcp-${VERSION}-py3-none-any.whl
-          sap-btp-agent doctor      # kiem tra moi truong
-          sap-btp-agent setup https://xxx.s4hana.cloud.sap
-          claude mcp add --transport stdio sap-btp -- sap-btp-agent
+          pip install mcp_sap_connect-${VERSION}-py3-none-any.whl
+          mcp-sap-connect doctor      # kiem tra moi truong
+          mcp-sap-connect setup https://xxx.s4hana.cloud.sap
+          claude mcp add --transport stdio sap-btp -- mcp-sap-connect
           \`\`\`
 
           Extra tuy chon:
-          - Windows DPAPI: \`pip install "sap_abap_agent_mcp-${VERSION}-py3-none-any.whl[win-dpapi]"\`
-          - Cookie auth tu dong (Playwright): \`pip install "sap_abap_agent_mcp-${VERSION}-py3-none-any.whl[playwright]"\` roi \`playwright install chromium\`
+          - Windows DPAPI: \`pip install "mcp_sap_connect-${VERSION}-py3-none-any.whl[win-dpapi]"\`
+          - Cookie auth tu dong (Playwright): \`pip install "mcp_sap_connect-${VERSION}-py3-none-any.whl[playwright]"\` roi \`playwright install chromium\`
 
           Auto-published boi GitHub Actions (version-bump.yml) khi reference/mcp-server/ thay doi.
           Xem chi tiet thay doi trong commit history cua repo.

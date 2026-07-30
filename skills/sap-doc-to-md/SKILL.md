@@ -46,14 +46,14 @@ File `.xlsx`/`.xls` dung `"${CLAUDE_PLUGIN_ROOT}/reference/scripts/office_to_md.
 ### Buoc 1: Xac dinh input/output
 
 - **`in/`/`out/` KHONG nam trong git repo** — day la thu muc local per-user duoi
-  `%USERPROFILE%\.sap-btp-agent\` (Windows) / `~/.sap-btp-agent/` (macOS/Linux), **cung noi** luu
+  `%USERPROFILE%\.mcp-sap-connect\` (Windows) / `~/.mcp-sap-connect/` (macOS/Linux), **cung noi** luu
   profile/secrets ket noi SAP BTP (xem skill `sap-btp-setup`). Ly do: tai lieu FS/output sinh ra
   thuong la du lieu nghiep vu/khach hang thuc, khong nen nam chung voi source code plugin (dung
   se dan toi rui ro commit nham len repo public). Co the doi qua bien moi truong
-  `SAP_BTP_AGENT_HOME`.
+  `MCP_SAP_CONNECT_HOME`.
 - Lay dung duong dan da resolve (tranh doan/hardcode sai) bang:
   ```bash
-  python -c "from sap_btp_agent.config.paths import get_in_dir, get_out_dir; print(get_in_dir()); print(get_out_dir())"
+  python -c "from mcp_sap_connect.config.paths import get_in_dir, get_out_dir; print(get_in_dir()); print(get_out_dir())"
   ```
   `"${CLAUDE_PLUGIN_ROOT}/reference/scripts/office_to_md.py"` da tu dong dung 2 ham nay lam default — chi can goi script
   khong tham so la doc/ghi dung cho vao `in/`/`out/` local, khong can tu tinh duong dan.
@@ -66,8 +66,8 @@ File `.xlsx`/`.xls` dung `"${CLAUDE_PLUGIN_ROOT}/reference/scripts/office_to_md.
 
 - **`.docx`** → dung `markitdown` CLI (don gian, du dung cho text + bang; anh se khong render duoc, xem Buoc 3). `markitdown` khong tu biet duong dan local (khac `office_to_md.py`), nen phai truyen full path lay tu Buoc 1:
   ```bash
-  IN_DIR=$(python -c "from sap_btp_agent.config.paths import get_in_dir; print(get_in_dir())")
-  OUT_DIR=$(python -c "from sap_btp_agent.config.paths import get_out_dir; print(get_out_dir())")
+  IN_DIR=$(python -c "from mcp_sap_connect.config.paths import get_in_dir; print(get_in_dir())")
+  OUT_DIR=$(python -c "from mcp_sap_connect.config.paths import get_out_dir; print(get_out_dir())")
   markitdown "$IN_DIR/ten-file.docx" -o "$OUT_DIR/ten-file.md"
   ```
 - **`.xlsx` / `.xls`** → **KHONG dung `markitdown` CLI truc tiep.** Da kiem chung: markitdown doc

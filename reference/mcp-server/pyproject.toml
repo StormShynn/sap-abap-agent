@@ -3,14 +3,14 @@ requires = ["setuptools>=68", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "sap-abap-agent-mcp"
+name = "mcp-sap-connect"
 version = "1.12.18"
-description = "MCP server tự động kết nối SAP BTP (multi-profile) - rewrite Python"
+description = "MCP server tự động kết nối SAP (multi-profile, multi-edition) - rewrite Python"
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }
 authors = [{ name = "StormShynn" }]
-keywords = ["sap", "abap", "mcp", "btp", "s4hana"]
+keywords = ["sap", "abap", "mcp", "s4hana", "bcp", "rise"]
 dependencies = [
     "mcp>=1.0.0",
     "httpx>=0.27",
@@ -30,12 +30,15 @@ dev = [
 ]
 
 [project.scripts]
-sap-btp-agent = "sap_btp_agent.cli:main"
-sap-btp-agent-gui = "sap_btp_agent.gui:main"
+mcp-sap-connect = "mcp_sap_connect.cli:main"
+mcp-sap-connect-gui = "mcp_sap_connect.gui:main"
+# 1.14.0: giu backward-compat shim 1 release, drop o 1.15.0
+mcp-sap-connect = "mcp_sap_connect._shim:main"
+mcp-sap-connect-gui = "mcp_sap_connect._shim_gui:main"
 
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["sap_btp_agent*"]
+include = ["mcp_sap_connect*"]
 exclude = ["tests*"]
 

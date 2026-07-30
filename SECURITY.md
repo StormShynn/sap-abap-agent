@@ -87,8 +87,8 @@ Security Policy này áp dụng cho tất cả các component trong repository:
 Mỗi project SAP có profile riêng, secret riêng, mã hóa độc lập:
 
 ```
-%USERPROFILE%\.sap-btp-agent\profiles\<project-id>\   (Windows)
-~/.sap-btp-agent/profiles/<project-id>/               (macOS/Linux)
+%USERPROFILE%\.mcp-sap-connect\profiles\<project-id>\   (Windows)
+~/.mcp-sap-connect/profiles/<project-id>/               (macOS/Linux)
 +-- config.json     <- URL, tenant, client_id (không nhạy cảm)
 +-- secrets.json    <- client_secret, token (ĐÃ MÃ HÓA)
 ```
@@ -124,12 +124,12 @@ Mỗi project SAP có profile riêng, secret riêng, mã hóa độc lập:
 - ✅ **Luôn dùng phiên bản mới nhất** (check `git pull` thường xuyên)
 - ✅ **Sử dụng OAuth2 client_credentials** thay vì username/password nếu có thể
 - ✅ **Giới hạn scope của service key** trong SAP BTP (chỉ cấp quyền tối thiểu)
-- ✅ **Kiểm tra log định kỳ** tại `.sap-btp-agent/log/`
-- ✅ **Xóa profile không dùng** bằng `sap-btp-agent profiles remove <id>`
+- ✅ **Kiểm tra log định kỳ** tại `.mcp-sap-connect/log/`
+- ✅ **Xóa profile không dùng** bằng `mcp-sap-connect profiles remove <id>`
 
 ### Không nên
 
-- ❌ **Không commit** `.sap-btp-agent/`, `scripts/run_sync_skills.bat`, hoặc `_*.py` lên GitHub
+- ❌ **Không commit** `.mcp-sap-connect/`, `scripts/run_sync_skills.bat`, hoặc `_*.py` lên GitHub
 - ❌ **Không share** file `secrets.json` hoặc `profiles/` cho người khác
 - ❌ **Không dùng** SAP ABAP Agent trên tenant production chưa được phép
 - ❌ **Không paste** credentials, session cookies, hoặc token vào public chat/public issues
@@ -137,7 +137,7 @@ Mỗi project SAP có profile riêng, secret riêng, mã hóa độc lập:
 ### Checklist bảo mật hàng ngày
 
 - [ ] Đã `git pull` bản mới nhất?
-- [ ] Profile nào đang active? (`sap-btp-agent profiles list`)
+- [ ] Profile nào đang active? (`mcp-sap-connect profiles list`)
 - [ ] Có profile cũ không dùng nữa? (xóa đi)
 - [ ] Secret có còn hạn? (OAuth2 token expiration)
 - [ ] Log có dấu hiệu bất thường?

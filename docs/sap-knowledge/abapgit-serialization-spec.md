@@ -11,7 +11,7 @@
 > pull vào `ACME_LOCAL` là tạo xong toàn bộ object của 1 project (report/API/form/app), không cần sửa tay.
 >
 > **Không phải mục đích**: đây KHÔNG phải spec để tự viết lại API tạo object bằng Python/ADT REST (đó là
-> việc của [dictionary.py](../../../../reference/mcp-server/sap_btp_agent/tools/dictionary.py) — 1 cơ chế
+> việc của [dictionary.py](../../../../reference/mcp-server/mcp_sap_connect/tools/dictionary.py) — 1 cơ chế
 > khác hẳn, xem §1.4). Mục tiêu ở đây là sinh file cho **abapGit thật** (đã cài trong hệ thống SAP) tự lo
 > phần pull/tạo object.
 
@@ -112,7 +112,7 @@ sang package khác software component.
 
 **Không có 1 API chung nào cho "tạo object SAP"** — đây chính là lý do nên đi theo hướng **abapGit-staging**
 (sinh đúng file, để abapGit thật trong hệ thống SAP tự pull) thay vì tự viết lại 4 họ API này bằng
-Python/ADT REST. Approach hiện có ([dictionary.py](../../../../reference/mcp-server/sap_btp_agent/tools/dictionary.py))
+Python/ADT REST. Approach hiện có ([dictionary.py](../../../../reference/mcp-server/mcp_sap_connect/tools/dictionary.py))
 đi đường ADT REST (`create→lock→PUT source→unlock→activate` qua HTTP) — là 1 cơ chế **hoàn toàn khác**,
 không liên quan 4 họ trên, và mới cover 1 phần nhỏ (thiếu CREATE cho Domain/DataElement, Class chưa hỗ
 trợ locals/testclasses, chưa có BDEF/DOMA/DTEL/MSAG/INTF/DEVC).
@@ -204,7 +204,7 @@ ví dụ thật). ⚠️ = có [Unverified]/rủi ro cần biết.
   ở cả 4 nguồn open-source đã tra (marcellourbani/abap-adt-api chỉ có 1 entry registry chưa test, chưa
   từng ported đi đâu) lẫn rà soát toàn bộ 5 project SAP thật trong `tests/__Du_an` (9 file `.msag.xml`
   thật, `git log --all --grep="message"` = 0 kết quả ở cả 5 repo, không README/script/tooling nào nhắc
-  tới SE91/T100 programmatic). Đây là thao tác **chỉ làm được thủ công qua Eclipse ADT UI** — [dictionary.py](../../../../reference/mcp-server/sap_btp_agent/tools/dictionary.py)
+  tới SE91/T100 programmatic). Đây là thao tác **chỉ làm được thủ công qua Eclipse ADT UI** — [dictionary.py](../../../../reference/mcp-server/mcp_sap_connect/tools/dictionary.py)
   cố tình KHÔNG có tool `sap_create_message_class` vì lý do này (tạo shell rỗng không kèm được message
   nào thì không có giá trị thực dụng). Ví dụ thật `zmess_flatx_so.msag.xml` (bản rỗng, trước khi thêm
   message) xác nhận: chỉ có `T100A`, hoàn toàn KHÔNG có node `T100` nào (không phải rỗng, mà vắng mặt).

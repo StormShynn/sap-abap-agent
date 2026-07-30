@@ -137,8 +137,8 @@ npx -y mcp-abap-adt
 Full CRUD MCP server cho ADT: tao Domain, Data Element, Database Table, CDS View, RAP Behavior, v.v.
 
 📌 **Cap nhat thuc te trong repo nay**: sau khi thu wiring option nay, du an da chuyen sang tu xay
-**`sap-dict-bridge`** (`reference/mcp-server/sap_btp_agent/bridge_server.py`) — tai su dung cookie
-auth co san cua `sap-btp-agent` thay vi can basic auth/config `.env` rieng nhu duoi day. Xem skill
+**`sap-dict-bridge`** (`reference/mcp-server/mcp_sap_connect/bridge_server.py`) — tai su dung cookie
+auth co san cua `mcp-sap-connect` thay vi can basic auth/config `.env` rieng nhu duoi day. Xem skill
 `sap-cloud-dictionary` (Buoc 8) de dung ban native nay. Noi dung Option B duoi day van giu lai lam
 tham khao neu muon dung ban goc cua `fr0ster`.
 

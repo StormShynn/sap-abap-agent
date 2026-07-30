@@ -10,7 +10,7 @@ Legacy enum values that should be migrated away:
              collapse it with the old taxonomy, e.g. "s4hc / btp / onprem")
 
 Scans:
-  1. reference/mcp-server/sap_btp_agent/**/*.py
+  1. reference/mcp-server/mcp_sap_connect/**/*.py
      reject hardcoded prompt literal "Service type (s4hc / btp / onprem)"
      or the half-migrated "(s4hc_(private) / s4hc_(public) / onprem)".
      Whitelist: store.py + cli/__init__.py + tools/registry.py
@@ -20,7 +20,7 @@ Scans:
        - "Service type (s4hc / btp / onprem)"
        - "s4hc / btp" / "btp / onprem" / "s4hc / onprem" (with / or | or \\)
        - any mention of "s4hc" as a service-type ENUM VALUE (not as part
-         of "sap-btp-agent", "s4hana.cloud.sap", or generic prose).
+         of "mcp-sap-connect", "s4hana.cloud.sap", or generic prose).
 
 Run:
   python scripts/check_service_type.py
@@ -66,9 +66,9 @@ ROOT_DOCS = [
 # Files allowed to mention the legacy taxonomy (they DEFINE the migration:
 # default values, aliases, docstrings explaining the change).
 CODE_WHITELIST = {
-    ROOT / "reference" / "mcp-server" / "sap_btp_agent" / "config" / "store.py",
-    ROOT / "reference" / "mcp-server" / "sap_btp_agent" / "cli" / "__init__.py",
-    ROOT / "reference" / "mcp-server" / "sap_btp_agent" / "tools" / "registry.py",
+    ROOT / "reference" / "mcp-server" / "mcp_sap_connect" / "config" / "store.py",
+    ROOT / "reference" / "mcp-server" / "mcp_sap_connect" / "cli" / "__init__.py",
+    ROOT / "reference" / "mcp-server" / "mcp_sap_connect" / "tools" / "registry.py",
     Path(__file__).resolve(),  # this lint script documents the legacy forms
 }
 
@@ -87,7 +87,7 @@ LEGACY_PAIR_PATTERN = re.compile(
 )
 
 # Standalone "s4hc" word boundary (NOT as part of larger identifier).
-# Skips matches inside "sap-btp-agent", "s4hana", "s4hc_(private)", etc.
+# Skips matches inside "mcp-sap-connect", "s4hana", "s4hc_(private)", etc.
 STANDALONE_S4HC = re.compile(r"\b(?<![-_a-z])s4hc\b(?![-_(a-z])")
 
 FAILURES: list[str] = []
@@ -113,7 +113,7 @@ def _iter_docs() -> list[Path]:
 
 
 def _check_code() -> None:
-    target = ROOT / "reference" / "mcp-server" / "sap_btp_agent"
+    target = ROOT / "reference" / "mcp-server" / "mcp_sap_connect"
     if not target.exists():
         _add(False, f"Skip code scan: {target} khong ton tai")
         return

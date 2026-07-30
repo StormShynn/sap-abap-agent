@@ -93,7 +93,7 @@ Ap dung pattern **context-decomposition**:
 Lenh mau (1 block duy nhat - cac bien chi dam bao ton tai trong cung 1 lan goi Bash nay):
 ```bash
 SESSION_DIR="$(python "${CLAUDE_PLUGIN_ROOT}/reference/scripts/agent_home.py" sessions/<ticket>)"
-IN_DIR="$(python -c "from sap_btp_agent.config.paths import get_in_dir; print(get_in_dir())")"
+IN_DIR="$(python -c "from mcp_sap_connect.config.paths import get_in_dir; print(get_in_dir())")"
 # Tu office_to_md.py sinh markdown -> $IN_DIR/fs_full.md
 python "${CLAUDE_PLUGIN_ROOT}/reference/scripts/office_to_md.py"
 # Copy vao session

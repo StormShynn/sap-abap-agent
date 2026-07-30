@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Sap-btp-agent & plugin auto-update — tu dong update moi nhat tu GitHub Releases
+# mcp-sap-connect & plugin auto-update — tu dong update moi nhat tu GitHub Releases
 set -euo pipefail
 
 REPO="StormShynn/sap-abap-agent"
@@ -58,9 +58,9 @@ echo "  OK Downloaded"
 # 3. pip install
 echo "[3/3] pip install --upgrade ..."
 pip install --upgrade "$TMPDIR/wheel.whl"
-echo "  OK sap-btp-agent updated to v$WHEEL_VER"
+echo "  OK mcp-sap-connect updated to v$WHEEL_VER"
 
 echo ""
 echo "=== Done ==="
-echo "sap-btp-agent version: v$WHEEL_VER"
-sap-btp-agent --help 2>/dev/null || echo "Run: sap-btp-agent --help"
+echo "mcp-sap-connect version: v$WHEEL_VER"
+mcp-sap-connect --help 2>/dev/null || echo "Run: mcp-sap-connect --help"

@@ -1,4 +1,4 @@
-﻿"""Test integration: subprocess CLI doc env var SAP_BTP_EARLY_FINISH_FILE."""
+"""Test integration: subprocess CLI doc env var SAP_BTP_EARLY_FINISH_FILE."""
 import os
 import subprocess
 import sys
@@ -36,7 +36,7 @@ from unittest.mock import patch, MagicMock
 testdir = os.environ.get('SAP_BTP_APPDIR_OVERRIDE')
 
 async def main():
-    from sap_btp_agent.cli import _cmd_reauth
+    from mcp_sap_connect.cli import _cmd_reauth
 
     # Mock toan bo I/O
     mock_auth = MagicMock()
@@ -48,11 +48,11 @@ async def main():
     mock_auth.save_cookies = AsyncMock()
 
     fake_cfg = {'authMode': 'cookie', 'reauthMode': 'auto', 'btpUrl': 'https://example.com'}
-    with patch('sap_btp_agent.config.store.load_config', return_value=fake_cfg), \\
-         patch('sap_btp_agent.cli.__init__.load_config', return_value=fake_cfg), \\
-         patch('sap_btp_agent.sap.auth.load_secrets', new=AsyncMock(return_value={'cookies': {}})), \\
-         patch('sap_btp_agent.sap.auth.update_secrets', new=AsyncMock(return_value={})), \\
-         patch('sap_btp_agent.cli.__init__.SapCookieAuth', return_value=mock_auth):
+    with patch('mcp_sap_connect.config.store.load_config', return_value=fake_cfg), \\
+         patch('mcp_sap_connect.cli.__init__.load_config', return_value=fake_cfg), \\
+         patch('mcp_sap_connect.sap.auth.load_secrets', new=AsyncMock(return_value={'cookies': {}})), \\
+         patch('mcp_sap_connect.sap.auth.update_secrets', new=AsyncMock(return_value={})), \\
+         patch('mcp_sap_connect.cli.__init__.SapCookieAuth', return_value=mock_auth):
         await _cmd_reauth('test.s4hana.cloud.sap')
 
 try:

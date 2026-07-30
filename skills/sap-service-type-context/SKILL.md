@@ -2,7 +2,7 @@
 name: sap-service-type-context
 description: |
   Xac dinh he thong dang lam viec la s4hc_(private) / s4hc_(public) / btp / onprem BANG CACH
-  doc profiles/<id>/config.json cua sap-btp-agent (offline, khong goi MCP, khong dong secret)
+  doc profiles/<id>/config.json cua mcp-sap-connect (offline, khong goi MCP, khong dong secret)
   truoc khi tra loi cau hoi bi anh huong boi edition: doc du lieu (CDS/API released vs SELECT
   bang truc tiep), extensibility (SSCUI/Key User vs classic SPRO/BAdI), cu phap ABAP Cloud bi
   cam, ATC variant. Hoi user xac nhan neu chua xac dinh duoc (config chua co / gia tri mac dinh
@@ -26,7 +26,7 @@ tools: [Bash, Read]
 
 [Xem chi tiet dieu tra: cac skill "dat chinh sach" cua plugin nay (`sap-ask-consultant`,
 `sap-extensibility`, `sap-clean-code`, `sap-abap-sql`) truoc gio deu viet cung cho **S/4HANA
-Cloud Public Edition**, khong rẽ nhanh theo edition — trong khi ket noi MCP (`sap-btp-agent`)
+Cloud Public Edition**, khong rẽ nhanh theo edition — trong khi ket noi MCP (`mcp-sap-connect`)
 tu 2026-07 da hoi va luu san field `service` theo taxonomy 4 nhanh
 (`s4hc_(private)` / `s4hc_(public)` / `btp` / `onprem`) nhung khong skill nao doc lai gia tri
 do. He qua: du he thong that la Private Edition/on-premise, cau tra loi van mac dinh theo rang
@@ -60,22 +60,22 @@ python "${CLAUDE_PLUGIN_ROOT}/reference/scripts/detect_service_type.py"
 ```
 
 Tra ve JSON `{profile, service, source, configPath, note}`. Script chi doc
-`profiles/<id>/config.json` cua `sap-btp-agent` (field khong nhay cam) — **khong** goi MCP,
+`profiles/<id>/config.json` cua `mcp-sap-connect` (field khong nhay cam) — **khong** goi MCP,
 **khong** dong vao `secrets.json`.
 
 ### Buoc 3: Xu ly theo `source`
 
 | `source` | Y nghia | Hanh dong |
 |---|---|---|
-| `config` | Co gia tri `service` da duoc user xac nhan luc `sap-btp-agent setup` | Dung thang, thong bao ngan cho user (vd "Dang lam viec tren **s4hc_(public)** — profile `<id>`"), **KHONG hoi lai** |
+| `config` | Co gia tri `service` da duoc user xac nhan luc `mcp-sap-connect setup` | Dung thang, thong bao ngan cho user (vd "Dang lam viec tren **s4hc_(public)** — profile `<id>`"), **KHONG hoi lai** |
 | `config_default` | File config ton tai nhung thieu/sai field `service` (chua tung duoc xac nhan that) | Hoi lai user xac nhan truoc khi dung |
-| `not_configured` | Khong co profile nao (chua chay `sap-btp-agent setup`, hoac dung MCP ADT khac/workflow abapgit-local thuan) | Hoi thang user, **giu nguyen taxonomy 4 nhanh**: *"He thong dang lam viec la s4hc_(private) / s4hc_(public) / btp / onprem?"* |
+| `not_configured` | Khong co profile nao (chua chay `mcp-sap-connect setup`, hoac dung MCP ADT khac/workflow abapgit-local thuan) | Hoi thang user, **giu nguyen taxonomy 4 nhanh**: *"He thong dang lam viec la s4hc_(private) / s4hc_(public) / btp / onprem?"* |
 
 Neu co **nhieu profile** (`sap_list_profiles`) va cau hoi khong ro dang noi ve he thong nao —
 hoi ro profile nao truoc khi dung ket qua cua profile active mac dinh.
 
 **Khong ghi de** ket qua hoi duoc (khi `not_configured`/`config_default`) vao lai
-`profiles/<id>/config.json` that — day la du lieu KET NOI that su cua `sap-btp-agent`, khong
+`profiles/<id>/config.json` that — day la du lieu KET NOI that su cua `mcp-sap-connect`, khong
 phai nhan dinh cua 1 cau tra loi hoi thoai; sai o day co the anh huong hanh vi MCP that. Chi
 ghi nho trong ngu canh phien hien tai.
 
@@ -105,10 +105,10 @@ khi ap dung bang tren.
 - ⚠️ Ket qua o day chi la **dinh huong cau tra loi**, khong thay the viec verify that qua MCP
   (vd extensibility/API thuc su co dung duoc hay khong tren he thong that) — ap dung chung
   nguyen tac voi `sap-verification-before-completion`.
-- ⚠️ `source: config` dua tren gia tri user da nhap luc `sap-btp-agent setup` — co the sai neu
+- ⚠️ `source: config` dua tren gia tri user da nhap luc `mcp-sap-connect setup` — co the sai neu
   user nhap nham luc do. Neu cau tra loi dua ra co ve mau thuan voi thuc te he thong (vd bao
   "SELECT truc tiep duoc" nhung ATC that lai reject), nhac user kiem tra lai
-  `sap-btp-agent profiles show`.
+  `mcp-sap-connect profiles show`.
 - 💡 Doc offline (Buoc 2) re hon va dang tin cay hon suy tu `sap_ping` (khong can he thong
   dang song, khong round-trip mang) — chi hoi user khi thuc su khong co du lieu.
 - 🔗 `sap-routing-discipline` (R9) tro toi skill nay truoc khi tra loi cau hoi anh huong boi

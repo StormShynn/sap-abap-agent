@@ -1,10 +1,10 @@
 """Doctor: kiem tra moi truong Python + cac dependency hay bi thieu/an trong lang.
 
-Chay duoc TRUOC KHI sap-btp-agent nam tren PATH (vi day la diem hay gay nham lan nhat):
-    python -m sap_btp_agent.doctor
+Chay duoc TRUOC KHI mcp-sap-connect nam tren PATH (vi day la diem hay gay nham lan nhat):
+    python -m mcp_sap_connect.doctor
 
 Sau khi da cai xong va tren PATH, cung goi duoc qua:
-    sap-btp-agent doctor
+    mcp-sap-connect doctor
 """
 from __future__ import annotations
 
@@ -22,11 +22,11 @@ def _check_python_version() -> tuple[bool, str]:
 
 
 def _entry_point_name() -> str:
-    return "sap-btp-agent.exe" if os.name == "nt" else "sap-btp-agent"
+    return "mcp-sap-connect.exe" if os.name == "nt" else "mcp-sap-connect"
 
 
 def _find_entry_point_dir() -> Path | None:
-    """Tim folder chua script sap-btp-agent, thu ca default scheme va user scheme.
+    """Tim folder chua script mcp-sap-connect, thu ca default scheme va user scheme.
 
     pip co the cai vao user-scheme scripts dir (VD: %APPDATA%\\Python\\PythonXY\\Scripts
     tren Windows) neu khong co quyen viet vao Python goc -- day chinh la nguyen nhan
@@ -49,15 +49,15 @@ def _find_entry_point_dir() -> Path | None:
 
 
 def _check_path() -> tuple[bool, str]:
-    on_path = shutil.which("sap-btp-agent")
+    on_path = shutil.which("mcp-sap-connect")
     if on_path:
-        return True, f"sap-btp-agent tren PATH: {on_path}"
+        return True, f"mcp-sap-connect tren PATH: {on_path}"
 
     found_dir = _find_entry_point_dir()
     if found_dir is None:
-        return False, "Khong tim thay sap-btp-agent o dau ca -- kiem tra lai 'pip install -e .' da chay thanh cong chua."
+        return False, "Khong tim thay mcp-sap-connect o dau ca -- kiem tra lai 'pip install -e .' da chay thanh cong chua."
 
-    msg = f"sap-btp-agent CO duoc cai, nhung folder chua no KHONG nam trong PATH:\n      {found_dir}\n"
+    msg = f"mcp-sap-connect CO duoc cai, nhung folder chua no KHONG nam trong PATH:\n      {found_dir}\n"
     if os.name == "nt":
         msg += (
             "    Fix (PowerShell, khong can quyen Admin):\n"
@@ -82,12 +82,12 @@ def _check_module(name: str, label: str, *, required: bool) -> tuple[bool, str]:
 
 
 def _cleanup_orphan_mcp_processes() -> tuple[bool, str]:
-    """Tim + tu dong dong tien trinh sap-btp-agent.exe bi orphan (process
+    """Tim + tu dong dong tien trinh mcp-sap-connect.exe bi orphan (process
     Claude Code/terminal cha da tat nhung MCP server con van con song).
 
     Chi Windows: day la nguyen nhan hay gap nhat khien `pip install --upgrade`
     fail voi loi "file dang duoc su dung boi tien trinh khac" - file .exe bi
-    lock boi bat ky tien trinh sap-btp-agent.exe nao con song, ke ca orphan.
+    lock boi bat ky tien trinh mcp-sap-connect.exe nao con song, ke ca orphan.
     Chi dong tien trinh KHONG con process cha (an toan tuyet doi - khong the
     lam gian doan session nao dang dung, vi theo dinh nghia khong con ai
     tham chieu no nua). KHONG dong tien trinh van co process cha con song.
@@ -100,7 +100,7 @@ def _cleanup_orphan_mcp_processes() -> tuple[bool, str]:
 
     ps_script = (
         "$all = Get-CimInstance Win32_Process; "
-        "$targets = $all | Where-Object { $_.Name -eq 'sap-btp-agent.exe' }; "
+        "$targets = $all | Where-Object { $_.Name -eq 'mcp-sap-connect.exe' }; "
         "$alivePids = $all.ProcessId; "
         "$orphans = $targets | Where-Object { $_.ParentProcessId -notin $alivePids }; "
         "$orphans | Select-Object -ExpandProperty ProcessId | ConvertTo-Json"
@@ -140,7 +140,7 @@ def _cleanup_orphan_mcp_processes() -> tuple[bool, str]:
     if killed:
         return True, (
             f"Cleanup orphan MCP process: da tu dong dong {len(killed)} tien trinh "
-            f"sap-btp-agent.exe bi orphan (PID {', '.join(killed)}) - se khong con lock file "
+            f"mcp-sap-connect.exe bi orphan (PID {', '.join(killed)}) - se khong con lock file "
             f".exe cho lan 'pip install --upgrade' sau"
         )
     return True, "Cleanup orphan MCP process: phat hien orphan nhung khong dong duoc - thu taskkill thu cong"
@@ -188,9 +188,9 @@ def main() -> None:
 
     print()
     if all_ok:
-        print("  Moi thu deu OK. Chay: sap-btp-agent setup <URL>")
+        print("  Moi thu deu OK. Chay: mcp-sap-connect setup <URL>")
     else:
-        print("  Co van de can xu ly o cac dong '!!' phia tren truoc khi dung sap-btp-agent.")
+        print("  Co van de can xu ly o cac dong '!!' phia tren truoc khi dung mcp-sap-connect.")
     print()
 
 

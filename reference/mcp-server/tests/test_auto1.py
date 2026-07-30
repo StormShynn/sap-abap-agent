@@ -1,4 +1,4 @@
-﻿"""Test web_login_auto:
+"""Test web_login_auto:
 - Case 1: early_finish_event set sau 0.5s -> finish som (hon ca 3s URL stable)
 - Case 2: URL stable 3s (khong co session) -> finish som voi reason "url-stable"
 - Case 3: timeout 30s (khong co gi) -> fallback (khong test vi lau)
@@ -6,7 +6,7 @@
 import asyncio
 from unittest.mock import AsyncMock, MagicMock, patch
 
-from sap_btp_agent.sap.auth import web_login_auto
+from mcp_sap_connect.sap.auth import web_login_auto
 
 
 async def case_1_early_event():
@@ -20,11 +20,11 @@ async def case_1_early_event():
     asyncio.create_task(_set_after())
 
     # Mock _verify_discovery_session -> always True
-    with patch("sap_btp_agent.sap.auth._verify_discovery_session",
+    with patch("mcp_sap_connect.sap.auth._verify_discovery_session",
                new=AsyncMock(return_value=True)), \
-         patch("sap_btp_agent.sap.auth._launch_real_browser",
+         patch("mcp_sap_connect.sap.auth._launch_real_browser",
                new=AsyncMock(return_value=MagicMock())), \
-         patch("sap_btp_agent.sap.auth.async_playwright") as ap:
+         patch("mcp_sap_connect.sap.auth.async_playwright") as ap:
 
         # Fake pw context manager
         fake_pw = MagicMock()
@@ -45,7 +45,7 @@ async def case_1_early_event():
         fake_browser.new_context = AsyncMock(return_value=fake_context)
 
         # _launch_real_browser tra ve fake_browser
-        with patch("sap_btp_agent.sap.auth._launch_real_browser",
+        with patch("mcp_sap_connect.sap.auth._launch_real_browser",
                    new=AsyncMock(return_value=fake_browser)):
             import time
             t0 = time.monotonic()
@@ -64,9 +64,9 @@ async def case_1_early_event():
 async def case_2_url_stable():
     """URL stable 3s (no event) -> finish som ~ 3-4s."""
     print("\n=== CASE 2: URL stable 3s (no event) ===")
-    with patch("sap_btp_agent.sap.auth._verify_discovery_session",
+    with patch("mcp_sap_connect.sap.auth._verify_discovery_session",
                new=AsyncMock(return_value=False)), \
-         patch("sap_btp_agent.sap.auth._launch_real_browser",
+         patch("mcp_sap_connect.sap.auth._launch_real_browser",
                new=AsyncMock(return_value=MagicMock())):
 
         fake_browser = MagicMock()
@@ -80,7 +80,7 @@ async def case_2_url_stable():
         fake_context.new_page = AsyncMock(return_value=fake_page)
         fake_browser.new_context = AsyncMock(return_value=fake_context)
 
-        with patch("sap_btp_agent.sap.auth._launch_real_browser",
+        with patch("mcp_sap_connect.sap.auth._launch_real_browser",
                    new=AsyncMock(return_value=fake_browser)):
             import time
             t0 = time.monotonic()

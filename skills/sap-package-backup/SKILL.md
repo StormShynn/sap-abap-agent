@@ -3,7 +3,7 @@ name: sap-package-backup
 description: |
   Backup source ABAP toan bo package Z* (de quy sub-package) va cac custom
   field/custom logic YY1* (Key User Extensibility) qua ADT REST, dung
-  SapClient da co san trong sap-btp-agent - lay cam hung tu co che serialize
+  SapClient da co san trong mcp-sap-connect - lay cam hung tu co che serialize
   cua abapGit (dat ten file "<ten>.<loai>.<phan>", thu muc theo package
   hierarchy) de ban backup de doc/diff bang git. KHONG PHAI 1 repo abapGit
   day du round-trip - chi doc-ra-file, khong sinh du XML metadata de abapGit
@@ -91,7 +91,7 @@ noi dung mang `known_limitations` trong manifest (xem muc gioi han duoi day)
 
 ## Noi luu output
 
-Mac dinh: `<out dir cua sap-btp-agent>/backups/<label>_<timestamp>/` (thu
+Mac dinh: `<out dir cua mcp-sap-connect>/backups/<label>_<timestamp>/` (thu
 muc user home, **ngoai** repo git cua plugin nay — an toan mac dinh). Doi qua
 `--out <duong-dan>`.
 
@@ -198,5 +198,5 @@ phuc vu muc dich doc-luu-tham khao/diff, khong thay the abapGit thuc.
 - `docs/sap-knowledge/abapgit-serialization-spec.md` — spec chi tiet field-by-field
   tung loai object (chieu nguoc — generate de abapGit thuc pull vao, nhung field
   list tai su dung duoc cho chieu doc).
-- `reference/mcp-server/sap_btp_agent/tools/dictionary.py` — nguon xac nhan cac
+- `reference/mcp-server/mcp_sap_connect/tools/dictionary.py` — nguon xac nhan cac
   ADT REST path dung trong `TYPE_MAP` cua `backup_packages.py`.

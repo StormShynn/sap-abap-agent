@@ -1,4 +1,4 @@
-﻿"""Ma hoa secrets (token, client_secret) theo tung profile.
+"""Ma hoa secrets (token, client_secret) theo tung profile.
 
 Moi profile co file secrets.json rieng (mode 0o600), ma hoa doc lap.
 
@@ -25,7 +25,7 @@ from .paths import get_profile_secrets_file, mirror_write_text
 from .profile import ensure_app_dir, get_current_active
 
 # === Key derive cho AES fallback =====================================
-_AES_KEY_SALT = "sap-btp-agent-v1"
+_AES_KEY_SALT = "mcp-sap-connect-v1"
 
 
 def _derive_key() -> bytes:
@@ -34,7 +34,7 @@ def _derive_key() -> bytes:
     # scrypt: 32 bytes key, 16 bytes salt -> 32 bytes output
     from cryptography.hazmat.primitives.kdf.scrypt import Scrypt
     kdf = Scrypt(salt=salt, length=32, n=2**15, r=8, p=1)
-    return kdf.derive(b"sap-btp-agent")
+    return kdf.derive(b"mcp-sap-connect")
 
 
 @dataclass
@@ -74,7 +74,7 @@ def _try_dpapi_protect(plaintext: str) -> dict[str, str] | None:
     try:
         blob = win32crypt.CryptProtectData(
             plaintext.encode("utf-8"),
-            "sap-btp-agent",
+            "mcp-sap-connect",
             None,
             None,
             None,
@@ -137,7 +137,7 @@ def _resolve_id(profile_id: str | None) -> str | None:
 async def _ensure_id(profile_id: str | None) -> str:
     pid = _resolve_id(profile_id) or get_current_active()
     if not pid:
-        raise RuntimeError("Chua co profile nao. Chay: sap-btp-agent setup")
+        raise RuntimeError("Chua co profile nao. Chay: mcp-sap-connect setup")
     return pid
 
 
