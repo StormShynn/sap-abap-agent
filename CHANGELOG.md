@@ -49,6 +49,13 @@ Format dựa trên [Keep a Changelog](https://keepachangelog.com/) và [Semantic
   warning ra stderr), cập nhật CI/script của bạn sang `mcp-sap-connect` trong lúc này.
 
 
+## [v1.13.3] — 2026-07-30
+
+### Changed
+
+- Auto-bumped by CI (version-bump.yml).
+
+
 ## [v1.13.2] — 2026-07-30
 
 ### Changed
