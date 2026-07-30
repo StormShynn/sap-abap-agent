@@ -25,9 +25,10 @@ from ..config.profile import (
     set_active_profile,
     upsert_profile,
 )
-from ..config.secrets import save_secrets
+from ..config.secrets import load_secrets, save_secrets
 from ..config.store import (
     SERVICE_TYPE_DEFAULT,
+    SERVICE_TYPE_DESCRIPTIONS,
     SERVICE_TYPES,
     load_config,
     normalize_btp_url,
@@ -41,24 +42,30 @@ from ..sap.auth import (
     _parse_netscape_cookie_text,
     _session_cookie_names,
 )
+from ..setup_vsp import VspSetupError, ensure_vsp
 from . import _cancel as _sig
 from .prompt import UserCancelled, ask, header, info, ok, warn
 
 
 def _ask_service() -> str:
-    """Hoi service type voi schema moi (s4hc_(private)/s4hc_(public)/btp/onprem).
+    """Hoi service type voi schema 5 edition (s4hc_(private)/s4hc_(public)/btp/onprem/rise_with_sap).
 
-    Tuong thich nguoc: neu user nhap gia tri cu ("s4hc") thi tu dong anh xa
-    sang gia tri moi tuong ung. Validate ngay khi nhap de tranh config sai.
+    Tuong thich nguoc: neu user nhap gia tri cu ("s4hc" hoac "rise") thi tu dong
+    anh xa sang gia tri moi tuong ung. Validate ngay khi nhap de tranh config sai.
+    Hien thi menu 1 dong cho moi service type kem mo ta ngan de user chon dung.
     """
-    opts = " / ".join(SERVICE_TYPES)
-    raw = ask(f"Service type ({opts})", default=SERVICE_TYPE_DEFAULT)
+    lines = []
+    for st in SERVICE_TYPES:
+        desc = SERVICE_TYPE_DESCRIPTIONS.get(st, "")
+        lines.append(f"  {st:<16} - {desc}" if desc else f"  {st}")
+    menu = "\n".join(lines)
+    raw = ask(f"Service type:\n{menu}\nChon 1 gia tri", default=SERVICE_TYPE_DEFAULT)
     while True:
         try:
             return normalize_service_type(raw)
         except ValueError as err:
             print(f"  -> {err}")
-            raw = ask(f"Service type ({opts})", default=SERVICE_TYPE_DEFAULT)
+            raw = ask(f"Service type:\n{menu}\nChon 1 gia tri", default=SERVICE_TYPE_DEFAULT)
 
 def main() -> None:
     """Entry point: mcp-sap-connect <command> [args...]
@@ -734,6 +741,53 @@ def _cmd_reset() -> None:
 
 # ===== MCP SETUP ===================================================
 
+def _setup_vsp_server(register_fn) -> None:
+    """Tai (neu can) va dang ky `sap-vsp` qua register_fn(name, transport, cmd=, args=, env=).
+
+    SAP_ADT_URL luon lay tu profile active (btpUrl). SAP_ADT_USER/PASSWORD chi
+    dien tu dong duoc khi authMode profile la "password" (onprem/rise_with_sap)
+    - cac authMode khac khong co plain password de truyen cho 1 process rieng.
+    Xem KNOWN_LIMITATIONS.md.
+    """
+    pinned_bin = os.environ.get("MCP_SAP_CONNECT_VSP_BIN", "").strip()
+    if pinned_bin:
+        vsp_path = pinned_bin
+        ok(f"Dung vsp da pin qua MCP_SAP_CONNECT_VSP_BIN: {vsp_path}")
+    else:
+        try:
+            vsp_path = str(ensure_vsp())
+        except VspSetupError as err:
+            warn(f"Khong tai duoc vsp: {err}")
+            info("Cai thu cong binary roi set MCP_SAP_CONNECT_VSP_BIN toi duong dan do, "
+                 "hoac chay lai 'mcp-sap-connect mcp-setup' khi mang on dinh.")
+            return
+
+    try:
+        cfg = load_config()
+    except RuntimeError as err:
+        warn(f"Khong doc duoc profile active: {err}")
+        info("Chay 'mcp-sap-connect setup' truoc, roi 'mcp-setup' lai de dien SAP_ADT_URL cho vsp.")
+        cfg = {}
+
+    vsp_env = {"SAP_ADT_URL": cfg.get("btpUrl", "")}
+    if cfg.get("authMode") == "password":
+        try:
+            secrets = asyncio.run(load_secrets())
+        except Exception:
+            secrets = {}
+        if secrets.get("username") and secrets.get("password"):
+            vsp_env["SAP_ADT_USER"] = secrets["username"]
+            vsp_env["SAP_ADT_PASSWORD"] = secrets["password"]
+    if "SAP_ADT_USER" not in vsp_env:
+        warn("Profile hien tai khong dung password auth (hoac chua co username/password) - "
+             "vsp can SAP_ADT_USER/SAP_ADT_PASSWORD rieng de ket noi ADT.")
+        info("sap-vsp van duoc dang ky; dien 2 bien nay thu cong sau neu can debug/package health "
+             "(xem KNOWN_LIMITATIONS.md).")
+
+    ok(f"Dang ky sap-vsp ({vsp_path})...")
+    register_fn("sap-vsp", "stdio", cmd=vsp_path, args=["mcp"], env=vsp_env)
+
+
 def _cmd_mcp_setup() -> None:
     """Dang ky toan bo MCP servers voi Claude Code (bat buoc + tuy chon)."""
     header("MCP Server Setup — Dang ky MCP servers voi Claude Code")
@@ -803,6 +857,12 @@ def _cmd_mcp_setup() -> None:
         _register("mcp-abap-adt", "stdio", cmd="npx", args=["-y", "mcp-abap-adt"],
                   env={"ADT_URL": adt_url, "ADT_USER": adt_user,
                        "ADT_PASS": adt_pass, "ADT_CLIENT": "100"})
+
+    # --- ABAP deep analysis (tuy chon, side-by-side voi sap-connect) ---
+    header("ABAP deep analysis - vibing-steampunk (tuy chon)")
+    if ask("Dang ky sap-vsp (vibing-steampunk - package health/dead-code/debug)?",
+           default="n").lower() in ("y", "yes"):
+        _setup_vsp_server(_register)
 
     # --- Product-specific servers (manual) ---
     header("Product-specific servers (can cai dat them)")

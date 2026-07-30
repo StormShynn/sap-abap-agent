@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Any
+from typing import Any, NamedTuple
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 INVENTORY_PATH = SCRIPT_DIR / "mcp_inventory.json"
@@ -41,6 +41,35 @@ def servers_map(obj: dict[str, Any]) -> dict[str, Any]:
     if isinstance(obj.get("mcpServers"), dict):
         return obj["mcpServers"]
     return obj
+
+
+class ServerInfo(NamedTuple):
+    """1 MCP server dang khai bao, da chuan hoa tu 1 config .mcp.json bat ky."""
+    name: str
+    command: str | None
+    args: list[str]
+    env: dict[str, str]
+    url: str | None
+
+
+def list_servers(obj: dict[str, Any]) -> list[ServerInfo]:
+    """Chuan hoa 1 .mcp.json (qua servers_map()) thanh list ServerInfo, cho
+    routing-aware code duyet (name, command, args, env) ma khong phai tu doc
+    lai shape {mcpServers: {...}} hay {...} moi lan.
+    """
+    servers = servers_map(obj)
+    result: list[ServerInfo] = []
+    for name, cfg in servers.items():
+        if not isinstance(cfg, dict):
+            continue
+        result.append(ServerInfo(
+            name=name,
+            command=cfg.get("command"),
+            args=list(cfg.get("args") or []),
+            env=dict(cfg.get("env") or {}),
+            url=cfg.get("url"),
+        ))
+    return result
 
 
 def load_inventory() -> list[dict[str, Any]]:

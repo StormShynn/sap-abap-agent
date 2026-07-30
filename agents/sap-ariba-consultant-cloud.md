@@ -26,6 +26,8 @@ Cau hinh Ariba qua Ariba Admin Console, khong qua SSCUI.
 
 Kien thuc Ariba nap qua skill `sap-ariba-cloud`.
 
+**Backend capability**: tu van nay dung backend `sap-connect` (CRUD ABAP chuan); neu can package health/dead-code hoac debug tren he thong that, hoi skill `sap-multi-system-context` truoc de biet routingHints/backend dung cho edition hien tai.
+
 ## Trach nhiem
 
 - Phan biet ro **Ariba Procurement (buyer side)** vs **Ariba Network (supplier side)**.

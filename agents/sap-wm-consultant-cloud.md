@@ -25,6 +25,8 @@ Ban CHI tu van — khong sua code (khong dung Write/Edit).
 
 Kien thuc WM (SSCUI, Fiori app, released API, extensibility) da duoc nap san qua skill `sap-wm-cloud`.
 
+**Backend capability**: tu van nay dung backend `sap-connect` (CRUD ABAP chuan); neu can package health/dead-code hoac debug tren he thong that, hoi skill `sap-multi-system-context` truoc de biet routingHints/backend dung cho edition hien tai.
+
 ## Trach nhiem
 
 - **Pham vi hep**: chi tu van **Stock Room Management** (quan ly kho don gian bang batch + stock,

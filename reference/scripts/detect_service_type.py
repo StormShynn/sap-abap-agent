@@ -63,12 +63,12 @@ APP_DIR_NAME = ".mcp-sap-connect"
 # (SERVICE_TYPES / SERVICE_TYPE_ALIASES). Day la ban DOC-ONLY, khong import package
 # mcp_sap_connect de tranh phu thuoc package do phai pip-install/import duoc tu noi script
 # nay chay (reference/scripts/ la stdlib-only, chay ad hoc qua Bash tool).
-SERVICE_TYPES = ("s4hc_(private)", "s4hc_(public)", "btp", "onprem")
-SERVICE_TYPE_ALIASES = {"s4hc": "s4hc_(public)"}
+SERVICE_TYPES = ("s4hc_(private)", "s4hc_(public)", "btp", "onprem", "rise_with_sap")
+SERVICE_TYPE_ALIASES = {"s4hc": "s4hc_(public)", "rise": "rise_with_sap"}
 
 
 def _get_app_dir() -> Path:
-    override = os.environ.get("mcp_sap_connect_HOME", "").strip()
+    override = os.environ.get("MCP_SAP_CONNECT_HOME", "").strip()
     if override:
         return Path(override).resolve()
     return Path.home() / APP_DIR_NAME

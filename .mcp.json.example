@@ -1,0 +1,52 @@
+// Vi du day du cau hinh MCP neu user opt-in TAT CA 6 server (bao gom sap-vsp).
+// File nay CHI de tham khao - KHONG duoc code nao doc (JSON khong cho phep
+// comment nen khong the dua truc tiep vao .mcp.json thuc). `.mcp.json`
+// (khong co ".example") la file THAT Claude Code doc, chi khai bao 5 server
+// luon-on: sap-connect, sap-dict-bridge, cds-kb, mcp-sap-docs-btp, notion.
+//
+// `sap-vsp` KHONG nam trong .mcp.json vi no la OPT-IN (khac 5 server tren):
+// dang ky qua `mcp-sap-connect mcp-setup` (cau hoi "Dang ky sap-vsp?"), luu
+// vao user-scope cua Claude Code (~/.claude.json), khong phai project-scope
+// nay. Xem skills/sap-multi-system-context/SKILL.md va KNOWN_LIMITATIONS.md.
+{
+  "mcpServers": {
+    "sap-connect": {
+      "type": "stdio",
+      "command": "mcp-sap-connect"
+    },
+    "sap-dict-bridge": {
+      "type": "stdio",
+      "command": "python",
+      "args": ["-m", "mcp_sap_connect.bridge_server"]
+    },
+    "cds-kb": {
+      "type": "sse",
+      "url": "https://cds-kb-mcp-kit-production.up.railway.app/sse"
+    },
+    "mcp-sap-docs-btp": {
+      "type": "sse",
+      "url": "https://sap-docs-extend-mcp.cfapps.ap21.hana.ondemand.com/sse"
+    },
+    "notion": {
+      "type": "http",
+      "url": "https://mcp.notion.com/mcp"
+    },
+    // sap-vsp: command tro toi binary auto-download tai <appDir>/bin/vsp
+    // (hoac vsp.exe tren Windows), hoac duong dan pin qua env
+    // MCP_SAP_CONNECT_VSP_BIN neu user tu cai. `env` lay tu profile active -
+    // SAP_ADT_USER/SAP_ADT_PASSWORD CHI duoc dien tu dong khi profile dung
+    // authMode: "password" (mac dinh cho onprem/rise_with_sap). Profile dung
+    // cookie/oauth2/bearer se dang ky sap-vsp voi SAP_ADT_URL nhung THIEU 2
+    // bien user/password nay - can dien thu cong (xem KNOWN_LIMITATIONS.md).
+    "sap-vsp": {
+      "type": "stdio",
+      "command": "/home/user/.mcp-sap-connect/bin/vsp",
+      "args": ["mcp"],
+      "env": {
+        "SAP_ADT_URL": "https://your-system.example.com",
+        "SAP_ADT_USER": "your-adt-username",
+        "SAP_ADT_PASSWORD": "your-adt-password"
+      }
+    }
+  }
+}

@@ -33,8 +33,8 @@ dev = [
 mcp-sap-connect = "mcp_sap_connect.cli:main"
 mcp-sap-connect-gui = "mcp_sap_connect.gui:main"
 # 1.14.0: giu backward-compat shim 1 release, drop o 1.15.0
-mcp-sap-connect = "mcp_sap_connect._shim:main"
-mcp-sap-connect-gui = "mcp_sap_connect._shim_gui:main"
+sap-btp-agent = "mcp_sap_connect._shim:main"
+sap-btp-agent-gui = "mcp_sap_connect._shim_gui:main"
 
 
 [tool.setuptools.packages.find]

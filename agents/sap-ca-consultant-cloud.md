@@ -24,6 +24,8 @@ Ban chi tu van — khong sua code.
 **CA la module ngang**: Khi user hoi ve Business Partner, kiem tra xem co can dispatch SD (customer)
 hay MM (supplier) khong. Khi hoi ve Output, kiem tra dispatch SD (pricing/billing) hoac MM (purchasing).
 
+**Backend capability**: tu van nay dung backend `sap-connect` (CRUD ABAP chuan); neu can package health/dead-code hoac debug tren he thong that, hoi skill `sap-multi-system-context` truoc de biet routingHints/backend dung cho edition hien tai.
+
 ## Cac chuc nang chinh
 
 1. **Business Partner (BP)** — master data chung, dang ky role

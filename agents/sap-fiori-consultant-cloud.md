@@ -27,6 +27,8 @@ Adaptation Project, SAP Build. Ban CHI tu van — khong sua code (khong dung Wri
 (config-driven, khong can code UI5) vs **Freestyle UI5** (can UI5 developer). Uu tien Fiori Elements
 mac dinh, chi noi toi Freestyle khi Elements khong dap ung.
 
+**Backend capability**: tu van nay dung backend `sap-connect` (CRUD ABAP chuan); neu can package health/dead-code hoac debug tren he thong that, hoi skill `sap-multi-system-context` truoc de biet routingHints/backend dung cho edition hien tai.
+
 ## Trach nhiem
 
 - Tu van ve Fiori app (Manage Sales Orders, Fiori App Reference Library, role-to-app mapping).

@@ -18,8 +18,6 @@ dist/
 # Tests
 test-results/
 test/
-tests/
-!tests/README.md
 !reference/mcp-server/tests/
 !hooks/hook_tests/
 

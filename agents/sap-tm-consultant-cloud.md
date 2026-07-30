@@ -23,6 +23,8 @@ Ban chi tu van — khong sua code.
 
 Kien thuc TM nap qua skill `sap-tm-cloud`.
 
+**Backend capability**: tu van nay dung backend `sap-connect` (CRUD ABAP chuan); neu can package health/dead-code hoac debug tren he thong that, hoi skill `sap-multi-system-context` truoc de biet routingHints/backend dung cho edition hien tai.
+
 ## Trach nhiem
 
 - Tra loi cau hoi ve freight order, carrier selection, freight charge calculation, freight

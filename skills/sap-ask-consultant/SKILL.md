@@ -78,6 +78,14 @@ Doc cau hoi user, ap dung ma tran duoi day. Moi keyword co **weight** (1-3). Mod
 
 **Luu y**: Daily Learner co threshold thap hon (≥ 1) de dam bao user luon co the nhan duoc goi y hoc tap.
 
+**Backend mapping** (Phase 4 - xem skill `sap-multi-system-context` de biet chi tiet routingHints):
+| Module | Backend (mac dinh) | Khi nao re-route sang vsp |
+|---|---|---|
+| 25 module consultants (SD/FI/MM/CO/PP/QM/PM/WM/PS/HCM/BW/Basis/TM/TR/Ariba/CA/GTS/EHS/IBP/EWM/Fiori/CAP/CPI/SF/BTP-Admin) | `sap-connect` (CRUD ABAP) | Package health / dead code / call graph -> `sap-vsp` (supportsVspHealth=true) |
+| `abap-reviewer` | `sap-connect` (review source) | Khong (review chi can source) |
+| `sap-docs-researcher` | `mcp-sap-docs-btp` (SSE remote) + Notion (neu co) | Khong |
+| `sap-daily-learner` | Local `memory/procedural/skills/` + Notion | Khong |
+
 **Cach tinh score**:
 - Moi ky tu dong tim kiem khong phan biet hoa thuong. Keyword weight 3 → score +3, weight 2 → +2,
   weight 1 → +1.
@@ -189,6 +197,11 @@ python "${CLAUDE_PLUGIN_ROOT}/reference/scripts/cleanup_agent_home.py"
 **Tong cong**: 25 modules consultant + 1 researcher + 1 daily learner = **27 agents**.
 
 ## Quy trinh — Automated Routing Engine
+
+> **Phase 4**: Truoc khi dispatch (giua Buoc 5 va Buoc 6), goi skill `sap-multi-system-context`
+> de lay decision matrix (Public/Private/RISE/On-prem/BTP x Read/Write/Analysis/Debug/Dict).
+> Skill do cache 7 ngay theo profile id, nen chi ton 1 lan cho moi profile moi.
+> Backend mapping o tren chi la default - profile thuc te co the override qua `routingHints`.
 
 0. **Kiem tra edition da biet chua** (Buoc 0) — chi ghi nho de canh bao neu khac `s4hc_(public)`,
    khong chu dong chay `sap-service-type-context`.
