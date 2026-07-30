@@ -122,12 +122,41 @@ sap-abap-agent/
         +-- pyproject.toml
 ```
 
+## Migration từ bản 1.x
+
+Nếu bạn đã cài `sap-btp-agent` (bản 1.x): binary + package đã đổi tên thành `mcp-sap-connect`.
+Lần đầu chạy binary mới, dữ liệu profile của bạn **tự động** chuyển từ
+`%USERPROFILE%\.sap-btp-agent\` (Windows) / `~/.sap-btp-agent/` (macOS/Linux) sang
+`%USERPROFILE%\.mcp-sap-connect\` / `~/.mcp-sap-connect/` — không cần thao tác gì thêm,
+không mất profile/secret đã lưu (nếu thư mục mới đã tồn tại từ trước, tool sẽ báo lỗi rõ và
+yêu cầu bạn tự merge tay thay vì ghi đè âm thầm).
+
+Binary cũ `sap-btp-agent`/`sap-btp-agent-gui` vẫn hoạt động trong 1 release nữa — in cảnh báo
+deprecation ra stderr rồi gọi thẳng logic mới, không đổi hành vi — đủ thời gian cập nhật
+CI/script của bạn sang `mcp-sap-connect`/`mcp-sap-connect-gui`. Binary cũ sẽ bị gỡ ở bản sau
+(xem [CHANGELOG.md](CHANGELOG.md)).
+
+## Hỗ trợ đa hệ thống (5 edition)
+
+`mcp-sap-connect` nhận diện 5 kiểu hệ thống SAP khi chạy `setup`, mỗi kiểu có `authMode` mặc
+định và `routingHints` (khả năng backend nào dùng được — CRUD ABAP qua `sap-connect`, phân
+tích sâu qua `sap-vsp`, DDIC qua `sap-dict-bridge`) riêng. Xem skill `sap-multi-system-context`
+để biết chi tiết cách chọn đúng backend theo edition hiện tại:
+
+| Service type | Mô tả |
+|---|---|
+| `s4hc_(public)` | S/4HANA Cloud Public Edition (multi-tenant SaaS) |
+| `s4hc_(private)` | S/4HANA Cloud Private Edition (single-tenant, SAP-managed) |
+| `btp` | SAP BTP ABAP Environment (Steampunk) — runtime riêng trên CF/Kyma |
+| `onprem` | On-premise (customer-managed infrastructure) |
+| `rise_with_sap` | RISE with SAP (SAP-managed trên infrastructure của khách hàng) |
+
 ## Cài đặt (1 lần)
 
 Yêu cầu: **Python >= 3.10**. **Không cần clone repo** — chỉ cần tải 1 file `.whl` và `pip install`:
 
 ```bash
-pip install https://github.com/StormShynn/sap-abap-agent/releases/download/mcp-server-v1.8.0/sap_abap_agent_mcp-1.8.0-py3-none-any.whl
+pip install https://github.com/StormShynn/sap-abap-agent/releases/download/mcp-server-v1.14.0/mcp_sap_connect-1.14.0-py3-none-any.whl
 ```
 
 (Hoặc tải file `.whl` về trước rồi `pip install đường-dẫn-file.whl` nếu máy không có internet lúc chạy lệnh.)
@@ -135,14 +164,14 @@ pip install https://github.com/StormShynn/sap-abap-agent/releases/download/mcp-s
 Trên Windows, cài thêm extra `win-dpapi` để mã hóa secrets bằng DPAPI (thêm `[win-dpapi]` ngay sau tên file, trước phần mở rộng `.whl`):
 
 ```bash
-pip install "sap_abap_agent_mcp-1.8.0-py3-none-any.whl[win-dpapi]"
+pip install "mcp_sap_connect-1.14.0-py3-none-any.whl[win-dpapi]"
 ```
 
 Nếu muốn dùng Cookie-based auth kiểu **tự mở browser đăng nhập** (không cần F12 copy tay), cài thêm extra `playwright`
 và download browser binary:
 
 ```bash
-pip install "sap_abap_agent_mcp-1.8.0-py3-none-any.whl[playwright]"
+pip install "mcp_sap_connect-1.14.0-py3-none-any.whl[playwright]"
 playwright install chromium
 ```
 
@@ -163,7 +192,7 @@ không cần build lại wheel. Build wheel mới để release:
 ```bash
 pip install build
 python -m build --wheel
-# -> dist/sap_abap_agent_mcp-<version>-py3-none-any.whl
+# -> dist/mcp_sap_connect-<version>-py3-none-any.whl
 ```
 
 </details>
@@ -240,7 +269,7 @@ mcp-sap-connect connect project1.s4hana.cloud.sap  # test 1 profile cụ thể
 Nếu bạn không thích gõ lệnh, cài thêm GUI + tray icon:
 
 ```bash
-pip install sap-abap-agent-mcp[gui]
+pip install mcp-sap-connect[gui]
 ```
 
 Lệnh này cài thêm `pystray` + `Pillow`. Sau khi cài xong, có thêm command `mcp-sap-connect-gui`:

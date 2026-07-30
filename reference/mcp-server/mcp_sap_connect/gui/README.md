@@ -5,14 +5,14 @@ GUI desktop + system tray cho `mcp-sap-connect`, giup thao tac khong can nho len
 ## Cai dat
 
 ```
-pip install sap-abap-agent-mcp[gui]
+pip install mcp-sap-connect[gui]
 ```
 
 Lenh nay cai them `pystray` + `Pillow` (icon tray). Sau khi cai xong, co them command `mcp-sap-connect-gui`.
 
 Neu muon dung auto-login (`reauthMode=auto`) thi cai them:
 ```
-pip install sap-abap-agent-mcp[gui,playwright]
+pip install mcp-sap-connect[gui,playwright]
 python -m playwright install chromium
 ```
 

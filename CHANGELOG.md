@@ -6,6 +6,49 @@ Format dựa trên [Keep a Changelog](https://keepachangelog.com/) và [Semantic
 
 ---
 
+## [v1.14.0] — 2026-07-30
+
+### Changed
+
+- Đổi tên CLI/MCP server `sap-btp-agent` → `mcp-sap-connect` (binary, Python package,
+  MCP server entry trong `.mcp.json`, GUI binary, user data dir, wheel artifact). Binary
+  cũ vẫn hoạt động 1 release nữa qua shim (in deprecation warning ra stderr), sẽ gỡ ở
+  bản sau.
+- Profile config schema nâng lên `version: 2` — nâng cấp tự động, lazy (chỉ ghi đè khi
+  `save_config` được gọi lần đầu sau upgrade, không ghi đè khi chỉ đọc). File gốc được
+  backup vào `config.json.v1.bak` trước khi ghi bản v2.
+
+### Added
+
+- Service type thứ 5: `rise_with_sap` (RISE with SAP), bên cạnh `s4hc_(public)`,
+  `s4hc_(private)`, `btp`, `onprem`. `setup` wizard hiển thị mô tả ngắn cho cả 5 loại.
+- `routingHints` trong profile config (7 field: `supportsReadonlyClass`, `supportsDebug`,
+  `supportsVspSlim`, `supportsVspHealth`, `supportsDictBridge`, `preferredTransport`,
+  `preferredAnalysis`) — khai báo backend nào (`sap-connect`/`sap-vsp`/`sap-dict-bridge`)
+  dùng được cho profile hiện tại, có default hợp lý theo từng service type.
+- MCP server `sap-vsp` (tùy chọn, opt-in qua `mcp-sap-connect mcp-setup`) — chạy song
+  song với `sap-connect` để phân tích ABAP sâu (package health, dead code, debug) qua
+  binary Go [`vibing-steampunk`](https://github.com/oisee/vibing-steampunk). Tự động
+  tải + verify SHA256 binary đúng platform vào `<appDir>/bin/`.
+- Skill `sap-multi-system-context` — chọn đúng backend cho từng task dựa trên
+  `routingHints` của profile active, cache 7 ngày. `sap-ask-consultant` gọi skill này
+  trước khi dispatch để biết backend nào phù hợp với edition hiện tại.
+- Dòng "Backend capability" trong system prompt của 25 agent tư vấn module, chỉ tới
+  skill `sap-multi-system-context`.
+- `KNOWN_LIMITATIONS.md` — ghi lại các hạn chế đã biết của `sap-vsp` (single-profile,
+  chỉ hỗ trợ password auth, debug adapter chưa tích hợp sâu).
+- `.mcp.json.example` — tham khảo cấu hình đầy đủ 6 MCP server (bao gồm `sap-vsp`).
+
+### Migration
+
+- Dữ liệu profile tự động chuyển từ `~/.sap-btp-agent/` sang `~/.mcp-sap-connect/` khi
+  chạy binary mới lần đầu (atomic move, backup nếu thất bại giữa chừng).
+- Profile config `version: 1` tự nâng cấp lên `version: 2` khi `save_config` chạy lần
+  đầu sau upgrade — không cần thao tác gì thêm, file gốc được backup vào `.v1.bak`.
+- Binary `sap-btp-agent`/`sap-btp-agent-gui` vẫn dùng được 1 release nữa (deprecation
+  warning ra stderr), cập nhật CI/script của bạn sang `mcp-sap-connect` trong lúc này.
+
+
 ## [v1.13.2] — 2026-07-30
 
 ### Changed

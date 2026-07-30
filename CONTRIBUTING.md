@@ -388,6 +388,21 @@ skills: [sap-sd-cloud, sap-extensibility, sap-clean-code, sap-abap-sql]
 | Reference module | `sap-<module>-cloud/SKILL.md` | `sap-fi-cloud/SKILL.md` |
 | Agent name (YAML) | `sap-<module>-consultant-cloud` | `sap-mm-consultant-cloud` |
 
+### Renaming policy
+
+Public CLI/MCP binary names theo pattern `mcp-<vendor>-<purpose>` (vd `mcp-sap-connect`).
+**Một khi tên đã ship, đổi tên là breaking change** và bắt buộc theo quy trình:
+
+1. Binary/package mới ship song song với binary cũ trong **ít nhất 1 release** — binary cũ
+   trở thành 1 shim in deprecation warning ra stderr rồi gọi thẳng logic của binary mới
+   (không đổi hành vi, chỉ đổi tên gọi).
+2. Dữ liệu user (profile, config, secrets) tự động migrate 1 lần khi chạy binary mới lần
+   đầu — không bao giờ yêu cầu user tự tay di chuyển file.
+3. Ghi rõ trong `CHANGELOG.md` (section "Migration") + README ("Migration từ bản X.x") thời
+   điểm binary cũ sẽ bị gỡ.
+4. Chỉ gỡ shim ở release **sau** release đã thông báo — không gỡ ngay trong cùng release
+   ship tên mới.
+
 ### Translation support
 
 Nếu bạn thêm text mới vào `index.html`, hãy thêm cả:
