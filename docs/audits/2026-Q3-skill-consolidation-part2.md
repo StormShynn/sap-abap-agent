@@ -1,123 +1,126 @@
 # Skill Consolidation — Part 2 (2026-07-31)
 
-> Tiep noi `2026-Q3-skill-rationalization.md` (14/07/2026). Audit do thuc hien 2 viec ma audit
-> truoc de xuat nhung chua thuc thi (hop nhat BTP, tiep tuc dua skill setup-1-lan sang
-> `reference/mcp-guides/`), cong them rieng biet 4 skill moi da them SAU audit truoc ma
-> chua qua ra soat lan nao (`sap-multi-system-context`, `sap-service-type-context`,
+> Tiếp nối `2026-Q3-skill-rationalization.md` (14/07/2026). Audit này thực hiện 2 việc mà
+> audit trước đề xuất nhưng chưa thực thi (hợp nhất BTP, tiếp tục đưa skill setup-1-lần sang
+> `reference/mcp-guides/`), cộng thêm riêng biệt 4 skill mới đã thêm SAU audit trước mà chưa
+> qua rà soát lần nào (`sap-multi-system-context`, `sap-service-type-context`,
 > `sap-security-review`, `sap-package-backup`).
 
 ## Scope
 
-Yeu cau ban dau: rà soát toàn bộ 45 skill trong `skills/` (cảm giác "quá nhiều"), xác định
+Yêu cầu ban đầu: rà soát toàn bộ 45 skill trong `skills/` (cảm giác "quá nhiều"), xác định
 tập "chính" nên giữ auto-discover toàn cục, phần còn lại chuyển sang cơ chế đã có sẵn
 (`reference/modules/`, `reference/mcp-guides/`, `reference/process/`) để vẫn dùng được khi
-skill/agent khác gọi tới bằng tên, không cần xoá năng lực nào.
+skill/agent khác gọi tới bằng tên, không cần xóa năng lực nào.
 
 Thực thi Phase 1 (rủi ro thấp, đã xác nhận với người dùng trước khi sửa) — xem
 `docs/plans/completed/skill-consolidation-2026-07-31.md` cho chi tiết plan/risk/validation.
 Phase 2 (gộp nhóm "technical knowledge" — `sap-abap-sql`/`sap-authorization`/`sap-rap-events`/
 `sap-released-classes`/`sap-badi-enhancement`/`sap-key-user-toolkit`/`sap-odata-service`) —
-**chưa thực thi**, chỉ nghiên cứu và đề xuất, chờ quyết định riêng.
+**chưa thực thi**, chỉ nghiên cứu và đề xuất, xem kết luận ở cuối file.
 
-## Ket qua dat duoc
+## Kết quả đạt được
 
-`skills/` giam tu **45 xuong 38** (khong tinh placeholder `sap-user-skills`).
+`skills/` giảm từ **45 xuống 38** (không tính placeholder `sap-user-skills`).
 
-| Skill (cu) | Vi tri moi | Loai thay doi |
+| Skill (cũ) | Vị trí mới | Loại thay đổi |
 |---|---|---|
-| `sap-multi-system-context` | `reference/process/sap-multi-system-context.md` | Di chuyen nguyen ven, bo YAML frontmatter |
-| `sap-service-type-context` | `reference/process/sap-service-type-context.md` | Di chuyen nguyen ven, bo YAML frontmatter |
-| `mcp-sap-notes` | `reference/mcp-guides/mcp-sap-notes.md` | Di chuyen nguyen ven |
-| `mcp-sap-concur` | `reference/mcp-guides/mcp-sap-concur.md` | Di chuyen nguyen ven (da san co pointer sang `mcp-sap-cdata-setup.md`) |
-| `mcp-sap-fieldglass` | `reference/mcp-guides/mcp-sap-fieldglass.md` | Di chuyen nguyen ven |
-| `sap-btp-connectivity` | `reference/modules/sap-btp-connectivity/SKILL.md` | **Hop nhat** vao knowledge note co san cung ten (xem Phat hien #1) |
-| `sap-btp-best-practices` | `reference/modules/sap-btp-admin-cloud/deep/SKILL.md` | **Hop nhat**, phan trung security/CI-CD gop lai thay vi lap |
+| `sap-multi-system-context` | `reference/process/sap-multi-system-context.md` | Di chuyển nguyên vẹn, bỏ YAML frontmatter |
+| `sap-service-type-context` | `reference/process/sap-service-type-context.md` | Di chuyển nguyên vẹn, bỏ YAML frontmatter |
+| `mcp-sap-notes` | `reference/mcp-guides/mcp-sap-notes.md` | Di chuyển nguyên vẹn |
+| `mcp-sap-concur` | `reference/mcp-guides/mcp-sap-concur.md` | Di chuyển nguyên vẹn (đã sẵn có pointer sang `mcp-sap-cdata-setup.md`) |
+| `mcp-sap-fieldglass` | `reference/mcp-guides/mcp-sap-fieldglass.md` | Di chuyển nguyên vẹn |
+| `sap-btp-connectivity` | `reference/modules/sap-btp-connectivity/SKILL.md` | **Hợp nhất** vào knowledge note có sẵn cùng tên (xem Phát hiện #1) |
+| `sap-btp-best-practices` | `reference/modules/sap-btp-admin-cloud/deep/SKILL.md` | **Hợp nhất**, phần trùng security/CI-CD gộp lại thay vì lặp |
 
-## Phat hien moi (audit 14/07 chua co, hoac tu bao cao chua dung thuc te)
+## Phát hiện mới (audit 14/07 chưa có, hoặc tự báo cáo chưa đúng thực tế)
 
-1. **Xung dot ten 3 chieu voi `sap-btp-connectivity`, audit truoc khong phat hien**: truoc
-   khi sua, ton tai DONG THOI `skills/sap-btp-connectivity/SKILL.md` (skill instruction, se bi
-   xoa) VA `reference/modules/sap-btp-connectivity/SKILL.md` (knowledge note, tu nhan trong
-   chinh no la "Khong thay the skill sap-btp-connectivity" — noi dung khac nhau nhung TRUNG
-   ten). 8 file `reference/modules/*-integration/SKILL.md` khac (HCM, GTS, CA, Fiori role, BW,
-   PS, TR, WM-EWM) da tro ve knowledge note nay o muc "BTP architecture" tu truoc — vi giu
-   nguyen ten/vi tri knowledge note lam noi hop nhat, ca 8 file nay KHONG can sua gi.
-2. **Audit 14/07 tu bao cao "da hop nhat Destination pattern giua sap-btp-best-practices/
-   sap-btp-connectivity" nhung xac minh truc tiep cho thay chua hop nhat that** — chi co 1
-   doan o `sap-btp-best-practices` §6 tro sang `sap-btp-connectivity` thay vi lap lai JSON,
-   ca 2 skill van con day du, doc lap. Da hop nhat that trong dot nay.
-3. **`tests/test_skill_multi_system_context.py` hard-code duong dan `skills/
-   sap-multi-system-context`** va assert cac field frontmatter kieu skill (`tools`,
-   `argument-hint`, `effort`, `model: sonnet`) — di chuyen file doi hoi viet lai test, khong
-   chi doi duong dan. Da viet lai, giu nguyen cac assertion noi dung (routingHints, 5 edition,
-   3 backend, TTL 7 ngay), bo cac assertion frontmatter khong con ap dung, them 1 assertion
-   moi xac nhan `sap-ask-consultant` tro dung ve vi tri moi.
-4. **Bug co san (khong lien quan truc tiep phan nay) trong `reference/scripts/
-   mcp_inventory.json`**: entry `sap-fieldglass` co field `doc` tro sai
-   `skills/sap-fieldglass/SKILL.md` (thu muc that la `skills/mcp-sap-fieldglass/`, co tien to
-   `mcp-`). Da sua tien the trong luc cap nhat duong dan cho di chuyen nay.
-5. **`validate_plugin.py::skill_exists()` da duoc cap nhat tu truoc** (khong con la TODO nhu
-   audit 14/07 ghi) — da biet ca 4 duong dan (`skills/`, `reference/modules/`,
-   `reference/mcp-guides/`, `reference/process/`) truoc khi dot nay bat dau. Xac nhan bang
-   cach chay `validate_plugin.py` truoc khi sua (PASS, 1 warning version-drift co san khong
-   lien quan) roi doi chieu source `skill_exists()` truc tiep.
-6. **`CLAUDE.md` ghi so skill la "43"** trong khi thuc te (truoc dot nay) la 45 — lech do 2
-   skill moi nhat them vao ma chua cap nhat file nay. Da sua thanh 38 (con so that sau dot
-   nay), khong con lech.
+1. **Xung đột tên 3 chiều với `sap-btp-connectivity`, audit trước không phát hiện**: trước
+   khi sửa, tồn tại ĐỒNG THỜI `skills/sap-btp-connectivity/SKILL.md` (skill instruction, sẽ bị
+   xóa) VÀ `reference/modules/sap-btp-connectivity/SKILL.md` (knowledge note, tự nhận trong
+   chính nó là "Không thay thế skill sap-btp-connectivity" — nội dung khác nhau nhưng TRÙNG
+   tên). 8 file `reference/modules/*-integration/SKILL.md` khác (HCM, GTS, CA, Fiori role, BW,
+   PS, TR, WM-EWM) đã trỏ về knowledge note này ở mục "BTP architecture" từ trước — vì giữ
+   nguyên tên/vị trí knowledge note làm nơi hợp nhất, cả 8 file này KHÔNG cần sửa gì.
+2. **Audit 14/07 tự báo cáo "đã hợp nhất Destination pattern giữa sap-btp-best-practices/
+   sap-btp-connectivity" nhưng xác minh trực tiếp cho thấy chưa hợp nhất thật** — chỉ có 1
+   đoạn ở `sap-btp-best-practices` §6 trỏ sang `sap-btp-connectivity` thay vì lặp lại JSON,
+   cả 2 skill vẫn còn đầy đủ, độc lập. Đã hợp nhất thật trong đợt này.
+3. **`tests/test_skill_multi_system_context.py` hard-code đường dẫn `skills/
+   sap-multi-system-context`** và assert các field frontmatter kiểu skill (`tools`,
+   `argument-hint`, `effort`, `model: sonnet`) — di chuyển file đòi hỏi viết lại test, không
+   chỉ đổi đường dẫn. Đã viết lại, giữ nguyên các assertion nội dung (routingHints, 5 edition,
+   3 backend, TTL 7 ngày), bỏ các assertion frontmatter không còn áp dụng, thêm 1 assertion
+   mới xác nhận `sap-ask-consultant` trỏ đúng về vị trí mới.
+4. **Bug có sẵn (không liên quan trực tiếp phần này) trong `reference/scripts/
+   mcp_inventory.json`**: entry `sap-fieldglass` có field `doc` trỏ sai
+   `skills/sap-fieldglass/SKILL.md` (thư mục thật là `skills/mcp-sap-fieldglass/`, có tiền tố
+   `mcp-`). Đã sửa tiện thể trong lúc cập nhật đường dẫn cho di chuyển này.
+5. **`validate_plugin.py::skill_exists()` đã được cập nhật từ trước** (không còn là TODO như
+   audit 14/07 ghi) — đã biết cả 4 đường dẫn (`skills/`, `reference/modules/`,
+   `reference/mcp-guides/`, `reference/process/`) trước khi đợt này bắt đầu. Xác nhận bằng
+   cách chạy `validate_plugin.py` trước khi sửa (PASS, 1 warning version-drift có sẵn không
+   liên quan) rồi đối chiếu source `skill_exists()` trực tiếp.
+6. **`CLAUDE.md` ghi số skill là "43"** trong khi thực tế (trước đợt này) là 45 — lệch do 2
+   skill mới nhất thêm vào mà chưa cập nhật file này. Đã sửa thành 38 (con số thật sau đợt
+   này), không còn lệch.
 
-## Nguyen tac ap dung khi hop nhat/di chuyen
+## Nguyên tắc áp dụng khi hợp nhất/di chuyển
 
-- **Khong xoa nang luc** — chi doi tu "auto-discover qua tu khoa" sang "doc khi duoc tro toi
-  bang ten", giong het pattern da chung minh cua audit 14/07 (`mcp-sap-adt`/`mcp-sap-gui`/
+- **Không xóa năng lực** — chỉ đổi từ "auto-discover qua từ khóa" sang "đọc khi được trỏ tới
+  bằng tên", giống hệt pattern đã chứng minh của audit 14/07 (`mcp-sap-adt`/`mcp-sap-gui`/
   `mcp-sap-successfactors`, `sap-context-module-routing`/`sap-context-tool-result-trim`/
   `sap-scaffold-context-summary`).
-- **Neu ten van con ton tai o noi khac** (vd `sap-btp-connectivity` qua `reference/modules/`),
-  KHONG can sua frontmatter `skills:` cua agent dang khai bao no — `skill_exists()` van
-  resolve dung. Chi sua frontmatter khi ten thuc su bien mat hoan toan (vd `sap-btp-best-
-  practices`, gop vao 1 file KHAC ten).
-- **Doc toan bo noi dung ca 2 file truoc khi hop nhat**, khong tom tat/doan — hop nhat BTP
-  doi hoi doc day du 3 file nguon (2 skill + 1 knowledge note co san) de tranh mat thong tin
-  hoac lap lai.
+- **Nếu tên vẫn còn tồn tại ở nơi khác** (vd `sap-btp-connectivity` qua `reference/modules/`),
+  KHÔNG cần sửa frontmatter `skills:` của agent đang khai báo nó — `skill_exists()` vẫn
+  resolve đúng. Chỉ sửa frontmatter khi tên thực sự biến mất hoàn toàn (vd `sap-btp-best-
+  practices`, gộp vào 1 file KHÁC tên).
+- **Đọc toàn bộ nội dung cả 2 file trước khi hợp nhất**, không tóm tắt/đoán — hợp nhất BTP
+  đòi hỏi đọc đầy đủ 3 file nguồn (2 skill + 1 knowledge note có sẵn) để tránh mất thông tin
+  hoặc lặp lại.
 
-## Follow-up con lai (chua lam)
+## Follow-up còn lại (chưa làm)
 
-### Nhom "technical knowledge" — da nghien cuu, DE XUAT GIU NGUYEN (khong hop nhat)
+### Nhóm "technical knowledge" — đã nghiên cứu, ĐỀ XUẤT GIỮ NGUYÊN (không hợp nhất)
 
-Da doc toan bo noi dung 7 skill (`sap-abap-sql` 157 dong, `sap-authorization` 173 dong,
-`sap-rap-events` 167 dong, `sap-released-classes` 150 dong, `sap-odata-service` 162 dong,
-`sap-badi-enhancement` 138 dong, `sap-key-user-toolkit` 188 dong) va dem so agent khai bao
-tung ten qua `grep` truc tiep tren `agents/*.md` (khong suy doan). Ket luan: **khong nen hop
-nhat**, vi 3 ly do co bang chung cu the:
+Đã đọc toàn bộ nội dung 7 skill (`sap-abap-sql` 157 dòng, `sap-authorization` 173 dòng,
+`sap-rap-events` 167 dòng, `sap-released-classes` 150 dòng, `sap-odata-service` 162 dòng,
+`sap-badi-enhancement` 138 dòng, `sap-key-user-toolkit` 188 dòng) và đếm số agent khai báo
+từng tên qua `grep` trực tiếp trên `agents/*.md` (không suy đoán). Kết luận: **không nên hợp
+nhất**, vì 3 lý do có bằng chứng cụ thể:
 
-1. **Khong trung lap noi dung that** (khac hoan toan truong hop BTP vua sua o tren) — 6 skill
-   dau (tru `sap-key-user-toolkit`) moi skill 1 chu de ky thuat rieng biet (SQL/AMDP, DCL/IAM,
-   RAP event, danh muc class released, OData V2/V4, Cloud BAdI) khong lap noi dung voi nhau,
-   hau nhu khong tham chieu cheo (chi 1 cap `sap-badi-enhancement` <-> `sap-key-user-toolkit`
-   da duoc audit 14/07 xu ly xong, cross-reference thay vi lap lai).
-2. **`sap-released-classes` va `sap-key-user-toolkit` khac SHAPE voi 5 skill con lai**:
-   `sap-released-classes` la bang tra cuu thuan tuy (giong `sap-cds-kb` — mot skill catalog da
-   duoc giu rieng co chu dich), khong phai huong dan "cach lam". `sap-key-user-toolkit` phuc
-   vu **khac doi tuong hoan toan** — key user/functional consultant KHONG can ABAP — trong khi
-   6 skill con lai deu danh cho developer. Gop chung se la loi phan loai sai doi tuong doc.
-3. **Blast radius qua lon so voi loi ich**: dem qua grep, **24/25 agent `sap-*-consultant-
-   cloud.md`** khai bao **6/7 ten nay** (tru `sap-key-user-toolkit` — khong agent developer
-   nao khai bao no, dung nhu ky vong vi khac doi tuong) trong frontmatter `skills:`. Hop nhat
-   se doi sua frontmatter ca 24-25 file chi de doi ten tham chieu, cho 1 loi ich chi la giam
-   con so top-level tu 38 xuong ~33 — khong giam duoc tong luong kien thuc agent phai biet
-   (van la tung do noi dung, chi doi cho luu). Ngoai ra, gop nhieu chu de vao 1
-   `description`/`when_to_use` de dung chung 1 ngan sach 1.536 ky tu (xem `SKILL_TEMPLATE.md`
-   dong 46) se lam moi trigger phrase kem chinh xac hon so voi hien tai (moi skill co
-   `when_to_use` rieng, sat dung 1 chu de) — co nguy co lam GIAM chat luong auto-discover thay
-   vi cai thien, di nguoc lai chinh muc tieu ban dau.
+1. **Không trùng lặp nội dung thật** (khác hoàn toàn trường hợp BTP vừa sửa ở trên) — 6 skill
+   đầu (trừ `sap-key-user-toolkit`) mỗi skill 1 chủ đề kỹ thuật riêng biệt (SQL/AMDP, DCL/IAM,
+   RAP event, danh mục class released, OData V2/V4, Cloud BAdI) không lặp nội dung với nhau,
+   hầu như không tham chiếu chéo (chỉ 1 cặp `sap-badi-enhancement` <-> `sap-key-user-toolkit`
+   đã được audit 14/07 xử lý xong, cross-reference thay vì lặp lại).
+2. **`sap-released-classes` và `sap-key-user-toolkit` khác SHAPE với 5 skill còn lại**:
+   `sap-released-classes` là bảng tra cứu thuần túy (giống `sap-cds-kb` — một skill catalog đã
+   được giữ riêng có chủ đích), không phải hướng dẫn "cách làm". `sap-key-user-toolkit` phục
+   vụ **khác đối tượng hoàn toàn** — key user/functional consultant KHÔNG cần ABAP — trong khi
+   6 skill còn lại đều dành cho developer. Gộp chung sẽ là lỗi phân loại sai đối tượng đọc.
+3. **Blast radius quá lớn so với lợi ích**: đếm qua grep, **24/25 agent `sap-*-consultant-
+   cloud.md`** khai báo **6/7 tên này** (trừ `sap-key-user-toolkit` — không agent developer
+   nào khai báo nó, đúng như kỳ vọng vì khác đối tượng) trong frontmatter `skills:`. Hợp nhất
+   sẽ đòi sửa frontmatter cả 24-25 file chỉ để đổi tên tham chiếu, cho 1 lợi ích chỉ là giảm
+   con số top-level từ 38 xuống ~33 — không giảm được tổng lượng kiến thức agent phải biết
+   (vẫn là từng đó nội dung, chỉ đổi chỗ lưu). Ngoài ra, gộp nhiều chủ đề vào 1
+   `description`/`when_to_use` để dùng chung 1 ngân sách 1.536 ký tự (xem `SKILL_TEMPLATE.md`
+   dòng 46) sẽ làm mỗi trigger phrase kém chính xác hơn so với hiện tại (mỗi skill có
+   `when_to_use` riêng, sát đúng 1 chủ đề) — có nguy cơ làm GIẢM chất lượng auto-discover thay
+   vì cải thiện, đi ngược lại chính mục tiêu ban đầu.
 
-**Khong hanh dong** — giu nguyen ca 7 skill nay o `skills/`. Neu sau nay muon giam tiep, huong
-kha thi hon la ap dung pattern noi bo cua chinh `sap-clean-code` (tach `reference/` NOI BO
-trong thu muc cua no) cho TUNG skill rieng le (giam do dai file, khong giam SO LUONG skill),
-chu khong phai gop nhieu skill lai.
-- **Mau CData MCP chung** (`mcp-sap-cdata-setup.md`) da ton tai va da duoc `mcp-sap-concur`/
-  `mcp-sap-fieldglass`/`mcp-sap-successfactors` dung — khong con follow-up nao o day.
-- **`reference/modules/sap-fi-cloud/deep/SKILL.md` chua duoc lam giau** (audit 14/07, muc
-  10) — ngoai pham vi dot nay, van con nguyen trang.
-- **5 module thieu cross-reference `sap-extensibility`/`sap-clean-code`** (audit 14/07, muc
+**Không hành động** — giữ nguyên cả 7 skill này ở `skills/`. Nếu sau này muốn giảm tiếp,
+hướng khả thi hơn là áp dụng pattern nội bộ của chính `sap-clean-code` (tách `reference/` NỘI
+BỘ trong thư mục của nó) cho TỪNG skill riêng lẻ (giảm độ dài file, không giảm SỐ LƯỢNG
+skill), chứ không phải gộp nhiều skill lại.
+
+### Các follow-up khác (chưa làm, ngoài phạm vi đợt này)
+
+- **Mẫu CData MCP chung** (`mcp-sap-cdata-setup.md`) đã tồn tại và đã được `mcp-sap-concur`/
+  `mcp-sap-fieldglass`/`mcp-sap-successfactors` dùng — không còn follow-up nào ở đây.
+- **`reference/modules/sap-fi-cloud/deep/SKILL.md` chưa được làm giàu** (audit 14/07, mục
+  10) — ngoài phạm vi đợt này, vẫn còn nguyên trạng.
+- **5 module thiếu cross-reference `sap-extensibility`/`sap-clean-code`** (audit 14/07, mục
   9: `sap-bw-cloud`, `sap-basis-cloud`, `sap-tm-cloud`, `sap-tr-cloud`, `sap-ca-cloud`) —
-  ngoai pham vi dot nay, van con nguyen trang.
+  ngoài phạm vi đợt này, vẫn còn nguyên trạng.
