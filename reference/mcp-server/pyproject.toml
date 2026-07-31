@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "mcp-sap-connect"
-version = "1.15.0"
+version = "1.16.0"
 description = "MCP server tự động kết nối SAP (multi-profile, multi-edition) - rewrite Python"
 readme = "README.md"
 requires-python = ">=3.10"
