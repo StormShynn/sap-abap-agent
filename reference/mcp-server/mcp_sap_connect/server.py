@@ -51,7 +51,7 @@ async def _start_keep_alive_for_active_profile():
     try:
         from .config.profile import get_current_active
         from .config.store import load_config
-        from .sap.client import SapClient
+        from .sap.client import create_sap_client
 
         pid = get_current_active()
         if not pid:
@@ -60,8 +60,7 @@ async def _start_keep_alive_for_active_profile():
         if cfg.get("authMode") != "cookie":
             return None
 
-        client = SapClient(pid)
-        await client.init()
+        client = await create_sap_client(pid)
         client.start_keep_alive(300)  # 5 phut - xem ghi chu trong start_keep_alive
         print(f"[KEEPALIVE] Bat cho profile '{pid}' (moi 5 phut)", file=sys.stderr)
         return client

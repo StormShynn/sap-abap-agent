@@ -41,6 +41,7 @@ from ..sap.auth import (
     _parse_cookie_string,
     _parse_netscape_cookie_text,
     _session_cookie_names,
+    saml_or_browser_login,
 )
 from ..setup_vsp import VspSetupError, ensure_vsp
 from . import _cancel as _sig
@@ -273,19 +274,31 @@ async def _wizard_setup(url: str) -> None:
         print()
 
         cookie_source = ask(
-            "Lay cookies tu: (1) File Netscape format  (2) Nhap tay  "
-            "(3) Auto - mo browser dang nhap (can playwright)",
-            default="3",
+            "Lay cookies tu: (1) SAML fast-path (nhap user/pass, ~1-3s, KHONG mo browser -"
+            " chi dung neu IAS KHONG MFA)  (2) Auto - mo browser dang nhap (ho tro ca MFA)  "
+            "(3) File Netscape format  (4) Nhap tay",
+            default="1",
         )
 
         if cookie_source == "1":
-            cookie_file = ask("Duong dan file cookies (Netscape format)")
-            cookies = _load_cookies_from_file(cookie_file)
-            if not cookies:
-                print("  ⚠️ Khong doc duoc cookies tu file. Thu nhap tay.")
-                cookie_str = ask("Cookie string (name=value; name2=value2)")
-                cookies = _parse_cookie_string(cookie_str)
-        elif cookie_source == "3":
+            from ..sap.auth import SamlLoginError, saml_form_login
+            saml_user = ask("SAP Username (dang nhap IAS)")
+            saml_pass = ask("SAP Password (dang nhap IAS)", secret=True)
+            info("Thu dang nhap nhanh qua SAML form (HTTP truc tiep, khong mo browser)...")
+            try:
+                result = await saml_form_login(url, saml_user, saml_pass)
+                cookies = result.cookies
+                secrets_data["samlUsername"] = saml_user
+                secrets_data["samlPassword"] = saml_pass
+                ok("Dang nhap nhanh thanh cong - da luu (ma hoa) de tu dung lai cho lan reauth sau.")
+            except SamlLoginError as err:
+                warn(f"Dang nhap nhanh khong thanh cong ({err}) - fallback ve mo browser...")
+                cookies = {}
+                cookie_source = "2"  # roi qua nhanh browser ben duoi
+            finally:
+                saml_user = saml_pass = ""
+
+        if cookie_source == "2":
             from ..sap.auth import web_login_auto
             try:
                 result = await web_login_auto({"base_url": url, "profile_id": profile_id})
@@ -297,7 +310,14 @@ async def _wizard_setup(url: str) -> None:
                 print("  ⚠️ Khong lay duoc cookie tu browser. Thu nhap tay.")
                 cookie_str = ask("Cookie string (name=value; name2=value2)")
                 cookies = _parse_cookie_string(cookie_str)
-        else:
+        elif cookie_source == "3":
+            cookie_file = ask("Duong dan file cookies (Netscape format)")
+            cookies = _load_cookies_from_file(cookie_file)
+            if not cookies:
+                print("  ⚠️ Khong doc duoc cookies tu file. Thu nhap tay.")
+                cookie_str = ask("Cookie string (name=value; name2=value2)")
+                cookies = _parse_cookie_string(cookie_str)
+        elif cookie_source == "4":
             print()
             print("  👉 Mo SAP system trong trinh duyet, dang nhap, sau do:")
             print("     (F12 -> Application -> Cookies -> Copy cookie string,")
@@ -317,8 +337,9 @@ async def _wizard_setup(url: str) -> None:
 
         # Reauth mode
         reauth_mode = ask(
-            "Che do re-auth khi session het han? (1) Manual paste  (2) Auto (Playwright)",
-            default="2" if cookie_source == "3" else "1",
+            "Che do re-auth khi session het han? (1) Manual paste  "
+            "(2) Auto (SAML fast-path neu con dung duoc, fallback browser)",
+            default="2" if cookie_source in ("1", "2") else "1",
         )
         config_data["reauthMode"] = "auto" if reauth_mode == "2" else "manual"
         config_data.update({
@@ -367,6 +388,39 @@ _PLACEHOLDER_MARKERS = ("<", ">", "YOUR_", "REPLACE_ME")
 def _looks_like_placeholder(value: Any) -> bool:
     """True neu value con la placeholder chua dien (vd '<CLIENT_ID>')."""
     return isinstance(value, str) and any(m in value for m in _PLACEHOLDER_MARKERS)
+
+
+def _wire_early_finish_event(reauth_mode: str) -> asyncio.Event:
+    """Cho web_login_auto: 2 cach bao 'da dang nhap xong, kiem tra ngay' thay vi
+    cho poll tu nhien den khi tu phat hien session/timeout:
+      1. GUI: SAP_BTP_EARLY_FINISH_FILE duoc touch -> event.set().
+      2. CLI (reauth_mode == 'auto'): user bam Enter -> stdin doc 1 dong -> event.set().
+    Dung chung boi _cmd_reauth va _setup_from_file (auto cookie mode).
+    """
+    early_event = asyncio.Event()
+    marker_path = os.environ.get("SAP_BTP_EARLY_FINISH_FILE")
+    is_tty = sys.stdin and sys.stdin.isatty()
+
+    if marker_path:
+        async def _watch_file():
+            from pathlib import Path as _P
+            while not early_event.is_set():
+                if _P(marker_path).exists():
+                    early_event.set()
+                    break
+                await asyncio.sleep(0.1)
+        asyncio.get_event_loop().create_task(_watch_file())
+    elif is_tty and reauth_mode == "auto":
+        def _stdin_watcher():
+            try:
+                line = sys.stdin.readline()
+                if line is not None:
+                    early_event.set()
+            except Exception:
+                pass
+        threading.Thread(target=_stdin_watcher, daemon=True).start()
+
+    return early_event
 
 
 async def _setup_from_file(path: str) -> None:
@@ -452,12 +506,71 @@ async def _setup_from_file(path: str) -> None:
 
     elif auth_mode == "cookie":
         cookies = data.get("cookies")
-        if not isinstance(cookies, dict) or not cookies or any(_looks_like_placeholder(v) for v in cookies.values()):
+        cookies_missing = (
+            not isinstance(cookies, dict) or not cookies
+            or any(_looks_like_placeholder(v) for v in cookies.values())
+        )
+        reauth_mode = "auto" if data.get("reauthMode") == "auto" else "manual"
+
+        if cookies_missing and reauth_mode == "auto":
+            # Fast-path TUY CHON: neu file co dien them samlBootstrapUsername/
+            # samlBootstrapPassword (khong placeholder), thu dang nhap SAML
+            # qua HTTP form-fill truc tiep truoc (~1-3s, khong mo browser) -
+            # port tu vibing-steampunk. CHI hoat dong voi IAS user/pass thuan,
+            # KHONG MFA. Khong dien 2 field nay -> giu nguyen hanh vi cu (bo
+            # qua thang xuong browser).
+            #
+            # Neu thanh cong: luu lai username/password nay (ma hoa trong
+            # secrets, cung co che voi authMode=password) duoi ten
+            # samlUsername/samlPassword, de saml_or_browser_login tu dung lai
+            # cho cac lan reauth SAU nay (khong can mo browser moi lan session
+            # het han). Neu that bai (vd MFA) thi KHONG luu, tranh luu credential
+            # da biet la khong dung duoc qua duong nay.
+            saml_user = str(data.get("samlBootstrapUsername", "")).strip()
+            saml_pass = str(data.get("samlBootstrapPassword", "")).strip()
+            if (
+                saml_user and saml_pass
+                and not _looks_like_placeholder(saml_user)
+                and not _looks_like_placeholder(saml_pass)
+            ):
+                from ..sap.auth import SamlLoginError, saml_form_login
+                info("Thu dang nhap nhanh qua SAML form (HTTP truc tiep, khong mo browser)...")
+                try:
+                    result = await saml_form_login(url, saml_user, saml_pass)
+                    cookies = result.cookies
+                    secrets_data["samlUsername"] = saml_user
+                    secrets_data["samlPassword"] = saml_pass
+                    info("Dang nhap nhanh thanh cong - da luu (ma hoa) de tu dung lai cho lan reauth sau.")
+                except SamlLoginError as err:
+                    warn(f"Dang nhap nhanh khong thanh cong ({err}) - fallback ve browser...")
+                    cookies = None
+                saml_user = saml_pass = ""
+                cookies_missing = not isinstance(cookies, dict) or not cookies
+
+            if cookies_missing:
+                from ..sap.auth import web_login_auto
+                info("Cookies con placeholder + reauthMode=auto -> tu mo browser de dang nhap...")
+                info("(Neu bam Enter o terminal nay sau khi dang nhap xong, kiem tra session se chay ngay,"
+                     " khong can cho tu phat hien/timeout.)")
+                early_event = _wire_early_finish_event(reauth_mode)
+                try:
+                    result = await web_login_auto({
+                        "base_url": url,
+                        "profile_id": profile_id,
+                        "early_finish_event": early_event,
+                    })
+                    cookies = result.cookies
+                except Exception as err:
+                    print(f"  ❌ Auto-login qua browser loi: {err}")
+                    cookies = None
+                cookies_missing = not isinstance(cookies, dict) or not cookies
+
+        if cookies_missing:
             print("  ❌ Thieu hoac chua thay placeholder cho 'cookies' (phai la object "
-                  "{\"MYSAPSSO2\": \"...\", ...}).")
+                  "{\"MYSAPSSO2\": \"...\", ...}), va auto-login qua browser (neu co) khong lay duoc cookie.")
             return
         secrets_data["cookies"] = cookies
-        config_data["reauthMode"] = "auto" if data.get("reauthMode") == "auto" else "manual"
+        config_data["reauthMode"] = reauth_mode
 
     tenant = str(data.get("tenant", "")).strip()
     if tenant:
@@ -484,7 +597,7 @@ async def _setup_from_file(path: str) -> None:
 
 async def _cmd_connect(profile_id: str | None) -> None:
     from ..config.store import load_config
-    from ..sap.auth import web_login_auto, web_login_popup
+    from ..sap.auth import web_login_popup
     from ..sap.client import SapClient
 
     try:
@@ -503,8 +616,8 @@ async def _cmd_connect(profile_id: str | None) -> None:
     reauth_handler = None
     if auth_mode == "cookie":
         if reauth_mode == "auto":
-            reauth_handler = web_login_auto
-            info("Re-auth mode: Auto (Playwright)")
+            reauth_handler = saml_or_browser_login
+            info("Re-auth mode: Auto (SAML fast-path neu co credential luu san, fallback browser)")
         else:
             reauth_handler = web_login_popup
             info("Re-auth mode: Manual (paste cookie)")
@@ -565,7 +678,7 @@ async def _cmd_reauth(profile_id: str | None) -> None:
     dung khi chi can dang nhap lai vi session het han, khong doi gi khac.
     """
     from ..config.store import load_config
-    from ..sap.auth import SapCookieAuth, web_login_auto, web_login_popup
+    from ..sap.auth import SapCookieAuth, web_login_popup
 
     try:
         cfg = await asyncio.to_thread(load_config, profile_id)
@@ -582,42 +695,12 @@ async def _cmd_reauth(profile_id: str | None) -> None:
         return
 
     reauth_mode = cfg.get("reauthMode", "manual")
-    reauth_handler = web_login_auto if reauth_mode == "auto" else web_login_popup
+    reauth_handler = saml_or_browser_login if reauth_mode == "auto" else web_login_popup
 
     header(f"Dang nhap lai — {pid}")
-    info(f"Re-auth mode: {'Auto (Playwright)' if reauth_mode == 'auto' else 'Manual (paste cookie)'}")
+    info(f"Re-auth mode: {'Auto (SAML fast-path neu co, fallback browser)' if reauth_mode == 'auto' else 'Manual (paste cookie)'}")
 
-    # Wire "early finish" signal: cho auto mode, 2 cach de ket thuc som:
-    #  1. GUI: SAP_BTP_EARLY_FINISH_FILE duoc touch -> asyncio.Event set.
-    #  2. CLI: user bam Enter -> stdin doc 1 dong -> asyncio.Event set.
-    early_event = None
-    import asyncio as _aio
-    import os as _os
-    early_event = _aio.Event()
-
-    marker_path = _os.environ.get("SAP_BTP_EARLY_FINISH_FILE")
-    is_tty = sys.stdin and sys.stdin.isatty()
-
-    if marker_path:
-        # GUI mode: watch file marker qua asyncio loop (khong can thread rieng)
-        async def _watch_file():
-            from pathlib import Path as _P
-            while not early_event.is_set():
-                if _P(marker_path).exists():
-                    early_event.set()
-                    break
-                await _aio.sleep(0.1)
-        _aio.get_event_loop().create_task(_watch_file())
-    elif is_tty and reauth_mode == "auto":
-        # CLI mode: thread rieng doc stdin (Enter)
-        def _stdin_watcher():
-            try:
-                line = sys.stdin.readline()
-                if line is not None:
-                    early_event.set()
-            except Exception:
-                pass
-        threading.Thread(target=_stdin_watcher, daemon=True).start()
+    early_event = _wire_early_finish_event(reauth_mode)
 
     # Bat handler Ctrl+C 2-lan: lan 1 canh bao, lan 2 huy that.
     # Khoi phuc default handler khi xong (ke ca khi raise).

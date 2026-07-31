@@ -475,6 +475,39 @@ class SapClient:
         return SapEditSession(self)
 
 
+async def create_sap_client(profile_id: str | None = None) -> SapClient:
+    """Factory: tao + init SapClient VOI reauth_handler tu dong xac dinh tu
+    config cua profile, thay vi caller phai tu chon nhu truoc.
+
+    Truoc ham nay, moi MCP tool handler (registry.py/dictionary.py) tu goi
+    `SapClient(_pick_profile(args))` KHONG truyen reauth_handler - nghia la
+    neu session cookie het han giua luc dang dung tool that (khong phai qua
+    lenh CLI connect/reauth thu cong), CookieAuthProvider.reauth() se raise
+    RuntimeError ngay ("khong co reauth_handler"), khien tool that bai giua
+    chung khong the tu phuc hoi.
+
+    - authMode != "cookie": khong can reauth_handler (OAuth2 tu refresh token).
+    - authMode == "cookie" + reauthMode == "auto": saml_or_browser_login - tu
+      dung lai SAML credential da luu (secrets) neu co, fallback mo browser
+      that neu khong (giong reauthMode=auto o lenh CLI connect/reauth).
+    - authMode == "cookie" + reauthMode == "manual": KHONG gan reauth_handler
+      (nguoi dung chon che do can tu paste cookie tay - khong the tu dong hoa
+      an toan). Session het han se van bao loi ro rang, huong dan chay
+      `mcp-sap-connect reauth` thay vi treo/gia vo thanh cong.
+    """
+    from ..config.store import load_config
+    from .auth import saml_or_browser_login
+
+    cfg = await _maybe_await(load_config(profile_id))
+    reauth_handler = None
+    if cfg.get("authMode") == "cookie" and cfg.get("reauthMode") == "auto":
+        reauth_handler = saml_or_browser_login
+
+    client = SapClient(profile_id, reauth_handler=reauth_handler)
+    await client.init()
+    return client
+
+
 class SapEditSession:
     """1 phien HTTP dung CHUNG 1 httpx.AsyncClient (giu nguyen cookie jar,
     dac biet cookie 'sap-contextid') xuyen suot ca chuoi create -> lock ->

@@ -90,6 +90,21 @@ Lay cookie: dang nhap he thong SAP tren browser -> F12 -> tab **Application** (C
 **Storage** (Firefox) -> **Cookies** -> copy tung cap ten/gia tri. Ten cookie thuong gap:
 `MYSAPSSO2`, `SAP_SESSIONID_<SID>_<CLIENT>`, `sap-usercontext`.
 
+**Khong muon tu copy cookie tay?** Neu `reauthMode` la `auto`, co 2 lua chon tu dong (khong can
+dien `cookies` o tren):
+
+1. **Fast-path SAML (tuy chon, nhanh nhat)**: dien them 2 field `samlBootstrapUsername` +
+   `samlBootstrapPassword` — se tu dang nhap qua HTTP form-fill truc tiep (~1-3 giay, khong mo
+   browser). **Neu thanh cong, 2 gia tri nay se duoc ma hoa va luu lai** (cung co che voi
+   `authMode=password`) de tu dung lai cho **moi lan reauth sau nay** (session het han se tu dang
+   nhap lai qua HTTP, khong con phai mo browser nua). **CHI dung duoc neu login IAS la user/pass
+   thuan, KHONG co MFA** — neu tenant ban bat buoc MFA hoac dang nhap that bai, se KHONG luu gi ca
+   va tu fallback ve browser. Muon ngung dung fast-path sau khi da luu? Xoa profile
+   (`mcp-sap-connect profiles remove <id>`) roi tao lai voi 2 field nay de trong.
+2. **Browser tu dong (fallback, ho tro ca MFA)**: de trong 2 field tren, `mcp-sap-connect` se tu
+   mo 1 cua so browser that de ban dang nhap, roi tu trich xuat cookie (khong gioi han bang
+   user/pass thuan — dung duoc ca SSO/MFA).
+
 ## Sau khi chay `--from-file` thanh cong
 
 ```bash

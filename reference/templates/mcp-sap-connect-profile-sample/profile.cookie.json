@@ -3,6 +3,7 @@
   "_help_cookies": "Lay tu browser da dang nhap he thong SAP: F12 -> Application/Storage -> Cookies -> copy tung cap name/value. Ten cookie thuong gap: MYSAPSSO2, SAP_SESSIONID_<SID>_<CLIENT>, sap-usercontext",
   "_help_reauthMode": "'manual' = tu paste lai cookie moi khi het han (mac dinh, an toan nhat). 'auto' = tu mo browser cho dang nhap lai (can pip install \"...[playwright]\" + playwright install chromium)",
   "_help_service": "1 trong 5: s4hc_(public) | s4hc_(private) | btp | onprem | rise_with_sap - xem README.md cung thu muc",
+  "_help_samlBootstrap": "TUY CHON: dien ca samlBootstrapUsername + samlBootstrapPassword khi reauthMode=auto se thu dang nhap nhanh qua HTTP truc tiep (~1-3s, khong mo browser) TRUOC khi fallback ve mo browser. Neu THANH CONG, 2 gia tri nay se duoc MA HOA VA LUU LAI trong secrets (cung co che voi authMode=password) de tu dung lai cho MOI LAN reauth sau nay (session het han se tu dang nhap lai qua HTTP, khong can mo browser nua) - muon ngung dung, xoa profile bang 'mcp-sap-connect profiles remove <id>' roi tao lai. CHI dung duoc neu dang nhap IAS la user/pass thuan, KHONG MFA - neu tenant ban bat buoc MFA hoac dang nhap that bai, se KHONG luu gi ca va tu fallback ve mo browser (ho tro ca MFA) nhu binh thuong. De trong 2 field nay tu dau -> bo qua fast-path, dung browser ngay tu lan dau.",
 
   "profileId": "<TEN_PROFILE_TUY_CHON_de_trong_se_tu_sinh_tu_url>",
   "url": "<https://YOUR_TENANT.s4hana.cloud.sap>",
@@ -10,6 +11,8 @@
   "region": "eu10",
   "authMode": "cookie",
   "reauthMode": "manual",
+  "samlBootstrapUsername": "",
+  "samlBootstrapPassword": "",
   "cookies": {
     "MYSAPSSO2": "<PASTE_COOKIE_VALUE>",
     "SAP_SESSIONID_<SID>_<CLIENT>": "<PASTE_COOKIE_VALUE>",

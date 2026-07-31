@@ -600,6 +600,265 @@ async def web_login_auto(ctx: dict[str, Any]) -> ReauthResult:
     raise ReauthCancelled("Playwright login (no cookies)")
 
 
+# ===== SAML form-login (username+password, KHONG MFA, khong browser) ====
+#
+# Port tu vibing-steampunk (github.com/StormShynn/vibing-steampunk)
+# pkg/adt/saml_auth.go SAMLLogin - tu dien form HTML qua HTTP truc tiep
+# thay vi mo browser that, nen xong trong vai request (~1-3s) thay vi
+# poll 1 browser toi 30s. Doi lai: CHI dung duoc khi login IAS la form
+# user/pass thuan - neu IdP doi hoi them buoc thu 2 (OTP/push...), form
+# sau cung se khong con field user/pass nhu mong doi va ham nay se that
+# bai (giong bao loi cua ban Go: "check username/password") - luc do goi
+# nen fallback ve web_login_auto (browser, ho tro ca MFA).
+
+_MAX_SAML_HOPS = 10
+_REDIRECT_STATUS = (301, 302, 303, 307, 308)
+
+
+class SamlLoginError(Exception):
+    """SAML form-login khong thanh cong: sai username/password, IdP doi hoi
+    them buoc (vd MFA) ma form nay khong dap ung duoc, redirect loop, hoac
+    loi mang/parse. KHONG phan biet duoc ly do cu the (giong han che cua
+    ban Go goc) - caller nen fallback ve web_login_auto khi gap loi nay."""
+
+
+def _canonical_host(host: str, scheme: str) -> str:
+    h = host.lower()
+    if scheme == "https" and h.endswith(":443"):
+        h = h[:-4]
+    elif scheme == "http" and h.endswith(":80"):
+        h = h[:-3]
+    return h
+
+
+def _validate_form_action(current_url: str, action: str, sap_host: str) -> str:
+    """Resolve `action` (co the relative) doi voi current_url; tu choi neu
+    khong an toan de POST toi (chan exfiltrate SAMLResponse/credential ra
+    host la, va chan downgrade HTTPS->HTTP). Tra ve absolute URL da resolve.
+    Tuong duong validateFormAction() ben Go."""
+    from urllib.parse import urljoin, urlsplit
+
+    resolved = urljoin(current_url, action)
+    cur = urlsplit(current_url)
+    act = urlsplit(resolved)
+    if act.netloc:
+        act_host = _canonical_host(act.netloc, act.scheme)
+        cur_host = _canonical_host(cur.netloc, cur.scheme)
+        sap_host_norm = _canonical_host(sap_host, cur.scheme)
+        if act_host not in (cur_host, sap_host_norm):
+            raise SamlLoginError(
+                f"tu choi POST form toi host khac ({act.netloc} vs {cur.netloc}/{sap_host})"
+            )
+    if cur.scheme == "https" and act.scheme == "http":
+        raise SamlLoginError(f"tu choi downgrade HTTPS->HTTP: {resolved}")
+    return resolved
+
+
+class _FirstFormParser:
+    """Parse <form> dau tien trong 1 trang HTML: action, method, cac input
+    field (bo submit/button/image) - tuong duong extractFormData() ben Go,
+    dung stdlib html.parser thay vi 1 thu vien HTML rieng."""
+
+    def __init__(self) -> None:
+        from html.parser import HTMLParser
+
+        self.action: str | None = None
+        self.method = "POST"
+        self.fields: dict[str, str] = {}
+        outer = self
+
+        class _Parser(HTMLParser):
+            def __init__(self):
+                super().__init__()
+                self._in_form = False
+                self._closed = False
+
+            def handle_starttag(self, tag, attrs):
+                if self._closed:
+                    return
+                d = {k: (v or "") for k, v in attrs}
+                if tag == "form" and not self._in_form:
+                    self._in_form = True
+                    outer.action = d.get("action", "")
+                    outer.method = d.get("method", "POST").upper()
+                elif tag == "input" and self._in_form:
+                    name = d.get("name")
+                    itype = d.get("type", "").lower()
+                    if name and itype not in ("submit", "button", "image"):
+                        outer.fields[name] = d.get("value", "")
+
+            def handle_endtag(self, tag):
+                if tag == "form" and self._in_form:
+                    self._closed = True
+
+        self._parser = _Parser()
+
+    def feed(self, html_text: str) -> None:
+        self._parser.feed(html_text)
+
+
+def _extract_form(html_text: str) -> _FirstFormParser | None:
+    parser = _FirstFormParser()
+    parser.feed(html_text)
+    return parser if parser.action is not None else None
+
+
+def _resolve_redirect_location(current_url: str, location: str) -> str:
+    """Resolve `location` (co the relative) doi voi current_url cho 1 HTTP
+    3xx redirect thuong qua header Location (KHONG phai form action).
+
+    CHI chan downgrade HTTPS->HTTP (giong CheckRedirect ben Go goc) -
+    KHONG gioi han host: redirect SP->IdP (vd SAP -> IAS accounts.cloud.sap)
+    von di khac domain hoan toan va la buoc BINH THUONG/BAT BUOC cua SAML,
+    khac voi form action (noi credential/SAMLResponse thuc su duoc GUI di)
+    - cho do _validate_form_action moi can gioi han host chat hon."""
+    from urllib.parse import urljoin, urlsplit
+
+    resolved = urljoin(current_url, location)
+    cur = urlsplit(current_url)
+    nxt = urlsplit(resolved)
+    if cur.scheme == "https" and nxt.scheme == "http":
+        raise SamlLoginError(f"tu choi downgrade HTTPS->HTTP luc redirect: {resolved}")
+    return resolved
+
+
+async def _follow_redirects_manually(
+    client: httpx.AsyncClient, request: httpx.Request
+) -> httpx.Response:
+    """Gui `request`, tu theo 3xx redirect (header Location) toi da
+    _MAX_SAML_HOPS lan (client tao voi follow_redirects=False de tu kiem
+    soat duoc tung hop thay vi de httpx tu dong theo). Xem
+    _resolve_redirect_location ve gioi han ap dung moi hop."""
+    resp = await client.send(request)
+    hops = 0
+    while resp.status_code in _REDIRECT_STATUS and hops < _MAX_SAML_HOPS:
+        location = resp.headers.get("location")
+        if not location:
+            break
+        next_url = _resolve_redirect_location(str(resp.url), location)
+        method = "GET" if resp.status_code in (301, 302, 303) else request.method
+        resp = await client.send(client.build_request(method, next_url))
+        hops += 1
+    if hops >= _MAX_SAML_HOPS:
+        raise SamlLoginError(f"SAML redirect loop: vuot qua {_MAX_SAML_HOPS} hop")
+    return resp
+
+
+async def saml_form_login(base_url: str, username: str, password: str) -> ReauthResult:
+    """Dang nhap SAML SP-initiated bang HTTP form-fill truc tiep (khong mo
+    browser) - port tu vibing-steampunk pkg/adt/saml_auth.go SAMLLogin.
+
+    4 buoc: (1) GET target -> theo redirect toi trang login IAS, (2) parse
+    form login, dien username/password, POST, (3-4) theo tiep chuoi form
+    SAMLResponse auto-submit ve lai SAP toi da _MAX_SAML_HOPS lan, lay cookie
+    tu client.cookies.
+
+    CHI dung duoc khi login IAS la user/pass thuan, KHONG MFA - xem
+    SamlLoginError. Password KHONG duoc luu/log lai o dau ca, chi dung
+    truc tiep de POST 1 lan roi bo qua.
+    """
+    from urllib.parse import urlsplit
+
+    parsed = urlsplit(base_url)
+    if not parsed.scheme or not parsed.netloc:
+        raise SamlLoginError(f"SAP URL khong hop le: {base_url}")
+    sap_host = parsed.netloc
+    target_url = f"{parsed.scheme}://{parsed.netloc}/sap/bc/adt/"
+
+    try:
+        async with httpx.AsyncClient(follow_redirects=False, timeout=30.0) as client:
+            # Buoc 1: GET target -> theo redirect toi trang login IdP.
+            resp = await _follow_redirects_manually(
+                client, client.build_request("GET", target_url)
+            )
+            body = resp.text
+
+            # Buoc 1b: SP-initiated - SAP co the tra ve 1 form auto-submit
+            # SAMLRequest thay vi HTTP 302. Form nay khong co field
+            # credential, khac voi form login that su cua IdP (co j_username).
+            # Form nay di TU SAP SANG IdP - khac host la binh thuong/bat buoc
+            # (giong Go goc: "cross-host is expected", chi chan downgrade,
+            # KHONG dung _validate_form_action strict o day).
+            sp_form = _extract_form(body)
+            if sp_form and "SAMLRequest" in sp_form.fields and "j_username" not in sp_form.fields:
+                action_url = _resolve_redirect_location(str(resp.url), sp_form.action)
+                resp = await _follow_redirects_manually(
+                    client, client.build_request("POST", action_url, data=sp_form.fields)
+                )
+                body = resp.text
+
+            # Buoc 2: parse form login IdP, dien username/password, POST.
+            form = _extract_form(body)
+            if not form:
+                raise SamlLoginError(
+                    f"khong tim thay login form trong response IdP (status {resp.status_code})"
+                )
+            action_url = _validate_form_action(str(resp.url), form.action, sap_host)
+
+            fields = dict(form.fields)
+            fields["j_username"] = username
+            fields["j_password"] = password
+            username = password = ""  # bo tham chieu som nhat co the
+
+            resp = await _follow_redirects_manually(
+                client, client.build_request("POST", action_url, data=fields)
+            )
+            body = resp.text
+            fields.clear()
+
+            # Buoc 3-4: theo tiep chuoi form SAMLResponse ve lai SAP.
+            for _ in range(_MAX_SAML_HOPS):
+                next_form = _extract_form(body)
+                if not next_form:
+                    break
+                action_url = _validate_form_action(str(resp.url), next_form.action, sap_host)
+                resp = await _follow_redirects_manually(
+                    client, client.build_request("POST", action_url, data=next_form.fields)
+                )
+                body = resp.text
+
+            cookies = dict(client.cookies)
+    except httpx.HTTPError as err:
+        raise SamlLoginError(f"loi mang khi dang nhap SAML: {err}") from err
+
+    if not cookies or not _session_cookie_names(cookies):
+        raise SamlLoginError(
+            "dang nhap SAML xong nhung khong co cookie session SAP "
+            "(MYSAPSSO2/SAP_SESSIONID) - kiem tra lai username/password, "
+            "hoac IAS co the yeu cau MFA (fallback ve dang nhap qua browser)."
+        )
+    return ReauthResult(cookies=cookies)
+
+
+async def saml_or_browser_login(ctx: dict[str, Any]) -> ReauthResult:
+    """ReauthHandler dung cho reauthMode=auto: neu profile co luu san
+    samlUsername/samlPassword (ma hoa trong secrets, dien tu luc setup ban
+    dau va da chung minh dang nhap thanh cong it nhat 1 lan), thu dang nhap
+    nhanh qua saml_form_login truoc (~1-3s, khong mo browser). Fallback ve
+    web_login_auto (browser) neu khong co credential luu san, hoac fast-path
+    that bai vi bat ky ly do gi (MFA, doi password, IAS thay doi flow...).
+    """
+    profile_id = ctx.get("profile_id")
+    base_url = ctx.get("base_url", "")
+    username = password = ""
+    if profile_id:
+        with contextlib.suppress(Exception):
+            secrets = await load_secrets(profile_id)
+            username = str(secrets.get("samlUsername", "") or "")
+            password = str(secrets.get("samlPassword", "") or "")
+
+    if username and password:
+        print("  i Co saml username/password da luu - thu dang nhap nhanh qua HTTP truoc...")
+        try:
+            return await saml_form_login(base_url, username, password)
+        except SamlLoginError as err:
+            print(f"  !! Dang nhap nhanh khong thanh cong ({err}) - fallback ve browser...")
+        finally:
+            username = password = ""
+
+    return await web_login_auto(ctx)
+
+
 def _parse_cookie_string(cookie_str: str) -> dict[str, str]:
     """Parse cookie string: 'key1=val1; key2=val2' -> dict."""
     cookies: dict[str, str] = {}

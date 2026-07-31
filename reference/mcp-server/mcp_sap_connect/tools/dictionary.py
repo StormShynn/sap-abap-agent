@@ -40,7 +40,7 @@ import os
 import re
 from typing import Any
 
-from ..sap.client import SapClient
+from ..sap.client import SapClient, create_sap_client
 
 DDIC_TYPE_MAP = {
     "domain": "DOMA",
@@ -1132,7 +1132,7 @@ async def _publish_service_binding(
 
 async def _handle_create_domain(args: dict[str, Any] | None) -> str:
     args = args or {}
-    client = SapClient(_pick_profile(args))
+    client = await create_sap_client(_pick_profile(args))
     await client.init()
 
     name = args.get("name", "").upper().strip()
@@ -1154,7 +1154,7 @@ async def _handle_create_domain(args: dict[str, Any] | None) -> str:
 
 async def _handle_create_data_element(args: dict[str, Any] | None) -> str:
     args = args or {}
-    client = SapClient(_pick_profile(args))
+    client = await create_sap_client(_pick_profile(args))
     await client.init()
 
     name = args.get("name", "").upper().strip()
@@ -1175,7 +1175,7 @@ async def _handle_create_data_element(args: dict[str, Any] | None) -> str:
 
 async def _handle_create_table(args: dict[str, Any] | None) -> str:
     args = args or {}
-    client = SapClient(_pick_profile(args))
+    client = await create_sap_client(_pick_profile(args))
     await client.init()
 
     name = args.get("name", "").upper().strip()
@@ -1202,7 +1202,7 @@ async def _handle_create_table(args: dict[str, Any] | None) -> str:
 
 async def _handle_create_cds_view(args: dict[str, Any] | None) -> str:
     args = args or {}
-    client = SapClient(_pick_profile(args))
+    client = await create_sap_client(_pick_profile(args))
     await client.init()
 
     name = args.get("name", "").upper().strip()
@@ -1224,7 +1224,7 @@ async def _handle_create_cds_view(args: dict[str, Any] | None) -> str:
 
 async def _handle_create_service_definition(args: dict[str, Any] | None) -> str:
     args = args or {}
-    client = SapClient(_pick_profile(args))
+    client = await create_sap_client(_pick_profile(args))
     await client.init()
 
     name = args.get("name", "").upper().strip()
@@ -1249,7 +1249,7 @@ async def _handle_create_service_definition(args: dict[str, Any] | None) -> str:
 
 async def _handle_create_metadata_extension(args: dict[str, Any] | None) -> str:
     args = args or {}
-    client = SapClient(_pick_profile(args))
+    client = await create_sap_client(_pick_profile(args))
     await client.init()
 
     name = args.get("name", "").upper().strip()
@@ -1274,7 +1274,7 @@ async def _handle_create_metadata_extension(args: dict[str, Any] | None) -> str:
 
 async def _handle_create_access_control(args: dict[str, Any] | None) -> str:
     args = args or {}
-    client = SapClient(_pick_profile(args))
+    client = await create_sap_client(_pick_profile(args))
     await client.init()
 
     name = args.get("name", "").upper().strip()
@@ -1299,7 +1299,7 @@ async def _handle_create_access_control(args: dict[str, Any] | None) -> str:
 
 async def _handle_create_class(args: dict[str, Any] | None) -> str:
     args = args or {}
-    client = SapClient(_pick_profile(args))
+    client = await create_sap_client(_pick_profile(args))
     await client.init()
 
     name = args.get("name", "").upper().strip()
@@ -1324,7 +1324,7 @@ async def _handle_create_class(args: dict[str, Any] | None) -> str:
 
 async def _handle_create_interface(args: dict[str, Any] | None) -> str:
     args = args or {}
-    client = SapClient(_pick_profile(args))
+    client = await create_sap_client(_pick_profile(args))
     await client.init()
 
     name = args.get("name", "").upper().strip()
@@ -1349,7 +1349,7 @@ async def _handle_create_interface(args: dict[str, Any] | None) -> str:
 
 async def _handle_create_package(args: dict[str, Any] | None) -> str:
     args = args or {}
-    client = SapClient(_pick_profile(args))
+    client = await create_sap_client(_pick_profile(args))
     await client.init()
 
     name = args.get("name", "").upper().strip()
@@ -1377,7 +1377,7 @@ async def _handle_create_package(args: dict[str, Any] | None) -> str:
 
 async def _handle_create_bdef(args: dict[str, Any] | None) -> str:
     args = args or {}
-    client = SapClient(_pick_profile(args))
+    client = await create_sap_client(_pick_profile(args))
     await client.init()
 
     name = args.get("name", "").upper().strip()
@@ -1413,7 +1413,7 @@ async def _handle_create_bdef(args: dict[str, Any] | None) -> str:
 
 async def _handle_create_service_binding(args: dict[str, Any] | None) -> str:
     args = args or {}
-    client = SapClient(_pick_profile(args))
+    client = await create_sap_client(_pick_profile(args))
     await client.init()
 
     name = args.get("name", "").upper().strip()
@@ -1441,7 +1441,7 @@ async def _handle_create_service_binding(args: dict[str, Any] | None) -> str:
 
 async def _handle_publish_service_binding(args: dict[str, Any] | None) -> str:
     args = args or {}
-    client = SapClient(_pick_profile(args))
+    client = await create_sap_client(_pick_profile(args))
     await client.init()
 
     name = args.get("name", "").upper().strip()
