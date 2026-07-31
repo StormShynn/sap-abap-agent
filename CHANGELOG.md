@@ -6,6 +6,46 @@ Format dựa trên [Keep a Changelog](https://keepachangelog.com/) và [Semantic
 
 ---
 
+## [v1.14.1] — 2026-07-31
+
+### Changed
+
+- **Skill consolidation (Phase 1, low-risk)** — giảm `skills/` từ 45 xuống **38** skill
+  auto-discover toàn cục, tiếp tục pattern đã dùng ở audit 2026-07-14
+  (`docs/audits/2026-Q3-skill-rationalization.md`). Không xoá năng lực nào — mỗi skill vẫn
+  đọc được ở vị trí mới, chỉ không còn tự trigger qua từ khoá:
+  - `sap-multi-system-context`, `sap-service-type-context` → `reference/process/` (đã được
+    `sap-ask-consultant`/`sap-routing-discipline` gọi bằng tên như 1 bước con, không phải thứ
+    user gõ đầu tiên).
+  - `mcp-sap-notes`, `mcp-sap-concur`, `mcp-sap-fieldglass` → `reference/mcp-guides/` (cùng
+    dạng với `mcp-sap-adt`/`mcp-sap-gui`/`mcp-sap-successfactors` đã chuyển trước đó).
+  - `sap-btp-connectivity` → hợp nhất vào `reference/modules/sap-btp-connectivity/SKILL.md`
+    (knowledge note đã tồn tại sẵn từ trước, cùng tên — phát hiện đây là xung đột tên 3 chiều
+    chưa từng được audit trước ghi nhận) — thêm bảng auth type, destination JSON example,
+    troubleshooting từ skill cũ vào đây.
+  - `sap-btp-best-practices` → hợp nhất vào `reference/modules/sap-btp-admin-cloud/deep/
+    SKILL.md` (account structure, naming convention, performance & cost — phần trùng
+    security/CI-CD được gộp thay vì lặp lại).
+  - Cập nhật frontmatter `skills:` của 3 agent (`sap-btp-admin-consultant-cloud`,
+    `sap-cap-consultant-cloud`, `sap-cpi-consultant-cloud`) bỏ `sap-btp-best-practices` (tên
+    không còn tồn tại ở đâu); giữ nguyên `sap-btp-connectivity` (tên vẫn resolve được qua
+    `reference/modules/`).
+  - Viết lại `tests/test_skill_multi_system_context.py` cho vị trí mới (bỏ assertion về
+    frontmatter kiểu skill, giữ assertion nội dung: routingHints, 5 edition, 3 backend, TTL).
+  - Cập nhật toàn bộ tham chiếu bằng tên trong `sap-ask-consultant`, `sap-routing-discipline`,
+    `sap-abap-sql`, `sap-extensibility`, `sap-clean-code`, `README.md`, `index.html` (4 chỗ),
+    `mcp_inventory.json` (tiện thể sửa 1 bug đường dẫn có sẵn từ trước: entry `sap-fieldglass`
+    trỏ sai `skills/sap-fieldglass/` thay vì `skills/mcp-sap-fieldglass/`).
+  - `CLAUDE.md` cập nhật số skill 43 → 38 (con số "43" đã lệch từ trước, không phản ánh đúng
+    2 skill mới nhất đã thêm trước đợt này).
+  - Chi tiết đầy đủ: `docs/audits/2026-Q3-skill-consolidation-part2.md`,
+    `docs/plans/completed/skill-consolidation-2026-07-31.md`.
+- Nhóm "technical knowledge" skill còn lại (`sap-abap-sql`, `sap-authorization`,
+  `sap-rap-events`, `sap-released-classes`, `sap-badi-enhancement`, `sap-key-user-toolkit`,
+  `sap-odata-service`) **chưa động tới** — cần phân tích riêng trước khi quyết định (rủi ro
+  cao hơn: các skill này được 25 agent tư vấn module khai báo, và gộp nhiều chủ đề vào 1
+  `description` có thể chạm giới hạn 1.536 ký tự nhanh hơn).
+
 ## [v1.14.0] — 2026-07-30
 
 ### Changed

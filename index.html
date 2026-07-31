@@ -985,7 +985,7 @@
     <div class="icon">SA</div>
     <div>
       <h2>SAP ABAP Agent</h2>
-      <small>v1.14.0 · 28 agents · 45 skills</small>
+      <small>v1.14.0 · 28 agents · 38 skills</small>
     </div>
   </div>
 
@@ -1079,7 +1079,7 @@
         <span class="theme-icon-light">☀️</span>
         <span class="theme-icon-dark" style="display:none;">🌙</span>
       </button>
-      <span class="header-version">v1.14.0 · 28 agents · 45 skills</span>
+      <span class="header-version">v1.14.0 · 28 agents · 38 skills</span>
     </div>
   </header>
 
@@ -1222,7 +1222,7 @@
 <span class="dir">📦 sap-abap-agent/</span>
 <span class="branch">├──</span> <span class="highlight">.claude-plugin/</span>        <span class="file"> ← Manifest + metadata</span>
 <span class="branch">├──</span> <span class="highlight">agents/</span>                 <span class="file"> ← 28 agent definitions (.md)</span>
-<span class="branch">├──</span> <span class="highlight">skills/</span>                 <span class="file"> ← 45 skill implementations</span>
+<span class="branch">├──</span> <span class="highlight">skills/</span>                 <span class="file"> ← 38 skill implementations</span>
 <span class="branch">│</span>   <span class="branch">├──</span> <span class="highlight">sap-ask-consultant/</span>    <span class="file"> ← Routing engine (28 agents)</span>
 <span class="branch">│</span>   <span class="branch">├──</span> <span class="highlight">sap-btp-setup/</span>         <span class="file"> ← BTP connection manager</span>
 <span class="branch">│</span>   <span class="branch">├──</span> <span class="highlight">sap-cds-kb/</span>            <span class="file"> ← CDS view search (7,355 views)</span>
@@ -2899,7 +2899,7 @@ echo. > "%USERPROFILE%\.sap-abap-agent\cron\ENABLED"</code><button class="copy-b
     <!-- ===== SKILL: SAP NOTES MCP ===== -->
     <section id="skill-sap-notes-mcp">
       <h2><span class="section-icon">📝</span> SAP Notes MCP (mcp-sap-notes)</h2>
-      <p><strong>skills/mcp-sap-notes/SKILL.md</strong> — Tra cứu SAP Notes qua MCP server <code>mcp-sap-notes</code> bởi marianfoo. Tìm kiếm và đọc nội dung SAP Notes trực tiếp từ Claude Code.</p>
+      <p><strong>reference/mcp-guides/mcp-sap-notes.md</strong> — Tra cứu SAP Notes qua MCP server <code>mcp-sap-notes</code> bởi marianfoo. Tìm kiếm và đọc nội dung SAP Notes trực tiếp từ Claude Code.</p>
 
       <h3>Cài đặt</h3>
       <pre><code><span class="hl-com"># Cài qua npm</span>
@@ -3041,7 +3041,7 @@ uv sync</code><button class="copy-btn" onclick="copyCode(this)">Sao chép</butto
     <!-- ===== SKILL: SAP CONCUR MCP ===== -->
     <section id="skill-sap-concur-mcp">
       <h2><span class="section-icon">✈️</span> SAP Concur MCP (mcp-sap-concur)</h2>
-      <p><strong>skills/mcp-sap-concur/SKILL.md</strong> — CData SAP Concur MCP Server cho phep query Travel &amp; Expense data (expense reports, travel requests, bookings, vendors) qua SQL. Read-only, Java-based.</p>
+      <p><strong>reference/mcp-guides/mcp-sap-concur.md</strong> — CData SAP Concur MCP Server cho phep query Travel &amp; Expense data (expense reports, travel requests, bookings, vendors) qua SQL. Read-only, Java-based.</p>
 
       <h3>Cai dat</h3>
       <pre><code><span class="hl-com"># Yeu cau: Java 11+, Maven</span>
@@ -3069,7 +3069,7 @@ mvn clean install</code><button class="copy-btn" onclick="copyCode(this)">Sao ch
     <!-- ===== SKILL: SAP FIELDGLASS MCP ===== -->
     <section id="skill-sap-fieldglass-mcp">
       <h2><span class="section-icon">🛠️</span> Fieldglass MCP (mcp-sap-fieldglass)</h2>
-      <p><strong>skills/mcp-sap-fieldglass/SKILL.md</strong> — CData SAP Fieldglass MCP Server cho phep query Services Procurement data (contingent workforce, SoW, timesheets, invoices) qua SQL. Read-only, Java-based.</p>
+      <p><strong>reference/mcp-guides/mcp-sap-fieldglass.md</strong> — CData SAP Fieldglass MCP Server cho phep query Services Procurement data (contingent workforce, SoW, timesheets, invoices) qua SQL. Read-only, Java-based.</p>
 
       <h3>Cai dat</h3>
       <pre><code><span class="hl-com"># Yeu cau: Java 11+, Maven</span>
@@ -3100,7 +3100,7 @@ java -jar cdata.jdbc.sapfieldglass.jar --license</code><button class="copy-btn" 
     <!-- ===== SKILL: SERVICE TYPE CONTEXT ===== -->
     <section id="skill-service-type-context">
       <h2><span class="section-icon">🧭</span> Service Type Context (sap-service-type-context)</h2>
-      <p><strong>skills/sap-service-type-context/SKILL.md</strong> — Xác định hệ thống đang làm việc là <code>s4hc_(private)</code> / <code>s4hc_(public)</code> / <code>btp</code> / <code>onprem</code> bằng cách đọc <code>profiles/&lt;id&gt;/config.json</code> của <code>sap-btp-agent</code> (offline, không gọi MCP, không đụng secret) — hỏi user nếu chưa xác định được — trước khi trả lời câu hỏi bị ảnh hưởng bởi edition.</p>
+      <p><strong>reference/process/sap-service-type-context.md</strong> — Xác định hệ thống đang làm việc là <code>s4hc_(private)</code> / <code>s4hc_(public)</code> / <code>btp</code> / <code>onprem</code> bằng cách đọc <code>profiles/&lt;id&gt;/config.json</code> của <code>sap-btp-agent</code> (offline, không gọi MCP, không đụng secret) — hỏi user nếu chưa xác định được — trước khi trả lời câu hỏi bị ảnh hưởng bởi edition.</p>
 
       <h3>So sánh nhanh theo Service Type</h3>
       <div class="table-wrap">
@@ -3382,7 +3382,7 @@ java -jar cdata.jdbc.sapfieldglass.jar --license</code><button class="copy-btn" 
     <!-- ===== SKILL: BTP CONNECTIVITY ===== -->
     <section id="skill-btp-connectivity">
       <h2><span class="section-icon">🔗</span> BTP Connectivity (sap-btp-connectivity)</h2>
-      <p><strong>skills/sap-btp-connectivity/SKILL.md</strong> — Cloud Connector, destination configuration (Basic, OAuth2SAMLBearer, PrincipalPropagation), RFC/BAPI access tu BTP to S/4HANA on-prem.</p>
+      <p><strong>reference/modules/sap-btp-connectivity/SKILL.md</strong> — Cloud Connector, destination configuration (Basic, OAuth2SAMLBearer, PrincipalPropagation), RFC/BAPI access tu BTP to S/4HANA on-prem.</p>
       <div class="features-grid">
         <div class="feature-card"><span class="fc-icon">🔌</span><h4>Cloud Connector</h4><p>Cai dat &amp; cau hinh Cloud Connector: access control, virtual host/mapping, role assignment, backend type</p></div>
         <div class="feature-card"><span class="fc-icon">🌐</span><h4>Destination</h4><p>SAP BTP destination: URL, auth type, proxy type (OnPremise/Internet), Additional Properties, trust store</p></div>
@@ -3393,7 +3393,7 @@ java -jar cdata.jdbc.sapfieldglass.jar --license</code><button class="copy-btn" 
     <!-- ===== SKILL: BTP BEST PRACTICES ===== -->
     <section id="skill-btp-best-practices">
       <h2><span class="section-icon">✅</span> BTP Best Practices (sap-btp-best-practices)</h2>
-      <p><strong>skills/sap-btp-best-practices/SKILL.md</strong> — BTP development conventions: account structure, naming conventions, MTA, security, CI/CD setup, CAP best practices, logging/monitoring.</p>
+      <p><strong>reference/modules/sap-btp-admin-cloud/deep/SKILL.md</strong> — BTP development conventions: account structure, naming conventions, MTA, security, CI/CD setup, CAP best practices, logging/monitoring.</p>
       <div class="features-grid">
         <div class="feature-card"><span class="fc-icon">🏗️</span><h4>Account Structure</h4><p>Subaccount organization: dev/test/prod separation, entitlements, quota, service instance management</p></div>
         <div class="feature-card"><span class="fc-icon">📦</span><h4>MTA &amp; CI/CD</h4><p>Multi-target application (MTA) deployment: mtad.yaml, module types, resource binding, CI/CD pipeline via GitHub Actions</p></div>
@@ -3861,7 +3861,7 @@ java -jar cdata.jdbc.sapfieldglass.jar --license</code><button class="copy-btn" 
     </section>
 
     <div class="footer">
-      <strong>SAP ABAP Agent</strong> &middot; v1.14.0 · 28 agents · 45 skills<br>
+      <strong>SAP ABAP Agent</strong> &middot; v1.14.0 · 28 agents · 38 skills<br>
       <span style="font-size:12px;">Trang hướng dẫn này được tạo bởi StormShynn Coding Assistant</span>
     </div>
 

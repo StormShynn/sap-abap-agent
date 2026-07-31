@@ -14,7 +14,7 @@
 Claude Code plugin + MCP server (Python) cho SAP S/4HANA Cloud Public Edition.
 
 - 28 agents (module consultants + 3 cross-cutting)
-- 43 skills (pipelines + reference docs)
+- 38 skills (pipelines + reference docs)
 - 6 GitHub Actions workflows
 - MCP server source: `reference/mcp-server/mcp_sap_connect/`
 

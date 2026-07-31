@@ -3,7 +3,7 @@ name: sap-ask-consultant
 description: Hoi truc tiep 1 "chuyen gia" SAP theo phan he (SD, FI...) — noi dung 25 module
   consultant viet cho SAP S/4HANA Cloud Public Edition (SSCUI/Fiori app cu the). Tu dong chon
   dung agent tu van theo module, chay song song neu cau hoi dung nhieu module, roi tong hop
-  cau tra loi. Neu edition da biet (qua sap-service-type-context) khac s4hc_(public), tu dong
+  cau tra loi. Neu edition da biet (qua reference/process/sap-service-type-context.md) khac s4hc_(public), tu dong
   chen canh bao SSCUI/API co the khac tren he thong that. Dung khi user hoi "hoi SD", "hoi FI",
   hoac cau hoi nghiep vu ro module (sales order, GL, AP...).
 when_to_use: |
@@ -36,10 +36,11 @@ module cang chac chan duoc dispatch.
 
 25 module consultant agent (`sap-*-consultant-cloud`) viet noi dung SSCUI/Fiori app/API cu the
 cho **`s4hc_(public)`**. Neu edition cua phien nay **da duoc xac dinh truoc do** (qua
-`sap-service-type-context`, vd tu 1 luot hoi truoc trong cung phien) va **khac** `s4hc_(public)`
-— ghi nho de chen canh bao o Buoc 4 (Tong hop dispatch). KHONG chu dong chay
-`sap-service-type-context` o day chi de tu van thuan tuy nghiep vu don gian (tranh lam cham
-routing cho cau hoi khong thuc su can) — chi ap dung canh bao NEU da biet san tu ngu canh phien.
+`reference/process/sap-service-type-context.md`, vd tu 1 luot hoi truoc trong cung phien) va
+**khac** `s4hc_(public)` — ghi nho de chen canh bao o Buoc 4 (Tong hop dispatch). KHONG chu dong
+doc `reference/process/sap-service-type-context.md` o day chi de tu van thuan tuy nghiep vu don
+gian (tranh lam cham routing cho cau hoi khong thuc su can) — chi ap dung canh bao NEU da biet
+san tu ngu canh phien.
 
 ### Buoc 1: Xay dung Keyword Matrix cho tung module
 
@@ -78,7 +79,7 @@ Doc cau hoi user, ap dung ma tran duoi day. Moi keyword co **weight** (1-3). Mod
 
 **Luu y**: Daily Learner co threshold thap hon (≥ 1) de dam bao user luon co the nhan duoc goi y hoc tap.
 
-**Backend mapping** (Phase 4 - xem skill `sap-multi-system-context` de biet chi tiet routingHints):
+**Backend mapping** (Phase 4 - xem `reference/process/sap-multi-system-context.md` de biet chi tiet routingHints):
 | Module | Backend (mac dinh) | Khi nao re-route sang vsp |
 |---|---|---|
 | 25 module consultants (SD/FI/MM/CO/PP/QM/PM/WM/PS/HCM/BW/Basis/TM/TR/Ariba/CA/GTS/EHS/IBP/EWM/Fiori/CAP/CPI/SF/BTP-Admin) | `sap-connect` (CRUD ABAP) | Package health / dead code / call graph -> `sap-vsp` (supportsVspHealth=true) |
@@ -142,8 +143,8 @@ ten trong output o muc "Co the hoi them" (xem Buoc 4).
 - **Canh bao edition** (chi khi Buoc 0 da xac dinh edition != `s4hc_(public)`): them 1 dong dau
   output (xem muc Output format) — "⚠️ Noi dung agent duoi day viet cho Public Edition (SSCUI/
   Fiori app cu the) — he thong ban dang lam viec la `<edition>`, ten SSCUI/transaction tuong
-  ung co the khac. Xem `sap-service-type-context` de biet dieu chinh." KHONG chan dispatch, chi
-  canh bao.
+  ung co the khac. Xem `reference/process/sap-service-type-context.md` de biet dieu chinh." KHONG
+  chan dispatch, chi canh bao.
 
 ### Buoc 5: Tra cuu kien thuc co san (local + Notion) truoc khi dispatch
 
@@ -198,13 +199,14 @@ python "${CLAUDE_PLUGIN_ROOT}/reference/scripts/cleanup_agent_home.py"
 
 ## Quy trinh — Automated Routing Engine
 
-> **Phase 4**: Truoc khi dispatch (giua Buoc 5 va Buoc 6), goi skill `sap-multi-system-context`
+> **Phase 4**: Truoc khi dispatch (giua Buoc 5 va Buoc 6), doc
+> `reference/process/sap-multi-system-context.md`
 > de lay decision matrix (Public/Private/RISE/On-prem/BTP x Read/Write/Analysis/Debug/Dict).
 > Skill do cache 7 ngay theo profile id, nen chi ton 1 lan cho moi profile moi.
 > Backend mapping o tren chi la default - profile thuc te co the override qua `routingHints`.
 
 0. **Kiem tra edition da biet chua** (Buoc 0) — chi ghi nho de canh bao neu khac `s4hc_(public)`,
-   khong chu dong chay `sap-service-type-context`.
+   khong chu dong doc `reference/process/sap-service-type-context.md`.
 1. **Phan tich cau hoi user**: normalize (lowercase, loai bo dau), trich xuat keyword.
 2. **Tinh score tung module** theo Keyword Matrix o Buoc 1.
 3. **Kiem tra explicit mention** (Buoc 2).

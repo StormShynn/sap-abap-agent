@@ -18,8 +18,8 @@ ABAP Cloud (SAP S/4HANA Cloud, Public Edition) yeu cau tuan thu **Clean Core** �
 > CDS VDM layering `Z_I_`/`Z_C_`...) viet cho **ABAP Cloud development model** — luon dung tren
 > `s4hc_(public)` va `btp`, thuong dung tren `s4hc_(private)` neu du an chon compat scope ABAP
 > Cloud. Tren **`onprem`**/du an classic, Hungarian notation (`lv_`/`ls_`/`lt_`) van la quy uoc
-> pho bien va CDS VDM layering khong bat buoc cho dictionary object classic — kiem tra
-> `sap-service-type-context` truoc neu chua biet edition, dung ap dung cung nhac quy tac ABAP
+> pho bien va CDS VDM layering khong bat buoc cho dictionary object classic — doc
+> `reference/process/sap-service-type-context.md` truoc neu chua biet edition, dung ap dung cung nhac quy tac ABAP
 > Cloud cho project classic. Rieng namespace `Z`/`Y` (muc 1) la quy dinh SAP ap dung cho **moi**
 > edition, khong doi.
 

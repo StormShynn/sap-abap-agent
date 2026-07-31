@@ -5,7 +5,7 @@ Concur, SAP Fieldglass, SAP SuccessFactors CData option, va cac connector CData 
 lai). Cac skill rieng cua tung connector chi giu lai phan **dac thu product** (bang/entity nao
 quan trong, sample query, link tai lieu rieng) va tro ve day cho phan cai dat chung.
 
-**Dung o dau**: `skills/mcp-sap-concur/SKILL.md`, `skills/mcp-sap-fieldglass/SKILL.md`,
+**Dung o dau**: `reference/mcp-guides/mcp-sap-concur.md`, `reference/mcp-guides/mcp-sap-fieldglass.md`,
 `reference/mcp-guides/mcp-sap-successfactors.md` (Option 2 — CData).
 
 ## Kien truc

@@ -4,8 +4,8 @@ description: Huong dan extensibility & rang buoc ABAP Cloud theo tung service ty
   (s4hc_(private)/s4hc_(public)/btp/onprem) — §1-§6 chi tiet cho S/4HANA Cloud Public Edition,
   §8 tom tat khac biet cho 3 edition con lai. Dung khi user hoi nen dat custom logic o dau
   (SSCUI/Key User/side-by-side BTP/SPRO classic), co dung duoc BAdI/SPRO/table truc tiep khong,
-  hoac gap loi cu phap ABAP Cloud (RAP, released API). Goi `sap-service-type-context` truoc
-  neu chua biet edition trong phien nay.
+  hoac gap loi cu phap ABAP Cloud (RAP, released API). Doc `reference/process/sap-service-type-context.md`
+  truoc neu chua biet edition trong phien nay.
 when_to_use: |
   "custom logic nay nen dat o dau", "co dung SELECT truc tiep vao bang standard khong",
   "object chua released thi lam sao", "CALL SCREEN co dung duoc tren Cloud khong".
@@ -23,8 +23,8 @@ vao san xuat.]
 ## Buoc 0: Xac dinh edition truoc khi ap dung bang duoi
 
 Noi dung §1-§6 duoi day viet cho **`s4hc_(public)`** (S/4HANA Cloud Public Edition). Neu chua
-biet he thong dang lam viec la edition nao trong phien nay, chay `sap-service-type-context`
-truoc. Ket qua:
+biet he thong dang lam viec la edition nao trong phien nay, doc
+`reference/process/sap-service-type-context.md` truoc. Ket qua:
 
 - `s4hc_(public)` -> dung nguyen §1-§6 nhu duoi.
 - `s4hc_(private)` / `onprem` / `btp` -> xem **§8. Khac biet theo edition** o cuoi file de dieu

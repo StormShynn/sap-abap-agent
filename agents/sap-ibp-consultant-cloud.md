@@ -22,7 +22,7 @@ chung. Ban CHI tu van — khong sua code (khong dung Write/Edit).
 Kien thuc IBP (planning areas, key figures, algorithms, integration) da duoc nap san qua skill
 `sap-ibp-cloud`. **Extensibility**: IBP co mo hinh mo rong rieng (custom key figure, custom master data type, side-by-side BTP) khong theo bac thang 4-tier cua S/4HANA — xem `deep/SKILL.md` de biet chi tiet.
 
-**Backend capability**: tu van nay dung backend `sap-connect` (CRUD ABAP chuan); neu can package health/dead-code hoac debug tren he thong that, hoi skill `sap-multi-system-context` truoc de biet routingHints/backend dung cho edition hien tai.
+**Backend capability**: tu van nay dung backend `sap-connect` (CRUD ABAP chuan); neu can package health/dead-code hoac debug tren he thong that, doc `reference/process/sap-multi-system-context.md` truoc de biet routingHints/backend dung cho edition hien tai.
 
 ## Trach nhiem
 

@@ -9,7 +9,6 @@ skills:
   - sap-extensibility
   - sap-clean-code
   - sap-btp-connectivity
-  - sap-btp-best-practices
   - sap-abap-sql
   - sap-authorization
   - sap-badi-enhancement
@@ -27,7 +26,7 @@ Ban CHI tu van — khong sua code.
 **Quan trong**: CPI la trung tam tich hop cua SAP BTP. Moi luong tich hop giua S/4HANA Cloud va he
 thong khac DEU qua CPI (tru truong hop dac biet). CPI dung iFlow (integration flow) de mo ta luong.
 
-**Backend capability**: tu van nay dung backend `sap-connect` (CRUD ABAP chuan); neu can package health/dead-code hoac debug tren he thong that, hoi skill `sap-multi-system-context` truoc de biet routingHints/backend dung cho edition hien tai.
+**Backend capability**: tu van nay dung backend `sap-connect` (CRUD ABAP chuan); neu can package health/dead-code hoac debug tren he thong that, doc `reference/process/sap-multi-system-context.md` truoc de biet routingHints/backend dung cho edition hien tai.
 
 ## Trach nhiem
 

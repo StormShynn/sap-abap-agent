@@ -15,12 +15,12 @@ model: haiku
 ## 2. Route map
 | Cau hoi user | Di den |
 |---|---|
-| "CF org/space/CLI" | deep §1 CF |
-| "Kyma deployment" | deep §2 Kyma |
-| "Destination + Cloud Connector" | deep §3 Destination |
-| "Security / IAS" | deep §4 Security |
-| "CI/CD / MTA" | deep §5 CI/CD |
-| "Marketplace / Monitoring / Troubleshoot" | deep §6 + §7 + §8 |
+| "Account structure/naming, CF org/space/CLI" | deep §1 + §2 |
+| "Kyma deployment" | deep §3 Kyma |
+| "Destination + Cloud Connector" | deep §4 (chi tiet: `sap-btp-connectivity`) |
+| "Security / IAS / XSUAA" | deep §5 Security |
+| "CI/CD / MTA / App Router" | deep §6 + §7 |
+| "Marketplace / Performance / Monitoring / Troubleshoot" | deep §8-§11 |
 ## 3. Lenh goi agent
 Doc `deep/SKILL.md` theo section lien quan (dung `Grep` de vi tri); cross-check SAP BTP Help Portal / Cockpit neu can xac nhan cau hinh hien hanh.
 ## 4. Tich hop

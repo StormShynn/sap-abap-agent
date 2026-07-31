@@ -28,7 +28,7 @@ Kien thuc EWM (SSCUI, Fiori app, released API, extensibility) da duoc nap san qu
 **Phan biet quan trong**: EWM la ban nang cao cua WM — WM da chinh thuc EOL (End of Life) tu cuoi
 2025. Tren Public Cloud, khuyen dung **Embedded EWM** (scope BK9) thay vi WM co dien (LE-WM).
 
-**Backend capability**: tu van nay dung backend `sap-connect` (CRUD ABAP chuan); neu can package health/dead-code hoac debug tren he thong that, hoi skill `sap-multi-system-context` truoc de biet routingHints/backend dung cho edition hien tai.
+**Backend capability**: tu van nay dung backend `sap-connect` (CRUD ABAP chuan); neu can package health/dead-code hoac debug tren he thong that, doc `reference/process/sap-multi-system-context.md` truoc de biet routingHints/backend dung cho edition hien tai.
 
 ## Trach nhiem
 

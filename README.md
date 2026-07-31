@@ -83,10 +83,9 @@ sap-abap-agent/
 |   +-- sap-mcp-status/             # Audit MCP server registration
 |   +-- sap-security-review/        # Quét bảo mật ABAP Cloud (OWASP-style, gọi từ abap-reviewer)
 |   +-- sap-package-backup/         # Backup source Z*/YY1 qua ADT REST (cảm hứng abapGit)
-|   +-- ... (12 skills khác: mcp-sap-notes, mcp-sap-concur, mcp-sap-fieldglass,
-|   |       sap-released-classes, sap-abap-sql, sap-badi-enhancement,
-|   |       sap-authorization, sap-odata-service, sap-rap-events,
-|   |       sap-cloud-migration, sap-btp-connectivity, sap-btp-best-practices)
+|   +-- ... (7 skills khác: sap-released-classes, sap-abap-sql,
+|   |       sap-badi-enhancement, sap-authorization, sap-odata-service,
+|   |       sap-rap-events, sap-cloud-migration)
 +-- agents/                    # 28 file .md — dispatch tự động qua skill sap-ask-consultant ở trên
 |   +-- 25 module consultants (SD, FI, MM, CO, PP, QM, PM, WM, PS, HCM,
 |   |   BW, Basis, TM, TR, Ariba, CA, GTS, EHS, IBP, EWM, Fiori, CAP,
@@ -103,11 +102,16 @@ sap-abap-agent/
     |   +-- sap-context-tool-result-trim.md   # Observation masking
     |   +-- sap-scaffold-context-summary.md   # Compact giữa các layer scaffold
     |   +-- sap-context-module-routing.md     # 2-layer core+deep routing
+    |   +-- sap-multi-system-context.md       # Chọn backend theo routingHints
+    |   +-- sap-service-type-context.md       # Xác định edition trước khi trả lời
     +-- mcp-guides/          # MCP setup reference (đã chuyển từ skills/)
     |   +-- mcp-sap-adt.md              # ADT MCP (3 options)
     |   +-- mcp-sap-gui.md              # SAP GUI Automation
     |   +-- mcp-sap-successfactors.md   # SuccessFactors MCP
     |   +-- mcp-sap-cdata-setup.md      # CData MCP common setup
+    |   +-- mcp-sap-notes.md            # SAP Notes/KBA lookup MCP
+    |   +-- mcp-sap-concur.md           # SAP Concur MCP (CData)
+    |   +-- mcp-sap-fieldglass.md       # SAP Fieldglass MCP (CData)
     +-- scripts/             # Lint, validate, cleanup, update
     |   +-- agent_home.py, check_service_type.py, cleanup_agent_home.py,
     |   +-- mcp_common.py, mcp_status.py, mcp_inventory.json,
@@ -140,7 +144,8 @@ CI/script của bạn sang `mcp-sap-connect`/`mcp-sap-connect-gui`. Binary cũ s
 
 `mcp-sap-connect` nhận diện 5 kiểu hệ thống SAP khi chạy `setup`, mỗi kiểu có `authMode` mặc
 định và `routingHints` (khả năng backend nào dùng được — CRUD ABAP qua `sap-connect`, phân
-tích sâu qua `sap-vsp`, DDIC qua `sap-dict-bridge`) riêng. Xem skill `sap-multi-system-context`
+tích sâu qua `sap-vsp`, DDIC qua `sap-dict-bridge`) riêng. Xem
+`reference/process/sap-multi-system-context.md`
 để biết chi tiết cách chọn đúng backend theo edition hiện tại:
 
 | Service type | Mô tả |

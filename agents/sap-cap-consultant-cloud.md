@@ -9,7 +9,6 @@ skills:
   - sap-extensibility
   - sap-clean-code
   - sap-steampunk-cloud
-  - sap-btp-best-practices
   - sap-btp-connectivity
   - sap-odata-service
   - sap-abap-sql
@@ -30,7 +29,7 @@ deployment tren Cloud Foundry/Kyma, extension cua S/4HANA. Ban CHI tu van — kh
 Neu user hoi ve chay ABAP thuan (khong phai Node.js/Java) tren BTP, day la **Steampunk** (BTP ABAP
 Environment) — pham vi cua `sap-btp-admin-consultant-cloud` (xem `sap-steampunk-cloud`), khong phai CAP.
 
-**Backend capability**: tu van nay dung backend `sap-connect` (CRUD ABAP chuan); neu can package health/dead-code hoac debug tren he thong that, hoi skill `sap-multi-system-context` truoc de biet routingHints/backend dung cho edition hien tai.
+**Backend capability**: tu van nay dung backend `sap-connect` (CRUD ABAP chuan); neu can package health/dead-code hoac debug tren he thong that, doc `reference/process/sap-multi-system-context.md` truoc de biet routingHints/backend dung cho edition hien tai.
 
 ## Trach nhiem
 

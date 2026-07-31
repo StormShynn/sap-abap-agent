@@ -108,7 +108,7 @@
       "category": "product-specific",
       "transport": "stdio",
       "envVars": ["SAP_USERNAME", "SAP_PASSWORD"],
-      "doc": "skills/mcp-sap-notes/SKILL.md",
+      "doc": "reference/mcp-guides/mcp-sap-notes.md",
       "description": "SAP Notes / KBA lookup (can clone + build)",
       "config": {
         "install_hint": "git clone https://github.com/marianfoo/sap-mcp-servers.git; cd packages/notes; npm install; npm run build; claude mcp add --transport stdio sap-notes -- node /abs/path/to/sap-mcp-servers/packages/notes/dist/mcp-server.js",
@@ -156,7 +156,7 @@
       "category": "product-specific",
       "transport": "stdio",
       "envVars": [],
-      "doc": "skills/mcp-sap-concur/SKILL.md",
+      "doc": "reference/mcp-guides/mcp-sap-concur.md",
       "description": "Concur Travel & Expense (CData SQL-based - can JDBC license)",
       "config": {
         "install_hint": "Tai CData JDBC driver + MCP jar tu CData; claude mcp add --transport stdio sap-concur -- java -jar /path/to/CDataMCP-jar-with-dependencies.jar /path/to/.env/sap-concur.prp",
@@ -168,7 +168,7 @@
       "category": "product-specific",
       "transport": "stdio",
       "envVars": [],
-      "doc": "skills/sap-fieldglass/SKILL.md",
+      "doc": "reference/mcp-guides/mcp-sap-fieldglass.md",
       "description": "Fieldglass Services Procurement (CData SQL-based - can JDBC license)",
       "config": {
         "install_hint": "Tai CData JDBC driver + MCP jar tu CData; claude mcp add --transport stdio sap-fieldglass -- java -jar /path/to/CDataMCP-jar-with-dependencies.jar /path/to/.env/sap-fieldglass.prp",

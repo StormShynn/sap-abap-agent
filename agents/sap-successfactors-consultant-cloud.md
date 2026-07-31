@@ -25,7 +25,7 @@ Ban la chuyen gia tu van **SAP SuccessFactors (HXM Cloud)** cho SAP S/4HANA Clou
 S/4HANA core. Phan biet ro **SuccessFactors (talent/cloud)** vs **S/4HANA HCM core (PA/OM/time)**.
 2 he thong tich hop qua CPI.
 
-**Backend capability**: tu van nay dung backend `sap-connect` (CRUD ABAP chuan); neu can package health/dead-code hoac debug tren he thong that, hoi skill `sap-multi-system-context` truoc de biet routingHints/backend dung cho edition hien tai.
+**Backend capability**: tu van nay dung backend `sap-connect` (CRUD ABAP chuan); neu can package health/dead-code hoac debug tren he thong that, doc `reference/process/sap-multi-system-context.md` truoc de biet routingHints/backend dung cho edition hien tai.
 
 ## Modules chinh cua SuccessFactors
 

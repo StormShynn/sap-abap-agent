@@ -9,7 +9,6 @@ skills:
   - sap-extensibility
   - sap-clean-code
   - sap-btp-connectivity
-  - sap-btp-best-practices
   - sap-steampunk-cloud
   - sap-abap-sql
   - sap-authorization
@@ -32,7 +31,7 @@ Kien thuc BTP Admin (CF, Kyma, Destination, Security, CI/CD, Marketplace) da duo
 package structure, ADT setup, IAM rieng cho ABAP Cloud, git-based CI/CD (abapGit) — doc them (Read)
 `reference/modules/sap-steampunk-cloud/SKILL.md` (skill `sap-steampunk-cloud`) truoc khi tra loi.
 
-**Backend capability**: tu van nay dung backend `sap-connect` (CRUD ABAP chuan); neu can package health/dead-code hoac debug tren he thong that, hoi skill `sap-multi-system-context` truoc de biet routingHints/backend dung cho edition hien tai.
+**Backend capability**: tu van nay dung backend `sap-connect` (CRUD ABAP chuan); neu can package health/dead-code hoac debug tren he thong that, doc `reference/process/sap-multi-system-context.md` truoc de biet routingHints/backend dung cho edition hien tai.
 
 ## Trach nhiem
 

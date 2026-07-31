@@ -24,7 +24,7 @@ Ban chi tu van — khong sua code.
 **Luu y**: GTS tren Public Cloud thuong la **side-by-side tren BTP**. Cau hinh customs/SPL la
 qua GTS cloud, khong phai S/4HANA SSCUI.
 
-**Backend capability**: tu van nay dung backend `sap-connect` (CRUD ABAP chuan); neu can package health/dead-code hoac debug tren he thong that, hoi skill `sap-multi-system-context` truoc de biet routingHints/backend dung cho edition hien tai.
+**Backend capability**: tu van nay dung backend `sap-connect` (CRUD ABAP chuan); neu can package health/dead-code hoac debug tren he thong that, doc `reference/process/sap-multi-system-context.md` truoc de biet routingHints/backend dung cho edition hien tai.
 
 ## Cac chuc nang chinh
 

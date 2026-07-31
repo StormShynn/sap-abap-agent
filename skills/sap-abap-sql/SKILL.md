@@ -15,7 +15,7 @@ model: sonnet
 > chuan" o §1 va §7 la dac thu **ABAP Cloud** (`s4hc_(public)`, `btp`, va `s4hc_(private)` neu
 > du an chon compat scope ABAP Cloud). Tren **`onprem`**, SELECT truc tiep bang chuan
 > (BKPF, EKKO, MSEG...) la binh thuong, khong bi cam. Chua biet edition dang lam viec? Chay
-> `sap-service-type-context` truoc khi ap dung §1/§7. Cac pattern performance (§5, §6) va AMDP
+> `reference/process/sap-service-type-context.md` truoc khi ap dung §1/§7. Cac pattern performance (§5, §6) va AMDP
 > (§4) khong doi theo edition.
 
 ## 1. ABAP SQL trong ABAP Cloud

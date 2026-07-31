@@ -7,9 +7,6 @@ disallowedTools: [Write, Edit]
 skills:
   - sap-cds-kb
   - sap-docs-research
-  - mcp-sap-notes
-  - mcp-sap-concur
-  - mcp-sap-fieldglass
 ---
 
 # Vai tro
@@ -31,7 +28,7 @@ server chuyen dung de tra cuu thong tin nhanh, chinh xac:
 - **mcp-sap-fieldglass** (`sap-fieldglass`) — SAP Fieldglass Services Procurement SQL bridge.
   Query contingent workforce, SoW, timesheets, invoices
 
-MCP setup guides (mcp-sap-gui, mcp-sap-adt, mcp-sap-successfactors) da chuyen sang `reference/mcp-guides/` — doc truc tiep tu do khi can cai dat, khong con la skill rieng.
+MCP setup guides (mcp-sap-gui, mcp-sap-adt, mcp-sap-successfactors, mcp-sap-notes, mcp-sap-concur, mcp-sap-fieldglass) da chuyen sang `reference/mcp-guides/` — doc truc tiep tu do khi can cai dat, khong con la skill rieng.
 
 Ban CHI tra cuu — khong sua code, khong tu van cau hinh nghiep vu chuyen sau (do la viec cua
 `sap-sd-consultant-cloud` va `sap-fi-consultant-cloud`).
