@@ -55,7 +55,8 @@ Ghi lai cau tra loi + ly do trong TECHNICAL_SPEC.md.
 
 | Use case | Pattern | Skill |
 |---|---|---|
-| Bao cao in (PDF/Word), chi read | 3-layer CDS (I+R+C) | `sap-scaffold-cds` |
+| Bao cao/list, doc du lieu, tu chon dung kien truc theo edition | CDS+Fiori (cloud) hoac classical ALV OOP (on-prem) | `sap-scaffold-report` |
+| Can in PDF (invoice, phieu xuat kho...) | Class goi Adobe Document Services, sau khi co data layer | `sap-scaffold-adobe-form` |
 | List/Detail don gian, khong save | 3-layer CDS + Service Definition | `sap-scaffold-cds` |
 | Form CRUD co ban | RAP Managed + Fiori Elements | `sap-scaffold-rap` |
 | Form CRUD co validate custom | RAP Managed + validation trong behavior class | `sap-scaffold-rap` |
@@ -182,3 +183,7 @@ implementation in class zbp_<object> unique;
 - Skill `sap-deployment-target` — **buoc tiep theo bat buoc** sau khi TECHNICAL_SPEC.md hoan
   tat: xac dinh package deploy tren he thong that + rao chan an toan, TRUOC khi chay
   `sap-scaffold-rap`/`sap-scaffold-cds`/`sap-cloud-dictionary`.
+- Skill `sap-scaffold-report` — bao cao/list doc du lieu, tu re nhanh theo edition (Public
+  Cloud/BTP giao lai cho `sap-scaffold-cds`; Private/On-prem sinh classical ALV OOP).
+- Skill `sap-scaffold-adobe-form` — in PDF qua Adobe Document Services, dung SAU khi da co data
+  layer (tu `sap-scaffold-report`/`sap-scaffold-cds`).

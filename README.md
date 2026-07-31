@@ -53,7 +53,8 @@ Dự án là **open-source**, mọi đóng góp đều được chào đón!
 ```text
 sap-abap-agent/
 +-- .claude-plugin/            # Manifest plugin Claude Code
-+-- commands/                  # /sap-connect
++-- commands/                  # /sap-setup, /sap-connect, /mcp-setup, /sync-skills,
+|                               #   /sap-generate-report, /sap-generate-adobe-form, /sap-new-object
 +-- skills/
 |   +-- sap-ask-consultant/    # 🧠 Auto-scoring routing engine (28 agents)
 |   +-- sap-daily-learner/     # 📚 Daily SAP Learning — Hermes-like (self-improving)
@@ -1257,7 +1258,9 @@ cp /path/to/FS_xxx.docx "$(python -c 'from mcp_sap_connect.config.paths import g
 
 # 3. Sinh skeleton code
 # -> skill sap-scaffold-rap (CRUD/RAP) hoặc sap-scaffold-cds (chỉ-read)
-#    hoặc sap-scaffold-cds-analytics (Cube/Dimension/Analytical Query) -> out/<ticket>/src/
+#    hoặc sap-scaffold-cds-analytics (Cube/Dimension/Analytical Query)
+#    hoặc sap-scaffold-report (báo cáo, tự chọn CDS+Fiori/classical ALV theo edition)
+#    hoặc sap-scaffold-adobe-form (in PDF qua Adobe Document Services) -> out/<ticket>/src/
 
 # 4. Review naming/released-API/clean-ABAP
 # -> skill sap-atc-review -> out/<ticket>/ATC_REVIEW.md
@@ -1278,6 +1281,31 @@ Kỷ luật xuyên suốt (không phải bước riêng, áp dụng mọi lúc t
 (luôn check routing trước khi trả lời — bơm tự động qua SessionStart hook),
 `sap-verification-before-completion` (bằng chứng chạy thật trước khi báo "xong"),
 `sap-systematic-debugging` (khi có bug runtime, thay vì đoán-sửa-lặp-lại).
+
+### Skill (tự động) vs Command (gõ tường minh) — phân biệt thế nào
+
+Plugin có **2 cơ chế kích hoạt khác nhau**, dễ nhầm nếu chỉ đọc code:
+
+| | Skill (`skills/*/SKILL.md`) | Command (`commands/*.md`) |
+|---|---|---|
+| Cách gọi | Tự động — Claude Code tự nhận diện ý định từ câu hỏi tự nhiên (`when_to_use`), **không cần gõ tên** | Tường minh — phải gõ đúng `/tên-command` |
+| Xem danh sách | Gõ `/skills` (hoặc `/`) — Claude Code hiện mô tả rút gọn từng skill | Gõ `/` — Claude Code hiện danh sách slash command, bao gồm command riêng của plugin này |
+| Dùng khi nào | Hầu hết các bước trong Codegen Pipeline ở trên — cứ hỏi đúng ý là tự trigger, kể cả không nhớ tên skill | Khi muốn chủ động kích hoạt **cả 1 chuỗi bước** cùng lúc bằng 1 lệnh, hoặc thao tác hạ tầng (cài đặt/đồng bộ) |
+| Số lượng hiện tại | 40 skill | 7 command |
+
+**5 command hiện có:**
+
+| Command | Dùng khi |
+|---|---|
+| `/sap-setup` | Cài đặt toàn bộ cho máy mới lần đầu (pip install, profile đầu tiên, đăng ký MCP) — tự phát hiện bước nào đã xong |
+| `/sap-connect` | Thiết lập/quản lý profile kết nối SAP BTP |
+| `/mcp-setup` | Đăng ký toàn bộ MCP server 1 lần |
+| `/sync-skills` | Đồng bộ skill/agent/command mới nhất từ GitHub |
+| `/sap-generate-report` | Chạy nguyên pipeline sinh báo cáo từ file đặc tả — tự chọn CDS+Fiori hay classical ALV theo edition |
+| `/sap-generate-adobe-form` | Chạy nguyên pipeline sinh class in PDF qua Adobe Document Services |
+| `/sap-new-object` | Bản tổng quát — để `sap-write-technical-spec` tự chọn pattern (RAP/CDS/Report/Adobe Form/class thường) khi chưa chắc ticket sẽ ra loại nào |
+
+Nếu không chắc nên gõ `/lệnh` hay chỉ cần hỏi tự nhiên: **cứ hỏi tự nhiên trước** — skill routing (`sap-ask-consultant`, `sap-routing-discipline`) sẽ tự tìm đúng skill. Command chỉ cần khi muốn tắt qua nhiều bước bằng 1 lần gõ, hoặc thao tác hạ tầng không phải nghiệp vụ SAP.
 
 ## Test local
 

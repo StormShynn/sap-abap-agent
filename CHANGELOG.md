@@ -46,6 +46,41 @@ Format dựa trên [Keep a Changelog](https://keepachangelog.com/) và [Semantic
   cao hơn: các skill này được 25 agent tư vấn module khai báo, và gộp nhiều chủ đề vào 1
   `description` có thể chạm giới hạn 1.536 ký tự nhanh hơn).
 
+### Added
+
+- **2 skill scaffold mới** (`skills/` 38 → 40), nối vào đúng Codegen Pipeline hiện có thay vì
+  tách riêng:
+  - `sap-scaffold-report` — sinh báo cáo, tự rẽ nhánh theo edition: Public Cloud/BTP giao lại
+    cho `sap-scaffold-cds`/`sap-scaffold-cds-analytics` (đã có sẵn); Private Cloud/On-prem sinh
+    classical report kiểu OOP (`CL_SALV_TABLE`, không `PERFORM`/`FORM` cũ) — phần này trước đây
+    plugin chưa cover.
+  - `sap-scaffold-adobe-form` — sinh class `ZCL_<tên>_PRINT` gọi `CL_FP_ADS_UTIL` (đã xác minh
+    qua SAP Community/SAP Help: class chuẩn SAP, dùng được cả Public Cloud lẫn Private/On-prem
+    qua Developer Extensibility → Form Objects). Nêu rõ giới hạn: layout hình ảnh form (`.xdp`)
+    bắt buộc thiết kế bằng Adobe LiveCycle Designer — skill chỉ sinh phần class ABAP.
+- **4 command mới** (`commands/` 3 → 7):
+  - `/sap-generate-report`, `/sap-generate-adobe-form`, `/sap-new-object` — orchestrate toàn bộ
+    Codegen Pipeline (doc-to-md → analyze-function-spec → hỏi edition → write-technical-spec →
+    hỏi package → scaffold → atc-review → unit-test → finish-ticket), mỗi command có mục
+    "Danh sách BẮT BUỘC hỏi user" riêng — không tự đoán edition/package/tên field.
+    `/sap-new-object` là bản tổng quát (để `sap-write-technical-spec` tự chọn pattern thay vì
+    cố định trước 1 loại), 2 command kia đi thẳng vào 1 pattern cụ thể khi đã biết chắc.
+  - `/sap-setup` — nối toàn bộ luồng cài đặt máy mới (README mục "Cài đặt (1 lần)" + "Thêm
+    project SAP mới" + "Đăng ký MCP servers") thành 1 lệnh tự phát hiện bước nào đã xong,
+    idempotent (chạy lại an toàn). Không tự nhập credential/URL hộ user, không hardcode số
+    version wheel (tra `gh release list` trước khi build URL cài đặt).
+- Cập nhật `sap-write-technical-spec`'s "Bảng chọn pattern nhanh" trỏ đến 2 skill mới; thêm mục
+  "Skill (tự động) vs Command (gõ tường minh)" vào `README.md` (bảng 6 command hiện có) — trước
+  đó README không giải thích 2 cơ chế kích hoạt khác nhau này ở đâu cả.
+- `CLAUDE.md`/`index.html` cập nhật số skill 38 → 40.
+
+**Phát hiện phụ trong lúc làm** (không sửa, chỉ ghi nhận): `docs/sap-knowledge/` có sẵn tri
+thức thật (pattern class `zcl_<x>_print`, framework `cl_fp_ads_util`) cho đúng 2 nhu cầu trên,
+nhưng viết cho 1 hệ agent khác (`AGENTS_DOC`/`AGENTS_REUSE`/module-expert, tham chiếu file như
+`pmc-reuse-by-module.md`/`pub-naf-index.json` không tồn tại trong repo này) — không phải hệ
+skill/agent đang dùng. Lấy tri thức đã verify của hệ đó làm nền tảng viết skill mới cho hệ hiện
+tại, không đụng vào hệ kia.
+
 ## [v1.14.0] — 2026-07-30
 
 ### Changed
