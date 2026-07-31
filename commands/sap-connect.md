@@ -18,7 +18,9 @@ Wizard se tu sinh profile id tu URL (vd: `project1.s4hana.cloud.sap`), hoi phuon
 1. OAuth2 client_id + client_secret -- mac dinh/khuyen dung
 2. Username/password
 3. Bearer token (nhap tay)
-4. Cookie-based -- session cookie SAP; lay cookie tu file, paste tay, hoac **auto** (tu mo browser dang nhap, can extra `playwright`)
+4. Cookie-based -- session cookie SAP; uu tien **SAML fast-path** (nhap user/pass, ~1-3s qua HTTP
+   truc tiep, KHONG mo browser, khong dung duoc neu IAS co MFA), fallback **auto** (mo browser, ho
+   tro ca MFA) neu SAML that bai hoac ban tu chon, hoac lay tu file/paste tay
 
 Sau do hoi Region, service type (`s4hc_(private)` / `s4hc_(public)` / `btp` / `onprem`).
 

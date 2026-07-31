@@ -34,6 +34,18 @@ có profile riêng (URL, tenant, secret), lưu trong **folder user** trên máy
 - **⏱️ Early-finish cho reauth auto mode** (Playwright): thay vì đợi 30s timeout, tool kết
   thúc sớm khi (1) user bấm Enter/OK, (2) session cookie + ADT discovery OK, hoặc (3) URL
   ổn định 3s. Test real timing URL-stable: 4.6s thay vì 30s.
+- **⚡ SAML fast-path cho cookie auth** (port từ [vibing-steampunk](https://github.com/StormShynn/vibing-steampunk)):
+  đăng nhập qua HTTP form-fill trực tiếp (~1-3s, KHÔNG mở browser) thay vì đợi Playwright —
+  chỉ dùng được khi IAS KHÔNG yêu cầu MFA (tự fallback về browser nếu MFA/sai credential).
+  Thành công thì username/password được mã hóa lưu lại (cùng cơ chế với `authMode=password`)
+  để tự dùng lại cho **mọi lần reauth sau** — không cần mở browser lại. Có ở cả wizard tương
+  tác (option 1, mặc định) và `setup --from-file` (field `samlBootstrapUsername`/`samlBootstrapPassword`).
+- **🔁 Auto-reauth cho MỌI MCP tool call**: trước đây chỉ `mcp-sap-connect connect`/`reauth` (lệnh
+  CLI thủ công) mới tự đăng nhập lại khi session hết hạn — các tool `sap_*` thật (gọi từ Claude)
+  không có cơ chế này, lỗi thẳng giữa chừng. `create_sap_client()` (factory dùng chung cho mọi
+  tool handler + keep-alive) giờ tự chọn đúng reauth handler theo config profile, nên session hết
+  hạn giữa lúc Claude đang dùng tool sẽ tự phục hồi (SAML fast-path trước, browser sau) thay vì
+  rớt giữa chừng.
 - **🛡️ Ctrl+C handling an toàn** (`ReauthCancelled` / `UserCancelled`): không in traceback 10+
   dòng nữa, cookie cũ KHÔNG bị save đè khi user hủy giữa luồng, browser Playwright luôn được
   đóng, cơ chế 2-lần Ctrl+C (lần 1 cảnh báo, lần 2 trong 2s mới hủy thật).
@@ -241,11 +253,17 @@ Wizard sẽ tự sinh profile id từ hostname (`project1.s4hana.cloud.sap`) và
 2. **Password** — `username` + `password`
 3. **Bearer token** — token có sẵn, nhập tay
 4. **Cookie-based** — session cookie SAP (`MYSAPSSO2`, `SAP_SESSIONID`, `sap-usercontext`...). Wizard hỏi tiếp lấy cookie từ đâu:
-   - (1) File cookie Netscape format
-   - (2) Paste tay (F12 -> Application -> Cookies)
-   - (3) **Auto** — tự mở browser cho bạn đăng nhập, tự lấy cookie (cần extra `playwright`, không có sẽ fallback về paste tay)
+   - (1) **SAML fast-path** (mặc định) — nhập username/password IAS, tự POST form qua HTTP
+     (~1-3s, KHÔNG mở browser). Chỉ dùng được nếu IAS KHÔNG có MFA — thất bại thì tự rơi
+     xuống (2). Thành công thì lưu (mã hóa) để tự dùng lại cho lần reauth sau.
+   - (2) Auto — tự mở browser cho bạn đăng nhập (hỗ trợ cả MFA/SSO), tự lấy cookie (cần
+     extra `playwright`)
+   - (3) File cookie Netscape format
+   - (4) Paste tay (F12 -> Application -> Cookies)
 
-   Sau khi có cookie, tự động re-auth qua browser popup (hoặc Playwright) mỗi lần session hết hạn (401).
+   Sau khi có cookie, tự động re-auth (SAML fast-path trước nếu có credential đã lưu, fallback
+   browser popup/Playwright) mỗi lần session hết hạn (401) — kể cả khi hết hạn giữa lúc Claude
+   đang gọi tool `sap_*` thật, không chỉ qua lệnh `connect`/`reauth` thủ công.
 
 Sau đó hỏi thêm Region, service type (s4hc_(private) / s4hc_(public) / btp / onprem).
 

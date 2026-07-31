@@ -6,19 +6,55 @@ Format dựa trên [Keep a Changelog](https://keepachangelog.com/) và [Semantic
 
 ---
 
+## [v1.17.0] — 2026-08-01
+
+### Added
+
+- **SAML fast-path cho cookie auth** (`saml_form_login`, `reference/mcp-server/mcp_sap_connect/sap/auth.py`)
+  — port từ [vibing-steampunk](https://github.com/StormShynn/vibing-steampunk) `pkg/adt/saml_auth.go`:
+  đăng nhập SP-initiated SAML bằng HTTP form-fill trực tiếp (tự GET target → parse `<form>` login IAS
+  (`_FirstFormParser`, stdlib `html.parser`) → điền username/password → POST → theo chuỗi SAMLResponse
+  auto-submit tối đa 10 hop) thay vì mở browser + poll cookie. Test thật: ~1-3s so với 30s timeout của
+  đường browser. Giữ nguyên các chốt bảo mật của bản gốc: `_validate_form_action` chặn POST form ra
+  host lạ (chống exfiltrate SAMLResponse/credential) + chặn downgrade HTTPS→HTTP cho form action,
+  `_resolve_redirect_location` (lenient hơn, chỉ chặn downgrade) riêng cho redirect Location-header
+  thường và form auto-submit SAMLRequest (SP→IdP đổi host là bình thường/bắt buộc ở 2 chỗ này — 2 bug
+  bị lẫn lộn 2 loại check này đã phát hiện + sửa qua test thật với tenant thật trước khi release).
+  **Chỉ dùng được khi IAS không yêu cầu MFA** — xem `KNOWN_LIMITATIONS.md`.
+- **Persist SAML credential để tự dùng lại** (`saml_or_browser_login`): đăng nhập nhanh thành công lần
+  đầu sẽ lưu `samlUsername`/`samlPassword` (mã hóa, cùng cơ chế với `authMode=password`) vào
+  `secrets.json` của profile — các lần reauth sau (session hết hạn) tự dùng lại credential đã lưu qua
+  fast-path trước, fallback `web_login_auto` (browser, hỗ trợ MFA) nếu không có credential lưu sẵn hoặc
+  fast-path thất bại vì bất kỳ lý do gì.
+- **`create_sap_client()` factory** (`sap/client.py`) — tự chọn đúng `reauth_handler` theo config profile
+  (`saml_or_browser_login` nếu `authMode=cookie` + `reauthMode=auto`). Thay thế toàn bộ 22 chỗ
+  `SapClient(_pick_profile(args))` không có `reauth_handler` trong `tools/registry.py`/`tools/dictionary.py`
+  (mọi MCP tool `sap_*` thật) + cơ chế keep-alive (`server.py`) — trước đây session hết hạn giữa lúc
+  Claude đang gọi tool thật sẽ lỗi thẳng (`RuntimeError: khong co reauth_handler`), không tự phục hồi
+  được như 2 lệnh CLI `connect`/`reauth` (đây là 2 chỗ DUY NHẤT có wiring reauth trước bản này).
+- **Wizard tương tác** (`mcp-sap-connect setup <url>`, cookie auth): thêm SAML fast-path làm lựa chọn
+  **đầu tiên/mặc định** (menu cũ 3 option File/Paste tay/Auto browser → menu mới 4 option, SAML lên
+  đầu) — thất bại tự fallback xuống browser, không cần chọn lại.
+- Field mới trong `profile.cookie.json` (`--from-file`): `samlBootstrapUsername`/`samlBootstrapPassword`
+  (tùy chọn, opt-in — không điền thì hành vi y hệt cũ).
+
+### Fixed
+
+- `_wire_early_finish_event`: nhánh `_setup_from_file` (cookie + `reauthMode=auto`) trước đây gọi
+  `web_login_auto` không có `early_finish_event`, thiếu cơ chế "bấm Enter là kiểm tra ngay" đã có sẵn
+  ở `_cmd_reauth` — tách thành helper dùng chung, dùng ở cả 2 nơi.
+
 ## [v1.16.0] — 2026-07-31
 
 ### Changed
 
 - Auto-bumped by CI (version-bump.yml).
 
-
 ## [v1.15.0] — 2026-07-31
 
 ### Changed
 
 - Auto-bumped by CI (version-bump.yml).
-
 
 ## [v1.14.0] — 2026-07-31
 
