@@ -91,8 +91,14 @@ def main() -> None:
 
     runner = _make_runner()
     if cmd == "setup":
-        url = cmd_args[0] if cmd_args else ""
-        runner(_wizard_setup, url)
+        if cmd_args and cmd_args[0] == "--from-file":
+            if len(cmd_args) < 2:
+                print("  ❌ Thieu duong dan file. Dung: mcp-sap-connect setup --from-file <path>")
+            else:
+                runner(_setup_from_file, cmd_args[1])
+        else:
+            url = cmd_args[0] if cmd_args else ""
+            runner(_wizard_setup, url)
     elif cmd == "connect":
         runner(_cmd_connect, cmd_args[0] if cmd_args else None)
     elif cmd == "reauth":
@@ -348,6 +354,127 @@ async def _wizard_setup(url: str) -> None:
     info(f"URL: {url}")
     print()
     info("Ban co the kiem tra ket noi bang: mcp-sap-connect connect")
+    print()
+    if ask("Dang ky MCP servers voi Claude Code ngay?", default="y").lower() in ("", "y", "yes"):
+        _cmd_mcp_setup()
+
+
+# ===== SETUP TU FILE (non-interactive) =============================
+
+_PLACEHOLDER_MARKERS = ("<", ">", "YOUR_", "REPLACE_ME")
+
+
+def _looks_like_placeholder(value: Any) -> bool:
+    """True neu value con la placeholder chua dien (vd '<CLIENT_ID>')."""
+    return isinstance(value, str) and any(m in value for m in _PLACEHOLDER_MARKERS)
+
+
+async def _setup_from_file(path: str) -> None:
+    """Tao profile tu 1 file JSON da dien san (xem reference/templates/
+    mcp-sap-connect-profile-sample/), thay vi tra loi wizard tuong tac tung buoc.
+
+    Goi lai DUNG 3 ham upsert_profile/save_config/save_secrets ma _wizard_setup
+    da dung - KHONG viet lai logic ma hoa/luu tru. Muc dich: user chi can dien
+    1 file roi chay 1 lenh, khong con phai tra loi tung cau hoi trong terminal.
+    """
+    import json
+    from pathlib import Path
+
+    header("SAP ABAP Agent — Setup tu file")
+
+    file = Path(path).expanduser()
+    if not file.is_file():
+        print(f"  ❌ Khong tim thay file: {file}")
+        return
+    try:
+        data: dict[str, Any] = json.loads(file.read_text(encoding="utf-8-sig"))
+    except json.JSONDecodeError as err:
+        print(f"  ❌ File JSON khong hop le ({file}): {err}")
+        return
+
+    raw_url = str(data.get("url", "")).strip()
+    if not raw_url or _looks_like_placeholder(raw_url):
+        print("  ❌ File thieu field 'url' hop le (con la placeholder hoac rong).")
+        return
+    url = normalize_btp_url(raw_url)
+
+    profile_id = str(data.get("profileId", "")).strip() or derive_profile_id_from_url(url)
+    if not profile_id:
+        print("  ❌ Khong sinh duoc profile ID tu 'url', va file khong co field 'profileId'.")
+        return
+
+    auth_mode = str(data.get("authMode", "")).strip()
+    if auth_mode not in ("oauth2", "password", "bearer", "cookie"):
+        print(f"  ❌ 'authMode' khong hop le: {auth_mode!r}. Phai la 1 trong: "
+              f"oauth2, password, bearer, cookie.")
+        return
+
+    try:
+        service = normalize_service_type(data.get("service", SERVICE_TYPE_DEFAULT))
+    except ValueError as err:
+        print(f"  ❌ {err}")
+        return
+
+    config_data: dict[str, Any] = {
+        "authMode": auth_mode,
+        "btpUrl": url.rstrip("/"),
+        "region": str(data.get("region", "eu10")).strip() or "eu10",
+        "service": service,
+    }
+    secrets_data: dict[str, Any] = {}
+
+    if auth_mode == "oauth2":
+        client_id = str(data.get("clientId", "")).strip()
+        client_secret = str(data.get("clientSecret", "")).strip()
+        if not client_id or not client_secret or _looks_like_placeholder(client_id) or _looks_like_placeholder(client_secret):
+            print("  ❌ Thieu hoac chua thay placeholder cho 'clientId'/'clientSecret'.")
+            return
+        config_data["clientId"] = client_id
+        config_data["scope"] = str(data.get("scope", "")).strip()
+        secrets_data["clientSecret"] = client_secret
+
+    elif auth_mode == "password":
+        username = str(data.get("username", "")).strip()
+        password = str(data.get("password", "")).strip()
+        if not username or not password or _looks_like_placeholder(username) or _looks_like_placeholder(password):
+            print("  ❌ Thieu hoac chua thay placeholder cho 'username'/'password'.")
+            return
+        config_data["clientId"] = str(data.get("clientId", "")).strip()
+        secrets_data["username"] = username
+        secrets_data["password"] = password
+
+    elif auth_mode == "bearer":
+        token = str(data.get("accessToken", "")).strip()
+        if not token or _looks_like_placeholder(token):
+            print("  ❌ Thieu hoac chua thay placeholder cho 'accessToken'.")
+            return
+        secrets_data["accessToken"] = token
+
+    elif auth_mode == "cookie":
+        cookies = data.get("cookies")
+        if not isinstance(cookies, dict) or not cookies or any(_looks_like_placeholder(v) for v in cookies.values()):
+            print("  ❌ Thieu hoac chua thay placeholder cho 'cookies' (phai la object "
+                  "{\"MYSAPSSO2\": \"...\", ...}).")
+            return
+        secrets_data["cookies"] = cookies
+        config_data["reauthMode"] = "auto" if data.get("reauthMode") == "auto" else "manual"
+
+    tenant = str(data.get("tenant", "")).strip()
+    if tenant:
+        config_data["tenant"] = tenant
+
+    upsert_profile(profile_id, url=url)
+    save_config(profile_id, config_data)
+    if secrets_data:
+        await save_secrets(profile_id, secrets_data)
+
+    print()
+    ok(f"Da tao profile '{profile_id}' tu file '{file}'!")
+    info(f"Auth mode: {auth_mode}")
+    info(f"URL: {url}")
+    info(f"Service: {service}")
+    print()
+    info("Kiem tra ket noi bang: mcp-sap-connect connect")
     print()
     if ask("Dang ky MCP servers voi Claude Code ngay?", default="y").lower() in ("", "y", "yes"):
         _cmd_mcp_setup()

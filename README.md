@@ -217,7 +217,19 @@ kiểm tra các dependency hay bị thiếu ngầm (pywin32/DPAPI, playwright+ch
 
 ## Thêm project SAP mới
 
-Cách nhanh nhất — truyền URL trực tiếp:
+**Cách 2 — điền file, không cần trả lời wizard từng bước** (khuyến dùng nếu muốn ít thao tác
+tương tác nhất): copy 1 trong 4 file mẫu ở `reference/templates/mcp-sap-connect-profile-sample/`
+(theo đúng phương thức xác thực bạn có) ra thư mục local của bạn, điền các field `<...>`, rồi:
+
+```bash
+mcp-sap-connect setup --from-file duong-dan-file-da-dien.json
+```
+
+Lệnh này gọi đúng logic lưu trữ/mã hóa như wizard tương tác bên dưới — chỉ khác là không hỏi
+từng câu trong terminal. Xem `reference/templates/mcp-sap-connect-profile-sample/README.md` để
+biết chi tiết từng field + ví dụ cho cả 5 edition. `/sap-setup` tự làm bước copy này giúp bạn.
+
+**Cách 1 — wizard tương tác (trả lời từng câu hỏi)**, truyền URL trực tiếp:
 
 ```bash
 mcp-sap-connect setup https://project1.s4hana.cloud.sap
@@ -1297,7 +1309,7 @@ Plugin có **2 cơ chế kích hoạt khác nhau**, dễ nhầm nếu chỉ đ�
 
 | Command | Dùng khi |
 |---|---|
-| `/sap-setup` | Cài đặt toàn bộ cho máy mới lần đầu (pip install, profile đầu tiên, đăng ký MCP) — tự phát hiện bước nào đã xong |
+| `/sap-setup` | Cài đặt toàn bộ cho máy mới, tự động hết mức có thể (pip install, đăng ký MCP) — chỉ dừng lại đúng 1 chỗ: điền file config mẫu với credential thật |
 | `/sap-connect` | Thiết lập/quản lý profile kết nối SAP BTP |
 | `/mcp-setup` | Đăng ký toàn bộ MCP server 1 lần |
 | `/sync-skills` | Đồng bộ skill/agent/command mới nhất từ GitHub |

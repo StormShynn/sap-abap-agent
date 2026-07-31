@@ -77,6 +77,21 @@ Format dựa trên [Keep a Changelog](https://keepachangelog.com/) và [Semantic
     thành 1 lệnh tự phát hiện bước nào đã xong, idempotent (chạy lại an toàn). Không tự nhập
     credential/URL hộ user, không hardcode số version wheel (tra `gh release list` trước khi
     build URL cài đặt).
+- **`mcp-sap-connect setup --from-file <path>`** (mới trong `reference/mcp-server/mcp_sap_connect/cli/__init__.py`)
+  — tạo profile từ 1 file JSON đã điền sẵn thay vì trả lời wizard tương tác từng bước. Gọi lại
+  đúng 3 hàm wizard đã dùng (`upsert_profile`/`save_config`/`save_secrets`) — không viết lại
+  logic mã hóa/lưu trữ. Từ chối rõ ràng nếu field còn placeholder (`<...>`), không bao giờ tạo
+  profile với giá trị giả. Đã verify bằng chạy thật (không chỉ đọc code): nhánh điền đủ tạo
+  profile đúng (secret mã hóa DPAPI thật, `routingHints` tự sinh theo schema v2 có sẵn); nhánh
+  còn placeholder bị từ chối, không tạo gì.
+  - Thêm `reference/templates/mcp-sap-connect-profile-sample/` — 4 file mẫu (1 mỗi auth mode:
+    oauth2/password/bearer/cookie) + `README.md` giải thích từng field và ví dụ giá trị cho cả
+    5 edition (`s4hc_(public)`/`s4hc_(private)`/`btp`/`onprem`/`rise_with_sap`).
+  - Viết lại `/sap-setup` để tự động hết mức có thể theo phản hồi ban đầu — bỏ các câu hỏi
+    Claude tự quyết định được (OS, extra `win-dpapi`, dùng wheel hay editable), copy 4 file mẫu
+    ra thư mục `in/` local của user (KHÔNG bao giờ để user điền secret thật trực tiếp vào
+    `reference/templates/` git-tracked của repo), chỉ còn đúng 1 điểm dừng bắt buộc: điền
+    credential thật.
 - **Hook mới `hooks/first_run_check.py`** (SessionStart, 3 hook thứ tự:
   `session_start_skill.py` → `cron_deliver.py` → `first_run_check.py`) — tự kiểm tra offline
   (đọc `mcp_sap_connect.config.paths.get_profiles_dir()`, không gọi MCP/mạng) xem máy đã có
