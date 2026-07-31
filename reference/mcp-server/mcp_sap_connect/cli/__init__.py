@@ -281,22 +281,15 @@ async def _wizard_setup(url: str) -> None:
         )
 
         if cookie_source == "1":
-            from ..sap.auth import SamlLoginError, saml_form_login
             saml_user = ask("SAP Username (dang nhap IAS)")
             saml_pass = ask("SAP Password (dang nhap IAS)", secret=True)
-            info("Thu dang nhap nhanh qua SAML form (HTTP truc tiep, khong mo browser)...")
-            try:
-                result = await saml_form_login(url, saml_user, saml_pass)
-                cookies = result.cookies
-                secrets_data["samlUsername"] = saml_user
-                secrets_data["samlPassword"] = saml_pass
-                ok("Dang nhap nhanh thanh cong - da luu (ma hoa) de tu dung lai cho lan reauth sau.")
-            except SamlLoginError as err:
-                warn(f"Dang nhap nhanh khong thanh cong ({err}) - fallback ve mo browser...")
+            saml_cookies = await _try_saml_fastpath(url, saml_user, saml_pass, secrets_data)
+            saml_user = saml_pass = ""
+            if saml_cookies is None:
                 cookies = {}
                 cookie_source = "2"  # roi qua nhanh browser ben duoi
-            finally:
-                saml_user = saml_pass = ""
+            else:
+                cookies = saml_cookies
 
         if cookie_source == "2":
             from ..sap.auth import web_login_auto
@@ -423,6 +416,33 @@ def _wire_early_finish_event(reauth_mode: str) -> asyncio.Event:
     return early_event
 
 
+async def _try_saml_fastpath(
+    url: str, username: str, password: str, secrets_data: dict[str, Any]
+) -> dict[str, str] | None:
+    """Thu dang nhap SAML fast-path (HTTP form-fill, khong mo browser).
+
+    Thanh cong: ghi samlUsername/samlPassword vao secrets_data (caller tu
+    save_secrets sau do - ham nay khong tu luu) de tu dung lai cho lan reauth
+    sau, tra ve cookies. That bai (sai cred, MFA...): canh bao va tra ve None
+    - caller tu fallback ve web_login_auto (browser).
+
+    Dung chung boi _wizard_setup va _setup_from_file (2 noi co logic giong
+    het nhau truoc day).
+    """
+    from ..sap.auth import SamlLoginError, saml_form_login
+
+    info("Thu dang nhap nhanh qua SAML form (HTTP truc tiep, khong mo browser)...")
+    try:
+        result = await saml_form_login(url, username, password)
+    except SamlLoginError as err:
+        warn(f"Dang nhap nhanh khong thanh cong ({err}) - fallback ve mo browser...")
+        return None
+    secrets_data["samlUsername"] = username
+    secrets_data["samlPassword"] = password
+    ok("Dang nhap nhanh thanh cong - da luu (ma hoa) de tu dung lai cho lan reauth sau.")
+    return result.cookies
+
+
 async def _setup_from_file(path: str) -> None:
     """Tao profile tu 1 file JSON da dien san (xem reference/templates/
     mcp-sap-connect-profile-sample/), thay vi tra loi wizard tuong tac tung buoc.
@@ -533,17 +553,7 @@ async def _setup_from_file(path: str) -> None:
                 and not _looks_like_placeholder(saml_user)
                 and not _looks_like_placeholder(saml_pass)
             ):
-                from ..sap.auth import SamlLoginError, saml_form_login
-                info("Thu dang nhap nhanh qua SAML form (HTTP truc tiep, khong mo browser)...")
-                try:
-                    result = await saml_form_login(url, saml_user, saml_pass)
-                    cookies = result.cookies
-                    secrets_data["samlUsername"] = saml_user
-                    secrets_data["samlPassword"] = saml_pass
-                    info("Dang nhap nhanh thanh cong - da luu (ma hoa) de tu dung lai cho lan reauth sau.")
-                except SamlLoginError as err:
-                    warn(f"Dang nhap nhanh khong thanh cong ({err}) - fallback ve browser...")
-                    cookies = None
+                cookies = await _try_saml_fastpath(url, saml_user, saml_pass, secrets_data)
                 saml_user = saml_pass = ""
                 cookies_missing = not isinstance(cookies, dict) or not cookies
 

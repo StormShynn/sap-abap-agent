@@ -30,7 +30,7 @@ proc = subprocess.Popen(
     [sys.executable, "-c", """
 import asyncio
 import os, sys, json
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch, MagicMock, AsyncMock
 
 # Mock app_dir + secrets/load_config + SapCookieAuth
 testdir = os.environ.get('SAP_BTP_APPDIR_OVERRIDE')
@@ -52,7 +52,7 @@ async def main():
          patch('mcp_sap_connect.cli.__init__.load_config', return_value=fake_cfg), \\
          patch('mcp_sap_connect.sap.auth.load_secrets', new=AsyncMock(return_value={'cookies': {}})), \\
          patch('mcp_sap_connect.sap.auth.update_secrets', new=AsyncMock(return_value={})), \\
-         patch('mcp_sap_connect.cli.__init__.SapCookieAuth', return_value=mock_auth):
+         patch('mcp_sap_connect.sap.auth.SapCookieAuth', return_value=mock_auth):
         await _cmd_reauth('test.s4hana.cloud.sap')
 
 try:

@@ -11,8 +11,8 @@
   "region": "eu10",
   "authMode": "cookie",
   "reauthMode": "manual",
-  "samlBootstrapUsername": "",
-  "samlBootstrapPassword": "",
+  "samlBootstrapUsername": "<PASTE_SAML_USERNAME>",
+  "samlBootstrapPassword": "<PASTE_SAML_PASSWORD>",
   "cookies": {
     "MYSAPSSO2": "<PASTE_COOKIE_VALUE>",
     "SAP_SESSIONID_<SID>_<CLIENT>": "<PASTE_COOKIE_VALUE>",

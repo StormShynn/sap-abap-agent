@@ -314,7 +314,15 @@ async def _verify_discovery_session(base_url: str, cookies: dict[str, str]) -> b
         async with httpx.AsyncClient(timeout=10.0) as client:
             resp = await client.get(
                 url,
-                headers={"Accept": "application/xml", "Cookie": cookie_header},
+                # Discovery tra ve Atom Service Document (AtomPub, RFC 5023) -
+                # endpoint nay tu choi voi 406 neu chi gui "application/xml"
+                # (xac nhan qua test that: cookie session HOP LE van bi 406,
+                # khien code tuong dang nhap that bai du that ra da thanh
+                # cong - chi la sai Accept header).
+                headers={
+                    "Accept": "application/atomsvc+xml, application/xml",
+                    "Cookie": cookie_header,
+                },
             )
     except Exception:
         return False
@@ -826,6 +834,20 @@ async def saml_form_login(base_url: str, username: str, password: str) -> Reauth
             "dang nhap SAML xong nhung khong co cookie session SAP "
             "(MYSAPSSO2/SAP_SESSIONID) - kiem tra lai username/password, "
             "hoac IAS co the yeu cau MFA (fallback ve dang nhap qua browser)."
+        )
+    # QUAN TRONG: chi co ten cookie hop le (vd 'sap-usercontext') la CHUA DU -
+    # cookie nay co the da duoc set som trong chuoi redirect (vd boi chinh
+    # IAS) TRUOC KHI dang nhap that su thanh cong, ke ca username/password
+    # sai (da xac nhan qua test that: dien sai cred van co the tra ve
+    # sap-usercontext ma khong co session that). Phai xac nhan lai bang 1
+    # request that toi backend ABAP - dung lai ham _verify_discovery_session
+    # ma web_login_auto (duong browser) da dung, thay vi tin ngay ten cookie.
+    if not await _verify_discovery_session(base_url, cookies):
+        raise SamlLoginError(
+            "co cookie ten hop le (vd sap-usercontext) nhung KHONG xac thuc "
+            "duoc that voi backend ABAP (GET /sap/bc/adt/core/discovery that "
+            "bai) - rat co the sai username/password (cookie do IAS set som "
+            "trong chuoi redirect, chua chac da dang nhap thanh cong)."
         )
     return ReauthResult(cookies=cookies)
 

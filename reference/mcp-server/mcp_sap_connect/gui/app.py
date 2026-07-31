@@ -116,6 +116,7 @@ class SapBtpGui:
         self.add_btn.grid(row=0, column=3)
         add_menu = tk.Menu(self.add_btn, tearoff=0)
         add_menu.add_command(label="Setup wizard (interactive)...", command=self._on_new_setup)
+        add_menu.add_command(label="Setup from file (--from-file)...", command=self._on_setup_from_file)
         add_menu.add_command(label="Import from JSON backup...", command=self._on_import_json)
         self.add_btn.configure(menu=add_menu)
 
@@ -364,6 +365,37 @@ class SapBtpGui:
         runner.start_new_console(args, on_done=self._on_setup_done)
         self.status_var.set("Setup dang chay (cua so CMD rieng)...")
         self._notify_tray("Setup dang chay trong cua so CMD rieng.")
+
+    def _on_setup_from_file(self) -> None:
+        """Tao profile moi tu 1 file JSON da dien san (xem reference/templates/
+        mcp-sap-connect-profile-sample/) - goi `mcp-sap-connect setup --from-file`
+        trong cua so CMD moi (giong _on_new_setup: van co the can interactive,
+        vd SAML fast-path fallback sang browser, hoi dang ky MCP servers cuoi).
+
+        Khac _on_import_json: file o day la TEMPLATE da dien credential that
+        (profileId/url/authMode/cookies hoac clientId+clientSecret...), tao
+        profile MOI kem secrets ma hoa - khong phai backup config.json cua
+        profile da co san (khong co secrets) nhu _on_import_json.
+        """
+        if self._job is not None and self._job.running:
+            messagebox.showinfo("Busy", "Hay doi lenh hien tai ket thuc truoc.")
+            return
+
+        from tkinter import filedialog
+
+        path = filedialog.askopenfilename(
+            title="Chon file profile da dien (vd profile.cookie.json)",
+            parent=self.root,
+            filetypes=[("JSON files", "*.json"), ("All files", "*.*")],
+        )
+        if not path:
+            return
+
+        args = ["setup", "--from-file", path]
+        self._append_log(f'$ mcp-sap-connect setup --from-file "{path}"  (mo cua so CMD moi)\n')
+        runner.start_new_console(args, on_done=self._on_setup_done)
+        self.status_var.set("Setup tu file dang chay (cua so CMD rieng)...")
+        self._notify_tray("Setup tu file dang chay trong cua so CMD rieng.")
 
     def _on_import_json(self) -> None:
         """Import profile tu file config.json backup (BTW: khong import secrets vi
