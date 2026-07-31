@@ -105,7 +105,14 @@ def main() -> None:
     elif cmd == "reauth":
         runner(_cmd_reauth, cmd_args[0] if cmd_args else None)
     elif cmd == "profiles" and cmd_args:
-        runner(_cmd_profiles, cmd_args[0], cmd_args[1] if len(cmd_args) > 1 else None)
+        json_mode = "--json" in cmd_args
+        pos_args = [a for a in cmd_args if a != "--json"]
+        runner(
+            _cmd_profiles,
+            pos_args[0],
+            pos_args[1] if len(pos_args) > 1 else None,
+            json_mode,
+        )
     elif cmd == "reset":
         _cmd_reset()
     elif cmd == "doctor":
@@ -114,7 +121,9 @@ def main() -> None:
     elif cmd == "mcp-setup":
         _cmd_mcp_setup()
     elif cmd == "license":
-        _cmd_license(cmd_args[0] if cmd_args else None)
+        json_mode = "--json" in cmd_args
+        pos_args = [a for a in cmd_args if a != "--json"]
+        _cmd_license(pos_args[0] if pos_args else None, json_mode=json_mode)
     else:
         print(f"  ❌ Unknown command: {cmd}")
         _show_help()
@@ -369,8 +378,7 @@ async def _wizard_setup(url: str) -> None:
     print()
     info("Ban co the kiem tra ket noi bang: mcp-sap-connect connect")
     print()
-    if ask("Dang ky MCP servers voi Claude Code ngay?", default="y").lower() in ("", "y", "yes"):
-        _cmd_mcp_setup()
+    info("Dang ky MCP servers: chay 'mcp-sap-connect mcp-setup' (hoac nut MCP Servers trong GUI) khi can.")
 
 
 # ===== SETUP TU FILE (non-interactive) =============================
@@ -599,8 +607,7 @@ async def _setup_from_file(path: str) -> None:
     print()
     info("Kiem tra ket noi bang: mcp-sap-connect connect")
     print()
-    if ask("Dang ky MCP servers voi Claude Code ngay?", default="y").lower() in ("", "y", "yes"):
-        _cmd_mcp_setup()
+    info("Dang ky MCP servers: chay 'mcp-sap-connect mcp-setup' (hoac nut MCP Servers trong GUI) khi can.")
 
 
 # ===== CONNECT =====================================================
@@ -786,13 +793,30 @@ def _safe_display_value(key: str, value: Any) -> str:
     return str(value)
 
 
-def _cmd_license(profile_id):
+def _cmd_license(profile_id, *, json_mode: bool = False):
     """In trang thai license (cookie/token) cua 1 hoac tat ca profile.
 
     Args:
         profile_id: neu None -> in tat ca profile. Neu co -> in chi tiet 1 profile.
+        json_mode: --json - in JSON thuan (list_all_statuses()/get_profile_status())
+            thay vi bang/text de dung tin cay cho consumer khac (vd GUI native)
+            thay vi phai regex-parse output nguoi doc.
     """
     from .. import license as _lic
+
+    if json_mode:
+        import json as _json
+        if profile_id:
+            try:
+                print(_json.dumps(_lic.get_profile_status(profile_id), ensure_ascii=False))
+            except Exception as err:
+                print(_json.dumps({"error": str(err)}, ensure_ascii=False))
+        else:
+            try:
+                print(_json.dumps(_lic.list_all_statuses(), ensure_ascii=False))
+            except Exception as err:
+                print(_json.dumps({"error": str(err)}, ensure_ascii=False))
+        return
 
     if profile_id:
         # In chi tiet 1 profile
@@ -888,9 +912,13 @@ def _cmd_license(profile_id):
 # ===== PROFILES ====================================================
 
 
-async def _cmd_profiles(subcmd: str, arg: str | None) -> None:
+async def _cmd_profiles(subcmd: str, arg: str | None, json_mode: bool = False) -> None:
     if subcmd == "list":
         data = list_profiles()
+        if json_mode:
+            import json as _json
+            print(_json.dumps(data, ensure_ascii=False))
+            return
         active = data.get("active")
         print()
         header("Cac profile SAP")
@@ -901,6 +929,50 @@ async def _cmd_profiles(subcmd: str, arg: str | None) -> None:
                 print(f"     URL: {p.get('url', '?')}")
         print(f"\n  Active: {active or '(none)'}")
         print()
+
+    elif subcmd == "import" and arg:
+        # Import 1 profile tu file config.json backup (KHONG co secrets - da ma
+        # hoa DPAPI, chi may cu moi giai ma duoc). Dung cho GUI "Import from
+        # JSON backup" - tach thanh CLI subcommand rieng thay vi goi thang
+        # upsert_profile/derive_profile_id_from_url tu Python noi bo, de
+        # consumer khac (vd GUI native) khong phai tu viet lai logic nay.
+        import json as _json
+
+        from ..config.profile import derive_profile_id_from_url, upsert_profile
+
+        try:
+            with open(arg, encoding="utf-8") as f:
+                data = _json.load(f)
+        except Exception as err:
+            result = {"ok": False, "error": f"Khong doc duoc file JSON: {err}"}
+            print(_json.dumps(result, ensure_ascii=False) if json_mode else f"  ❌ {result['error']}")
+            return
+
+        url = data.get("btpUrl") if isinstance(data, dict) else None
+        if not url:
+            result = {"ok": False, "error": "File thieu truong 'btpUrl' (chon dung file config.json)."}
+            print(_json.dumps(result, ensure_ascii=False) if json_mode else f"  ❌ {result['error']}")
+            return
+
+        pid = derive_profile_id_from_url(url)
+        if not pid:
+            result = {"ok": False, "error": f"Khong suy ra duoc profile id tu URL: {url}"}
+            print(_json.dumps(result, ensure_ascii=False) if json_mode else f"  ❌ {result['error']}")
+            return
+
+        try:
+            upsert_profile(pid, url=url)
+        except Exception as err:
+            result = {"ok": False, "error": str(err)}
+            print(_json.dumps(result, ensure_ascii=False) if json_mode else f"  ❌ {err}")
+            return
+
+        result = {"ok": True, "profileId": pid, "url": url}
+        if json_mode:
+            print(_json.dumps(result, ensure_ascii=False))
+        else:
+            ok(f"Da dang ky profile '{pid}' (URL: {url}).")
+            info("Nho copy secrets.json cua profile nay tu may cu neu can (khong tu import duoc).")
 
     elif subcmd == "use" and arg:
         try:
@@ -939,10 +1011,11 @@ async def _cmd_profiles(subcmd: str, arg: str | None) -> None:
 
     else:
         print("  Usage:")
-        print("    mcp-sap-connect profiles list")
+        print("    mcp-sap-connect profiles list [--json]")
         print("    mcp-sap-connect profiles use <id>")
         print("    mcp-sap-connect profiles show [id]")
         print("    mcp-sap-connect profiles remove <id>")
+        print("    mcp-sap-connect profiles import <config.json-path> [--json]")
 
 
 # ===== RESET =======================================================

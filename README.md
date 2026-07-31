@@ -322,9 +322,13 @@ mcp-sap-connect-gui --tray-only       # Chỉ tray (ẩn hoàn toàn, không c�
   ví dụ `* project1.s4hana.cloud.sap  ⚠ 29m 57s` (cam = sắp hết hạn), `❌` (đỏ = hết hạn),
   `✓ 7h 59m` (xanh = OK).
 - **4 nút lớn**: 🔐 Reauth · 🔌 Connect · ⭐ Set Active · 🗑 Remove.
-- **➕ Add** (góc trên phải): menu thả xuống với **Setup wizard** (mở CMD mới chạy
-  `mcp-sap-connect setup`) và **Import from JSON backup** (chọn file `config.json`, tự
-  derive profile id từ `btpUrl`).
+- **➕ Add** (góc trên phải): menu thả xuống với 3 lựa chọn — **Setup wizard** (mở CMD mới
+  chạy `mcp-sap-connect setup`, trả lời từng câu), **Setup from file** (chọn 1 file
+  template đã điền sẵn — vd `profile.cookie.json` — mở CMD mới chạy
+  `mcp-sap-connect setup --from-file`, tạo profile kèm secrets mã hóa ngay, không cần trả
+  lời từng câu), và **Import from JSON backup** (chọn file `config.json` của 1 profile đã
+  có từ trước, tự derive profile id từ `btpUrl` — KHÔNG mang theo secrets vì đã mã hóa
+  DPAPI, chỉ dùng để khôi phục config non-secret khi đổi máy).
 - **Log console** streaming real-time từ subprocess — copy để paste vào issue khi cần debug.
 - **📋 License** (góc dưới phải): mở **License Dashboard** (Toplevel 720×460) hiển thị tất cả
   profile với progressbar đếm ngược thời gian sống của cookie/token (xanh >20%, cam 5-20%,
@@ -384,7 +388,13 @@ mcp-sap-connect license project1.s4hana.cloud.sap      # chi tiết 1 profile
 ```
 
 - **Cookie expires** được ước lượng = `last_saved + cookie_max_age_hours` (mặc định 8h,
-  override bằng cách thêm `"cookieMaxAgeHours": N` vào `config.json` của profile).
+  override bằng cách thêm `"cookieMaxAgeHours": N` vào `config.json` của profile) — SAP
+  không gửi kèm thời gian hết hạn thật trong session cookie (`SAP_SESSIONID_*`/
+  `sap-usercontext` là session cookie thuần, `expires=None`, đã verify trực tiếp qua
+  cookie jar thật), nên đây là giới hạn kỹ thuật thật sự, không phải làm ẩu. Bù lại, cơ
+  chế keep-alive (ping mỗi 5 phút) giờ tự "gia hạn" ước lượng mỗi lần ping thành công
+  (bằng chứng thật session còn sống), và đánh dấu hết hạn **ngay lập tức** khi ping thất
+  bại — thay vì luôn hiển thị số giờ tĩnh từ lúc đăng nhập, không phản ánh thực tế.
 - **OAuth2 token expires** được lưu chính xác từ response `expires_in` của token endpoint.
 - **Tray notification** tự động khi mở GUI nếu có profile sắp hết hạn (<1h) hoặc đã hết hạn.
 

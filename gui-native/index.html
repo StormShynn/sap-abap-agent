@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SAP ABAP Agent</title>
+    <link rel="stylesheet" href="/src/styles.css" />
+  </head>
+  <body>
+    <div id="app">
+      <header class="header">
+        <div class="row">
+          <label for="profile-select" class="label-bold">Profile:</label>
+          <select id="profile-select" class="profile-select"></select>
+          <button id="btn-refresh" class="btn btn-flat">Refresh</button>
+          <div class="add-menu">
+            <button id="btn-add" class="btn btn-accent">+ Add ▾</button>
+            <div id="add-dropdown" class="dropdown hidden">
+              <button data-action="wizard">Setup wizard (interactive)...</button>
+              <button data-action="from-file">Setup from file (--from-file)...</button>
+              <button data-action="import-json">Import from JSON backup...</button>
+            </div>
+          </div>
+        </div>
+        <div class="row url-row">
+          <span id="url-text" class="muted">(no profile selected)</span>
+        </div>
+        <div class="row license-row">
+          <span id="license-text" class="license-text muted"></span>
+          <button id="btn-license" class="btn btn-flat">📋 License</button>
+        </div>
+      </header>
+
+      <section class="actions">
+        <button id="btn-reauth" class="btn btn-action">🔐<br />Reauth</button>
+        <button id="btn-connect" class="btn btn-action">🔌<br />Connect</button>
+        <button id="btn-set-active" class="btn btn-action">⭐<br />Set Active</button>
+        <button id="btn-remove" class="btn btn-action btn-danger">🗑<br />Remove</button>
+      </section>
+
+      <section class="log-section">
+        <div class="label-bold">Log:</div>
+        <div class="log-card">
+          <pre id="log-text" class="log-text"></pre>
+        </div>
+        <div class="log-toolbar">
+          <button id="btn-clear" class="btn btn-flat">Clear</button>
+          <button id="btn-copy" class="btn btn-flat">Copy</button>
+          <button id="btn-done" class="btn btn-done" disabled>✓ Đã đăng nhập xong</button>
+          <span id="status-text" class="muted status-text">Ready</span>
+        </div>
+      </section>
+    </div>
+
+    <div id="license-modal" class="modal-overlay hidden">
+      <div class="modal-panel">
+        <div class="modal-header">
+          <h2>License / Credentials Status (auto-refresh 1s)</h2>
+          <div>
+            <button id="btn-license-refresh" class="btn btn-flat">Refresh</button>
+            <button id="btn-license-close" class="btn btn-flat">Close</button>
+          </div>
+        </div>
+        <div id="license-rows" class="license-rows"></div>
+      </div>
+    </div>
+
+    <div id="prompt-modal" class="modal-overlay hidden">
+      <div class="modal-panel modal-panel-small">
+        <h3 id="prompt-title"></h3>
+        <p id="prompt-message" class="muted"></p>
+        <input id="prompt-input" type="text" class="prompt-input" />
+        <div class="modal-actions">
+          <button id="prompt-cancel" class="btn btn-flat">Hủy</button>
+          <button id="prompt-ok" class="btn btn-accent">OK</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="confirm-modal" class="modal-overlay hidden">
+      <div class="modal-panel modal-panel-small">
+        <h3 id="confirm-title"></h3>
+        <p id="confirm-message" class="muted"></p>
+        <div class="modal-actions">
+          <button id="confirm-cancel" class="btn btn-flat">Hủy</button>
+          <button id="confirm-ok" class="btn btn-danger-solid">Xóa</button>
+        </div>
+      </div>
+    </div>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

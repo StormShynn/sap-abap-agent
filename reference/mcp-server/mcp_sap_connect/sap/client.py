@@ -319,9 +319,32 @@ class SapClient:
     async def _keep_alive_loop(self, interval_s: float) -> None:
         while True:
             await asyncio.sleep(interval_s)
-            with contextlib.suppress(Exception):
+            try:
                 await self.check_write_access()
-                # best-effort - loi that su se lo dien o lan goi tool tiep theo
+            except Exception:
+                # Ping that bai = bang chung THAT session da chet ngay luc nay
+                # (khong phai suy doan) - voi cookie auth, danh dau het han
+                # NGAY thay vi de license dashboard tiep tuc tin uoc luong cu
+                # (co the con sai toi 8h nua). Best-effort: loi ghi secrets o
+                # day khong duoc lam chet keep-alive loop - lan goi tool that
+                # su tiep theo van tu xu ly reauth binh thuong du buoc nay fail.
+                if self.use_cookie_auth:
+                    with contextlib.suppress(Exception):
+                        import time as _time
+
+                        from ..config.secrets import update_secrets
+                        await update_secrets(self.profile_id, {"cookie_expires_at": _time.time()})
+            else:
+                # Ping thanh cong = bang chung THAT session con song ngay luc
+                # nay - "gia han" uoc luong tu moc nay (goi lai save_cookies,
+                # cung co che voi luc setup/reauth) thay vi de nguyen moc uoc
+                # luong tinh tu lan login/reauth cu. Phan anh dung hon thuc te:
+                # nhieu SAP tenant het session vi IDLE timeout (khong phai het
+                # gio tuyet doi) - ping dinh ky da ngan duoc idle timeout nen
+                # uoc luong cung nen "song" theo, khong nen dung yen 1 cho.
+                if self.use_cookie_auth:
+                    with contextlib.suppress(Exception):
+                        await self.cookie_auth.save_cookies()
 
     def _build_url(self, path: str, query: dict[str, Any] | None) -> str:
         base = path if path.startswith("http") else f"{self._base()}/{path.lstrip('/')}"
