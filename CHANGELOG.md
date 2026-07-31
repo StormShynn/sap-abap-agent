@@ -65,10 +65,19 @@ Format dựa trên [Keep a Changelog](https://keepachangelog.com/) và [Semantic
     "Danh sách BẮT BUỘC hỏi user" riêng — không tự đoán edition/package/tên field.
     `/sap-new-object` là bản tổng quát (để `sap-write-technical-spec` tự chọn pattern thay vì
     cố định trước 1 loại), 2 command kia đi thẳng vào 1 pattern cụ thể khi đã biết chắc.
-  - `/sap-setup` — nối toàn bộ luồng cài đặt máy mới (README mục "Cài đặt (1 lần)" + "Thêm
-    project SAP mới" + "Đăng ký MCP servers") thành 1 lệnh tự phát hiện bước nào đã xong,
-    idempotent (chạy lại an toàn). Không tự nhập credential/URL hộ user, không hardcode số
-    version wheel (tra `gh release list` trước khi build URL cài đặt).
+  - `/sap-setup` (đổi tên từ `/sap-onboard` sau phản hồi ban đầu) — nối toàn bộ luồng cài đặt
+    máy mới (README mục "Cài đặt (1 lần)" + "Thêm project SAP mới" + "Đăng ký MCP servers")
+    thành 1 lệnh tự phát hiện bước nào đã xong, idempotent (chạy lại an toàn). Không tự nhập
+    credential/URL hộ user, không hardcode số version wheel (tra `gh release list` trước khi
+    build URL cài đặt).
+- **Hook mới `hooks/first_run_check.py`** (SessionStart, 3 hook thứ tự:
+  `session_start_skill.py` → `cron_deliver.py` → `first_run_check.py`) — tự kiểm tra offline
+  (đọc `mcp_sap_connect.config.paths.get_profiles_dir()`, không gọi MCP/mạng) xem máy đã có
+  profile SAP nào chưa. Nếu chưa (hoặc package chưa cài, bắt `ImportError`) → bơm context để
+  Claude **chủ động hỏi** user có muốn chạy `/sap-setup` không, thay vì chờ user tự biết gõ
+  lệnh. Đã có ít nhất 1 profile → im lặng, không hỏi lại mỗi phiên. Đã verify cả 2 nhánh bằng
+  cách chạy trực tiếp (nhánh im lặng: xác nhận qua profile thật trên máy dev; nhánh gợi ý: mô
+  phỏng `ImportError` để kiểm tra JSON output hợp lệ).
 - Cập nhật `sap-write-technical-spec`'s "Bảng chọn pattern nhanh" trỏ đến 2 skill mới; thêm mục
   "Skill (tự động) vs Command (gõ tường minh)" vào `README.md` (bảng 6 command hiện có) — trước
   đó README không giải thích 2 cơ chế kích hoạt khác nhau này ở đâu cả.
@@ -80,6 +89,12 @@ nhưng viết cho 1 hệ agent khác (`AGENTS_DOC`/`AGENTS_REUSE`/module-expert,
 `pmc-reuse-by-module.md`/`pub-naf-index.json` không tồn tại trong repo này) — không phải hệ
 skill/agent đang dùng. Lấy tri thức đã verify của hệ đó làm nền tảng viết skill mới cho hệ hiện
 tại, không đụng vào hệ kia.
+
+## [v1.13.4] — 2026-07-31
+
+### Changed
+
+- Auto-bumped by CI (version-bump.yml).
 
 ## [v1.14.0] — 2026-07-30
 
