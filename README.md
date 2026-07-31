@@ -1307,6 +1307,8 @@ Plugin có **2 cơ chế kích hoạt khác nhau**, dễ nhầm nếu chỉ đ�
 
 Nếu không chắc nên gõ `/lệnh` hay chỉ cần hỏi tự nhiên: **cứ hỏi tự nhiên trước** — skill routing (`sap-ask-consultant`, `sap-routing-discipline`) sẽ tự tìm đúng skill. Command chỉ cần khi muốn tắt qua nhiều bước bằng 1 lần gõ, hoặc thao tác hạ tầng không phải nghiệp vụ SAP.
 
+**Riêng `/sap-setup` không cần bạn tự nhớ gõ** — hook `hooks/first_run_check.py` (SessionStart) tự kiểm tra offline mỗi phiên xem máy đã có profile SAP nào chưa; nếu chưa, Claude sẽ chủ động hỏi bạn có muốn chạy `/sap-setup` không. Đã có profile rồi thì hook im lặng, không hỏi lại.
+
 ## Test local
 
 ```bash

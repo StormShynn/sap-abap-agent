@@ -10,6 +10,11 @@ moi" + "Dang ky MCP servers" thanh 1 luong lien tuc, **tu phat hien buoc nao da 
 lam lai tu dau neu may da cai 1 phan roi). Khong tu doan URL he thong SAP hay tu nhap ho
 credential — nhung buoc do van can user tuong tac truc tiep voi wizard that.
 
+**Khong chi go tay**: hook `hooks/first_run_check.py` (SessionStart) tu kiem tra offline moi
+phien — neu chua thay profile SAP nao (hoac `mcp-sap-connect` chua cai), Claude se **chu dong
+hoi** user co muon chay `/sap-setup` khong, thay vi cho user tu biet go lenh nay. Neu da co it
+nhat 1 profile, hook im lang, khong hoi lai moi phien.
+
 ## Cach dung
 
 ```text
