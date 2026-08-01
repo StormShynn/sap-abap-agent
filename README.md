@@ -174,7 +174,7 @@ tích sâu qua `sap-vsp`, DDIC qua `sap-dict-bridge`) riêng. Xem
 Yêu cầu: **Python >= 3.10**. **Không cần clone repo** — chỉ cần tải 1 file `.whl` và `pip install`:
 
 ```bash
-pip install https://github.com/StormShynn/sap-abap-agent/releases/download/mcp-server-v1.18.0/mcp_sap_connect-1.18.0-py3-none-any.whl
+pip install https://github.com/StormShynn/sap-abap-agent/releases/download/mcp-server-v1.19.0/mcp_sap_connect-1.18.0-py3-none-any.whl
 ```
 
 (Hoặc tải file `.whl` về trước rồi `pip install đường-dẫn-file.whl` nếu máy không có internet lúc chạy lệnh.)
