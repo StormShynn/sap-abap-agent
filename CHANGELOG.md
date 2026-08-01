@@ -10,6 +10,9 @@ Format dựa trên [Keep a Changelog](https://keepachangelog.com/) và [Semantic
 
 ### Added
 
+- **GUI native PATH-only ship prep** (`gui-native/` v1.18.0): version align với product;
+  `check_runtime` + first-run banner khi thiếu `mcp-sap-connect`; bundle targets NSIS+MSI;
+  Tkinter GUI đánh dấu legacy trong README (vẫn hỗ trợ ≥2 minor).
 - **MCP Servers Setup panel** (`gui-native/`) — nút "🧩 MCP Servers" mới trong GUI native (Tauri), mở modal
   liệt kê toàn bộ MCP server mà `mcp-sap-connect mcp-setup` biết đăng ký (core/remote/adt-alternative/
   special/manual), chia nhóm, hiện trạng thái đã đăng ký (đọc `~/.claude.json`) và nút "Đăng ký" per-server

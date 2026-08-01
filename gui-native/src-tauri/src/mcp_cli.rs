@@ -23,6 +23,87 @@ pub fn resolve_executable() -> Vec<String> {
     vec![python, "-m".to_string(), "mcp_sap_connect.cli".to_string()]
 }
 
+/// PATH-only ship (decision 0001): GUI khong embed Python. Probe xem CLI goi
+/// duoc that su hay khong (binary PATH hoac python -m), de first-run banner
+/// huong dan pip/doctor thay vi loi mo ho luc bam Reauth.
+#[derive(Serialize, Deserialize, Clone, Debug)]
+pub struct RuntimeStatus {
+    pub ok: bool,
+    pub mode: String,
+    pub detail: String,
+    pub install_hint: String,
+}
+
+#[tauri::command]
+pub async fn check_runtime() -> Result<RuntimeStatus, String> {
+    let install_hint = concat!(
+        "pip install \"mcp-sap-connect[win-dpapi]\"\n",
+        "roi chay: python -m mcp_sap_connect.doctor\n",
+        "(neu 'mcp-sap-connect' khong nhan: them Scripts vao User PATH, mo lai app)"
+    )
+    .to_string();
+
+    if let Ok(path) = which::which("mcp-sap-connect") {
+        let path_s = path.to_string_lossy().to_string();
+        match run_capture(&["profiles".to_string(), "list".to_string(), "--json".to_string()]).await
+        {
+            Ok((code, stdout, stderr)) if code == 0 || !stdout.trim().is_empty() => {
+                return Ok(RuntimeStatus {
+                    ok: true,
+                    mode: "path".to_string(),
+                    detail: format!("mcp-sap-connect tren PATH: {path_s}"),
+                    install_hint,
+                });
+            }
+            Ok((code, _stdout, stderr)) => {
+                return Ok(RuntimeStatus {
+                    ok: false,
+                    mode: "path-broken".to_string(),
+                    detail: format!(
+                        "Tim thay {path_s} nhung chay that bai (exit {code}): {stderr}"
+                    ),
+                    install_hint,
+                });
+            }
+            Err(e) => {
+                return Ok(RuntimeStatus {
+                    ok: false,
+                    mode: "path-broken".to_string(),
+                    detail: format!("Tim thay {path_s} nhung khong chay duoc: {e}"),
+                    install_hint,
+                });
+            }
+        }
+    }
+
+    // Fallback: python -m mcp_sap_connect.cli (dev / PATH thieu Scripts)
+    match run_capture(&["profiles".to_string(), "list".to_string(), "--json".to_string()]).await {
+        Ok((code, stdout, stderr)) if code == 0 || stdout.trim().starts_with('{') => {
+            let exe = resolve_executable().join(" ");
+            Ok(RuntimeStatus {
+                ok: true,
+                mode: "python-module".to_string(),
+                detail: format!("CLI qua module: {exe}"),
+                install_hint,
+            })
+        }
+        Ok((code, _stdout, stderr)) => Ok(RuntimeStatus {
+            ok: false,
+            mode: "missing".to_string(),
+            detail: format!(
+                "Khong goi duoc mcp-sap-connect (exit {code}). {stderr}"
+            ),
+            install_hint,
+        }),
+        Err(e) => Ok(RuntimeStatus {
+            ok: false,
+            mode: "missing".to_string(),
+            detail: format!("Khong goi duoc mcp-sap-connect: {e}"),
+            install_hint,
+        }),
+    }
+}
+
 pub fn build_command(args: &[String]) -> Command {
     let full = resolve_executable();
     let mut cmd = Command::new(&full[0]);

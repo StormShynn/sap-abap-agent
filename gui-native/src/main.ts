@@ -49,6 +49,13 @@ interface McpStatusData {
   claudeAvailable: boolean;
 }
 
+interface RuntimeStatus {
+  ok: boolean;
+  mode: string;
+  detail: string;
+  install_hint: string;
+}
+
 // ===== State =====
 
 let profilesData: ProfilesData = { active: null, items: [] };
@@ -59,6 +66,11 @@ let licenseDashboardOpen = false;
 
 // ===== DOM refs (gan trong init()) =====
 const el = {
+  runtimeBanner: byId<HTMLDivElement>("runtime-banner"),
+  runtimeBannerTitle: byId<HTMLElement>("runtime-banner-title"),
+  runtimeBannerDetail: byId<HTMLParagraphElement>("runtime-banner-detail"),
+  runtimeBannerHint: byId<HTMLPreElement>("runtime-banner-hint"),
+  btnRuntimeRecheck: byId<HTMLButtonElement>("btn-runtime-recheck"),
   profileSelect: byId<HTMLSelectElement>("profile-select"),
   btnRefresh: byId<HTMLButtonElement>("btn-refresh"),
   btnAdd: byId<HTMLButtonElement>("btn-add"),
@@ -167,6 +179,38 @@ function clearLog() {
 
 async function copyLog() {
   await navigator.clipboard.writeText(el.logText.textContent ?? "");
+}
+
+function setStatus(text: string) {
+  el.statusText.textContent = text;
+}
+
+/** PATH-only: kiem tra mcp-sap-connect goi duoc truoc khi dung GUI. */
+async function checkRuntime(): Promise<boolean> {
+  try {
+    const st = await invoke<RuntimeStatus>("check_runtime");
+    if (st.ok) {
+      el.runtimeBanner.classList.add("hidden");
+      setStatus(st.detail);
+      return true;
+    }
+    el.runtimeBanner.classList.remove("hidden");
+    el.runtimeBannerTitle.textContent =
+      st.mode === "path-broken"
+        ? "mcp-sap-connect có trên PATH nhưng không chạy được"
+        : "Thiếu mcp-sap-connect (PATH-only)";
+    el.runtimeBannerDetail.textContent = st.detail;
+    el.runtimeBannerHint.textContent = st.install_hint;
+    setStatus("Cần cài mcp-sap-connect trước khi dùng GUI");
+    return false;
+  } catch (err) {
+    el.runtimeBanner.classList.remove("hidden");
+    el.runtimeBannerTitle.textContent = "Không kiểm tra được runtime";
+    el.runtimeBannerDetail.textContent = String(err);
+    el.runtimeBannerHint.textContent =
+      'pip install "mcp-sap-connect[win-dpapi]"\npython -m mcp_sap_connect.doctor';
+    return false;
+  }
 }
 
 // ===== Profile list + license label (giong _refresh_profiles/_update_license_label) =====
@@ -305,10 +349,6 @@ function setButtonsEnabled(enabled: boolean) {
   for (const btn of [el.btnReauth, el.btnConnect, el.btnPing, el.btnSetActive, el.btnRemove]) {
     btn.disabled = !(enabled && hasProfile);
   }
-}
-
-function setStatus(text: string) {
-  el.statusText.textContent = text;
 }
 
 // ===== Action handlers =====
@@ -755,6 +795,9 @@ function initEventListeners() {
   el.btnMcpServers.addEventListener("click", () => void openMcpModal());
   el.btnMcpRefresh.addEventListener("click", () => void refreshMcpStatus());
   el.btnMcpClose.addEventListener("click", closeMcpModal);
+  el.btnRuntimeRecheck.addEventListener("click", () => void checkRuntime().then((ok) => {
+    if (ok) void refreshProfiles();
+  }));
 
   // Tauri events tu Rust backend
   void listen<string>("job-line", (event) => appendLog(event.payload));
@@ -778,5 +821,7 @@ function initEventListeners() {
 
 window.addEventListener("DOMContentLoaded", () => {
   initEventListeners();
-  void refreshProfiles();
+  void checkRuntime().then((ok) => {
+    if (ok) void refreshProfiles();
+  });
 });

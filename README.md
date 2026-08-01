@@ -300,53 +300,30 @@ mcp-sap-connect connect                            # test profile active
 mcp-sap-connect connect project1.s4hana.cloud.sap  # test 1 profile cụ thể
 ```
 
-## GUI desktop + system tray (tùy chọn)
+## GUI desktop (khuyến nghị: native Tauri)
 
-Nếu bạn không thích gõ lệnh, cài thêm GUI + tray icon:
+**PATH-only:** cài CLI trước, rồi cài installer GUI (không embed Python).
 
-```bash
-pip install mcp-sap-connect[gui]
+```powershell
+pip install "mcp-sap-connect[win-dpapi]"
+python -m mcp_sap_connect.doctor
 ```
 
-Lệnh này cài thêm `pystray` + `Pillow`. Sau khi cài xong, có thêm command `mcp-sap-connect-gui`:
+Sau đó cài bản native từ Release tag `gui-v1.18.0` (NSIS `.exe` hoặc MSI), hoặc build
+từ `gui-native/` (`npm run tauri build`). Chi tiết: [`gui-native/README.md`](gui-native/README.md).
+
+App mở ra: kiểm tra runtime → Add profile → Ping/Connect → MCP Servers.
+
+### Legacy: Tkinter GUI (pip extra `[gui]`)
+
+Vẫn hỗ trợ ≥2 minor sau GA native; không khuyến nghị cho user mới:
 
 ```bash
-mcp-sap-connect-gui                  # Mở GUI + tray (mặc định)
-mcp-sap-connect-gui --no-tray         # Chỉ GUI, không có tray icon
-mcp-sap-connect-gui --tray-only       # Chỉ tray (ẩn hoàn toàn, không cửa sổ)
+pip install "mcp-sap-connect[gui]"
+mcp-sap-connect-gui
 ```
 
-**Giao diện GUI (780×560):**
-
-- **Profile selector** (dropdown) với badge inline hiển thị trạng thái cookie/token —
-  ví dụ `* project1.s4hana.cloud.sap  ⚠ 29m 57s` (cam = sắp hết hạn), `❌` (đỏ = hết hạn),
-  `✓ 7h 59m` (xanh = OK).
-- **4 nút lớn**: 🔐 Reauth · 🔌 Connect · ⭐ Set Active · 🗑 Remove.
-- **➕ Add** (góc trên phải): menu thả xuống với 3 lựa chọn — **Setup wizard** (mở CMD mới
-  chạy `mcp-sap-connect setup`, trả lời từng câu), **Setup from file** (chọn 1 file
-  template đã điền sẵn — vd `profile.cookie.json` — mở CMD mới chạy
-  `mcp-sap-connect setup --from-file`, tạo profile kèm secrets mã hóa ngay, không cần trả
-  lời từng câu), và **Import from JSON backup** (chọn file `config.json` của 1 profile đã
-  có từ trước, tự derive profile id từ `btpUrl` — KHÔNG mang theo secrets vì đã mã hóa
-  DPAPI, chỉ dùng để khôi phục config non-secret khi đổi máy).
-- **Log console** streaming real-time từ subprocess — copy để paste vào issue khi cần debug.
-- **📋 License** (góc dưới phải): mở **License Dashboard** (Toplevel 720×460) hiển thị tất cả
-  profile với progressbar đếm ngược thời gian sống của cookie/token (xanh >20%, cam 5-20%,
-  đỏ <5%, auto-refresh 1Hz). Click vào dòng status dưới URL cũng mở dashboard.
-
-**Tray icon (Windows notification area):**
-
-- Menu chuột phải: **Reauth (active)** · **Connect (active)** · **Profiles** (sub-menu
-  chọn nhanh profile active) · **Open License Dashboard** · **Open GUI** · **Quit**.
-- Click chuột trái: toggle hiện/ẩn GUI.
-- Balloon Windows ở góc phải thông báo kết quả `reauth` / `connect`.
-- **Ẩn xuống tray khi bấm X** trên cửa sổ GUI (để thoát hẳn, dùng **Quit** trong menu tray).
-
-**Sớm hơn 30s timeout cho reauth auto mode:** tool kết thúc sớm khi (1) bạn bấm Enter trong
-terminal CLI / nút **✓ Đã đăng nhập xong** trong GUI, (2) session cookie + ADT discovery OK,
-hoặc (3) URL ổn định 3s liên tiếp. Test thực tế URL-stable: 4.6s thay vì 30s.
-
-Xem chi tiết tại `mcp_sap_connect/gui/README.md`.
+Xem thêm `reference/mcp-server/mcp_sap_connect/gui/README.md`.
 
 ## License dashboard (xem cookie/token còn hạn bao lâu)
 

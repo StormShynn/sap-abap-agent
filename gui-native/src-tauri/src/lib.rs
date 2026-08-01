@@ -12,6 +12,7 @@ pub fn run() {
         .plugin(tauri_plugin_notification::init())
         .manage(jobs::JobState::default())
         .invoke_handler(tauri::generate_handler![
+            mcp_cli::check_runtime,
             mcp_cli::list_profiles,
             mcp_cli::get_license_statuses,
             mcp_cli::set_active_profile,

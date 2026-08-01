@@ -1,75 +1,81 @@
-# SAP ABAP Agent — GUI (Tauri)
+# SAP ABAP Agent — GUI (Tauri) v1.18.0
 
-Native desktop GUI cho `mcp-sap-connect` (Rust + Tauri v2 + vanilla TypeScript), thay thế bản Python/Tkinter
-cũ (`reference/mcp-server/mcp_sap_connect/gui/app.py`). Rust chỉ là lớp UI/orchestration — mọi logic thật
-(xác thực SAP, mã hóa secrets, đọc/ghi profile registry, gọi `claude mcp add`) vẫn nằm trong Python
-(`mcp_sap_connect`), gọi qua subprocess `mcp-sap-connect <command> --json` để tránh viết lại/đồng bộ lại
-định dạng file riêng ở 2 ngôn ngữ.
+Native desktop GUI cho `mcp-sap-connect` (Rust + Tauri v2 + vanilla TypeScript).
 
-## Yêu cầu
+**PATH-only** (Harness decision `0001-gui-path-only-no-sidecar`): installer **không**
+embed Python. Cần `mcp-sap-connect` trên PATH (`pip install`). Rust chỉ orchestration —
+auth/secrets vẫn ở Python, gọi qua `mcp-sap-connect <command> --json`.
+
+Bản Python/Tkinter (`pip install mcp-sap-connect[gui]` → `mcp-sap-connect-gui`) là
+**legacy** — vẫn chạy trong ≥2 minor sau GA native; khuyến nghị dùng installer này.
+
+## End-user (Windows)
+
+1. Cài CLI (một lần):
+
+```powershell
+pip install "mcp-sap-connect[win-dpapi]"
+python -m mcp_sap_connect.doctor
+```
+
+2. Cài GUI: chạy file **NSIS** hoặc **MSI** từ GitHub Release tag `gui-v1.18.0`
+   (sau khi CI/local build upload). Hoặc build local (mục dưới).
+
+3. Mở **SAP ABAP Agent** → nếu thiếu CLI, banner vàng hiện lệnh pip/doctor →
+   **Kiểm tra lại** sau khi cài.
+
+4. Add profile → Ping / Connect → MCP Servers (đăng ký core với Claude Code).
+
+## Yêu cầu (dev / build)
 
 - Node.js 18+ và npm.
-- Rust toolchain (`rustup`) + các dependency native của Tauri v2 cho Windows (WebView2 — có sẵn trên
-  Windows 10/11 bản mới).
-- `mcp-sap-connect` đã cài (`pip install mcp_sap_connect[win-dpapi]` hoặc editable install) và có trong
-  PATH — GUI tự tìm binary này trước, fallback `python -m mcp_sap_connect.cli` cho môi trường dev.
-- `claude` CLI (Claude Code) trong PATH nếu muốn dùng panel "MCP Servers Setup".
+- Rust toolchain (`rustup`) + WebView2 (Windows 10/11 thường có sẵn).
+- `mcp-sap-connect` trên PATH (hoặc `python -m mcp_sap_connect.cli` cho dev).
+- `claude` CLI nếu dùng panel MCP Servers Setup.
 
 ## Chạy dev
 
 ```bash
+cd gui-native
 npm install
 npm run tauri dev
 ```
 
-Vite dev server + `cargo run` sẽ tự khởi động; sửa `src/*.ts`/`src/*.css`/`index.html` hot-reload ngay,
-sửa file trong `src-tauri/src/` sẽ tự rebuild + khởi động lại app.
-
-## Build production
+## Build production (Windows)
 
 ```bash
+cd gui-native
+npm install
 npm run tauri build
 ```
 
-Output nằm ở `src-tauri/target/release/`.
+Artifact (khi build thành công):
+
+- `src-tauri/target/release/bundle/nsis/*.exe`
+- `src-tauri/target/release/bundle/msi/*.msi`
+- Binary: `src-tauri/target/release/gui-native.exe` (tên binary Cargo)
 
 ## Tính năng
 
-- **Quản lý profile**: dropdown chọn profile (đọc `mcp-sap-connect profiles list --json`), hiện trạng thái
-  license/cookie (còn hạn/sắp hết hạn/hết hạn) kèm đếm ngược cập nhật mỗi giây.
-- **4 nút hành động chính**: Reauth (đăng nhập lại, SAML fast-path ưu tiên rồi fallback browser), Connect
-  (test kết nối đọc + ghi), Set Active, Remove — log subprocess stream trực tiếp vào panel chính.
-- **Nút "Đã đăng nhập xong"**: touch marker file (`SAP_BTP_EARLY_FINISH_FILE`) để nhánh browser-fallback
-  kiểm tra session ngay thay vì chờ tự phát hiện/timeout 30s.
-- **License Dashboard**: modal xem trạng thái hết hạn của TẤT CẢ profile cùng lúc, tự refresh 1s.
-- **Menu "+ Add"**:
-  - *Setup wizard (interactive)* — mở cửa sổ CMD mới chạy `mcp-sap-connect setup` (cần console thật để
-    tương tác từng bước — không hoạt động nếu app tự nó không có console cha, ví dụ chạy dev qua script
-    tự động hoá không gán TTY).
-  - *Setup from file (--from-file)* — chọn file JSON đã điền, chạy `setup --from-file` streamed vào log
-    chính (không mở console riêng — lệnh này non-interactive, console riêng sẽ đóng quá nhanh để đọc).
-  - *Import from JSON backup* — đăng ký nhanh 1 profile từ file `config.json` backup (chỉ có `btpUrl`,
-    không có secrets — phải copy `secrets.json` từ máy cũ thủ công vì đã mã hóa DPAPI theo user/máy).
-- **MCP Servers Setup**: modal liệt kê toàn bộ MCP server mà `mcp-sap-connect mcp-setup` biết đăng ký, chia
-  nhóm (core/remote/adt-alternative/special/manual), hiện đã đăng ký hay chưa (đọc `~/.claude.json`), nút
-  "Đăng ký" per-server (hỏi env var cần thiết nếu có). Khác `mcp-switch` (dự án riêng, chỉ bật/tắt server
-  đã cấu hình sẵn) — panel này CẤU HÌNH server còn thiếu.
-- **System tray**: ẩn xuống tray khi đóng cửa sổ thay vì thoát hẳn; menu tray có Reauth/Connect profile
-  active, mở License Dashboard, mở lại cửa sổ chính, Quit thật.
+- **Runtime check (PATH-only):** banner khi thiếu/hỏng `mcp-sap-connect`.
+- **Quản lý profile** + license countdown + Ping / Reauth / Connect / Set Active / Remove.
+- **+ Add:** setup wizard (console), setup `--from-file` (stream log), import JSON backup.
+- **MCP Servers Setup:** đăng ký server còn thiếu qua `claude mcp add`.
+- **System tray:** đóng cửa sổ = ẩn tray; Quit thật từ menu tray.
 
 ## Kiến trúc thư mục
 
 ```text
 gui-native/
-+- index.html            # markup toàn bộ UI (không dùng framework)
++- index.html
 +- src/
-|  +- main.ts             # toàn bộ logic frontend (state, event wiring, invoke() calls)
-|  +- styles.css           # theme sáng/tối qua CSS variables + color-scheme
+|  +- main.ts
+|  +- styles.css
 +- src-tauri/
    +- src/
-   |  +- lib.rs            # wire plugin + invoke_handler + tray + window-close-to-tray
-   |  +- mcp_cli.rs         # goi `mcp-sap-connect ... --json` (profiles/license/mcp-setup)
-   |  +- jobs.rs            # quan ly subprocess streamed/console + early-finish marker file
-   |  +- tray.rs            # system tray icon + menu
-   +- capabilities/default.json  # ACL permissions cho dialog/notification/window
+   |  +- lib.rs
+   |  +- mcp_cli.rs      # check_runtime + profiles/license/mcp --json
+   |  +- jobs.rs
+   |  +- tray.rs
+   +- tauri.conf.json    # version 1.18.0, targets nsis+msi
 ```

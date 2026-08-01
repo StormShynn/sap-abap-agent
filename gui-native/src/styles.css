@@ -168,6 +168,48 @@ body {
   display: none !important;
 }
 
+.runtime-banner {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+  border: 1px solid var(--warn);
+  border-radius: 6px;
+  background: #fff4ce;
+  color: var(--text);
+}
+
+.runtime-banner-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.runtime-banner-detail {
+  margin: 4px 0 6px;
+  color: var(--muted);
+  white-space: pre-wrap;
+}
+
+.runtime-banner-hint {
+  margin: 0;
+  padding: 8px;
+  font-size: 12px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  white-space: pre-wrap;
+  overflow-x: auto;
+}
+
+@media (prefers-color-scheme: dark) {
+  .runtime-banner {
+    background: #3b2f14;
+    border-color: var(--warn);
+  }
+}
+
 .url-row {
   font-size: 0.9em;
 }
