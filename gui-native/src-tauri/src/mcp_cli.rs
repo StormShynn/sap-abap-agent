@@ -47,7 +47,7 @@ pub async fn check_runtime() -> Result<RuntimeStatus, String> {
         let path_s = path.to_string_lossy().to_string();
         match run_capture(&["profiles".to_string(), "list".to_string(), "--json".to_string()]).await
         {
-            Ok((code, stdout, stderr)) if code == 0 || !stdout.trim().is_empty() => {
+            Ok((code, stdout, _stderr)) if code == 0 || !stdout.trim().is_empty() => {
                 return Ok(RuntimeStatus {
                     ok: true,
                     mode: "path".to_string(),
@@ -78,7 +78,7 @@ pub async fn check_runtime() -> Result<RuntimeStatus, String> {
 
     // Fallback: python -m mcp_sap_connect.cli (dev / PATH thieu Scripts)
     match run_capture(&["profiles".to_string(), "list".to_string(), "--json".to_string()]).await {
-        Ok((code, stdout, stderr)) if code == 0 || stdout.trim().starts_with('{') => {
+        Ok((code, stdout, _stderr)) if code == 0 || stdout.trim().starts_with('{') => {
             let exe = resolve_executable().join(" ");
             Ok(RuntimeStatus {
                 ok: true,

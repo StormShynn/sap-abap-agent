@@ -8,9 +8,19 @@ Format dựa trên [Keep a Changelog](https://keepachangelog.com/) và [Semantic
 
 ## [v1.19.0] — 2026-08-01
 
+### Added
+
+- **GUI Windows release workflow** (`.github/workflows/gui-release.yml`) — build NSIS+MSI
+  trên `windows-latest` khi push tag `gui-v*` (hoặc `workflow_dispatch`), upload artifact +
+  GitHub Release. PATH-only: không embed Python.
+- Local proof: `npm run tauri build` tạo
+  `SAP ABAP Agent_1.19.0_x64-setup.exe` + `..._1.19.0_...msi` (copy gitignored
+  `gui-native/dist-bundle/`); manifest GUI đồng bộ **1.19.0** với product.
+
 ### Changed
 
 - Auto-bumped by CI (version-bump.yml).
+- README badge/wheel examples đồng bộ `1.19.0` (sửa drift filename sau bump).
 
 
 ## [v1.18.0] — 2026-08-01

@@ -1,4 +1,4 @@
-# SAP ABAP Agent — GUI (Tauri) v1.18.0
+# SAP ABAP Agent — GUI (Tauri) v1.19.0
 
 Native desktop GUI cho `mcp-sap-connect` (Rust + Tauri v2 + vanilla TypeScript).
 
@@ -18,8 +18,8 @@ pip install "mcp-sap-connect[win-dpapi]"
 python -m mcp_sap_connect.doctor
 ```
 
-2. Cài GUI: chạy file **NSIS** hoặc **MSI** từ GitHub Release tag `gui-v1.18.0`
-   (sau khi CI/local build upload). Hoặc build local (mục dưới).
+2. Cài GUI: chạy file **NSIS** hoặc **MSI** từ GitHub Release tag `gui-v1.19.0`
+   (workflow `.github/workflows/gui-release.yml` khi push tag). Hoặc build local (mục dưới).
 
 3. Mở **SAP ABAP Agent** → nếu thiếu CLI, banner vàng hiện lệnh pip/doctor →
    **Kiểm tra lại** sau khi cài.
@@ -54,6 +54,14 @@ Artifact (khi build thành công):
 - `src-tauri/target/release/bundle/nsis/*.exe`
 - `src-tauri/target/release/bundle/msi/*.msi`
 - Binary: `src-tauri/target/release/gui-native.exe` (tên binary Cargo)
+- Bản copy local (gitignored): `gui-native/dist-bundle/`
+
+Proven local build (2026-08-01, exit 0):
+
+- `SAP ABAP Agent_1.19.0_x64-setup.exe`
+- `SAP ABAP Agent_1.19.0_x64_en-US.msi`
+
+Publish: `git tag gui-v1.19.0 && git push origin gui-v1.19.0` → workflow `gui-release.yml`.
 
 ## Tính năng
 

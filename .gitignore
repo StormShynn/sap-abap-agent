@@ -4,6 +4,10 @@ node_modules/
 # VS Code extension build artifact (build lai qua vsce package, khong commit binary)
 *.vsix
 
+# Native GUI local installers (tauri build output copy — do not commit binaries)
+gui-native/dist-bundle/
+gui-native/src-tauri/target/
+
 # Python
 __pycache__/
 *.py[cod]

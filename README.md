@@ -1,6 +1,6 @@
 # SAP ABAP Agent (Tiếng Việt)
 
-[![Version](https://img.shields.io/badge/version-1.18.0-blue.svg)](CHANGELOG.md) [![Python](https://img.shields.io/badge/Python-3.10+-blue.svg)](https://python.org) [![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE) [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](CODE_OF_CONDUCT.md) [![Security Policy](https://img.shields.io/badge/Security-View_Policy-blue.svg)](SECURITY.md) [![Changelog](https://img.shields.io/badge/Changelog-%23ff69b4.svg)](CHANGELOG.md) [![CI/CD](https://github.com/StormShynn/sap-abap-agent/actions/workflows/deploy.yml/badge.svg)](https://github.com/StormShynn/sap-abap-agent/actions/workflows/deploy.yml) [![GitHub Pages](https://img.shields.io/github/deployments/StormShynn/sap-abap-agent/github-pages?label=GitHub%20Pages&logo=github)](https://stormshynn.github.io/sap-abap-agent/)
+[![Version](https://img.shields.io/badge/version-1.19.0-blue.svg)](CHANGELOG.md) [![Python](https://img.shields.io/badge/Python-3.10+-blue.svg)](https://python.org) [![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE) [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](CODE_OF_CONDUCT.md) [![Security Policy](https://img.shields.io/badge/Security-View_Policy-blue.svg)](SECURITY.md) [![Changelog](https://img.shields.io/badge/Changelog-%23ff69b4.svg)](CHANGELOG.md) [![CI/CD](https://github.com/StormShynn/sap-abap-agent/actions/workflows/deploy.yml/badge.svg)](https://github.com/StormShynn/sap-abap-agent/actions/workflows/deploy.yml) [![GitHub Pages](https://img.shields.io/github/deployments/StormShynn/sap-abap-agent/github-pages?label=GitHub%20Pages&logo=github)](https://stormshynn.github.io/sap-abap-agent/)
 
 Plugin Claude Code + MCP server tự động kết nối **SAP BTP / S/4HANA Cloud** để thao tác
 ABAP (đọc / tìm / syntax-check / activate). Hỗ trợ **multi-profile** — mỗi project SAP
@@ -174,7 +174,7 @@ tích sâu qua `sap-vsp`, DDIC qua `sap-dict-bridge`) riêng. Xem
 Yêu cầu: **Python >= 3.10**. **Không cần clone repo** — chỉ cần tải 1 file `.whl` và `pip install`:
 
 ```bash
-pip install https://github.com/StormShynn/sap-abap-agent/releases/download/mcp-server-v1.19.0/mcp_sap_connect-1.18.0-py3-none-any.whl
+pip install https://github.com/StormShynn/sap-abap-agent/releases/download/mcp-server-v1.19.0/mcp_sap_connect-1.19.0-py3-none-any.whl
 ```
 
 (Hoặc tải file `.whl` về trước rồi `pip install đường-dẫn-file.whl` nếu máy không có internet lúc chạy lệnh.)
@@ -182,14 +182,14 @@ pip install https://github.com/StormShynn/sap-abap-agent/releases/download/mcp-s
 Trên Windows, cài thêm extra `win-dpapi` để mã hóa secrets bằng DPAPI (thêm `[win-dpapi]` ngay sau tên file, trước phần mở rộng `.whl`):
 
 ```bash
-pip install "mcp_sap_connect-1.18.0-py3-none-any.whl[win-dpapi]"
+pip install "mcp_sap_connect-1.19.0-py3-none-any.whl[win-dpapi]"
 ```
 
 Nếu muốn dùng Cookie-based auth kiểu **tự mở browser đăng nhập** (không cần F12 copy tay), cài thêm extra `playwright`
 và download browser binary:
 
 ```bash
-pip install "mcp_sap_connect-1.18.0-py3-none-any.whl[playwright]"
+pip install "mcp_sap_connect-1.19.0-py3-none-any.whl[playwright]"
 playwright install chromium
 ```
 
@@ -309,7 +309,7 @@ pip install "mcp-sap-connect[win-dpapi]"
 python -m mcp_sap_connect.doctor
 ```
 
-Sau đó cài bản native từ Release tag `gui-v1.18.0` (NSIS `.exe` hoặc MSI), hoặc build
+Sau đó cài bản native từ Release tag `gui-v1.19.0` (NSIS `.exe` hoặc MSI), hoặc build
 từ `gui-native/` (`npm run tauri build`). Chi tiết: [`gui-native/README.md`](gui-native/README.md).
 
 App mở ra: kiểm tra runtime → Add profile → Ping/Connect → MCP Servers.
@@ -663,7 +663,7 @@ echo '{}' | python hooks/error_reporter.py status
 Output mẫu:
 ```json
 {
-  "plugin_version": "1.18.0",
+  "plugin_version": "1.19.0",
   "total_logged_errors": 12,
   "total_logged_fixes": 3,
   "active_error_groups_24h": 2,
