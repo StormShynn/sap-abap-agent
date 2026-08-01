@@ -11,12 +11,16 @@ Format dựa trên [Keep a Changelog](https://keepachangelog.com/) và [Semantic
 ### Changed
 
 - Auto-bumped by CI (version-bump.yml).
+- Docs: ưu tiên **NSIS** current-user; MSI silent không admin → Error 1925/1603
+  (ghi chú onboarding + README GUI).
 
 
 ## [v1.19.0] — 2026-08-01
 
 ### Added
 
+- **Onboarding 3 persona** (`docs/onboarding-guide.md` v1.19.0) — ABAP Dev / Functional /
+  Key user; README mục Cài đặt rút gọn → link onboarding.
 - **GUI Windows release workflow** (`.github/workflows/gui-release.yml`) — build NSIS+MSI
   trên `windows-latest` khi push tag `gui-v*` (hoặc `workflow_dispatch`), upload artifact +
   GitHub Release. PATH-only: không embed Python.
