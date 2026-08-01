@@ -35,6 +35,20 @@ interface JobDonePayload {
   label: string;
 }
 
+interface McpServerStatus {
+  name: string;
+  category: string;
+  description: string;
+  envVars: string[];
+  registered: boolean;
+  doc: string | null;
+}
+
+interface McpStatusData {
+  servers: McpServerStatus[];
+  claudeAvailable: boolean;
+}
+
 // ===== State =====
 
 let profilesData: ProfilesData = { active: null, items: [] };
@@ -54,6 +68,7 @@ const el = {
   btnLicense: byId<HTMLButtonElement>("btn-license"),
   btnReauth: byId<HTMLButtonElement>("btn-reauth"),
   btnConnect: byId<HTMLButtonElement>("btn-connect"),
+  btnPing: byId<HTMLButtonElement>("btn-ping"),
   btnSetActive: byId<HTMLButtonElement>("btn-set-active"),
   btnRemove: byId<HTMLButtonElement>("btn-remove"),
   logText: byId<HTMLPreElement>("log-text"),
@@ -66,6 +81,11 @@ const el = {
   licenseRows: byId<HTMLDivElement>("license-rows"),
   btnLicenseRefresh: byId<HTMLButtonElement>("btn-license-refresh"),
   btnLicenseClose: byId<HTMLButtonElement>("btn-license-close"),
+  btnMcpServers: byId<HTMLButtonElement>("btn-mcp-servers"),
+  mcpModal: byId<HTMLDivElement>("mcp-modal"),
+  mcpRows: byId<HTMLDivElement>("mcp-rows"),
+  btnMcpRefresh: byId<HTMLButtonElement>("btn-mcp-refresh"),
+  btnMcpClose: byId<HTMLButtonElement>("btn-mcp-close"),
   promptModal: byId<HTMLDivElement>("prompt-modal"),
   promptTitle: byId<HTMLHeadingElement>("prompt-title"),
   promptMessage: byId<HTMLParagraphElement>("prompt-message"),
@@ -282,7 +302,7 @@ let currentJobLabel: string | null = null;
 
 function setButtonsEnabled(enabled: boolean) {
   const hasProfile = !!selectedId;
-  for (const btn of [el.btnReauth, el.btnConnect, el.btnSetActive, el.btnRemove]) {
+  for (const btn of [el.btnReauth, el.btnConnect, el.btnPing, el.btnSetActive, el.btnRemove]) {
     btn.disabled = !(enabled && hasProfile);
   }
 }
@@ -326,6 +346,21 @@ async function onConnect() {
   setStatus("Đang test kết nối...");
   try {
     await invoke("start_streamed", { args: ["connect", pid], envExtra: null, label: currentJobLabel });
+  } catch (err) {
+    appendLog(`[ERROR] ${err}`);
+    resetJobState();
+  }
+}
+
+async function onPing() {
+  if (!selectedId || currentJobLabel) return;
+  const pid = selectedId;
+  appendLog(`$ mcp-sap-connect ping ${pid}`);
+  currentJobLabel = `ping ${pid}`;
+  setButtonsEnabled(false);
+  setStatus("Đang ping...");
+  try {
+    await invoke("start_streamed", { args: ["ping", pid], envExtra: null, label: currentJobLabel });
   } catch (err) {
     appendLog(`[ERROR] ${err}`);
     resetJobState();
@@ -408,14 +443,27 @@ async function onSetupFromFile() {
     filters: [{ name: "JSON", extensions: ["json"] }],
   });
   if (!path || Array.isArray(path)) return;
-  appendLog(`$ mcp-sap-connect setup --from-file "${path}"  (mở cửa sổ CMD mới)`);
+
+  // start_streamed (khong phai start_new_console): lenh nay non-interactive va
+  // thoat gan nhu ngay lap tuc (thanh cong hoac bi reject) - cua so CMD rieng
+  // se dong qua nhanh de doc duoc gi ca. Stream vao log chinh (ben lai duoc)
+  // + van ho tro nut "Da xong" cho nhanh browser-fallback qua marker file.
+  earlyFinishPath = await invoke<string>("make_early_finish_path");
+  el.btnDone.disabled = false;
+
+  appendLog(`$ mcp-sap-connect setup --from-file "${path}"`);
   currentJobLabel = "setup --from-file";
-  setStatus("Setup từ file đang chạy (cửa sổ CMD riêng)...");
+  setButtonsEnabled(false);
+  setStatus("Setup từ file đang chạy...");
   try {
-    await invoke("start_new_console", { args: ["setup", "--from-file", path], label: currentJobLabel });
+    await invoke("start_streamed", {
+      args: ["setup", "--from-file", path],
+      envExtra: { SAP_BTP_EARLY_FINISH_FILE: earlyFinishPath },
+      label: currentJobLabel,
+    });
   } catch (err) {
     appendLog(`[ERROR] ${err}`);
-    currentJobLabel = null;
+    resetJobState();
   }
 }
 
@@ -542,6 +590,132 @@ function closeLicenseDashboard() {
   licenseDashboardOpen = false;
 }
 
+// ===== MCP Servers Setup panel =====
+// Khac voi mcp-switch (bat/tat MCP da cai) - panel nay goi mcp-setup --status-json/
+// --register-json de THIET LAP (chay `claude mcp add`) server con thieu, khong
+// phai toggle server da co san.
+
+const MCP_CATEGORY_LABELS: Record<string, string> = {
+  core: "Core (bắt buộc)",
+  remote: "Remote (bắt buộc)",
+  "adt-alternative": "ADT Alternative (chọn 1 trong các lựa chọn thay thế)",
+  special: "Đặc biệt",
+  manual: "Cần cài đặt thủ công (xem doc)",
+};
+const MCP_CATEGORY_ORDER = ["core", "remote", "adt-alternative", "special", "manual"];
+
+async function openMcpModal() {
+  el.mcpModal.classList.remove("hidden");
+  await refreshMcpStatus();
+}
+
+function closeMcpModal() {
+  el.mcpModal.classList.add("hidden");
+}
+
+async function refreshMcpStatus() {
+  el.mcpRows.innerHTML = `<p class="muted">Đang tải...</p>`;
+  try {
+    const data = await invoke<McpStatusData>("mcp_status");
+    renderMcpRows(data);
+  } catch (err) {
+    el.mcpRows.innerHTML = `<p class="muted">Lỗi đọc trạng thái MCP: ${err}</p>`;
+  }
+}
+
+function renderMcpRows(data: McpStatusData) {
+  el.mcpRows.innerHTML = "";
+  if (!data.claudeAvailable) {
+    const p = document.createElement("p");
+    p.className = "muted";
+    p.textContent = "⚠ Không tìm thấy 'claude' trong PATH - cài Claude Code trước khi đăng ký server.";
+    el.mcpRows.appendChild(p);
+  }
+
+  const byCategory = new Map<string, McpServerStatus[]>();
+  for (const s of data.servers) {
+    if (!byCategory.has(s.category)) byCategory.set(s.category, []);
+    byCategory.get(s.category)!.push(s);
+  }
+
+  for (const cat of MCP_CATEGORY_ORDER) {
+    const servers = byCategory.get(cat);
+    if (!servers || servers.length === 0) continue;
+
+    const header = document.createElement("div");
+    header.className = "mcp-category-header";
+    header.textContent = MCP_CATEGORY_LABELS[cat] ?? cat;
+    el.mcpRows.appendChild(header);
+
+    for (const s of servers) {
+      el.mcpRows.appendChild(renderMcpRow(s));
+    }
+  }
+}
+
+function renderMcpRow(s: McpServerStatus): HTMLElement {
+  const row = document.createElement("div");
+  row.className = "mcp-row";
+
+  const main = document.createElement("div");
+  main.className = "mcp-row-main";
+
+  const name = document.createElement("span");
+  name.className = "mcp-row-name";
+  name.textContent = s.name;
+  main.appendChild(name);
+
+  const badge = document.createElement("span");
+  badge.className = `mcp-row-badge ${s.registered ? "ok" : "off"}`;
+  badge.textContent = s.registered ? "✓ Đã đăng ký" : "○ Chưa đăng ký";
+  main.appendChild(badge);
+
+  const spacer = document.createElement("span");
+  spacer.className = "mcp-row-spacer";
+  main.appendChild(spacer);
+
+  if (s.category === "manual") {
+    const doc = document.createElement("span");
+    doc.className = "muted";
+    doc.style.fontSize = "0.8em";
+    doc.textContent = s.doc ?? "";
+    main.appendChild(doc);
+  } else if (!s.registered) {
+    const btn = document.createElement("button");
+    btn.className = "btn btn-flat btn-sm";
+    btn.textContent = "Đăng ký";
+    btn.addEventListener("click", () => void onRegisterMcpServer(s));
+    main.appendChild(btn);
+  }
+
+  row.appendChild(main);
+
+  const desc = document.createElement("div");
+  desc.className = "mcp-row-desc";
+  desc.textContent = s.description;
+  row.appendChild(desc);
+
+  return row;
+}
+
+async function onRegisterMcpServer(s: McpServerStatus) {
+  const env: Record<string, string> = {};
+  for (const varName of s.envVars) {
+    const val = await promptText(`${s.name}: ${varName}`, `Nhập giá trị cho biến môi trường '${varName}':`);
+    if (val === null) return; // user huy giua chung - khong dang ky
+    env[varName] = val;
+  }
+
+  appendLog(`$ mcp-sap-connect mcp-setup --register-json ${s.name}`);
+  try {
+    await invoke("mcp_register", { name: s.name, env });
+    appendLog(`[OK] Đã đăng ký MCP server '${s.name}'. Khởi động lại Claude Code để nhận server mới.`);
+  } catch (err) {
+    appendLog(`[ERROR] Đăng ký '${s.name}' thất bại: ${err}`);
+  }
+  await refreshMcpStatus();
+}
+
 // ===== Wiring =====
 
 function initEventListeners() {
@@ -565,6 +739,7 @@ function initEventListeners() {
 
   el.btnReauth.addEventListener("click", () => void onReauth());
   el.btnConnect.addEventListener("click", () => void onConnect());
+  el.btnPing.addEventListener("click", () => void onPing());
   el.btnSetActive.addEventListener("click", () => void onSetActive());
   el.btnRemove.addEventListener("click", () => void onRemove());
 
@@ -576,6 +751,10 @@ function initEventListeners() {
   el.licenseText.addEventListener("click", () => void openLicenseDashboard());
   el.btnLicenseRefresh.addEventListener("click", () => void refreshLicenseDashboard());
   el.btnLicenseClose.addEventListener("click", closeLicenseDashboard);
+
+  el.btnMcpServers.addEventListener("click", () => void openMcpModal());
+  el.btnMcpRefresh.addEventListener("click", () => void refreshMcpStatus());
+  el.btnMcpClose.addEventListener("click", closeMcpModal);
 
   // Tauri events tu Rust backend
   void listen<string>("job-line", (event) => appendLog(event.payload));

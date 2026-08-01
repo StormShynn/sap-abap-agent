@@ -5,6 +5,7 @@
 
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
+use std::collections::HashMap;
 use std::process::Stdio;
 use tokio::process::Command;
 
@@ -160,4 +161,47 @@ pub async fn import_json_backup(path: String) -> Result<ImportResult, String> {
     ])
     .await?;
     serde_json::from_value(value).map_err(|e| format!("Loi import: {e}"))
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
+pub struct McpServerStatus {
+    pub name: String,
+    pub category: String,
+    pub description: String,
+    #[serde(rename = "envVars")]
+    pub env_vars: Vec<String>,
+    pub registered: bool,
+    pub doc: Option<String>,
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
+pub struct McpStatusData {
+    pub servers: Vec<McpServerStatus>,
+    #[serde(rename = "claudeAvailable")]
+    pub claude_available: bool,
+}
+
+/// Doc inventory + trang thai dang ky cua MCP servers (mcp-sap-connect mcp-setup
+/// --status-json) - thuan doc, khong thay doi gi.
+#[tauri::command]
+pub async fn mcp_status() -> Result<McpStatusData, String> {
+    let value = run_json(&["mcp-setup".to_string(), "--status-json".to_string()]).await?;
+    serde_json::from_value(value).map_err(|e| format!("Loi doc MCP status: {e}"))
+}
+
+/// Dang ky 1 MCP server cu the qua `claude mcp add` (mcp-sap-connect mcp-setup
+/// --register-json <name> [--env K=V ...]). env rong neu server khong can bien nao.
+#[tauri::command]
+pub async fn mcp_register(name: String, env: HashMap<String, String>) -> Result<(), String> {
+    let mut args = vec![
+        "mcp-setup".to_string(),
+        "--register-json".to_string(),
+        name,
+    ];
+    for (k, v) in env {
+        args.push("--env".to_string());
+        args.push(format!("{k}={v}"));
+    }
+    run_json(&args).await?;
+    Ok(())
 }

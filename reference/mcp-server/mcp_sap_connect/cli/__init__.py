@@ -102,6 +102,8 @@ def main() -> None:
             runner(_wizard_setup, url)
     elif cmd == "connect":
         runner(_cmd_connect, cmd_args[0] if cmd_args else None)
+    elif cmd == "ping":
+        runner(_cmd_ping, cmd_args[0] if cmd_args else None)
     elif cmd == "reauth":
         runner(_cmd_reauth, cmd_args[0] if cmd_args else None)
     elif cmd == "profiles" and cmd_args:
@@ -119,7 +121,27 @@ def main() -> None:
         from ..doctor import main as run_doctor
         run_doctor()
     elif cmd == "mcp-setup":
-        _cmd_mcp_setup()
+        if cmd_args and cmd_args[0] == "--status-json":
+            _cmd_mcp_status_json()
+        elif cmd_args and cmd_args[0] == "--register-json":
+            name = cmd_args[1] if len(cmd_args) > 1 else ""
+            env_overrides: dict[str, str] = {}
+            i = 2
+            while i < len(cmd_args):
+                if cmd_args[i] == "--env" and i + 1 < len(cmd_args):
+                    k, _, v = cmd_args[i + 1].partition("=")
+                    if k:
+                        env_overrides[k] = v
+                    i += 2
+                else:
+                    i += 1
+            if not name:
+                import json as _json
+                print(_json.dumps({"ok": False, "error": "Thieu ten server. Dung: mcp-setup --register-json <name> [--env K=V ...]"}))
+                sys.exit(1)
+            sys.exit(0 if _cmd_mcp_register_json(name, env_overrides) else 1)
+        else:
+            _cmd_mcp_setup()
     elif cmd == "license":
         json_mode = "--json" in cmd_args
         pos_args = [a for a in cmd_args if a != "--json"]
@@ -139,10 +161,15 @@ def _make_runner():
       _read_cookie_paste) - huy setup/ghi config ban dau.
 
     Tat ca duong di khac (return binh thuong, exception that bai) giu nguyen.
+    Rieng coroutine tra ve DUNG False (vd _setup_from_file khi reject) se doi
+    thanh exit code 1 - de GUI (doc rc qua job-done) phan biet duoc thanh cong/
+    that bai, thay vi luon thay rc=0 du in ra loi.
     """
     def runner(coro_fn, *args):
         try:
-            asyncio.run(coro_fn(*args))
+            result = asyncio.run(coro_fn(*args))
+            if result is False:
+                sys.exit(1)
         except ReauthCancelled as err:
             print(f"\n  ⏹  Huy dang nhap lai ({err.where}). Cookie cu KHONG bi thay doi.")
         except UserCancelled as err:
@@ -159,9 +186,10 @@ def _show_help() -> None:
     print()
     print("  Commands:")
     print("    setup [URL]            Thêm project SAP mới (wizard)")
-    print("    connect [profile-id]   Test kết nối profile")
+    print("    connect [profile-id]   Test kết nối profile (đọc + ghi/CSRF)")
+    print("    ping [profile-id]      Kiểm tra nhanh session còn hiệu lực (chỉ đọc, nhẹ hơn connect)")
     print("    reauth [profile-id]    Đăng nhập lại (lấy cookie mới) - không hỏi lại từ đầu như setup")
-    print("    mcp-setup              Đăng ký MCP servers với Claude Code")
+    print("    mcp-setup              Đăng ký MCP servers với Claude Code (--status-json/--register-json cho GUI)")
     print("    profiles list          Liệt kê tất cả profile")
     print("    profiles use <id>      Chọn profile active")
     print("    profiles show          Xem chi tiết profile active")
@@ -451,13 +479,17 @@ async def _try_saml_fastpath(
     return result.cookies
 
 
-async def _setup_from_file(path: str) -> None:
+async def _setup_from_file(path: str) -> bool:
     """Tao profile tu 1 file JSON da dien san (xem reference/templates/
     mcp-sap-connect-profile-sample/), thay vi tra loi wizard tuong tac tung buoc.
 
     Goi lai DUNG 3 ham upsert_profile/save_config/save_secrets ma _wizard_setup
     da dung - KHONG viet lai logic ma hoa/luu tru. Muc dich: user chi can dien
     1 file roi chay 1 lenh, khong con phai tra loi tung cau hoi trong terminal.
+
+    Tra ve True/False (thay vi None) de runner() dich ra exit code dung - GUI
+    (start_streamed) doc rc de bao thanh cong/that bai, khong the doc lai stdout
+    da troi qua nhu console rieng truoc day.
     """
     import json
     from pathlib import Path
@@ -467,35 +499,35 @@ async def _setup_from_file(path: str) -> None:
     file = Path(path).expanduser()
     if not file.is_file():
         print(f"  ❌ Khong tim thay file: {file}")
-        return
+        return False
     try:
         data: dict[str, Any] = json.loads(file.read_text(encoding="utf-8-sig"))
     except json.JSONDecodeError as err:
         print(f"  ❌ File JSON khong hop le ({file}): {err}")
-        return
+        return False
 
     raw_url = str(data.get("url", "")).strip()
     if not raw_url or _looks_like_placeholder(raw_url):
         print("  ❌ File thieu field 'url' hop le (con la placeholder hoac rong).")
-        return
+        return False
     url = normalize_btp_url(raw_url)
 
     profile_id = str(data.get("profileId", "")).strip() or derive_profile_id_from_url(url)
     if not profile_id:
         print("  ❌ Khong sinh duoc profile ID tu 'url', va file khong co field 'profileId'.")
-        return
+        return False
 
     auth_mode = str(data.get("authMode", "")).strip()
     if auth_mode not in ("oauth2", "password", "bearer", "cookie"):
         print(f"  ❌ 'authMode' khong hop le: {auth_mode!r}. Phai la 1 trong: "
               f"oauth2, password, bearer, cookie.")
-        return
+        return False
 
     try:
         service = normalize_service_type(data.get("service", SERVICE_TYPE_DEFAULT))
     except ValueError as err:
         print(f"  ❌ {err}")
-        return
+        return False
 
     config_data: dict[str, Any] = {
         "authMode": auth_mode,
@@ -510,7 +542,7 @@ async def _setup_from_file(path: str) -> None:
         client_secret = str(data.get("clientSecret", "")).strip()
         if not client_id or not client_secret or _looks_like_placeholder(client_id) or _looks_like_placeholder(client_secret):
             print("  ❌ Thieu hoac chua thay placeholder cho 'clientId'/'clientSecret'.")
-            return
+            return False
         config_data["clientId"] = client_id
         config_data["scope"] = str(data.get("scope", "")).strip()
         secrets_data["clientSecret"] = client_secret
@@ -520,7 +552,7 @@ async def _setup_from_file(path: str) -> None:
         password = str(data.get("password", "")).strip()
         if not username or not password or _looks_like_placeholder(username) or _looks_like_placeholder(password):
             print("  ❌ Thieu hoac chua thay placeholder cho 'username'/'password'.")
-            return
+            return False
         config_data["clientId"] = str(data.get("clientId", "")).strip()
         secrets_data["username"] = username
         secrets_data["password"] = password
@@ -529,7 +561,7 @@ async def _setup_from_file(path: str) -> None:
         token = str(data.get("accessToken", "")).strip()
         if not token or _looks_like_placeholder(token):
             print("  ❌ Thieu hoac chua thay placeholder cho 'accessToken'.")
-            return
+            return False
         secrets_data["accessToken"] = token
 
     elif auth_mode == "cookie":
@@ -586,7 +618,7 @@ async def _setup_from_file(path: str) -> None:
         if cookies_missing:
             print("  ❌ Thieu hoac chua thay placeholder cho 'cookies' (phai la object "
                   "{\"MYSAPSSO2\": \"...\", ...}), va auto-login qua browser (neu co) khong lay duoc cookie.")
-            return
+            return False
         secrets_data["cookies"] = cookies
         config_data["reauthMode"] = reauth_mode
 
@@ -608,6 +640,7 @@ async def _setup_from_file(path: str) -> None:
     info("Kiem tra ket noi bang: mcp-sap-connect connect")
     print()
     info("Dang ky MCP servers: chay 'mcp-sap-connect mcp-setup' (hoac nut MCP Servers trong GUI) khi can.")
+    return True
 
 
 # ===== CONNECT =====================================================
@@ -679,6 +712,58 @@ async def _cmd_connect(profile_id: str | None) -> None:
         warn(f"Ghi du lieu (CSRF/write): THAT BAI — {err}")
         warn("Cac lenh GHI (activate/list_packages/run_unit_tests/syntax_check) se loi ngay bay gio.")
         warn("Doc-only (search/read_source/execute_query...) van dung binh thuong.")
+        if auth_mode == "cookie":
+            print()
+            print("  💡 Dang nhap lai (nhanh hon, khong hoi lai tu dau nhu setup):")
+            print(f"     mcp-sap-connect reauth {pid}")
+
+
+# ===== PING (kiem tra nhanh session con hieu luc, khong xin CSRF/write) ====
+
+async def _cmd_ping(profile_id: str | None) -> None:
+    """Kiem tra nhanh session con dung duoc khong (1 GET doc - giong buoc dau
+    cua 'connect'/tool sap_ping) - KHONG xin CSRF/write token, nen nhe hon va
+    an toan goi thuong xuyen hon 'connect' (vd truoc khi bat dau lam viec that,
+    khong lo profile read-only bi bao loi write). Dung 'connect' neu can kiem
+    tra ca kha nang ghi truoc khi goi cac lenh GHI that (activate/list_packages...).
+    """
+    from ..config.store import load_config
+    from ..sap.auth import web_login_popup
+    from ..sap.client import SapClient
+
+    try:
+        cfg = await asyncio.to_thread(load_config, profile_id)
+    except RuntimeError as err:
+        print(f"  ❌ {err}")
+        return
+
+    pid = profile_id or get_current_active() or "?"
+    auth_mode = cfg.get("authMode", "oauth2")
+    reauth_mode = cfg.get("reauthMode", "manual")
+
+    header(f"Ping — {pid}")
+
+    reauth_handler = None
+    if auth_mode == "cookie":
+        reauth_handler = saml_or_browser_login if reauth_mode == "auto" else web_login_popup
+
+    client = SapClient(pid, reauth_handler=reauth_handler)
+    try:
+        await client.init()
+    except Exception as err:
+        print(f"  ❌ Init that bai: {err}")
+        return
+
+    try:
+        await client.get(
+            "/sap/bc/adt/repository/informationsystem/search",
+            query={"operation": "quickSearch", "query": "ZZZZZZ_NO_MATCH_AAA", "maxResults": 1},
+        )
+        ok(f"Session con hieu luc — Profile: {pid}")
+        info(f"URL: {cfg.get('btpUrl', '?')}")
+        info(f"Auth: {auth_mode}")
+    except Exception as err:
+        print(f"  ❌ Session het han hoac loi: {err}")
         if auth_mode == "cookie":
             print()
             print("  💡 Dang nhap lai (nhanh hon, khong hoi lai tu dau nhu setup):")
@@ -1081,6 +1166,56 @@ def _setup_vsp_server(register_fn) -> None:
     register_fn("sap-vsp", "stdio", cmd=vsp_path, args=["mcp"], env=vsp_env)
 
 
+def _claude_mcp_add(
+    claude_path: str, name: str, transport: str, *,
+    url: str | None = None, cmd: str | None = None,
+    args: list[str] | None = None, env: dict[str, str] | None = None,
+) -> tuple[bool, str]:
+    """Goi `claude mcp add` dung DUNG cu phap that: `claude mcp add [options]
+    <name> <commandOrUrl> [args...]` (verified qua `claude mcp add --help` +
+    test truc tiep voi server tam roi xoa lai):
+
+    - KHONG co flag --url - URL la positional giong command.
+    - stdio: -e/--env PHAI dat TRUOC "--", dat SAU se bi hieu la literal arg
+      cho subprocess thay vi env var that.
+    - sse/http/ws: -e/--env la variadic (<env...>) - dat TRUOC url se "nuot"
+      luon url lam gia tri cua no (loi "missing required argument
+      'commandOrUrl'"), dat SAU url thi claude IM LANG bo qua (khong loi,
+      nhung KHONG luu gi ca - 'claude mcp get' khong hien Environment).
+      SSE/HTTP khong co subprocess de nhan env var - co che dung THAT su la
+      HTTP header qua -H/--header "KEY: VALUE" dat SAU url (xac nhan qua
+      'claude mcp get' hien dung muc Headers).
+
+    Tra ve (ok, chi_tiet_loi) - chi_tiet_loi rong khi ok=True.
+    """
+    import subprocess
+
+    cli = [claude_path, "mcp", "add", "--transport", transport, name]
+    if transport in ("sse", "http", "ws"):
+        if url:
+            cli.append(url)
+        if env:
+            for k, v in env.items():
+                if v:
+                    cli.extend(["--header", f"{k}: {v}"])
+    elif cmd:
+        if env:
+            for k, v in env.items():
+                if v:
+                    cli.extend(["--env", f"{k}={v}"])
+        cli.append("--")
+        cli.append(cmd)
+        if args:
+            cli.extend(args)
+    try:
+        result = subprocess.run(cli, capture_output=True, text=True)
+    except OSError as err:
+        return False, str(err)
+    if result.returncode == 0:
+        return True, ""
+    return False, (result.stderr or result.stdout or "").strip()
+
+
 def _cmd_mcp_setup() -> None:
     """Dang ky toan bo MCP servers voi Claude Code (bat buoc + tuy chon)."""
     header("MCP Server Setup — Dang ky MCP servers voi Claude Code")
@@ -1099,26 +1234,10 @@ def _cmd_mcp_setup() -> None:
                   url: str | None = None, cmd: str | None = None,
                   args: list[str] | None = None,
                   env: dict[str, str] | None = None) -> bool:
-        """Goi claude mcp add, tra True neu thanh cong."""
-        cli = [claude_path, "mcp", "add", "--transport", transport]
-        if transport in ("sse", "http", "ws"):
-            if url:
-                cli.extend(["--url", url])
-        else:
-            if cmd:
-                cli.append("--")
-                cli.append(cmd)
-                if args:
-                    cli.extend(args)
-        if env:
-            for k, v in env.items():
-                if v:
-                    cli.extend(["--env", f"{k}={v}"])
-        try:
-            subprocess.run(cli, check=True)
-            return True
-        except subprocess.CalledProcessError:
-            return False
+        ok_, detail = _claude_mcp_add(claude_path, name, transport, url=url, cmd=cmd, args=args, env=env)
+        if not ok_:
+            warn(f"  -> That bai dang ky '{name}': {detail or '(khong ro loi)'}")
+        return ok_
 
     # --- Core servers (bat buoc) ---
     header("Core servers (bat buoc)")
@@ -1170,6 +1289,149 @@ def _cmd_mcp_setup() -> None:
 
     ok("Hoan tat! Khoi dong lai Claude Code de nhan server moi.")
     info("Kiem tra bang: claude mcp list")
+
+
+# ===== MCP SETUP - JSON mode (non-interactive, dung cho GUI) ==========
+# Ban thu gon cua danh sach server ma _cmd_mcp_setup() da biet (KHONG doc tu
+# reference/scripts/mcp_inventory.json - file do chi co trong git checkout day
+# du cua repo dev, khong nam trong package da publish qua pip ma GUI/end-user
+# thuc su cai). Sua ca 2 noi (dict o day + _cmd_mcp_setup o tren) neu doanh
+# sach server thay doi.
+
+_MCP_JSON_INVENTORY: list[dict[str, Any]] = [
+    {"name": "sap-btp", "category": "core", "transport": "stdio",
+     "description": "Main mcp-sap-connect server: profiles, search, read source, activate",
+     "envVars": [], "cmd": "mcp-sap-connect", "args": []},
+    {"name": "sap-dict-bridge", "category": "core", "transport": "stdio",
+     "description": "DDIC create (Domain/DataElement/Table) via mcp-sap-connect's cookie auth",
+     "envVars": [], "cmd": "python", "args": ["-m", "mcp_sap_connect.bridge_server"]},
+    {"name": "cds-kb", "category": "remote", "transport": "sse",
+     "description": "Remote CDS view knowledge base (7,355 views)",
+     "envVars": [], "url": "https://cds-kb-mcp-production.up.railway.app/sse"},
+    {"name": "mcp-sap-docs-btp", "category": "remote", "transport": "sse",
+     "description": "Remote SAP Docs / API Hub / Help Portal search",
+     "envVars": ["SAP-API-HUB-KEY"],
+     "url": "https://sap-docs-extend-mcp.cfapps.ap21.hana.ondemand.com/sse"},
+    {"name": "arc-1", "category": "adt-alternative", "transport": "stdio",
+     "description": "Enterprise ADT MCP (XSUAA, audit log) - alternative to sap-btp",
+     "envVars": [], "cmd": "npx", "args": ["-y", "arc-1@latest"]},
+    {"name": "mcp-abap-adt", "category": "adt-alternative", "transport": "stdio",
+     "description": "Community read-only ADT MCP (mario-andreschak) - needs its own basic auth",
+     "envVars": ["ADT_URL", "ADT_USER", "ADT_PASS", "ADT_CLIENT"],
+     "cmd": "npx", "args": ["-y", "mcp-abap-adt"], "envDefaults": {"ADT_CLIENT": "100"}},
+    {"name": "sap-vsp", "category": "special", "transport": "stdio",
+     "description": "ABAP deep analysis (vibing-steampunk) - package health/dead-code/debug. "
+                     "Tu dien SAP_ADT_URL tu profile active (+ SAP_ADT_USER/PASSWORD neu authMode=password).",
+     "envVars": []},
+]
+
+_MCP_MANUAL_SERVERS: list[dict[str, str]] = [
+    {"name": "sap-notes", "description": "SAP Notes / KBA lookup (can clone + build)",
+     "doc": "skills/mcp-sap-notes/SKILL.md"},
+    {"name": "sap-gui", "description": "SAP GUI Scripting automation (Windows, SAP GUI required)",
+     "doc": "skills/mcp-sap-gui/SKILL.md"},
+    {"name": "sf-mcp", "description": "SuccessFactors (open-source, 62+ tools)",
+     "doc": "skills/mcp-sap-successfactors/SKILL.md"},
+    {"name": "sf-cdata", "description": "SuccessFactors (CData SQL-based, read-only)",
+     "doc": "skills/mcp-sap-successfactors/SKILL.md"},
+    {"name": "sap-concur", "description": "Concur Travel & Expense (CData SQL-based)",
+     "doc": "skills/mcp-sap-concur/SKILL.md"},
+    {"name": "sap-fieldglass", "description": "Fieldglass Services Procurement (CData SQL-based)",
+     "doc": "skills/mcp-sap-fieldglass/SKILL.md"},
+]
+
+
+def _get_registered_mcp_names() -> set[str]:
+    """Doc ten server da co trong ~/.claude.json (moi scope: user + tung
+    project). Dinh nghia don gian - chi check key ton tai, KHONG check tinh
+    trang ket noi that (Claude Code tu quan ly rieng qua 'claude mcp list')."""
+    import json
+    from pathlib import Path
+
+    path = Path.home() / ".claude.json"
+    if not path.exists():
+        return set()
+    try:
+        data: dict[str, Any] = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return set()
+    names: set[str] = set((data.get("mcpServers") or {}).keys())
+    for proj in (data.get("projects") or {}).values():
+        names.update(((proj or {}).get("mcpServers")) or {})
+    return names
+
+
+def _cmd_mcp_status_json() -> None:
+    import json
+    import shutil
+
+    registered = _get_registered_mcp_names()
+    items: list[dict[str, Any]] = []
+    for e in _MCP_JSON_INVENTORY:
+        items.append({
+            "name": e["name"], "category": e["category"], "description": e["description"],
+            "envVars": e.get("envVars", []), "registered": e["name"] in registered,
+        })
+    for e in _MCP_MANUAL_SERVERS:
+        items.append({
+            "name": e["name"], "category": "manual", "description": e["description"],
+            "envVars": [], "registered": e["name"] in registered, "doc": e["doc"],
+        })
+    print(json.dumps({
+        "servers": items,
+        "claudeAvailable": shutil.which("claude") is not None,
+    }, ensure_ascii=False))
+
+
+def _cmd_mcp_register_json(name: str, env_overrides: dict[str, str]) -> bool:
+    import json
+    import shutil
+
+    claude_path = shutil.which("claude")
+    if not claude_path:
+        print(json.dumps({"ok": False, "name": name, "error": "Khong tim thay 'claude' trong PATH."}, ensure_ascii=False))
+        return False
+
+    if name == "sap-vsp":
+        outcome: dict[str, Any] = {}
+
+        def _register(nm: str, transport: str, *, url=None, cmd=None, args=None, env=None) -> bool:
+            ok_, detail = _claude_mcp_add(claude_path, nm, transport, url=url, cmd=cmd, args=args, env=env)
+            outcome["ok"] = ok_
+            outcome["detail"] = detail
+            return ok_
+
+        _setup_vsp_server(_register)
+        result: dict[str, Any] = {"ok": outcome.get("ok", False), "name": name}
+        if not result["ok"]:
+            result["error"] = outcome.get("detail") or "Khong dang ky duoc sap-vsp (xem chi tiet o tren)."
+        print(json.dumps(result, ensure_ascii=False))
+        return bool(result["ok"])
+
+    entry = next((e for e in _MCP_JSON_INVENTORY if e["name"] == name), None)
+    if entry is None or entry["category"] == "manual":
+        print(json.dumps({"ok": False, "name": name, "error": f"Server '{name}' khong the tu dang ky qua duong nay."}, ensure_ascii=False))
+        return False
+
+    needed = entry.get("envVars", [])
+    missing = [v for v in needed if not env_overrides.get(v)]
+    if missing:
+        print(json.dumps({"ok": False, "name": name, "error": "Thieu env var bat buoc.", "missingEnvVars": missing}, ensure_ascii=False))
+        return False
+
+    env: dict[str, str] = dict(entry.get("envDefaults", {}))
+    env.update({k: v for k, v in env_overrides.items() if v})
+
+    ok_, detail = _claude_mcp_add(
+        claude_path, name, entry["transport"],
+        url=entry.get("url"), cmd=entry.get("cmd"), args=entry.get("args"),
+        env=env if env else None,
+    )
+    result = {"ok": ok_, "name": name}
+    if not ok_:
+        result["error"] = detail or "claude mcp add that bai."
+    print(json.dumps(result, ensure_ascii=False))
+    return ok_
 
 
 # ===== Helpers =====================================================

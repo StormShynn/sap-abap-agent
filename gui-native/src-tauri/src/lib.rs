@@ -17,6 +17,8 @@ pub fn run() {
             mcp_cli::set_active_profile,
             mcp_cli::remove_profile,
             mcp_cli::import_json_backup,
+            mcp_cli::mcp_status,
+            mcp_cli::mcp_register,
             jobs::start_streamed,
             jobs::start_new_console,
             jobs::cancel_job,

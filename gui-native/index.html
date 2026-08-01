@@ -28,12 +28,14 @@
         <div class="row license-row">
           <span id="license-text" class="license-text muted"></span>
           <button id="btn-license" class="btn btn-flat">📋 License</button>
+          <button id="btn-mcp-servers" class="btn btn-flat">🧩 MCP Servers</button>
         </div>
       </header>
 
       <section class="actions">
         <button id="btn-reauth" class="btn btn-action">🔐<br />Reauth</button>
         <button id="btn-connect" class="btn btn-action">🔌<br />Connect</button>
+        <button id="btn-ping" class="btn btn-action">📡<br />Ping</button>
         <button id="btn-set-active" class="btn btn-action">⭐<br />Set Active</button>
         <button id="btn-remove" class="btn btn-action btn-danger">🗑<br />Remove</button>
       </section>
@@ -62,6 +64,22 @@
           </div>
         </div>
         <div id="license-rows" class="license-rows"></div>
+      </div>
+    </div>
+
+    <div id="mcp-modal" class="modal-overlay hidden">
+      <div class="modal-panel">
+        <div class="modal-header">
+          <h2>MCP Servers Setup</h2>
+          <div>
+            <button id="btn-mcp-refresh" class="btn btn-flat">Refresh</button>
+            <button id="btn-mcp-close" class="btn btn-flat">Close</button>
+          </div>
+        </div>
+        <p class="muted" style="margin-top: 0">
+          Đăng ký MCP server với Claude Code. Server đã đăng ký sẽ hiện ✓ - khởi động lại Claude Code để nhận server mới.
+        </p>
+        <div id="mcp-rows" class="license-rows"></div>
       </div>
     </div>
 

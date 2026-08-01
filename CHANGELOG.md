@@ -6,6 +6,55 @@ Format dựa trên [Keep a Changelog](https://keepachangelog.com/) và [Semantic
 
 ---
 
+## [v1.18.0] — 2026-08-01
+
+### Added
+
+- **MCP Servers Setup panel** (`gui-native/`) — nút "🧩 MCP Servers" mới trong GUI native (Tauri), mở modal
+  liệt kê toàn bộ MCP server mà `mcp-sap-connect mcp-setup` biết đăng ký (core/remote/adt-alternative/
+  special/manual), chia nhóm, hiện trạng thái đã đăng ký (đọc `~/.claude.json`) và nút "Đăng ký" per-server
+  — gọi `claude mcp add` qua subprocess, hỏi env var cần thiết (nếu có) bằng modal có sẵn trước khi đăng ký.
+  Khác `mcp-switch` (bật/tắt server đã cấu hình sẵn) — panel này CẤU HÌNH server còn thiếu, không toggle.
+- `mcp-sap-connect mcp-setup --status-json` / `--register-json <name> [--env K=V ...]` (`cli/__init__.py`)
+  — chế độ non-interactive mới, tách từ `_cmd_mcp_setup()` (giữ nguyên hành vi wizard tương tác cũ), dùng
+  cho GUI qua 2 lệnh Rust mới `mcp_status`/`mcp_register` (`src-tauri/src/mcp_cli.rs`).
+- **`mcp-sap-connect ping [profile-id]`** (`_cmd_ping`) + nút "📡 Ping" mới trong GUI native (giữa Connect
+  và Set Active) — kiểm tra nhanh session còn hiệu lực hay không bằng 1 GET đọc (giống bước đầu của
+  `connect`/tool `sap_ping`), KHÔNG xin CSRF/write token nên nhẹ hơn `connect` (vốn làm cả đọc lẫn ghi) —
+  dùng khi chỉ cần biết nhanh session còn sống, chưa cần gọi lệnh ghi thật.
+
+### Fixed
+
+- **`claude mcp add` bị gọi sai cú pháp ở CẢ `_cmd_mcp_setup()` interactive lẫn logic mới** — xác nhận qua
+  test trực tiếp với `claude mcp add --help` + chạy lệnh thật (tạo server tạm rồi xóa lại), 3 lỗi:
+  - Flag `--url` không tồn tại (URL là positional, giống `command`) — trước đây khiến đăng ký `cds-kb`/
+    `mcp-sap-docs-btp` luôn thất bại with `error: unknown option '--url'`, nhưng lỗi bị NUỐT ÂM THẦM vì
+    `_cmd_mcp_setup()` không kiểm tra giá trị trả về của `_register()`.
+  - `stdio`: `-e/--env` đặt SAU dấu `"--"` bị hiểu là literal arg cho subprocess thay vì env var thật —
+    khiến `mcp-abap-adt` (ADT_URL/ADT_USER/ADT_PASS/ADT_CLIENT, gồm cả password) trước đây bị truyền sai
+    thành command-line argument thay vì environment variable.
+  - `sse`/`http`/`ws`: `--env` là flag variadic (`<env...>`) — đặt TRƯỚC url sẽ "nuốt" luôn url (lỗi
+    `missing required argument 'commandOrUrl'`), đặt SAU thì `claude` im lặng bỏ qua không lưu gì cả.
+    Cơ chế đúng cho auth của remote server là HTTP header qua `-H/--header "KEY: VALUE"` đặt SAU url
+    (`mcp-sap-docs-btp` cần `SAP-API-HUB-KEY` theo cách này).
+  - Fix chung ở `_claude_mcp_add()` (hàm mới, dùng chung cho cả wizard cũ và JSON mode mới) +
+    `_cmd_mcp_setup()` giờ in cảnh báo rõ khi 1 server đăng ký thất bại thay vì im lặng.
+  Test: `reference/mcp-server/tests/test_claude_mcp_add.py` (mock subprocess, xác nhận shape lệnh).
+- **`setup --from-file` qua GUI: exit code luôn = 0 dù reject, output mất vì console riêng đóng quá nhanh**
+  — `_setup_from_file()` giờ trả `True`/`False` thay vì `None`, `_make_runner()` dịch `False` thành
+  `sys.exit(1)`; GUI đổi từ `start_new_console` (cửa sổ CMD riêng, không interactive nên đóng gần như ngay,
+  không kịp đọc) sang `start_streamed` (log vào panel chính, cuộn lại được) + vẫn hỗ trợ nút "Đã đăng nhập
+  xong" qua marker file cho nhánh browser-fallback. Test: `test_setup_from_file.py`.
+- **`reference/mcp-server/tests/conftest.py`**: `collect_ignore_glob = ["test_*.py"]` vô tình bỏ qua ÂM
+  THẦM toàn bộ thư mục `tests/` khi chạy `pytest tests/` (glob khớp luôn cả file có `def test_*` hợp lệ,
+  không chỉ 6 script cũ chạy side-effect ở module-level mà comment gốc nhắm tới) — phát hiện khi thấy
+  `pytest reference/mcp-server/tests/` báo "collected 0 items" dù các file test riêng lẻ chạy đúng. Đổi
+  sang `collect_ignore` liệt kê đích danh 6 file cũ (`test_int2/3.py`, `test_auto4/5.py`,
+  `test_auto_real2.py`, `test_gui_btn.py` — xác nhận từng file không có `def test_*` nào, chỉ chạy script
+  ngay lúc import). 20 test thật (`test_saml_form_login.py`, `test_keep_alive_expiry.py`,
+  `test_claude_mcp_add.py`, `test_setup_from_file.py`) giờ mới thực sự được chạy khi gọi
+  `pytest reference/mcp-server/tests/` thay vì bị bỏ qua âm thầm.
+
 ## [v1.17.1] — 2026-07-31
 
 ### Changed

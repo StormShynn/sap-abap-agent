@@ -183,7 +183,7 @@ body {
 
 .actions {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   gap: 8px;
   padding: 8px 0;
 }
@@ -375,6 +375,64 @@ body {
   font-size: 0.8em;
   color: var(--muted);
   margin-top: 6px;
+}
+
+.mcp-category-header {
+  font-weight: 600;
+  font-size: 0.85em;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--muted);
+  margin: 10px 0 2px;
+}
+
+.mcp-category-header:first-child {
+  margin-top: 0;
+}
+
+.mcp-row {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 8px 12px;
+  margin-bottom: 6px;
+}
+
+.mcp-row-main {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mcp-row-name {
+  font-weight: 600;
+}
+
+.mcp-row-badge {
+  font-size: 0.8em;
+}
+
+.mcp-row-badge.ok {
+  color: var(--ok);
+}
+
+.mcp-row-badge.off {
+  color: var(--muted);
+}
+
+.mcp-row-spacer {
+  flex: 1;
+}
+
+.mcp-row-desc {
+  font-size: 0.8em;
+  color: var(--muted);
+  margin-top: 4px;
+}
+
+.btn-sm {
+  padding: 4px 10px;
+  font-size: 0.85em;
 }
 
 @media (prefers-color-scheme: dark) {
