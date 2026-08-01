@@ -38,6 +38,7 @@ pub fn build_tray(app: &AppHandle) -> tauri::Result<()> {
         None::<&str>,
     )?;
     let open_item = MenuItem::with_id(app, "tray-open", "Open GUI", true, None::<&str>)?;
+    let about_item = MenuItem::with_id(app, "tray-about", "About / Check update...", true, None::<&str>)?;
     let quit_item = MenuItem::with_id(app, "tray-quit", "Quit", true, None::<&str>)?;
     let separator = PredefinedMenuItem::separator(app)?;
 
@@ -49,6 +50,7 @@ pub fn build_tray(app: &AppHandle) -> tauri::Result<()> {
             &separator,
             &license_item,
             &open_item,
+            &about_item,
             &quit_item,
         ],
     )?;
@@ -81,6 +83,10 @@ pub fn build_tray(app: &AppHandle) -> tauri::Result<()> {
                     let _ = app.emit("open-license-dashboard", ());
                 }
                 "tray-open" => show_main_window(&app),
+                "tray-about" => {
+                    show_main_window(&app);
+                    let _ = app.emit("open-about", ());
+                }
                 "tray-quit" => app.exit(0),
                 _ => {}
             }

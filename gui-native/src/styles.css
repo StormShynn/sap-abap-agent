@@ -477,6 +477,51 @@ body {
   font-size: 0.85em;
 }
 
+.about-panel {
+  max-width: 420px;
+}
+
+.about-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.9em;
+}
+
+.about-row-update {
+  align-items: flex-start;
+}
+
+.about-update-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: flex-end;
+}
+
+.about-link {
+  color: var(--accent);
+  padding: 0;
+}
+
+.about-update-msg {
+  margin: 10px 0 0;
+  font-size: 0.85em;
+  white-space: pre-wrap;
+}
+
+.about-footnote {
+  margin: 12px 0 0;
+  font-size: 0.78em;
+}
+
+.about-update-error {
+  color: var(--danger);
+}
+
 @media (prefers-color-scheme: dark) {
   :root {
     --bg: #202020;

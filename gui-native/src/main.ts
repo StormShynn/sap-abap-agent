@@ -1,6 +1,8 @@
 import { invoke } from "@tauri-apps/api/core";
+import { getVersion } from "@tauri-apps/api/app";
 import { listen } from "@tauri-apps/api/event";
 import { open as openFileDialog } from "@tauri-apps/plugin-dialog";
+import { openUrl } from "@tauri-apps/plugin-opener";
 
 // ===== Types (khop voi struct Rust ben src-tauri/src/mcp_cli.rs + jobs.rs) =====
 
@@ -56,6 +58,17 @@ interface RuntimeStatus {
   install_hint: string;
 }
 
+interface UpdateCheckResult {
+  status: string;
+  current_version: string;
+  latest_tag: string | null;
+  latest_version: string | null;
+  release_url: string | null;
+  message: string;
+}
+
+const REPO_URL = "https://github.com/StormShynn/sap-abap-agent";
+
 // ===== State =====
 
 let profilesData: ProfilesData = { active: null, items: [] };
@@ -98,6 +111,14 @@ const el = {
   mcpRows: byId<HTMLDivElement>("mcp-rows"),
   btnMcpRefresh: byId<HTMLButtonElement>("btn-mcp-refresh"),
   btnMcpClose: byId<HTMLButtonElement>("btn-mcp-close"),
+  btnAbout: byId<HTMLButtonElement>("btn-about"),
+  aboutModal: byId<HTMLDivElement>("about-modal"),
+  aboutVersion: byId<HTMLSpanElement>("about-version"),
+  aboutUpdateActions: byId<HTMLDivElement>("about-update-actions"),
+  aboutUpdateMsg: byId<HTMLParagraphElement>("about-update-msg"),
+  btnAboutClose: byId<HTMLButtonElement>("btn-about-close"),
+  btnAboutRepo: byId<HTMLButtonElement>("btn-about-repo"),
+  btnCheckUpdate: byId<HTMLButtonElement>("btn-check-update"),
   promptModal: byId<HTMLDivElement>("prompt-modal"),
   promptTitle: byId<HTMLHeadingElement>("prompt-title"),
   promptMessage: byId<HTMLParagraphElement>("prompt-message"),
@@ -756,6 +777,103 @@ async function onRegisterMcpServer(s: McpServerStatus) {
   await refreshMcpStatus();
 }
 
+// ===== About / Check update (giong mcp-switch About modal; check qua GitHub Releases gui-v*) =====
+
+let cachedAppVersion = "";
+let lastUpdateUrl: string | null = null;
+
+async function openAboutModal() {
+  el.aboutModal.classList.remove("hidden");
+  if (!cachedAppVersion) {
+    try {
+      cachedAppVersion = await getVersion();
+    } catch {
+      cachedAppVersion = "unknown";
+    }
+  }
+  el.aboutVersion.textContent = cachedAppVersion;
+}
+
+function closeAboutModal() {
+  el.aboutModal.classList.add("hidden");
+}
+
+function resetUpdateActions() {
+  el.aboutUpdateActions.innerHTML = "";
+  el.aboutUpdateActions.appendChild(el.btnCheckUpdate);
+  el.btnCheckUpdate.disabled = false;
+  el.btnCheckUpdate.textContent = "Check for updates";
+  el.btnCheckUpdate.onclick = () => void onCheckUpdate();
+}
+
+function renderUpdateResult(result: UpdateCheckResult) {
+  el.aboutUpdateMsg.classList.remove("about-update-error");
+  el.aboutUpdateMsg.textContent = result.message;
+  lastUpdateUrl = result.release_url;
+  el.aboutUpdateActions.innerHTML = "";
+
+  if (result.status === "available" && result.release_url) {
+    const openBtn = document.createElement("button");
+    openBtn.className = "btn btn-accent btn-sm";
+    openBtn.textContent = result.latest_tag
+      ? `Open ${result.latest_tag}`
+      : "Open release";
+    openBtn.addEventListener("click", () => {
+      void openUrl(result.release_url!);
+    });
+    el.aboutUpdateActions.appendChild(openBtn);
+  }
+
+  const again = document.createElement("button");
+  again.className = "btn btn-flat btn-sm";
+  again.textContent = "Check again";
+  again.addEventListener("click", () => void onCheckUpdate());
+  el.aboutUpdateActions.appendChild(again);
+
+  if (result.status === "no_gui_release" && result.release_url) {
+    const browse = document.createElement("button");
+    browse.className = "btn btn-flat btn-sm";
+    browse.textContent = "Browse releases";
+    browse.addEventListener("click", () => {
+      void openUrl(result.release_url!);
+    });
+    el.aboutUpdateActions.appendChild(browse);
+  }
+}
+
+async function onCheckUpdate() {
+  el.aboutUpdateMsg.classList.remove("about-update-error");
+  el.aboutUpdateMsg.textContent = "Checking…";
+  el.aboutUpdateActions.innerHTML = "";
+  const checking = document.createElement("span");
+  checking.className = "muted";
+  checking.textContent = "Checking…";
+  el.aboutUpdateActions.appendChild(checking);
+
+  try {
+    const result = await invoke<UpdateCheckResult>("check_gui_update");
+    renderUpdateResult(result);
+  } catch (err) {
+    el.aboutUpdateMsg.classList.add("about-update-error");
+    el.aboutUpdateMsg.textContent = String(err);
+    el.aboutUpdateActions.innerHTML = "";
+    const again = document.createElement("button");
+    again.className = "btn btn-flat btn-sm";
+    again.textContent = "Check again";
+    again.addEventListener("click", () => void onCheckUpdate());
+    el.aboutUpdateActions.appendChild(again);
+    if (lastUpdateUrl) {
+      const browse = document.createElement("button");
+      browse.className = "btn btn-flat btn-sm";
+      browse.textContent = "Browse releases";
+      browse.addEventListener("click", () => {
+        void openUrl(lastUpdateUrl!);
+      });
+      el.aboutUpdateActions.appendChild(browse);
+    }
+  }
+}
+
 // ===== Wiring =====
 
 function initEventListeners() {
@@ -795,6 +913,11 @@ function initEventListeners() {
   el.btnMcpServers.addEventListener("click", () => void openMcpModal());
   el.btnMcpRefresh.addEventListener("click", () => void refreshMcpStatus());
   el.btnMcpClose.addEventListener("click", closeMcpModal);
+
+  el.btnAbout.addEventListener("click", () => void openAboutModal());
+  el.btnAboutClose.addEventListener("click", closeAboutModal);
+  el.btnAboutRepo.addEventListener("click", () => void openUrl(REPO_URL));
+  el.btnCheckUpdate.onclick = () => void onCheckUpdate();
   el.btnRuntimeRecheck.addEventListener("click", () => void checkRuntime().then((ok) => {
     if (ok) void refreshProfiles();
   }));
@@ -809,6 +932,7 @@ function initEventListeners() {
     void refreshProfiles();
   });
   void listen("open-license-dashboard", () => void openLicenseDashboard());
+  void listen("open-about", () => void openAboutModal());
 
   // Countdown tick moi giay: header label + dashboard (neu dang mo)
   setInterval(() => {
@@ -821,6 +945,7 @@ function initEventListeners() {
 
 window.addEventListener("DOMContentLoaded", () => {
   initEventListeners();
+  resetUpdateActions();
   void checkRuntime().then((ok) => {
     if (ok) void refreshProfiles();
   });

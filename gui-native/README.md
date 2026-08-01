@@ -65,6 +65,9 @@ Publish: `git tag gui-v1.19.0 && git push origin gui-v1.19.0` → workflow `gui-
 
 ## Tính năng
 
+- **About / Check update:** nút **ℹ About** (và tray *About / Check update…*) — hiện version,
+  link repo, kiểm tra GitHub Releases tag `gui-v*` (mở trang tải NSIS/MSI nếu có bản mới).
+  Không auto-install (chưa dùng `tauri-plugin-updater` / signing key).
 - **Runtime check (PATH-only):** banner khi thiếu/hỏng `mcp-sap-connect`.
 - **Quản lý profile** + license countdown + Ping / Reauth / Connect / Set Active / Remove.
 - **+ Add:** setup wizard (console), setup `--from-file` (stream log), import JSON backup.
@@ -83,7 +86,16 @@ gui-native/
    +- src/
    |  +- lib.rs
    |  +- mcp_cli.rs      # check_runtime + profiles/license/mcp --json
+   |  +- update_check.rs # GitHub Releases API (gui-v*)
    |  +- jobs.rs
    |  +- tray.rs
-   +- tauri.conf.json    # version 1.18.0, targets nsis+msi
+   +- tauri.conf.json    # version 1.19.0, targets nsis+msi
 ```
+
+## Update check — ghi chú vận hành
+
+- Check chỉ nhìn tag/release **`gui-v*`** (không nhầm với `mcp-server-v*` / plugin).
+- Cần có **GitHub Release** (không chỉ git tag) kèm asset `.exe`/`.msi` do
+  `.github/workflows/gui-release.yml` tạo khi push tag trên commit **đã có** workflow đó.
+- Auto-download/install kiểu mcp-switch cần Decision riêng: signing key +
+  `createUpdaterArtifacts` + upload `update.json`.

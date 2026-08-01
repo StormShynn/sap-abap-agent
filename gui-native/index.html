@@ -37,6 +37,7 @@
           <span id="license-text" class="license-text muted"></span>
           <button id="btn-license" class="btn btn-flat">📋 License</button>
           <button id="btn-mcp-servers" class="btn btn-flat">🧩 MCP Servers</button>
+          <button id="btn-about" class="btn btn-flat" title="About / Check update">ℹ About</button>
         </div>
       </header>
 
@@ -88,6 +89,37 @@
           Đăng ký MCP server với Claude Code. Server đã đăng ký sẽ hiện ✓ - khởi động lại Claude Code để nhận server mới.
         </p>
         <div id="mcp-rows" class="license-rows"></div>
+      </div>
+    </div>
+
+    <div id="about-modal" class="modal-overlay hidden">
+      <div class="modal-panel modal-panel-small about-panel">
+        <div class="modal-header">
+          <h2>SAP ABAP Agent</h2>
+          <button id="btn-about-close" class="btn btn-flat">Close</button>
+        </div>
+        <div class="about-row">
+          <span class="muted">Version</span>
+          <span id="about-version">…</span>
+        </div>
+        <div class="about-row">
+          <span class="muted">Repository</span>
+          <button id="btn-about-repo" class="btn btn-flat about-link">StormShynn/sap-abap-agent</button>
+        </div>
+        <div class="about-row">
+          <span class="muted">Mode</span>
+          <span>PATH-only (không embed Python)</span>
+        </div>
+        <div class="about-row about-row-update">
+          <span class="muted">Updates</span>
+          <div id="about-update-actions" class="about-update-actions">
+            <button id="btn-check-update" class="btn btn-accent btn-sm">Check for updates</button>
+          </div>
+        </div>
+        <p id="about-update-msg" class="muted about-update-msg"></p>
+        <p class="muted about-footnote">
+          GUI theo dõi tag <code>gui-v*</code>. Plugin/CLI (<code>mcp-server-v*</code>) cập nhật riêng qua pip / marketplace.
+        </p>
       </div>
     </div>
 
