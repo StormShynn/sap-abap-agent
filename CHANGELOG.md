@@ -22,6 +22,14 @@ Format dựa trên [Keep a Changelog](https://keepachangelog.com/) và [Semantic
 
 ## [v1.19.2] — 2026-08-01
 
+### Added
+
+- **GUI auto-updater** (`gui-native/`): `tauri-plugin-updater` + `tauri-plugin-process`,
+  `createUpdaterArtifacts`, endpoint `gui-latest/update.json`, About modal Download & Install
+  + relaunch (giống mcp-switch). CI `gui-release.yml` ký minisign, sinh `update.json`,
+  publish tag `gui-v*` và rolling `gui-latest`. Xem `gui-native/.signing/README.md`
+  (cần secrets `TAURI_SIGNING_PRIVATE_KEY`).
+
 ### Changed
 
 - Auto-bumped by CI (version-bump.yml).

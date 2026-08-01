@@ -3,6 +3,8 @@ import { getVersion } from "@tauri-apps/api/app";
 import { listen } from "@tauri-apps/api/event";
 import { open as openFileDialog } from "@tauri-apps/plugin-dialog";
 import { openUrl } from "@tauri-apps/plugin-opener";
+import { check, type Update } from "@tauri-apps/plugin-updater";
+import { relaunch } from "@tauri-apps/plugin-process";
 
 // ===== Types (khop voi struct Rust ben src-tauri/src/mcp_cli.rs + jobs.rs) =====
 
@@ -58,16 +60,9 @@ interface RuntimeStatus {
   install_hint: string;
 }
 
-interface UpdateCheckResult {
-  status: string;
-  current_version: string;
-  latest_tag: string | null;
-  latest_version: string | null;
-  release_url: string | null;
-  message: string;
-}
-
 const REPO_URL = "https://github.com/StormShynn/sap-abap-agent";
+const RELEASES_URL = `${REPO_URL}/releases`;
+const GUI_LATEST_URL = `${REPO_URL}/releases/tag/gui-latest`;
 
 // ===== State =====
 
@@ -777,10 +772,10 @@ async function onRegisterMcpServer(s: McpServerStatus) {
   await refreshMcpStatus();
 }
 
-// ===== About / Check update (giong mcp-switch About modal; check qua GitHub Releases gui-v*) =====
+// ===== About / Auto-updater (tauri-plugin-updater + gui-latest/update.json) =====
 
 let cachedAppVersion = "";
-let lastUpdateUrl: string | null = null;
+let pendingUpdate: Update | null = null;
 
 async function openAboutModal() {
   el.aboutModal.classList.remove("hidden");
@@ -798,7 +793,13 @@ function closeAboutModal() {
   el.aboutModal.classList.add("hidden");
 }
 
+function setUpdateMsg(text: string, isError = false) {
+  el.aboutUpdateMsg.textContent = text;
+  el.aboutUpdateMsg.classList.toggle("about-update-error", isError);
+}
+
 function resetUpdateActions() {
+  pendingUpdate = null;
   el.aboutUpdateActions.innerHTML = "";
   el.aboutUpdateActions.appendChild(el.btnCheckUpdate);
   el.btnCheckUpdate.disabled = false;
@@ -806,71 +807,103 @@ function resetUpdateActions() {
   el.btnCheckUpdate.onclick = () => void onCheckUpdate();
 }
 
-function renderUpdateResult(result: UpdateCheckResult) {
-  el.aboutUpdateMsg.classList.remove("about-update-error");
-  el.aboutUpdateMsg.textContent = result.message;
-  lastUpdateUrl = result.release_url;
+function showRetryActions(extraBrowse = false) {
   el.aboutUpdateActions.innerHTML = "";
-
-  if (result.status === "available" && result.release_url) {
-    const openBtn = document.createElement("button");
-    openBtn.className = "btn btn-accent btn-sm";
-    openBtn.textContent = result.latest_tag
-      ? `Open ${result.latest_tag}`
-      : "Open release";
-    openBtn.addEventListener("click", () => {
-      void openUrl(result.release_url!);
-    });
-    el.aboutUpdateActions.appendChild(openBtn);
-  }
-
   const again = document.createElement("button");
   again.className = "btn btn-flat btn-sm";
   again.textContent = "Check again";
   again.addEventListener("click", () => void onCheckUpdate());
   el.aboutUpdateActions.appendChild(again);
-
-  if (result.status === "no_gui_release" && result.release_url) {
+  if (extraBrowse) {
     const browse = document.createElement("button");
     browse.className = "btn btn-flat btn-sm";
     browse.textContent = "Browse releases";
     browse.addEventListener("click", () => {
-      void openUrl(result.release_url!);
+      void openUrl(RELEASES_URL);
     });
     el.aboutUpdateActions.appendChild(browse);
   }
 }
 
+async function onInstallUpdate() {
+  if (!pendingUpdate) return;
+  setUpdateMsg("Downloading update…");
+  el.aboutUpdateActions.innerHTML = "";
+  const progress = document.createElement("span");
+  progress.className = "muted";
+  progress.textContent = "0%";
+  el.aboutUpdateActions.appendChild(progress);
+
+  try {
+    let downloaded = 0;
+    let total = 0;
+    await pendingUpdate.downloadAndInstall((event) => {
+      if (event.event === "Started") {
+        total = event.data.contentLength ?? 0;
+        setUpdateMsg("Downloading update…");
+      } else if (event.event === "Progress") {
+        downloaded += event.data.chunkLength;
+        const pct =
+          total > 0 ? Math.min(100, Math.round((downloaded / total) * 100)) : 0;
+        progress.textContent = `${pct}%`;
+      } else if (event.event === "Finished") {
+        setUpdateMsg("Installing… app will restart.");
+        progress.textContent = "Installing…";
+      }
+    });
+    await relaunch();
+  } catch (err) {
+    setUpdateMsg(String(err), true);
+    showRetryActions(true);
+  }
+}
+
 async function onCheckUpdate() {
-  el.aboutUpdateMsg.classList.remove("about-update-error");
-  el.aboutUpdateMsg.textContent = "Checking…";
+  setUpdateMsg("Checking…");
   el.aboutUpdateActions.innerHTML = "";
   const checking = document.createElement("span");
   checking.className = "muted";
   checking.textContent = "Checking…";
   el.aboutUpdateActions.appendChild(checking);
+  pendingUpdate = null;
 
   try {
-    const result = await invoke<UpdateCheckResult>("check_gui_update");
-    renderUpdateResult(result);
-  } catch (err) {
-    el.aboutUpdateMsg.classList.add("about-update-error");
-    el.aboutUpdateMsg.textContent = String(err);
+    const update = await check();
+    if (!update) {
+      setUpdateMsg("You are on the latest version.");
+      showRetryActions(false);
+      return;
+    }
+    pendingUpdate = update;
+    setUpdateMsg(
+      `Update available: v${update.version}${update.body ? ` — ${update.body}` : ""}`,
+    );
     el.aboutUpdateActions.innerHTML = "";
+    const installBtn = document.createElement("button");
+    installBtn.className = "btn btn-accent btn-sm";
+    installBtn.textContent = `Download & install v${update.version}`;
+    installBtn.addEventListener("click", () => void onInstallUpdate());
+    el.aboutUpdateActions.appendChild(installBtn);
     const again = document.createElement("button");
     again.className = "btn btn-flat btn-sm";
     again.textContent = "Check again";
     again.addEventListener("click", () => void onCheckUpdate());
     el.aboutUpdateActions.appendChild(again);
-    if (lastUpdateUrl) {
-      const browse = document.createElement("button");
-      browse.className = "btn btn-flat btn-sm";
-      browse.textContent = "Browse releases";
-      browse.addEventListener("click", () => {
-        void openUrl(lastUpdateUrl!);
-      });
-      el.aboutUpdateActions.appendChild(browse);
-    }
+    const browse = document.createElement("button");
+    browse.className = "btn btn-flat btn-sm";
+    browse.textContent = "Release notes";
+    browse.addEventListener("click", () => {
+      void openUrl(GUI_LATEST_URL);
+    });
+    el.aboutUpdateActions.appendChild(browse);
+  } catch (err) {
+    const msg = String(err);
+    const hint =
+      msg.includes("404") || msg.toLowerCase().includes("not found")
+        ? " (chua co release gui-latest/update.json — can CI secrets + tag gui-v*)"
+        : "";
+    setUpdateMsg(`${msg}${hint}`, true);
+    showRetryActions(true);
   }
 }
 

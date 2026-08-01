@@ -24,6 +24,16 @@ cd gui-native
 npx tauri signer generate -w "$env:TEMP\sap-abap-agent-gui-keys\sap-abap-agent-gui.key" --ci -f
 ```
 
+## Local sign (empty password)
+
+Tauri treats missing password as interactive prompt (hangs in CI/non-TTY). Pass an
+explicit empty string. On PowerShell, `$env:...=""` / `-p ""` often becomes “unset”;
+use a shell cmdline instead:
+
+```powershell
+npx tauri signer sign "path\to\file.nsis.zip" -f $key --password ""
+```
+
 ## Updater endpoint
 
 Rolling tag **`gui-latest`** (recreated each `gui-v*` release):

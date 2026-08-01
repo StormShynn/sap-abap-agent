@@ -1,13 +1,25 @@
 name: GUI Native Windows Release
 
-# Build NSIS + MSI when a gui-v* tag is pushed (PATH-only; no Python sidecar).
-# Example: git tag gui-v1.19.0 && git push origin gui-v1.19.0
+# Build signed NSIS + MSI + update.json when a gui-v* tag is pushed.
+# Example: git tag gui-v1.19.3 && git push origin gui-v1.19.3
+#
+# Required secrets:
+#   TAURI_SIGNING_PRIVATE_KEY
+#   TAURI_SIGNING_PRIVATE_KEY_PASSWORD  (empty string OK if key has no password)
+#
+# Also refreshes rolling tag `gui-latest` so in-app updater endpoint stays stable:
+#   https://github.com/StormShynn/sap-abap-agent/releases/download/gui-latest/update.json
 
 on:
   push:
     tags:
       - "gui-v*"
   workflow_dispatch:
+    inputs:
+      gui_tag:
+        description: "Existing gui-v* tag to rebuild (workflow_dispatch only)"
+        required: false
+        default: ""
 
 permissions:
   contents: write
@@ -20,12 +32,40 @@ jobs:
   windows-bundle:
     runs-on: windows-latest
     timeout-minutes: 60
-    defaults:
-      run:
-        working-directory: gui-native
     steps:
       - name: Checkout
         uses: actions/checkout@v7
+
+      - name: Resolve version / tag
+        id: meta
+        shell: bash
+        run: |
+          if [[ "${{ github.ref_type }}" == "tag" ]]; then
+            TAG="${GITHUB_REF_NAME}"
+          else
+            TAG="${{ inputs.gui_tag }}"
+            if [[ -z "$TAG" ]]; then
+              echo "workflow_dispatch requires gui_tag (e.g. gui-v1.19.3)" >&2
+              exit 1
+            fi
+          fi
+          if [[ "$TAG" != gui-v* ]]; then
+            echo "Tag must start with gui-v: $TAG" >&2
+            exit 1
+          fi
+          VERSION="${TAG#gui-v}"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Require signing secrets
+        shell: bash
+        env:
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+        run: |
+          if [[ -z "${TAURI_SIGNING_PRIVATE_KEY}" ]]; then
+            echo "Missing secret TAURI_SIGNING_PRIVATE_KEY — see gui-native/.signing/README.md" >&2
+            exit 1
+          fi
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -43,37 +83,115 @@ jobs:
           workspaces: gui-native/src-tauri -> target
 
       - name: Install frontend deps
+        working-directory: gui-native
         run: npm ci
 
-      - name: Tauri build (NSIS + MSI)
+      - name: Tauri build (NSIS + MSI + updater artifacts)
+        working-directory: gui-native
+        env:
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
         run: npm run tauri build
 
-      - name: Upload bundle artifacts
+      - name: Stage artifacts for update.json
+        shell: bash
+        run: |
+          TARGET=x86_64-pc-windows-msvc
+          ARTIFACT_DIR="artifacts/sap-abap-agent-gui-${TARGET}"
+          BUNDLE_DIR="gui-native/src-tauri/target/release/bundle"
+          mkdir -p "$ARTIFACT_DIR"
+          find "$BUNDLE_DIR" -type f \( \
+            -iname "*.exe" -o -iname "*.msi" -o \
+            -iname "*.zip" -o -iname "*.sig" \
+          \) -exec cp {} "$ARTIFACT_DIR/" \;
+          echo "Staged:"; find "$ARTIFACT_DIR" -type f
+
+      - name: Generate update.json
+        shell: bash
+        run: |
+          node gui-native/scripts/generate-update-json.mjs \
+            "${{ steps.meta.outputs.version }}" \
+            artifacts \
+            gui-latest \
+            > update.json
+          cat update.json
+
+      - name: Upload workflow artifacts
         uses: actions/upload-artifact@v4
         with:
           name: sap-abap-agent-gui-windows
           path: |
-            gui-native/src-tauri/target/release/bundle/nsis/*.exe
-            gui-native/src-tauri/target/release/bundle/msi/*.msi
+            artifacts/
+            update.json
           if-no-files-found: error
 
-      - name: Create GitHub Release (tag pushes only)
-        if: startsWith(github.ref, 'refs/tags/gui-v')
-        uses: softprops/action-gh-release@v2
-        with:
-          files: |
-            gui-native/src-tauri/target/release/bundle/nsis/*.exe
-            gui-native/src-tauri/target/release/bundle/msi/*.msi
-          generate_release_notes: true
-          body: |
-            Native GUI for SAP ABAP Agent (PATH-only).
-
-            Prerequisite on the machine:
-            ```
-            pip install "mcp-sap-connect[win-dpapi]"
-            python -m mcp_sap_connect.doctor
-            ```
-
-            Then install the NSIS `.exe` or MSI and open **SAP ABAP Agent**.
+      - name: Publish GitHub Release (version tag + gui-latest)
+        if: startsWith(github.ref, 'refs/tags/gui-v') || github.event_name == 'workflow_dispatch'
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ steps.meta.outputs.tag }}
+          VERSION: ${{ steps.meta.outputs.version }}
+        shell: bash
+        run: |
+          retry() {
+            local n=1 max=5 delay=10
+            while true; do
+              "$@" && return 0 || {
+                if [[ $n -lt $max ]]; then
+                  echo "Retry $n/$max after ${delay}s..." >&2
+                  sleep "$delay"
+                  n=$((n + 1))
+                  delay=$((delay * 2))
+                else
+                  echo "Failed after $max attempts." >&2
+                  return 1
+                fi
+              }
+            done
+          }
+
+          BODY=$(mktemp)
+          cat > "$BODY" <<EOF
+          Native GUI for SAP ABAP Agent (PATH-only) v${VERSION}.
+
+          Prerequisite:
+          \`\`\`
+          pip install "mcp-sap-connect[win-dpapi]"
+          python -m mcp_sap_connect.doctor
+          \`\`\`
+
+          Auto-update channel: rolling tag \`gui-latest\` (\`update.json\` + signed NSIS updater artifact).
+          EOF
+
+          # Versioned release
+          gh release delete "$TAG" --yes 2>/dev/null || true
+          sleep 3
+          retry gh release create "$TAG" \
+            --title "SAP ABAP Agent GUI v${VERSION}" \
+            --notes-file "$BODY"
+
+          retry gh release upload "$TAG" update.json --clobber
+          while IFS= read -r -d '' f; do
+            retry gh release upload "$TAG" "$f" --clobber
+            sleep 2
+          done < <(find artifacts -type f \( \
+            -iname "*.exe" -o -iname "*.msi" -o -iname "*.zip" -o -iname "*.sig" \
+          \) -print0)
+
+          # Rolling gui-latest (updater endpoint)
+          gh release delete gui-latest --yes 2>/dev/null || true
+          git push origin :refs/tags/gui-latest 2>/dev/null || true
+          sleep 5
+          git tag -f gui-latest
+          retry git push -f origin gui-latest
+          sleep 5
+          retry gh release create gui-latest \
+            --title "SAP ABAP Agent GUI (latest)" \
+            --notes "Rolling channel for in-app updater. Mirrors installers from ${TAG}."
+          retry gh release upload gui-latest update.json --clobber
+          while IFS= read -r -d '' f; do
+            retry gh release upload gui-latest "$f" --clobber
+            sleep 2
+          done < <(find artifacts -type f \( \
+            -iname "*.exe" -o -iname "*.msi" -o -iname "*.zip" -o -iname "*.sig" \
+          \) -print0)

@@ -1,7 +1,6 @@
 mod jobs;
 mod mcp_cli;
 mod tray;
-mod update_check;
 
 use tauri::WindowEvent;
 
@@ -11,6 +10,8 @@ pub fn run() {
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_notification::init())
+        .plugin(tauri_plugin_updater::Builder::new().build())
+        .plugin(tauri_plugin_process::init())
         .manage(jobs::JobState::default())
         .invoke_handler(tauri::generate_handler![
             mcp_cli::check_runtime,
@@ -21,7 +22,6 @@ pub fn run() {
             mcp_cli::import_json_backup,
             mcp_cli::mcp_status,
             mcp_cli::mcp_register,
-            update_check::check_gui_update,
             jobs::start_streamed,
             jobs::start_new_console,
             jobs::cancel_job,

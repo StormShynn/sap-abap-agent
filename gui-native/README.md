@@ -6,6 +6,9 @@ Native desktop GUI cho `mcp-sap-connect` (Rust + Tauri v2 + vanilla TypeScript).
 embed Python. Cần `mcp-sap-connect` trên PATH (`pip install`). Rust chỉ orchestration —
 auth/secrets vẫn ở Python, gọi qua `mcp-sap-connect <command> --json`.
 
+**Auto-updater** (decision `0002-gui-auto-updater`): `tauri-plugin-updater` + minisign +
+`update.json` trên rolling tag **`gui-latest`**.
+
 Bản Python/Tkinter (`pip install mcp-sap-connect[gui]` → `mcp-sap-connect-gui`) là
 **legacy** — vẫn chạy trong ≥2 minor sau GA native; khuyến nghị dùng installer này.
 
@@ -18,20 +21,21 @@ pip install "mcp-sap-connect[win-dpapi]"
 python -m mcp_sap_connect.doctor
 ```
 
-2. Cài GUI: chạy file **NSIS** hoặc **MSI** từ GitHub Release tag `gui-v1.19.0`
-   (workflow `.github/workflows/gui-release.yml` khi push tag). Hoặc build local (mục dưới).
+2. Cài GUI: ưu tiên **NSIS** từ Release `gui-v*` / `gui-latest`
+   (workflow `.github/workflows/gui-release.yml`). MSI cần elevate (Error 1925).
 
-3. Mở **SAP ABAP Agent** → nếu thiếu CLI, banner vàng hiện lệnh pip/doctor →
-   **Kiểm tra lại** sau khi cài.
+3. Mở **SAP ABAP Agent** → nếu thiếu CLI, banner vàng → **Kiểm tra lại**.
+   **ℹ About** → Check for updates → Download & install (sau khi CI đã publish `gui-latest`).
 
-4. Add profile → Ping / Connect → MCP Servers (đăng ký core với Claude Code).
+4. Add profile → Ping / Connect → MCP Servers.
 
 ## Yêu cầu (dev / build)
 
 - Node.js 18+ và npm.
-- Rust toolchain (`rustup`) + WebView2 (Windows 10/11 thường có sẵn).
-- `mcp-sap-connect` trên PATH (hoặc `python -m mcp_sap_connect.cli` cho dev).
-- `claude` CLI nếu dùng panel MCP Servers Setup.
+- Rust toolchain (`rustup`) + WebView2.
+- `mcp-sap-connect` trên PATH.
+- (Release) GitHub secrets `TAURI_SIGNING_PRIVATE_KEY` (+ optional password) —
+  xem [`.signing/README.md`](.signing/README.md).
 
 ## Chạy dev
 
@@ -46,56 +50,34 @@ npm run tauri dev
 ```bash
 cd gui-native
 npm install
+# Local signed build (optional):
+#   $env:TAURI_SIGNING_PRIVATE_KEY = Get-Content $env:TEMP\sap-abap-agent-gui-keys\sap-abap-agent-gui.key -Raw
 npm run tauri build
 ```
 
-Artifact (khi build thành công):
+Artifact:
 
-- `src-tauri/target/release/bundle/nsis/*.exe`
+- `src-tauri/target/release/bundle/nsis/*.exe` (+ `.sig` / `.nsis.zip` khi signed)
 - `src-tauri/target/release/bundle/msi/*.msi`
-- Binary: `src-tauri/target/release/gui-native.exe` (tên binary Cargo)
-- Bản copy local (gitignored): `gui-native/dist-bundle/`
+- CI: `update.json` + rolling tag `gui-latest`
 
-Proven local build (2026-08-01, exit 0):
-
-- `SAP ABAP Agent_1.19.0_x64-setup.exe`
-- `SAP ABAP Agent_1.19.0_x64_en-US.msi`
-
-Publish: `git tag gui-v1.19.0 && git push origin gui-v1.19.0` → workflow `gui-release.yml`.
+Publish: set secrets → `git tag gui-vX.Y.Z && git push origin gui-vX.Y.Z`.
 
 ## Tính năng
 
-- **About / Check update:** nút **ℹ About** (và tray *About / Check update…*) — hiện version,
-  link repo, kiểm tra GitHub Releases tag `gui-v*` (mở trang tải NSIS/MSI nếu có bản mới).
-  Không auto-install (chưa dùng `tauri-plugin-updater` / signing key).
-- **Runtime check (PATH-only):** banner khi thiếu/hỏng `mcp-sap-connect`.
-- **Quản lý profile** + license countdown + Ping / Reauth / Connect / Set Active / Remove.
-- **+ Add:** setup wizard (console), setup `--from-file` (stream log), import JSON backup.
-- **MCP Servers Setup:** đăng ký server còn thiếu qua `claude mcp add`.
-- **System tray:** đóng cửa sổ = ẩn tray; Quit thật từ menu tray.
+- **About / Auto-update:** Check → Download & Install → relaunch (`gui-latest/update.json`).
+- **Runtime check (PATH-only):** banner khi thiếu `mcp-sap-connect`.
+- Profile / License / Ping / Reauth / Connect / MCP Servers / tray.
 
 ## Kiến trúc thư mục
 
 ```text
 gui-native/
-+- index.html
-+- src/
-|  +- main.ts
-|  +- styles.css
++- scripts/generate-update-json.mjs
++- .signing/README.md
++- src/main.ts
 +- src-tauri/
-   +- src/
-   |  +- lib.rs
-   |  +- mcp_cli.rs      # check_runtime + profiles/license/mcp --json
-   |  +- update_check.rs # GitHub Releases API (gui-v*)
-   |  +- jobs.rs
-   |  +- tray.rs
-   +- tauri.conf.json    # version 1.19.0, targets nsis+msi
+   +- src/lib.rs          # updater + process plugins
+   +- src/mcp_cli.rs
+   +- tauri.conf.json     # createUpdaterArtifacts + plugins.updater
 ```
-
-## Update check — ghi chú vận hành
-
-- Check chỉ nhìn tag/release **`gui-v*`** (không nhầm với `mcp-server-v*` / plugin).
-- Cần có **GitHub Release** (không chỉ git tag) kèm asset `.exe`/`.msi` do
-  `.github/workflows/gui-release.yml` tạo khi push tag trên commit **đã có** workflow đó.
-- Auto-download/install kiểu mcp-switch cần Decision riêng: signing key +
-  `createUpdaterArtifacts` + upload `update.json`.

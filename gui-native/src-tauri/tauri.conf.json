@@ -28,6 +28,7 @@
   "bundle": {
     "active": true,
     "targets": ["nsis", "msi"],
+    "createUpdaterArtifacts": true,
     "windows": {
       "nsis": {
         "installMode": "currentUser",
@@ -43,5 +44,13 @@
     ],
     "shortDescription": "Native GUI for mcp-sap-connect (PATH-only)",
     "longDescription": "Desktop UI and tray for SAP ABAP Agent profiles, reauth, connect, and MCP setup. Requires mcp-sap-connect on PATH (pip install); does not embed Python."
+  },
+  "plugins": {
+    "updater": {
+      "endpoints": [
+        "https://github.com/StormShynn/sap-abap-agent/releases/download/gui-latest/update.json"
+      ],
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEZCNjZCODI3QzQ2OUJGNzkKUldSNXYybkVKN2htK3kya29DSkJ5SEgzRnhIK2pNSUtISXdPZ3FiRHUrdUppVmtVYVhHT01nRTEK"
+    }
   }
 }
