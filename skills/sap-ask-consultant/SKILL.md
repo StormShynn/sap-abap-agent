@@ -193,12 +193,12 @@ phoi, khong bi gioi han quyen), khong sua tung agent:
      "$(python "${CLAUDE_PLUGIN_ROOT}/reference/scripts/agent_home.py" memory/procedural)" \
      "<ten-file-skill>.md"
    ```
-2. **Notion khi local mien (online, chi khi can)**: resolve id database "SAP Skills" truoc
-   (cung quy tac pin o `sap-daily-learner` muc 3b — `notion_skills_db.py get` / env
-   `SAP_ABAP_AGENT_NOTION_SKILLS_DB`). Co pin → search voi
-   `data_source_url: "collection://<id>"`. Chua pin → `notion-search "SAP Skills"`: 0 hoac >1
-   ket qua thi **bao user pin**, KHONG tao DB moi tu routing. Roi search theo module + tu khoa
-   cau hoi — **chi search truoc**, **KHONG fetch tat ca ket qua**.
+2. **Notion khi local mien (online, chi khi can)**: lay id qua
+   `python "${CLAUDE_PLUGIN_ROOT}/reference/scripts/notion_skills_db.py" get`
+   (mac dinh StormShynn shared DB; override env/pin neu user co DB rieng — xem
+   `sap-daily-learner` muc 3b). Search voi `data_source_url: "collection://<id>"`.
+   **KHONG** tao DB moi tu routing. Roi search theo module + tu khoa cau hoi —
+   **chi search truoc**, **KHONG fetch tat ca ket qua**.
    Trong ket qua, chon dung page khop chu de roi moi goi tool fetch lay noi dung day du cho page
    do. Thay page khop -> dua vao context khi dispatch, **dong thoi tu ghi 1 ban local cache** vao
    `memory/procedural/skills/` (copy co hoc noi dung da co/da duyet tren Notion — khac voi viec

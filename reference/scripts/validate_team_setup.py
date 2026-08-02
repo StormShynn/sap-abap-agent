@@ -98,14 +98,23 @@ def check_claude() -> Check:
 def check_notion_pin() -> Check:
     script = os.path.join(os.path.dirname(__file__), "notion_skills_db.py")
     if not os.path.isfile(script):
-        return Check("Notion DB pin", False, "notion_skills_db.py missing", required=False)
-    ok, detail = _run([sys.executable, script, "get"])
+        return Check("Notion DB id", False, "notion_skills_db.py missing", required=False)
+    ok, detail = _run([sys.executable, script, "get", "--source"])
     if ok and detail.strip():
-        return Check("Notion DB pin", True, f"pinned={detail.strip()[:20]}…", required=False)
+        parts = detail.strip().split()
+        db_id = parts[0] if parts else ""
+        source = parts[1] if len(parts) > 1 else "?"
+        short = (db_id[:12] + "…") if len(db_id) > 12 else db_id
+        return Check(
+            "Notion DB id",
+            True,
+            f"{short} ({source})",
+            required=False,
+        )
     return Check(
-        "Notion DB pin",
+        "Notion DB id",
         False,
-        "chưa pin — team: notion_skills_db.py set <id> (optional until shared skills)",
+        "resolve failed — expect default StormShynn shared DB",
         required=False,
     )
 

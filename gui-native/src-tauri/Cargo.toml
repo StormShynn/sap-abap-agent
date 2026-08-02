@@ -1,6 +1,6 @@
 [package]
 name = "gui-native"
-version = "1.22.9"
+version = "1.23.1"
 description = "SAP ABAP Agent native GUI (PATH-only; orchestrates mcp-sap-connect)"
 authors = ["StormShynn"]
 edition = "2021"
@@ -27,6 +27,6 @@ tauri-plugin-process = "2"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 tokio = { version = "1", features = ["process", "io-util", "time", "fs"] }
-dirs = "5"
-which = "6"
+dirs = "6"
+which = "8"
 

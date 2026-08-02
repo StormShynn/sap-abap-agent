@@ -46,11 +46,15 @@ interface McpServerStatus {
   envVars: string[];
   registered: boolean;
   doc: string | null;
+  docUrl?: string | null;
+  installHint?: string | null;
+  canRegister?: boolean;
 }
 
 interface McpStatusData {
   servers: McpServerStatus[];
   claudeAvailable: boolean;
+  coreServers?: string[];
 }
 
 interface RuntimeStatus {
@@ -104,6 +108,10 @@ const el = {
   btnMcpServers: byId<HTMLButtonElement>("btn-mcp-servers"),
   mcpModal: byId<HTMLDivElement>("mcp-modal"),
   mcpRows: byId<HTMLDivElement>("mcp-rows"),
+  mcpCoreCta: byId<HTMLDivElement>("mcp-core-cta"),
+  mcpCoreCtaDetail: byId<HTMLSpanElement>("mcp-core-cta-detail"),
+  btnMcpRegisterRequired: byId<HTMLButtonElement>("btn-mcp-register-required"),
+  btnMcpSkipRequired: byId<HTMLButtonElement>("btn-mcp-skip-required"),
   btnMcpRefresh: byId<HTMLButtonElement>("btn-mcp-refresh"),
   btnMcpClose: byId<HTMLButtonElement>("btn-mcp-close"),
   btnMcpPresetCore: byId<HTMLButtonElement>("btn-mcp-preset-core"),
@@ -663,12 +671,53 @@ function closeLicenseDashboard() {
 
 const MCP_CATEGORY_LABELS: Record<string, string> = {
   core: "Core (bắt buộc)",
-  remote: "Remote (bắt buộc)",
-  "adt-alternative": "ADT Alternative (chọn 1 trong các lựa chọn thay thế)",
-  special: "Đặc biệt",
-  manual: "Cần cài đặt thủ công (xem doc)",
+  remote: "Remote (bắt buộc — CDS/Docs)",
+  "adt-alternative": "ADT Alternative (chọn 1 nếu cần)",
+  special: "Tùy chọn / Research",
+  manual: "Cần cài đặt thủ công",
 };
 const MCP_CATEGORY_ORDER = ["core", "remote", "adt-alternative", "special", "manual"];
+
+/** Core = bắt buộc theo rollout + MCP_PRESET_CORE. */
+const MCP_PRESET_CORE = ["sap-btp", "sap-dict-bridge", "cds-kb", "mcp-sap-docs-btp"];
+const MCP_PRESET_RESEARCH = [...MCP_PRESET_CORE, "arc-1", "sap-vsp"];
+const MCP_CORE_SKIP_KEY = "sap-abap-agent.mcpCoreSkip";
+const MCP_CORE_OFFERED_KEY = "sap-abap-agent.mcpCoreOffered";
+
+function isMcpCoreSkip(): boolean {
+  try {
+    return localStorage.getItem(MCP_CORE_SKIP_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
+function setMcpCoreSkip(skip: boolean) {
+  try {
+    if (skip) localStorage.setItem(MCP_CORE_SKIP_KEY, "1");
+    else localStorage.removeItem(MCP_CORE_SKIP_KEY);
+  } catch {
+    /* private mode */
+  }
+}
+
+function missingCoreServers(data: McpStatusData): McpServerStatus[] {
+  const coreNames = data.coreServers?.length ? data.coreServers : MCP_PRESET_CORE;
+  const byName = new Map(data.servers.map((s) => [s.name, s]));
+  return coreNames
+    .map((n) => byName.get(n))
+    .filter((s): s is McpServerStatus => !!s && !s.registered);
+}
+
+function updateMcpCoreCta(data: McpStatusData) {
+  const missing = missingCoreServers(data);
+  const show = data.claudeAvailable && missing.length > 0 && !isMcpCoreSkip();
+  el.mcpCoreCta.classList.toggle("hidden", !show);
+  if (show) {
+    el.mcpCoreCtaDetail.textContent =
+      `Chưa có: ${missing.map((s) => s.name).join(", ")}. Bấm để đăng ký một lần.`;
+  }
+}
 
 async function openMcpModal() {
   el.mcpModal.classList.remove("hidden");
@@ -684,7 +733,9 @@ async function refreshMcpStatus() {
   try {
     const data = await invoke<McpStatusData>("mcp_status");
     renderMcpRows(data);
+    updateMcpCoreCta(data);
   } catch (err) {
+    el.mcpCoreCta.classList.add("hidden");
     el.mcpRows.innerHTML = `<p class="muted">Lỗi đọc trạng thái MCP: ${err}</p>`;
   }
 }
@@ -694,7 +745,7 @@ function renderMcpRows(data: McpStatusData) {
   if (!data.claudeAvailable) {
     const p = document.createElement("p");
     p.className = "muted";
-    p.textContent = "⚠ Không tìm thấy 'claude' trong PATH - cài Claude Code trước khi đăng ký server.";
+    p.textContent = "⚠ Không tìm thấy 'claude' trong PATH — cài Claude Code trước khi đăng ký server.";
     el.mcpRows.appendChild(p);
   }
 
@@ -719,6 +770,19 @@ function renderMcpRows(data: McpStatusData) {
   }
 }
 
+function appendMcpActionBtn(
+  parent: HTMLElement,
+  label: string,
+  onClick: () => void,
+  accent = false,
+) {
+  const btn = document.createElement("button");
+  btn.className = accent ? "btn btn-accent btn-sm" : "btn btn-flat btn-sm";
+  btn.textContent = label;
+  btn.addEventListener("click", onClick);
+  parent.appendChild(btn);
+}
+
 function renderMcpRow(s: McpServerStatus): HTMLElement {
   const row = document.createElement("div");
   row.className = "mcp-row";
@@ -740,24 +804,32 @@ function renderMcpRow(s: McpServerStatus): HTMLElement {
   spacer.className = "mcp-row-spacer";
   main.appendChild(spacer);
 
+  // Non-manual: luon dang ky duoc. Manual: chi khi CLI tra canRegister (vd. sap-gui/uvx).
+  const canRegister = s.category === "manual" ? !!s.canRegister : s.canRegister !== false;
+
   if (s.category === "manual") {
-    const doc = document.createElement("span");
-    doc.className = "muted";
-    doc.style.fontSize = "0.8em";
-    doc.textContent = s.doc ?? "";
-    main.appendChild(doc);
+    if (canRegister && !s.registered) {
+      appendMcpActionBtn(main, "Đăng ký", () => void onRegisterMcpServer(s), true);
+    } else if (s.registered) {
+      appendMcpActionBtn(main, "Hủy đăng ký", () => void onUnregisterMcpServer(s));
+    }
+    if (s.docUrl) {
+      appendMcpActionBtn(main, "Mở hướng dẫn", () => void openUrl(s.docUrl!));
+    }
+    if (s.installHint) {
+      appendMcpActionBtn(main, "Copy lệnh cài", () => void onCopyMcpInstallHint(s));
+    }
+    if (!s.docUrl && !s.installHint && !canRegister) {
+      const fallback = document.createElement("span");
+      fallback.className = "muted";
+      fallback.style.fontSize = "0.8em";
+      fallback.textContent = s.doc ?? "Chưa có hướng dẫn trong inventory";
+      main.appendChild(fallback);
+    }
   } else if (!s.registered) {
-    const btn = document.createElement("button");
-    btn.className = "btn btn-flat btn-sm";
-    btn.textContent = "Đăng ký";
-    btn.addEventListener("click", () => void onRegisterMcpServer(s));
-    main.appendChild(btn);
+    appendMcpActionBtn(main, "Đăng ký", () => void onRegisterMcpServer(s));
   } else {
-    const btn = document.createElement("button");
-    btn.className = "btn btn-flat btn-sm";
-    btn.textContent = "Hủy đăng ký";
-    btn.addEventListener("click", () => void onUnregisterMcpServer(s));
-    main.appendChild(btn);
+    appendMcpActionBtn(main, "Hủy đăng ký", () => void onUnregisterMcpServer(s));
   }
 
   row.appendChild(main);
@@ -768,6 +840,20 @@ function renderMcpRow(s: McpServerStatus): HTMLElement {
   row.appendChild(desc);
 
   return row;
+}
+
+async function onCopyMcpInstallHint(s: McpServerStatus) {
+  const hint = s.installHint?.trim();
+  if (!hint) return;
+  try {
+    await navigator.clipboard.writeText(hint);
+    appendLog(`[OK] Đã copy lệnh cài '${s.name}' vào clipboard.`);
+    setStatus(`Đã copy lệnh cài ${s.name}`);
+  } catch (err) {
+    // Fallback: hien prompt de user copy tay (khong dead-end)
+    await promptText(`Lệnh cài ${s.name}`, "Copy lệnh bên dưới:", hint);
+    appendLog(`[WARN] Clipboard lỗi (${err}) — đã hiện hộp thoại để copy tay.`);
+  }
 }
 
 async function onRegisterMcpServer(s: McpServerStatus) {
@@ -810,9 +896,6 @@ async function onUnregisterMcpServer(s: McpServerStatus) {
   await refreshMcpStatus();
 }
 
-const MCP_PRESET_CORE = ["sap-btp", "sap-dict-bridge", "cds-kb", "mcp-sap-docs-btp"];
-const MCP_PRESET_RESEARCH = [...MCP_PRESET_CORE, "arc-1", "sap-vsp"];
-
 async function onMcpPreset(names: string[], label: string) {
   appendLog(`[MCP] Áp dụng preset ${label}...`);
   let data: McpStatusData;
@@ -837,13 +920,65 @@ async function onMcpPreset(names: string[], label: string) {
       appendLog(`[OK] '${name}' đã đăng ký — bỏ qua.`);
       continue;
     }
-    if (s.category === "manual") {
-      appendLog(`[WARN] '${name}' cần cài thủ công — bỏ qua.`);
+    if (s.category === "manual" && !s.canRegister) {
+      appendLog(`[WARN] '${name}' cần cài thủ công — dùng «Mở hướng dẫn» / «Copy lệnh cài».`);
       continue;
     }
     await onRegisterMcpServer(s);
   }
   appendLog(`[MCP] Preset ${label} xong.`);
+  if (label === "Core" || label === "bắt buộc") {
+    setMcpCoreSkip(false);
+  }
+  await refreshMcpStatus();
+}
+
+async function onRegisterRequiredCore() {
+  setMcpCoreSkip(false);
+  await onMcpPreset(MCP_PRESET_CORE, "bắt buộc");
+}
+
+function onSkipRequiredCore() {
+  setMcpCoreSkip(true);
+  el.mcpCoreCta.classList.add("hidden");
+  appendLog("[MCP] Đã tạm bỏ qua nhắc Core. Mở lại MCP Servers hoặc bấm «Cài Core» khi sẵn sàng.");
+  setStatus("Đã để sau — cài Core khi cần");
+}
+
+/** Lan dau runtime OK: hoi 1 lan (confirm) neu Core thieu — khong dang ky am tham. */
+async function maybeOfferCoreOnStartup() {
+  if (isMcpCoreSkip()) return;
+  try {
+    if (localStorage.getItem(MCP_CORE_OFFERED_KEY) === "1") return;
+  } catch {
+    /* continue */
+  }
+  let data: McpStatusData;
+  try {
+    data = await invoke<McpStatusData>("mcp_status");
+  } catch {
+    return;
+  }
+  if (!data.claudeAvailable) return;
+  const missing = missingCoreServers(data);
+  if (missing.length === 0) return;
+  try {
+    localStorage.setItem(MCP_CORE_OFFERED_KEY, "1");
+  } catch {
+    /* private mode */
+  }
+  const ok = await confirmDialog(
+    "Cài MCP bắt buộc?",
+    `Thiếu: ${missing.map((s) => s.name).join(", ")}.\n\n`
+      + "Đăng ký Core (sap-btp, sap-dict-bridge, cds-kb, mcp-sap-docs-btp) ngay? "
+      + "Bạn có thể chọn «Hủy» rồi cài sau trong MCP Servers.",
+  );
+  if (ok) {
+    await onRegisterRequiredCore();
+  } else {
+    setMcpCoreSkip(true);
+    appendLog("[MCP] Bạn đã bỏ qua cài Core lúc khởi động. Mở «MCP Servers» khi cần.");
+  }
 }
 
 // ===== About / Auto-updater (tauri-plugin-updater + gui-latest/update.json) =====
@@ -1020,7 +1155,12 @@ function initEventListeners() {
   el.btnMcpServers.addEventListener("click", () => void openMcpModal());
   el.btnMcpRefresh.addEventListener("click", () => void refreshMcpStatus());
   el.btnMcpClose.addEventListener("click", closeMcpModal);
-  el.btnMcpPresetCore.addEventListener("click", () => void onMcpPreset(MCP_PRESET_CORE, "Core"));
+  el.btnMcpRegisterRequired.addEventListener("click", () => void onRegisterRequiredCore());
+  el.btnMcpSkipRequired.addEventListener("click", onSkipRequiredCore);
+  el.btnMcpPresetCore.addEventListener("click", () => {
+    setMcpCoreSkip(false);
+    void onMcpPreset(MCP_PRESET_CORE, "Core");
+  });
   el.btnMcpPresetResearch.addEventListener("click", () =>
     void onMcpPreset(MCP_PRESET_RESEARCH, "Research"),
   );
@@ -1058,7 +1198,8 @@ window.addEventListener("DOMContentLoaded", () => {
   initEventListeners();
   resetUpdateActions();
   void checkRuntime().then((ok) => {
-    if (ok) void refreshProfiles();
+    if (!ok) return;
+    void refreshProfiles().then(() => void maybeOfferCoreOnStartup());
   });
   // Quiet background check — surface only when an update exists (About for install).
   void check().then((update) => {

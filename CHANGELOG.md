@@ -6,6 +6,47 @@ Format dựa trên [Keep a Changelog](https://keepachangelog.com/) và [Semantic
 
 ---
 
+## [Unreleased]
+
+### Changed
+
+- Notion “SAP Skills”: hardcode StormShynn shared DB id
+  (`9d54b58613ad485f8b8f19909adbb219`) làm **default** trong `notion_skills_db.py`.
+  Mọi user plugin dùng chung DB học skill; vẫn override bằng env/pin (`set`/`clear`).
+  Parse URL `app.notion.com` + `get --source`.
+  
+### Added
+
+- **GUI MCP Setup**: CTA «Đăng ký MCP bắt buộc» (Core: `sap-btp`, `sap-dict-bridge`,
+  `cds-kb`, `mcp-sap-docs-btp`); nhắc confirm lần đầu khi runtime OK; «Để sau» nhớ
+  qua localStorage. Category thủ công: «Mở hướng dẫn» (browser) / «Copy lệnh cài»
+  / «Đăng ký» khi CLI hỗ trợ (vd. `sap-gui` qua uvx) — không còn dead-end «xem doc».
+
+### Changed
+
+- `mcp-setup --status-json`: thêm `docUrl`, `installHint`, `canRegister`, `coreServers`;
+  sửa URL `cds-kb` khớp `.mcp.json` (`cds-kb-mcp-kit-production`).
+
+## [v1.23.1] — 2026-08-02
+
+### Fixed
+
+- CLI: lazy-import `cli._cancel` so pytest collect of `tests/test_cli_*` no longer
+  hits "partially initialized module" circular import on Linux CI.
+
+### Changed
+
+- Docs pins / badge follow product **1.22.8** (GUI channel tag `gui-v1.22.7` ships
+  from prior commit; retag `gui-v1.22.8` after validate green).
+
+
+## [v1.23.0] — 2026-08-02
+
+### Changed
+
+- Auto-bumped by CI (version-bump.yml).
+
+
 ## [v1.22.9] — 2026-08-02
 
 ### Added

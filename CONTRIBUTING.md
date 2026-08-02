@@ -20,6 +20,7 @@ Cảm ơn bạn đã quan tâm đến việc đóng góp cho **SAP ABAP Agent**!
 - [Test local trước khi submit](#test-local-trước-khi-submit)
 - [Tài nguyên](#tài-nguyên)
 - [Org / team rollout](#org--team-rollout)
+- [Branch ruleset / VERSION_BUMP_TOKEN](#branch-ruleset--version_bump_token)
 
 ---
 
@@ -909,3 +910,23 @@ Khi đưa plugin tới nhiều developer (không phải contributor flow):
   `.mcp-sap-connect`.
 - MCP mặc định = **Core**; Full research chỉ khi cần.
 - Onboarding end-user: [`docs/onboarding-guide.md`](docs/onboarding-guide.md).
+
+---
+
+## Branch ruleset / VERSION_BUMP_TOKEN
+
+Repo dùng GitHub **ruleset** `Protect main` (default branch):
+
+- Chặn xóa branch / force-push
+- Bắt buộc PR + status checks `validate` + `scan` (contributor)
+- **Admin** bypass luôn (push trực tiếp OK)
+
+`github-actions[bot]` **không** nằm trong bypass trên repo user-owned. Để
+`version-bump.yml` / `sync-index.yml` vẫn push được lên `main`, tạo PAT
+(classic, scope `repo`) của tài khoản admin rồi:
+
+```bash
+gh secret set VERSION_BUMP_TOKEN --repo StormShynn/sap-abap-agent
+```
+
+UI ruleset: https://github.com/StormShynn/sap-abap-agent/settings/rules
