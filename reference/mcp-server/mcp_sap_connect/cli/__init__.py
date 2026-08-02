@@ -1303,13 +1303,9 @@ def _cmd_mcp_setup() -> None:
 
     # --- Product-specific servers (manual) ---
     header("Product-specific servers (can cai dat them)")
-    info("Cac server sau can cai dat thu cong. Xem skill doc huong dan chi tiet:")
-    print("  - sap-notes:    skills/mcp-sap-notes/SKILL.md")
-    print("  - sap-gui:      skills/mcp-sap-gui/SKILL.md")
-    print("  - sf-mcp:       skills/mcp-sap-successfactors/SKILL.md")
-    print("  - sf-cdata:     skills/mcp-sap-successfactors/SKILL.md")
-    print("  - sap-concur:   skills/mcp-sap-concur/SKILL.md")
-    print("  - sap-fieldglass: skills/mcp-sap-fieldglass/SKILL.md")
+    info("Cac server sau can cai dat thu cong. Mo huong dan / copy lenh trong GUI, hoac xem:")
+    for e in _MCP_MANUAL_SERVERS:
+        print(f"  - {e['name']}: {_manual_doc_url(e['doc'])}")
     print()
 
     ok("Hoan tat! Khoi dong lai Claude Code de nhan server moi.")
@@ -1332,7 +1328,7 @@ _MCP_JSON_INVENTORY: list[dict[str, Any]] = [
      "envVars": [], "cmd": "python", "args": ["-m", "mcp_sap_connect.bridge_server"]},
     {"name": "cds-kb", "category": "remote", "transport": "sse",
      "description": "Remote CDS view knowledge base (7,355 views)",
-     "envVars": [], "url": "https://cds-kb-mcp-production.up.railway.app/sse"},
+     "envVars": [], "url": "https://cds-kb-mcp-kit-production.up.railway.app/sse"},
     {"name": "mcp-sap-docs-btp", "category": "remote", "transport": "sse",
      "description": "Remote SAP Docs / API Hub / Help Portal search",
      "envVars": ["SAP-API-HUB-KEY"],
@@ -1350,19 +1346,63 @@ _MCP_JSON_INVENTORY: list[dict[str, Any]] = [
      "envVars": []},
 ]
 
-_MCP_MANUAL_SERVERS: list[dict[str, str]] = [
+# Manual = can clone/build/license. GUI khong duoc dead-end "xem doc": status-json
+# tra docUrl (mo browser) + installHint (copy lenh). Neu co cmd/args thi van dang
+# ky duoc qua --register-json (vd. sap-gui qua uvx).
+_MCP_DOC_BASE = "https://github.com/StormShynn/sap-abap-agent/blob/main/"
+
+_MCP_MANUAL_SERVERS: list[dict[str, Any]] = [
     {"name": "sap-notes", "description": "SAP Notes / KBA lookup (can clone + build)",
-     "doc": "skills/mcp-sap-notes/SKILL.md"},
+     "doc": "reference/mcp-guides/mcp-sap-notes.md",
+     "installHint": (
+         "git clone https://github.com/marianfoo/sap-mcp-servers.git; "
+         "cd packages/notes; npm install; npm run build; "
+         "claude mcp add --transport stdio sap-notes -- "
+         "node /abs/path/to/sap-mcp-servers/packages/notes/dist/mcp-server.js"
+     )},
     {"name": "sap-gui", "description": "SAP GUI Scripting automation (Windows, SAP GUI required)",
-     "doc": "skills/mcp-sap-gui/SKILL.md"},
+     "doc": "reference/mcp-guides/mcp-sap-gui.md",
+     "installHint": (
+         "pip install uvx (neu chua co); "
+         "claude mcp add --transport stdio sap-gui -- "
+         "uvx mcp-sap-gui[screenshots] --read-only "
+         "--allowed-transactions MM03 VA03 IW33"
+     ),
+     "transport": "stdio", "cmd": "uvx",
+     "args": ["mcp-sap-gui[screenshots]", "--read-only",
+              "--allowed-transactions", "MM03", "VA03", "IW33"],
+     "envVars": []},
     {"name": "sf-mcp", "description": "SuccessFactors (open-source, 62+ tools)",
-     "doc": "skills/mcp-sap-successfactors/SKILL.md"},
+     "doc": "reference/mcp-guides/mcp-sap-successfactors.md",
+     "installHint": (
+         "git clone https://github.com/aiadiguru2025/sf-mcp.git; cd sf-mcp; uv sync; "
+         "claude mcp add --transport stdio sf-mcp -- "
+         "uv --directory /path/to/sf-mcp run main.py"
+     )},
     {"name": "sf-cdata", "description": "SuccessFactors (CData SQL-based, read-only)",
-     "doc": "skills/mcp-sap-successfactors/SKILL.md"},
+     "doc": "reference/mcp-guides/mcp-sap-successfactors.md",
+     "installHint": (
+         "Tai CData JDBC driver + MCP jar tu CData; "
+         "claude mcp add --transport stdio sf-cdata -- "
+         "java -jar /path/to/CDataMCP-jar-with-dependencies.jar "
+         "/path/to/.env/sap-successfactors.prp"
+     )},
     {"name": "sap-concur", "description": "Concur Travel & Expense (CData SQL-based)",
-     "doc": "skills/mcp-sap-concur/SKILL.md"},
+     "doc": "reference/mcp-guides/mcp-sap-concur.md",
+     "installHint": (
+         "Tai CData JDBC driver + MCP jar tu CData; "
+         "claude mcp add --transport stdio sap-concur -- "
+         "java -jar /path/to/CDataMCP-jar-with-dependencies.jar "
+         "/path/to/.env/sap-concur.prp"
+     )},
     {"name": "sap-fieldglass", "description": "Fieldglass Services Procurement (CData SQL-based)",
-     "doc": "skills/mcp-sap-fieldglass/SKILL.md"},
+     "doc": "reference/mcp-guides/mcp-sap-fieldglass.md",
+     "installHint": (
+         "Tai CData JDBC driver + MCP jar tu CData; "
+         "claude mcp add --transport stdio sap-fieldglass -- "
+         "java -jar /path/to/CDataMCP-jar-with-dependencies.jar "
+         "/path/to/.env/sap-fieldglass.prp"
+     )},
 ]
 
 
@@ -1386,6 +1426,13 @@ def _get_registered_mcp_names() -> set[str]:
     return names
 
 
+def _manual_doc_url(doc: str) -> str:
+    """Absolute GitHub URL for in-app 'Mo huong dan' (plugin GUI khong co tree local)."""
+    if doc.startswith(("http://", "https://")):
+        return doc
+    return _MCP_DOC_BASE + doc.lstrip("/")
+
+
 def _cmd_mcp_status_json() -> None:
     import json
     import shutil
@@ -1396,15 +1443,23 @@ def _cmd_mcp_status_json() -> None:
         items.append({
             "name": e["name"], "category": e["category"], "description": e["description"],
             "envVars": e.get("envVars", []), "registered": e["name"] in registered,
+            "canRegister": True,
         })
     for e in _MCP_MANUAL_SERVERS:
+        can_register = bool(e.get("cmd") or e.get("url"))
         items.append({
             "name": e["name"], "category": "manual", "description": e["description"],
-            "envVars": [], "registered": e["name"] in registered, "doc": e["doc"],
+            "envVars": e.get("envVars", []),
+            "registered": e["name"] in registered,
+            "doc": e.get("doc"),
+            "docUrl": _manual_doc_url(e["doc"]) if e.get("doc") else None,
+            "installHint": e.get("installHint"),
+            "canRegister": can_register,
         })
     print(json.dumps({
         "servers": items,
         "claudeAvailable": shutil.which("claude") is not None,
+        "coreServers": ["sap-btp", "sap-dict-bridge", "cds-kb", "mcp-sap-docs-btp"],
     }, ensure_ascii=False))
 
 
@@ -1434,9 +1489,15 @@ def _cmd_mcp_register_json(name: str, env_overrides: dict[str, str]) -> bool:
         return bool(result["ok"])
 
     entry = next((e for e in _MCP_JSON_INVENTORY if e["name"] == name), None)
-    if entry is None or entry["category"] == "manual":
-        print(json.dumps({"ok": False, "name": name, "error": f"Server '{name}' khong the tu dang ky qua duong nay."}, ensure_ascii=False))
-        return False
+    if entry is None:
+        entry = next((e for e in _MCP_MANUAL_SERVERS if e["name"] == name), None)
+        if entry is None or not (entry.get("cmd") or entry.get("url")):
+            print(json.dumps({
+                "ok": False, "name": name,
+                "error": f"Server '{name}' khong the tu dang ky qua duong nay. "
+                         f"Dung docUrl/installHint tu --status-json.",
+            }, ensure_ascii=False))
+            return False
 
     needed = entry.get("envVars", [])
     missing = [v for v in needed if not env_overrides.get(v)]
@@ -1448,7 +1509,7 @@ def _cmd_mcp_register_json(name: str, env_overrides: dict[str, str]) -> bool:
     env.update({k: v for k, v in env_overrides.items() if v})
 
     ok_, detail = _claude_mcp_add(
-        claude_path, name, entry["transport"],
+        claude_path, name, entry.get("transport", "stdio"),
         url=entry.get("url"), cmd=entry.get("cmd"), args=entry.get("args"),
         env=env if env else None,
     )

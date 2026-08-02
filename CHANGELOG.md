@@ -6,6 +6,20 @@ Format dựa trên [Keep a Changelog](https://keepachangelog.com/) và [Semantic
 
 ---
 
+## [Unreleased]
+
+### Added
+
+- **GUI MCP Setup**: CTA «Đăng ký MCP bắt buộc» (Core: `sap-btp`, `sap-dict-bridge`,
+  `cds-kb`, `mcp-sap-docs-btp`); nhắc confirm lần đầu khi runtime OK; «Để sau» nhớ
+  qua localStorage. Category thủ công: «Mở hướng dẫn» (browser) / «Copy lệnh cài»
+  / «Đăng ký» khi CLI hỗ trợ (vd. `sap-gui` qua uvx) — không còn dead-end «xem doc».
+
+### Changed
+
+- `mcp-setup --status-json`: thêm `docUrl`, `installHint`, `canRegister`, `coreServers`;
+  sửa URL `cds-kb` khớp `.mcp.json` (`cds-kb-mcp-kit-production`).
+
 ## [v1.23.1] — 2026-08-02
 
 ### Changed
