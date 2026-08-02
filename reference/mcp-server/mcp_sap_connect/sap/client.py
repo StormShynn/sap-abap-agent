@@ -550,8 +550,10 @@ class SapClient:
             ) from err
 
         try:
+            from urllib.parse import quote
+
             wl_xml = await self.get(
-                f"/sap/bc/adt/atc/worklists/{worklist_id}",
+                f"/sap/bc/adt/atc/worklists/{quote(worklist_id, safe='')}",
                 headers={"Accept": "application/atc.worklist.v1+xml, application/xml"},
                 is_json=False,
             )

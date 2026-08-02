@@ -1,7 +1,16 @@
 """Unit tests for ATC worklist XML parsing (no live tenant)."""
 from __future__ import annotations
 
+from urllib.parse import quote
+
 from mcp_sap_connect.sap.client import _parse_atc_worklist_xml
+
+
+def test_worklist_id_path_encoding_matches_dump_pattern():
+    """Path segment must be quote(..., safe='') like analyze_dump."""
+    raw = "WL/../evil"
+    assert quote(raw, safe="") == "WL%2F..%2Fevil"
+    assert "/" not in quote(raw, safe="")
 
 
 SAMPLE = """<?xml version="1.0"?>
