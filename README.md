@@ -67,8 +67,7 @@ Dự án là **open-source**, mọi đóng góp đều được chào đón!
 sap-abap-agent/
 +-- .claude-plugin/            # Manifest plugin Claude Code
 +-- commands/                  # /sap-setup, /sap-connect, /register-mcp-servers,
-                              # /sap-new-object, /sap-generate-report, …
-|                               #   /sap-generate-report, /sap-generate-adobe-form, /sap-new-object
+|                              # /sync-skills, /sap-new-object, /sap-generate-report, …
 +-- skills/
 |   +-- sap-ask-consultant/    # 🧠 Auto-scoring routing engine (28 agents)
 |   +-- sap-daily-learner/     # 📚 Daily SAP Learning — Hermes-like (self-improving)
