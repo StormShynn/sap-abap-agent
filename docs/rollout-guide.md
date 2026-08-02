@@ -105,12 +105,12 @@ Restart session Claude Code.
 
 ```powershell
 mcp-sap-connect mcp-setup
-# hoặc GUI → MCP Servers → Preset Core
+# hoặc GUI → MCP Servers → «Đăng ký MCP bắt buộc» / Cài Core
 ```
 
 | Preset | Servers | Khi nào |
 |--------|---------|---------|
-| **Core** | `sap-btp`, `sap-dict-bridge` (+ remote CDS/docs nếu cần) | Mặc định mọi user |
+| **Core (bắt buộc)** | `sap-btp`, `sap-dict-bridge`, `cds-kb`, `mcp-sap-docs-btp` | Mặc định mọi user — GUI nhắc khi thiếu |
 | **Full / Research** | + `sap-vsp`, ADT alt, … | Chỉ khi lead bật — tốn slot stdio |
 
 ### 6. Notion (nếu team dùng skill notes)

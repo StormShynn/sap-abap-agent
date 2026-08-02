@@ -253,6 +253,15 @@ pub struct McpServerStatus {
     pub env_vars: Vec<String>,
     pub registered: bool,
     pub doc: Option<String>,
+    /// Absolute URL for in-app "Mo huong dan" (manual servers).
+    #[serde(rename = "docUrl", default)]
+    pub doc_url: Option<String>,
+    /// Install / `claude mcp add` hint for clipboard copy.
+    #[serde(rename = "installHint", default)]
+    pub install_hint: Option<String>,
+    /// false for manual servers that still need clone/build/license.
+    #[serde(rename = "canRegister", default)]
+    pub can_register: Option<bool>,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
@@ -260,6 +269,9 @@ pub struct McpStatusData {
     pub servers: Vec<McpServerStatus>,
     #[serde(rename = "claudeAvailable")]
     pub claude_available: bool,
+    /// Mandatory Core preset names (GUI CTA).
+    #[serde(rename = "coreServers", default)]
+    pub core_servers: Option<Vec<String>>,
 }
 
 /// Doc inventory + trang thai dang ky cua MCP servers (mcp-sap-connect mcp-setup
