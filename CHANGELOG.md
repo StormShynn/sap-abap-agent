@@ -14,10 +14,13 @@ Format dựa trên [Keep a Changelog](https://keepachangelog.com/) và [Semantic
 - Skill `sap-scaffold-cap` + `reference/templates/cap-boilerplate/` — CAP Node scaffold.
 - `reference/templates/rap-events-boilerplate/` + deeper `sap-rap-events` checklist;
   `sap-scaffold-rap` copies events template when TECHNICAL_SPEC needs events.
+- MCP tool `sap_run_atc` (ADT worklist/runs) + finish/verification evidence gates;
+  `sap-atc-review` soft-calls system ATC when available.
 
 ### Changed
 
 - CAP consultant points scaffold to `sap-scaffold-cap`; skill inventory **42**.
+- MCP tool count docs **13**.
 
 
 ## [v1.23.1] — 2026-08-02
