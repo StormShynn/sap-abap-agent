@@ -927,6 +927,9 @@ Repo dùng GitHub **ruleset** `Protect main` (default branch):
 1. **Mặc định (không cần secret):** mở PR (`chore/bump-vX.Y.Z` /
    `chore/sync-index-<run_id>`), chờ `validate` + `scan`, rồi squash-merge.
    Subject luôn có `[skip version-bump]` / `[skip sync-index]` để tránh vòng lặp.
+   Cần bật **Settings → Actions → General → Workflow permissions**:
+   Read and write permissions + *Allow GitHub Actions to create and approve
+   pull requests*.
 2. **Tuỳ chọn — push thẳng vào `main`:** đặt PAT (classic, scope `repo`) của
    admin vào secret `VERSION_BUMP_TOKEN` (bypass ruleset nhanh hơn, không chờ PR):
 
