@@ -1,18 +1,8 @@
 # Known Limitations
 
 > File nay track cac han che da biet nhung chua fix (khong phai bug - la
-> scope quyet dinh co chu dich). Multi-system context:
-> `reference/process/sap-multi-system-context.md`.
-
-## Multi-user / shared OS account
-
-- **Secrets + profiles theo OS user home** (`%USERPROFILE%\.mcp-sap-connect` /
-  `~/.mcp-sap-connect`). Cung Windows/macOS login = **cung vault** (DPAPI/AES
-  khong tach nguoi dung trong cung account).
-- **Khong copy** thu muc `.mcp-sap-connect` giua may/user — moi nguoi `setup` rieng.
-- **Cach ly lab:** bien `MCP_SAP_CONNECT_HOME`, hoac OS account rieng.
-- **GUI:** uu tien NSIS current-user; MSI per-machine can admin.
-- Rollout team: `docs/rollout-guide.md`.
+> scope quyet dinh co chu dich). Xem `docs/plans/active/sap-multi-system-router.md`
+> cho context day du.
 
 ## SAML fast-path (cookie auth) - saml_form_login / saml_or_browser_login
 
@@ -40,9 +30,10 @@ Port tu vibing-steampunk `pkg/adt/saml_auth.go` (`reference/mcp-server/mcp_sap_c
 
 - **Single-profile**: `vsp` chi nhan 1 bo credential luc khoi dong (qua env
   `SAP_ADT_URL`/`SAP_ADT_USER`/`SAP_ADT_PASSWORD`). Neu user doi profile active
-  (`mcp-sap-connect profiles use <other>`), `sap-vsp` KHONG tu dong nhan
-  credential moi - phai chay lai `mcp-sap-connect mcp-setup` de dang ky lai voi
-  credential cua profile moi.
+  (`mcp-sap-connect profiles use <other>` hoac GUI Set Active), `sap-vsp` KHONG
+  tu dong nhan credential moi - phai chay lai `mcp-sap-connect mcp-setup` de
+  dang ky lai voi credential cua profile moi. CLI/GUI in canh bao khi doi
+  active profile (khong auto-rebind).
 - **Chi ho tro password auth**: `SAP_ADT_USER`/`SAP_ADT_PASSWORD` chi dien tu
   dong duoc khi profile active dung `authMode: password` (mac dinh cho
   `onprem`/`rise_with_sap`). Profile dung `cookie` (SSO qua Playwright),
