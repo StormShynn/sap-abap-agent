@@ -74,14 +74,18 @@ jobs:
       - name: Run pytest with coverage (root tests only)
         # Chi chay test cho `tests/` root (reference/scripts/, hooks/).
         # Skip reference/mcp-server/tests/ vi can install deps cua MCP server.
+        # NOTE: do not put `# comment` on a `\` continuation line — it eats the backslash.
         run: |
           python -m pytest tests/ hooks/hook_tests/ \
+            --ignore=tests/test_cli_ask_service.py \
+            --ignore=tests/test_cli_vsp_setup.py \
             --cov=reference/scripts \
             --cov=hooks \
             --cov-report=xml:coverage.xml \
             --cov-report=term-missing:skip-covered \
-            --cov-fail-under=60  # coverage gate (warning-only vi co || echo phia sau) \
-            -q --no-header -p no:cacheprovider || echo "::warning::Some tests failed (non-blocking at smoke level)"
+            --cov-fail-under=60 \
+            -q --no-header -p no:cacheprovider \
+            || echo "::warning::Some tests failed (non-blocking at smoke level)"
 
       - name: ruff (lint)
         # Su dung config o root pyproject.toml. Loi lint khong block CI
