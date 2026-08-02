@@ -44,7 +44,7 @@ Khoi dong lai Claude Code de nhan server moi.
 ```bash
 claude mcp add --transport stdio sap-btp -- mcp-sap-connect
 claude mcp add --transport stdio sap-dict-bridge -- python -m mcp_sap_connect.bridge_server
-claude mcp add --transport sse cds-kb --url https://cds-kb-mcp-production.up.railway.app/sse
+claude mcp add --transport sse cds-kb --url https://cds-kb-mcp-kit-production.up.railway.app/sse
 ```
 
 ## ─── 3 servers ADT alternatives (npx, can Node.js) ───

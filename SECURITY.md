@@ -136,7 +136,8 @@ Mỗi project SAP có profile riêng, secret riêng, mã hóa độc lập:
 - ❌ **Không paste** credentials, session cookies, hoặc token vào public chat/public issues
 - ❌ **Không commit** `TAURI_SIGNING_PRIVATE_KEY` / file `*.key` của GUI updater (chỉ GitHub Actions secrets; xem `gui-native/.signing/README.md`)
 - ❌ **Không dùng chung một OS account** cho nhiều người — Windows DPAPI / macOS-Linux key
-  gắn user+host; cùng login = cùng vault. Xem `docs/rollout-guide.md` và `KNOWN_LIMITATIONS.md`
+  gắn user+host; cùng login = cùng vault. Xem `docs/rollout-guide.md` và
+  `docs/team-troubleshooting.md`
 
 ### Checklist bảo mật hàng ngày
 

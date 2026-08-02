@@ -8,24 +8,25 @@ Format dựa trên [Keep a Changelog](https://keepachangelog.com/) và [Semantic
 
 ## [Unreleased]
 
-### Changed
+### Fixed
 
-- Notion “SAP Skills”: hardcode StormShynn shared DB id
-  (`9d54b58613ad485f8b8f19909adbb219`) làm **default** trong `notion_skills_db.py`.
-  Mọi user plugin dùng chung DB học skill; vẫn override bằng env/pin (`set`/`clear`).
-  Parse URL `app.notion.com` + `get --source`.
-  
+- Interactive `mcp-setup` + `commands/mcp-setup.md`: URL `cds-kb` →
+  `cds-kb-mcp-kit-production` (khớp inventory / `.mcp.json`).
+
 ### Added
 
-- **GUI MCP Setup**: CTA «Đăng ký MCP bắt buộc» (Core: `sap-btp`, `sap-dict-bridge`,
-  `cds-kb`, `mcp-sap-docs-btp`); nhắc confirm lần đầu khi runtime OK; «Để sau» nhớ
-  qua localStorage. Category thủ công: «Mở hướng dẫn» (browser) / «Copy lệnh cài»
-  / «Đăng ký» khi CLI hỗ trợ (vd. `sap-gui` qua uvx) — không còn dead-end «xem doc».
+- `emit_cursor_mcp_pack.py` + `reference/templates/cursor-mcp-core/` — Core MCP pack
+  cho Cursor/VS Code (docs-only, không port skills).
+- Rollout: Company DB override playbook + weekly Notion promote cadence.
+- `validate_team_setup.py`: Notion learning tip + Core reminder sau READY.
 
 ### Changed
 
-- `mcp-setup --status-json`: thêm `docUrl`, `installHint`, `canRegister`, `coreServers`;
-  sửa URL `cds-kb` khớp `.mcp.json` (`cds-kb-mcp-kit-production`).
+- Onboarding / rollout: **Core** thống nhất =
+  `sap-btp` + `sap-dict-bridge` + `cds-kb` + `mcp-sap-docs-btp`.
+- Notion troubleshooting: default shared (không bắt buộc `set`).
+- Doc pins / badge → **1.23.1**; `KNOWN_LIMITATIONS` / `SECURITY` bỏ link plan cũ.
+
 
 ## [v1.23.1] — 2026-08-02
 

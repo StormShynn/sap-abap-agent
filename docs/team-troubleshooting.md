@@ -11,8 +11,9 @@ FAQ khi **nhiều người** dùng chung plugin / cùng tenant. Lỗi 1 máy: b�
 |-------------|---------|
 | Chưa invite vào database | Owner: Notion Share → email đồng nghiệp; họ Accept trong browser |
 | Chưa OAuth Notion trên máy họ | `/mcp` → `notion` → đăng nhập **tài khoản của họ** |
-| Chưa pin DB | `python reference/scripts/notion_skills_db.py set "<id-or-url>"` |
-| Tạo nhầm DB mới | Xóa DB rỗng vừa tạo; pin đúng DB team; không search-only theo tên |
+| DB id (default) | Plugin đã hardcode StormShynn shared — `notion_skills_db.py get --source` phải ra `default` (không bắt buộc `set`) |
+| Muốn DB riêng công ty | `notion_skills_db.py set "<company-id-or-url>"` trên mọi máy; xem rollout “Company DB override” |
+| Agent tạo DB “SAP Skills” rỗng | Dừng; `clear` nếu pin nhầm; dùng default hoặc pin đúng — **không** tạo trùng |
 
 Chi tiết: `skills/sap-daily-learner/SKILL.md` mục 3b + README Notion.
 
