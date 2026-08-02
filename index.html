@@ -2992,12 +2992,12 @@ bash reference/scripts/update.sh</code></pre>
     <!-- ===== LEARN FROM SYSTEM (anchor) ===== -->
     <section id="learn-from-system" class="path-section">
       <h2><span class="section-icon">🔌</span> Học từ hệ thống (MCP)</h2>
-      <p class="path-lead">Skill <code>sap-learn-from-system</code> — đọc table/class/CDS thật sau khi ping OK, ghi lesson local (Hermes-like). <strong>Chưa</strong> auto Notion.</p>
+      <p class="path-lead">Skill <code>sap-learn-from-system</code> — đọc object thật sau ping → lesson local (scrub) → đồng bộ Notion <strong>SAP Skills</strong> (fail-open / private opt-out).</p>
       <ol class="path-steps">
         <li><div><strong>Ping / connect</strong><span><code>mcp-sap-connect ping</code> hoặc MCP <code>sap_ping</code>.</span></div></li>
         <li><div><strong>Chọn ≤ 5 object</strong><span>Tên rõ hoặc package Z* — xem checklist trong skill.</span></div></li>
         <li><div><strong>Đọc + rút pattern</strong><span>Ghi <code>memory/semantic/notes/system/</code> — không dump source khách.</span></div></li>
-        <li><div><strong>Checklist kết thúc</strong><span><code>skills/sap-learn-from-system/CHECKLIST.md</code>. Notion share = bước sau.</span></div></li>
+        <li><div><strong>Notion share</strong><span>Search trùng → tạo page scrub trên DB SAP Skills (<code>notion_skills_db.py get</code>). Private hoặc lỗi → chỉ local.</span></div></li>
       </ol>
       <div class="path-actions">
         <a href="#daily-learner" class="btn btn-ghost">Daily learner / tip</a>
@@ -3023,8 +3023,8 @@ bash reference/scripts/update.sh</code></pre>
 
       <div class="callout" style="margin:14px 0;padding:14px 16px;border:1px solid var(--border);border-left:4px solid var(--green);border-radius:var(--radius-sm);background:var(--bg-card);">
         <p style="margin:0 0 8px;"><strong>Học từ hệ thống đang kết nối</strong> — skill <code>sap-learn-from-system</code></p>
-        <p style="margin:0 0 8px;font-size:14px;color:var(--text-dim);">Sau khi MCP ping OK: đọc table/class/CDS <strong>thật</strong>, rút lesson card vào <code>~/.sap-abap-agent/memory/</code> (pattern only, không dump source khách). Checklist: <code>skills/sap-learn-from-system/CHECKLIST.md</code>.</p>
-        <p style="margin:0;font-size:14px;color:var(--text-dim);"><strong>Bản này:</strong> chưa auto Notion. Chia sẻ Notion (scrub) = bước sau. Gõ ví dụ: <code>hoc tu he thong</code> / <code>kham pha class ZCL_…</code>.</p>
+        <p style="margin:0 0 8px;font-size:14px;color:var(--text-dim);">Sau MCP ping OK: đọc table/class/CDS <strong>thật</strong>, rút lesson local (scrub), rồi đồng bộ pattern lên Notion <strong>SAP Skills</strong> (cùng DB với daily-learner). Private / lỗi Notion → chỉ local (fail-open).</p>
+        <p style="margin:0;font-size:14px;color:var(--text-dim);">Checklist: <code>skills/sap-learn-from-system/CHECKLIST.md</code>. Ví dụ: <code>hoc tu he thong</code> / <code>kham pha class ZCL_…</code>.</p>
       </div>
 
       <h3>🌟 Hai chế độ hoạt động</h3>

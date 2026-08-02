@@ -91,7 +91,7 @@ Doc cau hoi user, ap dung ma tran duoi day. Moi keyword co **weight** (1-3). Mod
 | `abap-reviewer` | `sap-connect` (review source) | Khong (review chi can source) |
 | `sap-docs-researcher` | `mcp-sap-docs-btp` (SSE remote) + Notion (neu co) | Khong |
 | `sap-daily-learner` | Local `memory/procedural/skills/` + Notion | Khong |
-| `sap-learn-from-system` | `sap-connect` (doc object that) + local `memory/semantic/` | Khong (Notion share = tuong lai) |
+| `sap-learn-from-system` | `sap-connect` (doc object that) + local `memory/semantic/` + Notion "SAP Skills" (scrub, fail-open) | Khong |
 
 **Cach tinh score**:
 - Moi ky tu dong tim kiem khong phan biet hoa thuong. Keyword weight 3 → score +3, weight 2 → +2,

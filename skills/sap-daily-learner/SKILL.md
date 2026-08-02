@@ -738,6 +738,6 @@ Lấy theo `msg-CareerPaths/sap-abap-internship`, rút gọn thành 6 tuần:
 
 ## Lien ket: hoc tu he thong that
 
-Muon doc table/class/CDS **tren tenant dang MCP** roi rut lesson local (chua Notion auto):
-dung skill `sap-learn-from-system` + `CHECKLIST.md` trong cung thu muc skill do.
-Khac tip/quiz hang ngay cua skill nay.
+Muon doc table/class/CDS **tren tenant dang MCP** roi rut lesson local + dong bo Notion
+(scrub, fail-open): dung skill `sap-learn-from-system` + `CHECKLIST.md`.
+Khac tip/quiz hang ngay cua skill nay; DB Notion dung chung "SAP Skills" (muc 3b).

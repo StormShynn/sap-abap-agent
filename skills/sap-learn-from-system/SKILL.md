@@ -2,19 +2,20 @@
 name: sap-learn-from-system
 description: |
   Hoc tu he thong SAP dang ket noi (MCP): doc table/class/CDS that, rut lesson card
-  local (Hermes-like). KHONG push Notion o ban nay — chi checklist + ghi memory.
-  Dung khi user muon "hoc tu he thong", kham pha Z* object, rut pattern tu code that.
-  KHONG dung thay daily tip/quiz (sap-daily-learner) hay scaffold (sap-scaffold-*).
+  local (Hermes-like), roi dong bo pattern da scrub len Notion "SAP Skills" (opt-out
+  private / fail-open). Dung khi "hoc tu he thong", kham pha Z* object.
+  KHONG dung thay tip/quiz (sap-daily-learner) hay scaffold (sap-scaffold-*).
 when_to_use: |
   "hoc tu he thong", "hoc tu SAP dang ket noi", "kham pha table Z", "doc class ZCL_ de hoc",
-  "rut pattern tu package", "lesson tu object that", "explore system objects".
+  "rut pattern tu package", "lesson tu object that", "explore system objects",
+  "chia se lesson Notion", "dong bo lesson len Notion".
 argument-hint: "[package | object name | module goi y]"
 model: sonnet
 effort: medium
 tools: [Read, Write, Edit, Bash]
 ---
 
-# SAP Learn From System — Hoc tu MCP SAP that (Hermes-like, local)
+# SAP Learn From System — Hoc tu MCP SAP that + share Notion (scrub)
 
 ## Muc tieu
 
@@ -24,9 +25,10 @@ Khi user **da MCP vao SAP**, skill nay:
 2. Chon 1–5 object that (table / class / CDS / domain…).
 3. Doc source/structure qua MCP — **khong doan**.
 4. Viet **lesson card** vao `<agent-home>/memory/` (scrub: khong paste bulk source noi bo).
-5. Hien **checklist** ket thuc session (Notion = buoc sau, chua auto).
+5. **Doc Notion truoc** (tranh trung) → **ghi Notion** page pattern (DB "SAP Skills") neu khong private.
+6. In **checklist** ket thuc.
 
-Lay cam hung Hermes (self-improving) + `sap-daily-learner` memory — **khong** can Hermes Agent / `hermes mcp serve`.
+Lay cam hung Hermes + `sap-daily-learner` muc 3b — **khong** can Hermes Agent / `hermes mcp serve`.
 
 ## Khi nao dung
 
@@ -42,8 +44,8 @@ Giong `sap-daily-learner`:
 
 - Chi `Write`/`Edit` duoi `<agent-home>` (`agent_home.py` / `SAP_ABAP_AGENT_HOME`).
 - Duong dan hop le: `memory/semantic/lessons/`, `memory/semantic/notes/`, `memory/episodic/`.
-- **KHONG** ghi source ABAP day du cua khach vao file; chi tom tat pattern (ten object, 3–7 bullet).
-- **KHONG** goi Notion / khong promote `reference/modules/` o ban nay.
+- **KHONG** ghi source ABAP day du cua khach vao file hay Notion; chi tom tat pattern (ten object, 3–7 bullet).
+- **KHONG** promote `reference/modules/` (dung `sap-daily-learner` muc 3c neu can).
 
 Bootstrap neu can:
 
@@ -52,6 +54,16 @@ python "${CLAUDE_PLUGIN_ROOT}/reference/scripts/bootstrap_memory.py" \
   --ensure-dir memory/semantic/lessons/system \
   --ensure-dir memory/semantic/notes/system
 ```
+
+## Scrub rules (local + Notion)
+
+Cam trong lesson / page Notion:
+
+- Toan bo method/source class, SELECT * ket qua, so lieu nghiep vu, user/password/token
+- Ten khach hang / tenant id / URL day du neu user yeu cau an (mac dinh: chi hostname profile, khong secret)
+- Doan code > ~5 dong — thay bang mo ta "pattern: ... (xem object tren he thong)"
+
+Duoc: ten object, loai, package, 3–7 bullet pattern, module goi y, link ten CDS released (neu public).
 
 ## Quy trinh
 
@@ -63,13 +75,13 @@ python "${CLAUDE_PLUGIN_ROOT}/reference/scripts/bootstrap_memory.py" \
 
 ### Buoc 1 — Chon doi tuong hoc (toi da 5 / session)
 
-Uu tien (theo thu tu):
+Uu tien:
 
-1. Object user **chi ro** (ten table/class/CDS).
-2. Package user chi / package Z* gan day (`sap_list_packages` / `sap_search`).
+1. Object user **chi ro**.
+2. Package user chi / package Z* (`sap_list_packages` / `sap_search`).
 3. Mau Z*/Y*: TABLE, CLAS, DDLS/CDS — 2–5 object **khac loai** neu co the.
 
-Checklist chon (in cho user truoc khi doc nhieu):
+Checklist chon (in truoc khi doc nhieu):
 
 - [ ] Da ping OK
 - [ ] Co ten object / package muc tieu
@@ -78,24 +90,20 @@ Checklist chon (in cho user truoc khi doc nhieu):
 
 ### Buoc 2 — Doc that qua MCP
 
-Voi moi object:
-
 | Loai | Tool goi y |
 |------|------------|
 | Class / include | `sap_read_source` |
 | Tim theo ten | `sap_search` |
 | Package | `sap_list_packages` |
-| CDS released (nghia nghiep) | CDS KB `search_cds` / `get_cds_view` (khong thay the object Z* tren tenant) |
+| CDS released | CDS KB `search_cds` / `get_cds_view` |
 
-Doc dung muc can de hieu pattern — **khong** dump toan bo class lon vao lesson.
+Doc dung muc can — **khong** dump class lon.
 
-### Buoc 3 — Lesson card (scrub)
-
-Moi object (hoac 1 card gom nhom) ghi:
+### Buoc 3 — Lesson card local (scrub)
 
 ```markdown
 # Lesson — <OBJECT> (<TYPE>)
-- Profile / URL host (khong secret): ...
+- Profile host (khong secret): ...
 - Ngay: YYYY-MM-DD
 - Package: ...
 ## Pattern rut ra
@@ -104,37 +112,79 @@ Moi object (hoac 1 card gom nhom) ghi:
 - ...
 ## Lien quan
 - Module goi y: SD/FI/... (neu co)
-- Khong copy: source day du, client data, credential
-## Next
-- [ ] On lai bang quiz (`sap-daily-learner`) — tuy chon
-- [ ] (Sau nay) Share Notion — **chua bat o skill nay**
+## Share
+- Notion: pending | shared | skipped-private | skipped-error
 ```
 
-Ghi file:
+Ghi:
 
-- 1 object: `memory/semantic/notes/system/<object-lower>.md`
-- Append dong ngan vao `memory/semantic/lessons/system/<MODULE-or-GENERAL>.jsonl` (1 JSON/line: date, object, type, bullets).
+- `memory/semantic/notes/system/<object-lower>.md`
+- Append `memory/semantic/lessons/system/<MODULE-or-GENERAL>.jsonl`
+- Cap nhat nhe `LEARNING_PROGRESS.md` neu topic moi (1 dong)
 
-Cap nhat nhe `LEARNING_PROGRESS.md` neu topic moi (1 dong) — khong ghi de tien do cu.
+### Buoc 4 — Notion: doc truoc + ghi sau (SAP Skills)
 
-### Buoc 4 — Checklist ket thuc (bat buoc in ra)
+Tai dung DB + resolve id giong `sap-daily-learner` muc 3b:
 
-Copy checklist day du tu `skills/sap-learn-from-system/CHECKLIST.md` (hoac tom tat):
+```bash
+python "${CLAUDE_PLUGIN_ROOT}/reference/scripts/notion_skills_db.py" get
+# --source → env|pin|default
+```
 
-- [ ] Ping OK truoc khi doc
-- [ ] ≤ 5 object; da doc that qua MCP
-- [ ] Lesson chi pattern, khong bulk source
-- [ ] File nam trong `<agent-home>/memory/...`
-- [ ] Notion: **chua** auto — user tu copy neu muon chia se
-- [ ] Goi y: `sap-daily-learner` neu muon tip/quiz tiep
+Default shared: StormShynn `9d54b58613ad485f8b8f19909adbb219`. Override: env
+`SAP_ABAP_AGENT_NOTION_SKILLS_DB` hoac `notion_skills_db.py set …`.
+**CAM** `notion-create-database` im lang. **CAM** search DB theo ten.
 
-## Notion (tuong lai — chua implement)
+Properties (cung schema "SAP Skills"):
 
-Ke hoach (khong code o day): scrub lesson → page "SAP Skills" / collection team, giong muc 3b cua `sap-daily-learner`. Ban nay chi de checkbox "San sang share" tren checklist.
+| Property | Gia tri goi y |
+|----------|----------------|
+| `Topic` (title) | `[System] <OBJECT> — <pattern ngan>` |
+| `Module` (select) | SD/FI/…/GENERAL neu khong ro |
+| `Created` (date) | hom nay |
+| `Source question` (text) | `Learn from system: <OBJECT> (<TYPE>) @ <package>` |
+| `Tags` | **Bo qua** neu option chua co trong schema (gotcha Notion) |
+
+Noi dung page = ban scrub cua lesson (chi Pattern + Tai sao + Lien quan). Khong dinh kem source.
+
+#### 4a. Doc truoc (tranh trung)
+
+1. Search MCP `notion` voi `data_source_url: "collection://<id>"` + tu khoa OBJECT / topic.
+2. Chi `notion-fetch` page khop that — neu da co lesson tuong duong → dung lai, bao user,
+   ghi local `source: "Dong bo tu Notion"` neu chua co file, **KHONG** tao page trung.
+
+#### 4b. Kiem tra rieng tu (truoc khi ghi)
+
+Bo qua Notion neu:
+
+- Lesson / user co `<private>…</private>`, hoac
+- User noi: "dung dong bo", "giu local", "rieng tu", "khong chia se"
+
+Bao: "🔒 Lesson chi luu local — khong dong bo Notion."
+
+#### 4c. Ghi sau (mac dinh khi khong private)
+
+1. `notion_skills_db.py get` → `notion-fetch` lay data source.
+2. `notion-create-pages` (ten tool theo session; xem danh sach tool server `notion`) voi
+   properties + body scrub.
+3. Cap nhat lesson local: `Share: shared` + 1 dong "☁️ Da dong bo Notion (SAP Skills)".
+4. **Tu dong, khong hoi** (giong daily-learner 3b) — tru khi private.
+
+#### 4d. Fail-open
+
+Moi loi Notion (chua `/mcp`, OAuth, mang…) → **khong chan** luong local. Mot dong:
+"Notion chua ket noi / loi — chi luu local." Cap nhat `Share: skipped-error`.
+
+Ten tool: dung dung tool dang thay (`notion-search` / `notion-fetch` / `notion-create-pages`…) —
+khong doan ten.
+
+### Buoc 5 — Checklist ket thuc
+
+In `skills/sap-learn-from-system/CHECKLIST.md` (tom tat + trang thai Share).
 
 ## Lien ket
 
-- `sap-daily-learner` — tip, quiz, Notion 2-way, curator
-- `sap-bootstrap-system-context` — do quy uoc truoc scaffold (khac muc tieu hoc)
-- `sap-clean-code` / `sap-released-classes` — doi chieu pattern Cloud
-- MCP Core: `mcp-sap-connect`, dict-bridge, cds-kb, mcp-sap-docs-btp
+- `sap-daily-learner` — tip, quiz, auto-skill, promote 3c, curator
+- `sap-bootstrap-system-context` — do quy uoc truoc scaffold
+- `reference/scripts/notion_skills_db.py` — resolve DB id
+- MCP Core: `mcp-sap-connect`, dict-bridge, cds-kb, mcp-sap-docs-btp + MCP `notion`
