@@ -37,6 +37,7 @@
           <span id="license-text" class="license-text muted"></span>
           <button id="btn-license" class="btn btn-flat">📋 License</button>
           <button id="btn-mcp-servers" class="btn btn-flat">🧩 MCP Servers</button>
+          <button id="btn-plugin-control" class="btn btn-flat" title="Cập nhật plugin SAP ABAP Agent">📦 Plugin</button>
           <button id="btn-about" class="btn btn-flat" title="About / Check update">ℹ About</button>
         </div>
       </header>
@@ -105,6 +106,34 @@
       </div>
     </div>
 
+    <div id="plugin-modal" class="modal-overlay hidden">
+      <div class="modal-panel modal-panel-small about-panel">
+        <div class="modal-header">
+          <h2>Cập nhật Plugin</h2>
+          <button id="btn-plugin-close" class="btn btn-flat">Đóng</button>
+        </div>
+        <div class="about-row">
+          <span class="muted">Đã cài</span>
+          <span id="plugin-installed-text">…</span>
+        </div>
+        <div class="about-row">
+          <span class="muted">Cập nhật lần cuối</span>
+          <span id="plugin-last-updated-text">…</span>
+        </div>
+        <div class="about-row about-row-update">
+          <span class="muted">Cập nhật</span>
+          <div class="about-update-actions">
+            <button id="btn-plugin-update" class="btn btn-accent btn-sm" disabled>Cập nhật plugin</button>
+          </div>
+        </div>
+        <p id="plugin-update-msg" class="muted about-update-msg"></p>
+        <p class="muted about-footnote">
+          Cập nhật skills/agents/hooks qua <code>claude plugin update</code>. Cần khởi động lại
+          Claude Code (không phải app này) để áp dụng.
+        </p>
+      </div>
+    </div>
+
     <div id="about-modal" class="modal-overlay hidden">
       <div class="modal-panel modal-panel-small about-panel">
         <div class="modal-header">
@@ -132,7 +161,7 @@
         <p id="about-update-msg" class="muted about-update-msg"></p>
         <p class="muted about-footnote">
           Auto-update qua tag <code>gui-latest</code> / <code>update.json</code> (ký minisign).
-          Plugin/CLI (<code>mcp-server-v*</code>) cập nhật riêng qua pip / marketplace.
+          Plugin Claude Code: xem nút 📦 Plugin. CLI (<code>mcp-server-v*</code>): pip / <code>update.ps1</code>.
         </p>
       </div>
     </div>

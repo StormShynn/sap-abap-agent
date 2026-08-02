@@ -37,6 +37,8 @@ pub fn build_tray(app: &AppHandle) -> tauri::Result<()> {
         true,
         None::<&str>,
     )?;
+    let plugin_item =
+        MenuItem::with_id(app, "tray-plugin", "Plugin / Check update...", true, None::<&str>)?;
     let open_item = MenuItem::with_id(app, "tray-open", "Open GUI", true, None::<&str>)?;
     let about_item = MenuItem::with_id(app, "tray-about", "About / Check update...", true, None::<&str>)?;
     let quit_item = MenuItem::with_id(app, "tray-quit", "Quit", true, None::<&str>)?;
@@ -49,6 +51,7 @@ pub fn build_tray(app: &AppHandle) -> tauri::Result<()> {
             &connect_item,
             &separator,
             &license_item,
+            &plugin_item,
             &open_item,
             &about_item,
             &quit_item,
@@ -81,6 +84,10 @@ pub fn build_tray(app: &AppHandle) -> tauri::Result<()> {
                 "tray-license" => {
                     show_main_window(&app);
                     let _ = app.emit("open-license-dashboard", ());
+                }
+                "tray-plugin" => {
+                    show_main_window(&app);
+                    let _ = app.emit("open-plugin-panel", ());
                 }
                 "tray-open" => show_main_window(&app),
                 "tray-about" => {

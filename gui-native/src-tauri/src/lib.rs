@@ -1,5 +1,6 @@
 mod jobs;
 mod mcp_cli;
+mod plugin_cli;
 mod tray;
 
 use tauri::WindowEvent;
@@ -23,6 +24,8 @@ pub fn run() {
             mcp_cli::mcp_status,
             mcp_cli::mcp_register,
             mcp_cli::mcp_unregister,
+            plugin_cli::plugin_status,
+            plugin_cli::plugin_update,
             jobs::start_streamed,
             jobs::start_new_console,
             jobs::cancel_job,

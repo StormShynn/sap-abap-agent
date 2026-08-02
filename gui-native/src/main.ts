@@ -64,6 +64,15 @@ interface RuntimeStatus {
   install_hint: string;
 }
 
+interface PluginStatusData {
+  claudeAvailable: boolean;
+  found: boolean;
+  pluginId: string | null;
+  version: string | null;
+  lastUpdated: string | null;
+  detail: string | null;
+}
+
 const REPO_URL = "https://github.com/StormShynn/sap-abap-agent";
 const RELEASES_URL = `${REPO_URL}/releases`;
 const GUI_LATEST_URL = `${REPO_URL}/releases/tag/gui-latest`;
@@ -116,6 +125,13 @@ const el = {
   btnMcpClose: byId<HTMLButtonElement>("btn-mcp-close"),
   btnMcpPresetCore: byId<HTMLButtonElement>("btn-mcp-preset-core"),
   btnMcpPresetResearch: byId<HTMLButtonElement>("btn-mcp-preset-research"),
+  btnPluginControl: byId<HTMLButtonElement>("btn-plugin-control"),
+  pluginModal: byId<HTMLDivElement>("plugin-modal"),
+  pluginInstalledText: byId<HTMLSpanElement>("plugin-installed-text"),
+  pluginLastUpdatedText: byId<HTMLSpanElement>("plugin-last-updated-text"),
+  btnPluginUpdate: byId<HTMLButtonElement>("btn-plugin-update"),
+  pluginUpdateMsg: byId<HTMLParagraphElement>("plugin-update-msg"),
+  btnPluginClose: byId<HTMLButtonElement>("btn-plugin-close"),
   btnAbout: byId<HTMLButtonElement>("btn-about"),
   aboutModal: byId<HTMLDivElement>("about-modal"),
   aboutVersion: byId<HTMLSpanElement>("about-version"),
@@ -1116,6 +1132,83 @@ async function onCheckUpdate() {
   }
 }
 
+// ===== Plugin Control (claude plugin update) =====
+//
+// Rieng biet voi About/Auto-updater o tren: About cap nhat CHINH APP GUI nay
+// (tauri-plugin-updater, tag gui-latest). Muc nay cap nhat plugin Claude Code
+// (skills/agents/hooks) qua goi thang binary `claude` (plugin_cli.rs) - restart
+// Claude Code (KHONG PHAI app nay) moi ap dung, GUI khong tu lam duoc.
+
+function formatAgo(iso: string): string {
+  const then = new Date(iso).getTime();
+  if (Number.isNaN(then)) return "không rõ";
+  const seconds = (Date.now() - then) / 1000;
+  if (seconds < 60) return "vừa xong";
+  if (seconds < 3600) return `${Math.floor(seconds / 60)} phút trước`;
+  if (seconds < 86400) return `${Math.floor(seconds / 3600)} giờ trước`;
+  return `${Math.floor(seconds / 86400)} ngày trước`;
+}
+
+async function openPluginModal() {
+  el.pluginModal.classList.remove("hidden");
+  await refreshPluginStatus();
+}
+
+function closePluginModal() {
+  el.pluginModal.classList.add("hidden");
+}
+
+function setPluginMsg(text: string, isError = false) {
+  el.pluginUpdateMsg.textContent = text;
+  el.pluginUpdateMsg.classList.toggle("about-update-error", isError);
+}
+
+async function refreshPluginStatus() {
+  el.pluginInstalledText.textContent = "…";
+  el.pluginLastUpdatedText.textContent = "…";
+  el.btnPluginUpdate.disabled = true;
+  setPluginMsg("");
+  try {
+    const st = await invoke<PluginStatusData>("plugin_status");
+    if (!st.claudeAvailable) {
+      el.pluginInstalledText.textContent = "(không rõ)";
+      el.pluginLastUpdatedText.textContent = "(không rõ)";
+      setPluginMsg("⚠ Không tìm thấy 'claude' trong PATH — cài Claude Code trước.", true);
+      return;
+    }
+    if (!st.found) {
+      el.pluginInstalledText.textContent = "(chưa cài)";
+      el.pluginLastUpdatedText.textContent = "(chưa cài)";
+      setPluginMsg(st.detail ?? "Chưa tìm thấy plugin đã cài.", true);
+      return;
+    }
+    el.pluginInstalledText.textContent = `${st.pluginId} (v${st.version})`;
+    el.pluginLastUpdatedText.textContent = st.lastUpdated ? formatAgo(st.lastUpdated) : "không rõ";
+    el.btnPluginUpdate.disabled = false;
+  } catch (err) {
+    el.pluginInstalledText.textContent = "(lỗi)";
+    el.pluginLastUpdatedText.textContent = "(lỗi)";
+    setPluginMsg(String(err), true);
+  }
+}
+
+async function onPluginUpdateClick() {
+  el.btnPluginUpdate.disabled = true;
+  setPluginMsg("Đang cập nhật… (có thể mất đến ~2 phút)");
+  appendLog("$ claude plugin marketplace update ... && claude plugin update ...");
+  try {
+    const msg = await invoke<string>("plugin_update");
+    setPluginMsg(msg);
+    appendLog(`[OK] Plugin update:\n${msg}`);
+    setStatus("Plugin: đã cập nhật");
+  } catch (err) {
+    setPluginMsg(String(err), true);
+    appendLog(`[ERROR] Plugin update: ${err}`);
+    setStatus("Plugin: cập nhật lỗi");
+  }
+  await refreshPluginStatus();
+}
+
 // ===== Wiring =====
 
 function initEventListeners() {
@@ -1165,6 +1258,10 @@ function initEventListeners() {
     void onMcpPreset(MCP_PRESET_RESEARCH, "Research"),
   );
 
+  el.btnPluginControl.addEventListener("click", () => void openPluginModal());
+  el.btnPluginClose.addEventListener("click", closePluginModal);
+  el.btnPluginUpdate.addEventListener("click", () => void onPluginUpdateClick());
+
   el.btnAbout.addEventListener("click", () => void openAboutModal());
   el.btnAboutClose.addEventListener("click", closeAboutModal);
   el.btnAboutRepo.addEventListener("click", () => void openUrl(REPO_URL));
@@ -1184,6 +1281,7 @@ function initEventListeners() {
   });
   void listen("open-license-dashboard", () => void openLicenseDashboard());
   void listen("open-about", () => void openAboutModal());
+  void listen("open-plugin-panel", () => void openPluginModal());
 
   // Countdown tick moi giay: header label + dashboard (neu dang mo)
   setInterval(() => {
