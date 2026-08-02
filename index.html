@@ -2201,11 +2201,28 @@ sap-btp-agent setup https://project1.s4hana.cloud.sap</code><button class="copy-
     <section id="ket-noi">
       <h2><span class="section-icon">🔌</span> Kiểm tra kết nối</h2>
 
-      <pre><code><span class="hl-com"># Test profile active</span>
-sap-btp-agent connect
+      <p>Sau khi <a href="#them-project">thêm project</a>, kiểm tra profile trước khi dùng MCP. Entry point chính thức là <code>mcp-sap-connect</code>; <code>sap-btp-agent</code> vẫn là shim tương đương.</p>
 
-<span class="hl-com"># Test một profile cụ thể</span>
-sap-btp-agent connect project1.s4hana.cloud.sap</code><button class="copy-btn" onclick="copyCode(this)">Sao chép</button></pre>
+      <pre><code><span class="hl-com"># Ping nhanh — chỉ đọc session (nhẹ, không xin CSRF/write)</span>
+mcp-sap-connect ping
+sap-btp-agent ping
+
+<span class="hl-com"># Connect đầy đủ — đọc + kiểm tra ghi (CSRF). Dùng trước activate / list_packages…</span>
+mcp-sap-connect connect
+mcp-sap-connect connect project1.s4hana.cloud.sap
+
+<span class="hl-com"># Cookie hết hạn — đăng nhập lại (nhanh hơn setup từ đầu)</span>
+mcp-sap-connect reauth
+mcp-sap-connect reauth project1.s4hana.cloud.sap
+
+<span class="hl-com"># Môi trường máy (PATH, dependency) — không cần profile</span>
+mcp-sap-connect doctor
+<span class="hl-com"># Nếu lệnh không nhận diện được:</span>
+python -m mcp_sap_connect.doctor</code><button class="copy-btn" onclick="copyCode(this)">Sao chép</button></pre>
+
+      <div class="callout" style="margin-top:14px;padding:12px 14px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--bg-card);">
+        <p style="margin:0;font-size:14px;color:var(--text-dim);"><strong style="color:var(--text-bright);">Khác biệt:</strong> <code>ping</code> = session còn sống (read-only). <code>connect</code> = ping + thử ghi; nếu write fail nhưng read OK, tool đọc vẫn dùng được còn activate/syntax-check sẽ lỗi — khi cookie auth hãy chạy <code>reauth</code>.</p>
+      </div>
     </section>
 
     <!-- ===== QUẢN LÝ PROFILE ===== -->
