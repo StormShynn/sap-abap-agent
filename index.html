@@ -2229,47 +2229,67 @@ python -m mcp_sap_connect.doctor</code><button class="copy-btn" onclick="copyCod
     <section id="quan-ly-profile">
       <h2><span class="section-icon">👥</span> Quản lý nhiều profile</h2>
 
+      <p>Mỗi URL SAP = 1 profile (secrets riêng). Entry chính: <code>mcp-sap-connect</code> (<code>sap-btp-agent</code> = shim cùng lệnh).</p>
+
       <div class="cmd-grid">
         <div class="cmd-item">
-          <div class="cmd">sap-btp-agent profiles list</div>
-          <div class="cmd-desc">Liệt kê tất cả profile (<code>*</code> = active)</div>
+          <div class="cmd">mcp-sap-connect profiles list</div>
+          <div class="cmd-desc">Liệt kê profile (<code>*</code> = active). Thêm <code>--json</code> nếu cần máy đọc.</div>
         </div>
         <div class="cmd-item">
-          <div class="cmd">sap-btp-agent profiles use &lt;id&gt;</div>
-          <div class="cmd-desc">Chọn profile active</div>
+          <div class="cmd">mcp-sap-connect profiles use &lt;id&gt;</div>
+          <div class="cmd-desc">Chọn profile active mặc định</div>
         </div>
         <div class="cmd-item">
-          <div class="cmd">sap-btp-agent profiles show</div>
-          <div class="cmd-desc">Xem chi tiết profile đang dùng</div>
+          <div class="cmd">mcp-sap-connect profiles show [id]</div>
+          <div class="cmd-desc">Xem config (bỏ <code>id</code> = profile active)</div>
         </div>
         <div class="cmd-item">
-          <div class="cmd">sap-btp-agent profiles remove &lt;id&gt;</div>
+          <div class="cmd">mcp-sap-connect profiles remove &lt;id&gt;</div>
           <div class="cmd-desc">Xóa một profile</div>
         </div>
         <div class="cmd-item">
-          <div class="cmd">sap-btp-agent reset</div>
-          <div class="cmd-desc">⚠️ Xóa tất cả (cẩn thận!)</div>
+          <div class="cmd">mcp-sap-connect profiles import &lt;config.json&gt;</div>
+          <div class="cmd-desc">Import URL từ backup <code>config.json</code> (secrets phải copy tay)</div>
+        </div>
+        <div class="cmd-item">
+          <div class="cmd">mcp-sap-connect reset</div>
+          <div class="cmd-desc">⚠️ Xóa <strong>tất cả</strong> profile + secrets (gõ <code>yes</code> để xác nhận)</div>
         </div>
       </div>
 
       <h3>Chọn profile trong MCP tools</h3>
-      <p>Mỗi MCP tool đều có tham số <code>profile</code> (để trống = dùng profile active):</p>
+      <p>Thứ tự ưu tiên: env <code>SAP_BTP_PROFILE</code> → tham số <code>profile</code> trên tool → profile active.</p>
 
-      <pre><code><span class="hl-str">"Liệt kê các package trong project project1"</span>
-→ Claude gọi sap_list_packages({ <span class="hl-var">profile</span>: <span class="hl-str">"project1.s4hana.cloud.sap"</span> })
+      <pre><code><span class="hl-str">"Liệt kê package trên project1"</span>
+→ sap_list_packages({ <span class="hl-var">profile</span>: <span class="hl-str">"project1.s4hana.cloud.sap"</span> })
 
-<span class="hl-str">"Tìm class ZCL_* trong project đang dùng"</span>
-→ Claude gọi sap_search({ <span class="hl-var">query</span>: <span class="hl-str">"ZCL_"</span> })</code><button class="copy-btn" onclick="copyCode(this)">Sao chép</button></pre>
+<span class="hl-str">"Tìm ZCL_* trên profile đang active"</span>
+→ sap_search({ <span class="hl-var">query</span>: <span class="hl-str">"ZCL_"</span> })  <span class="hl-com"># không truyền profile</span></code><button class="copy-btn" onclick="copyCode(this)">Sao chép</button></pre>
 
       <h3>Chạy nhiều instance cùng lúc</h3>
-      <p>Đặt env <code>SAP_BTP_PROFILE=&lt;id&gt;</code> trước mỗi lần chạy:</p>
+      <p>Gắn <strong>profile khác nhau</strong> cho mỗi process MCP (env ghi đè active):</p>
 
-      <pre><code><span class="hl-com"># Terminal 1: Claude 1 với profile A</span>
-SAP_BTP_PROFILE=project1.s4hana.cloud.sap sap-btp-agent
+      <div class="code-compare">
+        <div class="code-block">
+          <div class="code-label">bash / zsh / Git Bash <span class="code-os">macOS · Linux · WSL</span></div>
+<pre><code><span class="hl-com"># Terminal A — profile project1</span>
+SAP_BTP_PROFILE=project1.s4hana.cloud.sap mcp-sap-connect
 
-<span class="hl-com"># Terminal 2: Claude 2 với profile B</span>
-SAP_BTP_PROFILE=project1.s4hana.cloud.sap sap-btp-agent</code><button class="copy-btn" onclick="copyCode(this)">Sao chép</button></pre>
+<span class="hl-com"># Terminal B — profile khác</span>
+SAP_BTP_PROFILE=project2.s4hana.cloud.sap mcp-sap-connect</code><button class="copy-btn" onclick="copyCode(this)">Sao chép</button></pre>
+        </div>
+        <div class="code-block">
+          <div class="code-label">PowerShell <span class="code-os">Windows</span></div>
+<pre><code><span class="hl-com"># Terminal A</span>
+$env:SAP_BTP_PROFILE = "project1.s4hana.cloud.sap"
+mcp-sap-connect
 
+<span class="hl-com"># Terminal B</span>
+$env:SAP_BTP_PROFILE = "project2.s4hana.cloud.sap"
+mcp-sap-connect</code><button class="copy-btn" onclick="copyCode(this)">Sao chép</button></pre>
+        </div>
+      </div>
     </section>
 
     <!-- ===== ĐĂNG KÝ MCP ===== -->
