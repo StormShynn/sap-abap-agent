@@ -310,3 +310,28 @@ pub async fn mcp_unregister(name: String) -> Result<(), String> {
     run_json(&args).await?;
     Ok(())
 }
+
+/// Ket qua `mcp-sap-connect doctor --json` (path_ok / path_fix cho nut Copy PATH fix).
+/// Khong dung run_json: doctor tra `all_ok: false` khi co !! — van hop le.
+#[derive(Serialize, Deserialize, Clone, Debug)]
+pub struct DoctorReport {
+    pub all_ok: bool,
+    pub path_ok: bool,
+    pub scripts_dir: Option<String>,
+    pub path_fix: Option<String>,
+}
+
+#[tauri::command]
+pub async fn doctor_json() -> Result<DoctorReport, String> {
+    let (code, stdout, stderr) =
+        run_capture(&["doctor".to_string(), "--json".to_string()]).await?;
+    if stdout.trim().is_empty() {
+        return Err(format!(
+            "doctor --json khong tra ve gi (exit {code}): {stderr}"
+        ));
+    }
+    let value: Value = serde_json::from_str(stdout.trim()).map_err(|e| {
+        format!("Khong parse duoc doctor --json: {e}\nOutput: {stdout}")
+    })?;
+    serde_json::from_value(value).map_err(|e| format!("Loi doc doctor report: {e}"))
+}

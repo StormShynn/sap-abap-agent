@@ -451,6 +451,31 @@ body {
   flex-wrap: wrap;
 }
 
+.mcp-notion-cta {
+  margin: 0 0 12px;
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--accent, #0a6ed1) 8%, transparent);
+}
+
+.mcp-notion-cta.hidden {
+  display: none;
+}
+
+.mcp-notion-cta-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.mcp-row-oauth-note {
+  margin-top: 6px;
+  font-size: 0.8em;
+  color: var(--muted);
+  line-height: 1.35;
+}
+
 .mcp-category-header {
   font-weight: 600;
   font-size: 0.85em;

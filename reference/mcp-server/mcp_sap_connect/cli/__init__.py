@@ -121,7 +121,7 @@ def main() -> None:
         _cmd_reset()
     elif cmd == "doctor":
         from ..doctor import main as run_doctor
-        run_doctor()
+        sys.exit(run_doctor(cmd_args))
     elif cmd in ("mcp-setup", "register-mcp-servers"):
         if cmd_args and cmd_args[0] == "--status-json":
             _cmd_mcp_status_json()
@@ -205,7 +205,7 @@ def _show_help() -> None:
     print("    profiles show          Xem chi tiết profile active")
     print("    profiles remove <id>   Xóa một profile")
     print("    reset                  Xóa TẤT CẢ dữ liệu (cẩn thận!)")
-    print("    doctor                 Kiểm tra môi trường (PATH, dependency...)")
+    print("    doctor [--json]        Kiểm tra môi trường (PATH, dependency...); --json cho GUI")
     print()
     print("  (Khong argument = chay MCP stdio server, dung cho claude mcp add)")
     print()
@@ -217,6 +217,7 @@ def _show_help() -> None:
     print("    mcp-sap-connect reauth")
     print("    mcp-sap-connect profiles list")
     print("    mcp-sap-connect doctor")
+    print("    mcp-sap-connect doctor --json")
     print()
     print("  Neu 'mcp-sap-connect' khong duoc nhan dien (not recognized), chay:")
     print("    python -m mcp_sap_connect.doctor")
@@ -1346,6 +1347,9 @@ _MCP_JSON_INVENTORY: list[dict[str, Any]] = [
      "description": "ABAP deep analysis (vibing-steampunk) - package health/dead-code/debug. "
                      "Tu dien SAP_ADT_URL tu profile active (+ SAP_ADT_USER/PASSWORD neu authMode=password).",
      "envVars": []},
+    {"name": "notion", "category": "special", "transport": "http",
+     "description": "Notion remote MCP (HTTP). Sau khi dang ky: mo Claude Code va chay /mcp de OAuth.",
+     "envVars": [], "url": "https://mcp.notion.com/mcp"},
 ]
 
 # Manual = can clone/build/license. GUI khong duoc dead-end "xem doc": status-json

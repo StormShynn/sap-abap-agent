@@ -24,6 +24,7 @@ pub fn run() {
             mcp_cli::mcp_status,
             mcp_cli::mcp_register,
             mcp_cli::mcp_unregister,
+            mcp_cli::doctor_json,
             plugin_cli::plugin_status,
             plugin_cli::plugin_update,
             jobs::start_streamed,

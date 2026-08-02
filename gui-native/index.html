@@ -38,6 +38,7 @@
           <button id="btn-license" class="btn btn-flat">📋 License</button>
           <button id="btn-mcp-servers" class="btn btn-flat">🧩 MCP Servers</button>
           <button id="btn-plugin-control" class="btn btn-flat" title="Cập nhật plugin SAP ABAP Agent">📦 Plugin</button>
+          <button id="btn-doctor" class="btn btn-flat" title="Chạy mcp-sap-connect doctor (PATH / dependency)">🩺 Doctor</button>
           <button id="btn-about" class="btn btn-flat" title="About / Check update">ℹ About</button>
         </div>
       </header>
@@ -58,6 +59,7 @@
         <div class="log-toolbar">
           <button id="btn-clear" class="btn btn-flat">Clear</button>
           <button id="btn-copy" class="btn btn-flat">Copy</button>
+          <button id="btn-copy-path-fix" class="btn btn-flat" disabled title="Copy lệnh PowerShell thêm Scripts vào User PATH">Copy PATH fix</button>
           <button id="btn-done" class="btn btn-done" disabled>✓ Đã đăng nhập xong</button>
           <span id="status-text" class="muted status-text">Ready</span>
         </div>
@@ -100,6 +102,12 @@
           <div class="mcp-core-cta-actions">
             <button id="btn-mcp-register-required" class="btn btn-accent">Đăng ký MCP bắt buộc</button>
             <button id="btn-mcp-skip-required" class="btn btn-flat btn-sm">Để sau</button>
+          </div>
+        </div>
+        <div id="mcp-notion-cta" class="mcp-notion-cta hidden">
+          <div class="mcp-notion-cta-text">
+            <strong>Notion cần OAuth trong Claude Code</strong>
+            <span class="muted">Server <code>notion</code> đã đăng ký — mở Claude Code và chạy <code>/mcp</code> để hoàn tất OAuth (remote HTTP). GUI không thể làm bước này.</span>
           </div>
         </div>
         <div id="mcp-rows" class="license-rows"></div>

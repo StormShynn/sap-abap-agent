@@ -5,10 +5,13 @@ Chay duoc TRUOC KHI mcp-sap-connect nam tren PATH (vi day la diem hay gay nham l
 
 Sau khi da cai xong va tren PATH, cung goi duoc qua:
     mcp-sap-connect doctor
+    mcp-sap-connect doctor --json   # machine-readable (GUI Copy PATH fix)
 """
 from __future__ import annotations
 
+import argparse
 import importlib.util
+import json
 import os
 import shutil
 import sys
@@ -48,15 +51,36 @@ def _find_entry_point_dir() -> Path | None:
     return None
 
 
-def _check_path() -> tuple[bool, str]:
+def _path_fix_script(scripts_dir: Path) -> str:
+    """Chuoi fix PATH de copy (PowerShell User PATH tren Windows, export tren Unix)."""
+    if os.name == "nt":
+        return (
+            f"$f = '{scripts_dir}'\n"
+            "$cur = [Environment]::GetEnvironmentVariable('PATH','User')\n"
+            "[Environment]::SetEnvironmentVariable('PATH', $cur.TrimEnd(';') + ';' + $f, 'User')"
+        )
+    return f'export PATH="{scripts_dir}:$PATH"'
+
+
+def _check_path() -> tuple[bool, str, Path | None, str | None]:
+    """Tra (path_ok, message, scripts_dir, path_fix).
+
+    path_fix chi co khi binary da cai nhung folder Scripts khong nam tren PATH.
+    """
     on_path = shutil.which("mcp-sap-connect")
     if on_path:
-        return True, f"mcp-sap-connect tren PATH: {on_path}"
+        return True, f"mcp-sap-connect tren PATH: {on_path}", None, None
 
     found_dir = _find_entry_point_dir()
     if found_dir is None:
-        return False, "Khong tim thay mcp-sap-connect o dau ca -- kiem tra lai 'pip install -e .' da chay thanh cong chua."
+        return (
+            False,
+            "Khong tim thay mcp-sap-connect o dau ca -- kiem tra lai 'pip install -e .' da chay thanh cong chua.",
+            None,
+            None,
+        )
 
+    path_fix = _path_fix_script(found_dir)
     msg = f"mcp-sap-connect CO duoc cai, nhung folder chua no KHONG nam trong PATH:\n      {found_dir}\n"
     if os.name == "nt":
         msg += (
@@ -71,7 +95,7 @@ def _check_path() -> tuple[bool, str]:
             f'    Fix: them vao ~/.bashrc hoac ~/.zshrc:\n      export PATH="{found_dir}:$PATH"\n'
             "    Sau do: source ~/.bashrc (hoac mo terminal moi)."
         )
-    return False, msg
+    return False, msg, found_dir, path_fix
 
 
 def _check_module(name: str, label: str, *, required: bool) -> tuple[bool, str]:
@@ -95,7 +119,6 @@ def _cleanup_orphan_mcp_processes() -> tuple[bool, str]:
     if os.name != "nt":
         return True, "Cleanup orphan MCP process: bo qua (chi ap dung Windows)"
 
-    import json
     import subprocess
 
     ps_script = (
@@ -160,16 +183,12 @@ def _check_playwright_browsers() -> tuple[bool, str]:
     return False, "Playwright da cai nhung CHUA co chromium binary. Chay: playwright install chromium"
 
 
-def main() -> None:
-    print()
-    print("=" * 60)
-    print("  SAP ABAP Agent -- Doctor (kiem tra moi truong)")
-    print("=" * 60)
-    print()
-
+def collect_report() -> dict:
+    """Chay tat ca check, tra dict dung cho --json / GUI."""
+    path_ok, path_msg, scripts_dir, path_fix = _check_path()
     checks: list[tuple[bool, str]] = [
         _check_python_version(),
-        _check_path(),
+        (path_ok, path_msg),
         _check_module("mcp", "MCP SDK", required=True),
         _check_module("httpx", "httpx", required=True),
         _check_module("cryptography", "cryptography", required=True),
@@ -179,20 +198,51 @@ def main() -> None:
         checks.append(_cleanup_orphan_mcp_processes())
     checks.append(_check_playwright_browsers())
 
-    all_ok = True
-    for ok, msg in checks:
-        icon = "  OK  " if ok else "  !!  "
-        print(f"{icon}{msg}")
-        if not ok:
-            all_ok = False
+    all_ok = all(ok for ok, _ in checks)
+    return {
+        "all_ok": all_ok,
+        "path_ok": path_ok,
+        "scripts_dir": str(scripts_dir) if scripts_dir else None,
+        "path_fix": path_fix,
+        "checks": [{"ok": ok, "message": msg} for ok, msg in checks],
+    }
+
+
+def _print_human(report: dict) -> None:
+    print()
+    print("=" * 60)
+    print("  SAP ABAP Agent -- Doctor (kiem tra moi truong)")
+    print("=" * 60)
+    print()
+
+    for item in report["checks"]:
+        icon = "  OK  " if item["ok"] else "  !!  "
+        print(f"{icon}{item['message']}")
 
     print()
-    if all_ok:
+    if report["all_ok"]:
         print("  Moi thu deu OK. Chay: mcp-sap-connect setup <URL>")
     else:
         print("  Co van de can xu ly o cac dong '!!' phia tren truoc khi dung mcp-sap-connect.")
     print()
 
 
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(prog="mcp-sap-connect doctor")
+    parser.add_argument(
+        "--json",
+        action="store_true",
+        help="In ket qua JSON (path_ok, scripts_dir, path_fix, checks) cho GUI",
+    )
+    args = parser.parse_args(argv)
+
+    report = collect_report()
+    if args.json:
+        print(json.dumps(report, ensure_ascii=False))
+    else:
+        _print_human(report)
+    return 0 if report["all_ok"] else 1
+
+
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())

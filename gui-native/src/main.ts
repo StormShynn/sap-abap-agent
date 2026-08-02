@@ -64,6 +64,13 @@ interface RuntimeStatus {
   install_hint: string;
 }
 
+interface DoctorReport {
+  all_ok: boolean;
+  path_ok: boolean;
+  scripts_dir: string | null;
+  path_fix: string | null;
+}
+
 interface PluginStatusData {
   claudeAvailable: boolean;
   found: boolean;
@@ -84,6 +91,8 @@ let licenseCache: Map<string, LicenseStatus> = new Map();
 let selectedId: string | null = null;
 let earlyFinishPath: string | null = null;
 let licenseDashboardOpen = false;
+/** Cached PowerShell/shell PATH fix from last doctor --json (null when PATH OK). */
+let cachedPathFix: string | null = null;
 
 // ===== DOM refs (gan trong init()) =====
 const el = {
@@ -99,6 +108,7 @@ const el = {
   urlText: byId<HTMLSpanElement>("url-text"),
   licenseText: byId<HTMLSpanElement>("license-text"),
   btnLicense: byId<HTMLButtonElement>("btn-license"),
+  btnDoctor: byId<HTMLButtonElement>("btn-doctor"),
   btnReauth: byId<HTMLButtonElement>("btn-reauth"),
   btnConnect: byId<HTMLButtonElement>("btn-connect"),
   btnPing: byId<HTMLButtonElement>("btn-ping"),
@@ -108,6 +118,7 @@ const el = {
   logCard: byId<HTMLDivElement>("log-text").parentElement as HTMLDivElement,
   btnClear: byId<HTMLButtonElement>("btn-clear"),
   btnCopy: byId<HTMLButtonElement>("btn-copy"),
+  btnCopyPathFix: byId<HTMLButtonElement>("btn-copy-path-fix"),
   btnDone: byId<HTMLButtonElement>("btn-done"),
   statusText: byId<HTMLSpanElement>("status-text"),
   licenseModal: byId<HTMLDivElement>("license-modal"),
@@ -119,6 +130,7 @@ const el = {
   mcpRows: byId<HTMLDivElement>("mcp-rows"),
   mcpCoreCta: byId<HTMLDivElement>("mcp-core-cta"),
   mcpCoreCtaDetail: byId<HTMLSpanElement>("mcp-core-cta-detail"),
+  mcpNotionCta: byId<HTMLDivElement>("mcp-notion-cta"),
   btnMcpRegisterRequired: byId<HTMLButtonElement>("btn-mcp-register-required"),
   btnMcpSkipRequired: byId<HTMLButtonElement>("btn-mcp-skip-required"),
   btnMcpRefresh: byId<HTMLButtonElement>("btn-mcp-refresh"),
@@ -399,6 +411,12 @@ function setButtonsEnabled(enabled: boolean) {
   for (const btn of [el.btnReauth, el.btnConnect, el.btnPing, el.btnSetActive, el.btnRemove]) {
     btn.disabled = !(enabled && hasProfile);
   }
+  el.btnDoctor.disabled = !enabled;
+  updateCopyPathFixButton(enabled);
+}
+
+function updateCopyPathFixButton(jobIdle = !currentJobLabel) {
+  el.btnCopyPathFix.disabled = !(jobIdle && !!cachedPathFix);
 }
 
 // ===== Action handlers =====
@@ -459,6 +477,7 @@ async function onPing() {
 
 async function onSetActive() {
   if (!selectedId) return;
+  const previous = profilesData.active;
   try {
     await invoke("set_active_profile", { profileId: selectedId });
   } catch (err) {
@@ -466,8 +485,76 @@ async function onSetActive() {
     return;
   }
   appendLog(`[OK] Đã set '${selectedId}' làm profile active.`);
+  if (previous && previous !== selectedId) {
+    appendLog(
+      "[WARN] sap-vsp (nếu đã đăng ký) không tự nhận profile mới — " +
+        "chạy lại mcp-setup / MCP Servers để rebind SAP_ADT_*.",
+    );
+  }
   setStatus(`Active: ${selectedId}`);
   await refreshProfiles();
+}
+
+async function onDoctor() {
+  if (currentJobLabel) return;
+  appendLog("$ mcp-sap-connect doctor");
+  currentJobLabel = "doctor";
+  setButtonsEnabled(false);
+  setStatus("Đang chạy doctor...");
+  try {
+    await invoke("start_streamed", { args: ["doctor"], envExtra: null, label: currentJobLabel });
+  } catch (err) {
+    appendLog(`[ERROR] ${err}`);
+    resetJobState();
+  }
+}
+
+async function refreshDoctorPathFix(opts: { announce?: boolean } = {}) {
+  try {
+    const report = await invoke<DoctorReport>("doctor_json");
+    cachedPathFix = report.path_ok ? null : report.path_fix ?? null;
+    updateCopyPathFixButton();
+    if (!opts.announce) return;
+    if (report.path_ok) {
+      appendLog("[Doctor] PATH OK — không cần Copy PATH fix.");
+    } else if (cachedPathFix) {
+      appendLog(
+        "[Doctor] PATH thiếu Scripts — bấm «Copy PATH fix» rồi dán vào PowerShell, mở lại terminal/app.",
+      );
+      if (report.scripts_dir) {
+        appendLog(`[Doctor] Scripts dir: ${report.scripts_dir}`);
+      }
+    } else {
+      appendLog("[Doctor] Không tìm thấy mcp-sap-connect — chạy pip install trước (xem runtime banner).");
+    }
+  } catch (err) {
+    cachedPathFix = null;
+    updateCopyPathFixButton();
+    if (opts.announce) {
+      appendLog(`[WARN] Không đọc được doctor --json: ${err}`);
+    }
+  }
+}
+
+async function onCopyPathFix() {
+  let fix = cachedPathFix;
+  if (!fix) {
+    await refreshDoctorPathFix();
+    fix = cachedPathFix;
+  }
+  if (!fix) {
+    appendLog("[WARN] Không có PATH fix để copy (PATH đã OK hoặc chưa cài mcp-sap-connect).");
+    setStatus("Không có PATH fix");
+    return;
+  }
+  try {
+    await navigator.clipboard.writeText(fix);
+    appendLog("[OK] Đã copy lệnh PATH fix vào clipboard. Dán vào PowerShell (User PATH), rồi mở terminal/app mới.");
+    setStatus("Đã copy PATH fix");
+  } catch (err) {
+    await promptText("PATH fix", "Copy lệnh bên dưới:", fix);
+    appendLog(`[WARN] Clipboard lỗi (${err}) — đã hiện hộp thoại để copy tay.`);
+  }
 }
 
 async function onRemove() {
@@ -735,6 +822,12 @@ function updateMcpCoreCta(data: McpStatusData) {
   }
 }
 
+function updateMcpNotionCta(data: McpStatusData) {
+  const notion = data.servers.find((s) => s.name === "notion");
+  const show = !!notion?.registered;
+  el.mcpNotionCta.classList.toggle("hidden", !show);
+}
+
 async function openMcpModal() {
   el.mcpModal.classList.remove("hidden");
   await refreshMcpStatus();
@@ -750,8 +843,10 @@ async function refreshMcpStatus() {
     const data = await invoke<McpStatusData>("mcp_status");
     renderMcpRows(data);
     updateMcpCoreCta(data);
+    updateMcpNotionCta(data);
   } catch (err) {
     el.mcpCoreCta.classList.add("hidden");
+    el.mcpNotionCta.classList.add("hidden");
     el.mcpRows.innerHTML = `<p class="muted">Lỗi đọc trạng thái MCP: ${err}</p>`;
   }
 }
@@ -855,6 +950,14 @@ function renderMcpRow(s: McpServerStatus): HTMLElement {
   desc.textContent = s.description;
   row.appendChild(desc);
 
+  if (s.name === "notion" && s.registered) {
+    const note = document.createElement("div");
+    note.className = "mcp-row-oauth-note";
+    note.textContent =
+      "Sau đăng ký: mở Claude Code và chạy /mcp để hoàn tất OAuth Notion (remote HTTP).";
+    row.appendChild(note);
+  }
+
   return row;
 }
 
@@ -890,6 +993,11 @@ async function onRegisterMcpServer(s: McpServerStatus) {
   try {
     await invoke("mcp_register", { name: s.name, env });
     appendLog(`[OK] Đã đăng ký MCP server '${s.name}'. Khởi động lại Claude Code để nhận server mới.`);
+    if (s.name === "notion") {
+      appendLog(
+        "[MCP] Notion remote MCP cần OAuth: mở Claude Code và chạy /mcp để hoàn tất đăng nhập Notion.",
+      );
+    }
   } catch (err) {
     appendLog(`[ERROR] Đăng ký '${s.name}' thất bại: ${err}`);
   }
@@ -1235,9 +1343,11 @@ function initEventListeners() {
   el.btnPing.addEventListener("click", () => void onPing());
   el.btnSetActive.addEventListener("click", () => void onSetActive());
   el.btnRemove.addEventListener("click", () => void onRemove());
+  el.btnDoctor.addEventListener("click", () => void onDoctor());
 
   el.btnClear.addEventListener("click", clearLog);
   el.btnCopy.addEventListener("click", () => void copyLog());
+  el.btnCopyPathFix.addEventListener("click", () => void onCopyPathFix());
   el.btnDone.addEventListener("click", () => void onDoneClicked());
 
   el.btnLicense.addEventListener("click", () => void openLicenseDashboard());
@@ -1278,6 +1388,9 @@ function initEventListeners() {
     setStatus(`${label}: rc=${code}`);
     resetJobState();
     void refreshProfiles();
+    if (label === "doctor" || label.startsWith("doctor")) {
+      void refreshDoctorPathFix({ announce: true });
+    }
   });
   void listen("open-license-dashboard", () => void openLicenseDashboard());
   void listen("open-about", () => void openAboutModal());
