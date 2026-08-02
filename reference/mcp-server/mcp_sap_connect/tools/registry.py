@@ -165,6 +165,36 @@ def build_tools() -> list[dict[str, Any]]:
             "handler": _handle_run_unit_tests,
         },
         {
+            "name": "sap_run_atc",
+            "description": (
+                "Chay ABAP Test Cockpit (ATC) tren 1 object via ADT "
+                "(/sap/bc/adt/atc/worklists + runs). Tra ve status PASS/FAIL + findings. "
+                "Khac sap_syntax_check (chi syntax)."
+            ),
+            "inputSchema": {
+                "type": "object",
+                "properties": {
+                    "profile": {"type": "string"},
+                    "objectUri": {
+                        "type": "string",
+                        "description": "URI ADT object (VD: /sap/bc/adt/oo/classes/zcl_demo)",
+                    },
+                    "checkVariant": {
+                        "type": "string",
+                        "description": "ATC check variant (mac dinh DEFAULT).",
+                        "default": "DEFAULT",
+                    },
+                    "maxFindings": {
+                        "type": "number",
+                        "description": "Gioi han findings (mac dinh 100, max 500).",
+                        "default": 100,
+                    },
+                },
+                "required": ["objectUri"],
+            },
+            "handler": _handle_run_atc,
+        },
+        {
             "name": "sap_get_system_info",
             "description": "Lay thong tin he thong SAP (version SAP_BASIS, release, database, kernel, tenant, region).",
             "inputSchema": {
@@ -278,6 +308,18 @@ async def _handle_run_unit_tests(args: dict[str, Any] | None) -> str:
     args = args or {}
     client = await create_sap_client(_pick_profile(args))
     data = await client.run_unit_tests(args["objectUri"], args["objectType"])
+    return _to_json(data)
+
+
+async def _handle_run_atc(args: dict[str, Any] | None) -> str:
+    args = args or {}
+    client = await create_sap_client(_pick_profile(args))
+    max_findings = min(int(args.get("maxFindings", 100) or 100), 500)
+    data = await client.run_atc(
+        args["objectUri"],
+        check_variant=(args.get("checkVariant") or "DEFAULT"),
+        max_findings=max_findings,
+    )
     return _to_json(data)
 
 

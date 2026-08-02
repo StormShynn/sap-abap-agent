@@ -37,7 +37,11 @@ Khong duoc ghi `Ket qua: READY` trong `FINISH_CHECKLIST.md` neu thieu bat ky muc
 | Muc | Required? | Bang chung chap nhan | PASS khi |
 |---|---|---|---|
 | Activation | Yes | MCP `sap_activate` log / ADT activation status | Moi object TECHNICAL_SPEC activated, 0 activation error |
-| ATC | Yes | `out/<ticket>/ATC_REVIEW.md` | Status **PASS** (WARN: ghi chu, van duoc READY) |
+| ATC (system) | Yes neu co tenant MCP | MCP `sap_run_atc` output (`status=PASS`) tren object chinh | 0 finding priority ≤ 2 |
+| ATC (local checklist) | Yes | `out/<ticket>/ATC_REVIEW.md` tu `sap-atc-review` | Status **PASS** (WARN: ghi chu, van duoc READY) |
+
+> Neu MCP ATC **404/khong mo** tren tenant: ghi chu trong FINISH + van bat buoc
+> `ATC_REVIEW.md` PASS. Co MCP ATC PASS **khong** thay the naming/released-API checklist.
 | Unit test | Yes neu da sinh test class | MCP `sap_run_unit_tests` output **hoac** ADT runner log | 0 FAIL |
 | Transport | Yes truoc release | So TR + object list khop TECHNICAL_SPEC | Khong thua/thieu object |
 | abapGit | Optional neu chua push | Trang thai working tree / remote | Khong commit `in/`/`out/` |

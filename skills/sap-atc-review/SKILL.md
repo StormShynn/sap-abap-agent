@@ -17,12 +17,18 @@ tools: [Bash, Read, Glob, Grep]
 
 # SAP ATC Review — Naming + Released API + Clean ABAP checklist
 
+> **System ATC (MCP):** khi session co `sap-btp` + tenant mo ADT ATC, goi tool
+> `sap_run_atc` (objectUri ADT, checkVariant mac dinh `DEFAULT`) va dan JSON vao
+> report muc "System ATC". **Fail-open:** neu tool 404/loi → ghi chu, van chay
+> checklist local ben duoi (khong hard-block).
+
 ## Khi nao dung
 
 - ✅ Sau khi scaffold xong (`sap-scaffold-rap`/`sap-scaffold-cds`).
 - ✅ Truoc khi commit/push len abapGit.
 - 🔗 Dung cung agent `abap-reviewer` cho phan review sau/logic nghiep vu — skill nay tap trung vao
   cac check co the tu dong hoa (naming, released API, clean ABAP, test coverage).
+- 🔗 System findings: MCP `sap_run_atc` (khac `sap_syntax_check`).
 
 ## Output
 

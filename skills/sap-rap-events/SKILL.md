@@ -158,6 +158,25 @@ SAP/FI/BO/JOURNALENTRY/Created
 | Synchronous API (request-response) | ❌ | OData service |
 | Trigger workflow | ✅ Event | |
 | Delay processing (<=5s) | ❌ | EML direct |
+| AI worker async (tom tat / classify) | ✅ Event → CAP + GenAI Hub | xem `sap-generative-ai` |
+
+## 9. Checklist end-to-end (BAT BUOC khi scaffold)
+
+1. **Param CDS** — abstract entity / structure cho `%param` (mau: `reference/templates/rap-events-boilerplate/z_so_eventparams.ddls.asddls`).
+2. **BDEF** — `event <Name> parameter <Param> description '…' category communication|internal`.
+3. **Raise** — trong create/update/action handler: `RAISE ENTITY EVENT … FROM VALUE #( … )` (mau: `zbp_object_events.clas.locals_imp.abap`).
+4. **COM_0109** — Communication Arrangement Enterprise Event Enablement + channel Event Mesh.
+5. **Topic bind** — map BO event → Mesh topic; document topic trong TECHNICAL_SPEC.
+6. **Consume** — CPI adapter **hoac** CAP (`cap-consumer/srv/event-handler.js`); full CAP project → `sap-scaffold-cap`.
+7. **Verify** — ADT Event Queue / outbound monitoring; 1 event test sau activate.
+8. **Scaffold path** — khi TECHNICAL_SPEC can events: copy `reference/templates/rap-events-boilerplate/` (skill `sap-scaffold-rap` Buoc events).
+
+## Gotcha
+
+- Quen `category communication` → event khong ra Mesh.
+- Raise truoc khi key/mapping thanh cong → event “rong” / fail.
+- Topic typo giua S/4 va CAP/CPI → subscribe im lang.
+- Public Cloud: chi event/API released — ATC Clean Core.
 
 ## Nguon tham khao
 
@@ -165,3 +184,4 @@ SAP/FI/BO/JOURNALENTRY/Created
 - SAP Community: Event-driven RAP
 - SAP Event Mesh documentation
 - `https://api.sap.com` — Event topics catalog
+- Template: `reference/templates/rap-events-boilerplate/`

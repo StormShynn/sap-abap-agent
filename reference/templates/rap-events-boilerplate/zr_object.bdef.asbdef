@@ -1,0 +1,14 @@
+// Fragment — merge into managed BDEF for root entity (rename Z* / entity)
+// define behavior for ZR_Object alias Object
+//   implementation in class zbp_object unique
+//   ...
+// {
+//   create; update; delete;
+//
+  event ObjectCreated parameter Z_SO_EventParams
+    description 'Object Created'
+    category communication;
+  event ObjectChanged parameter Z_SO_EventParams
+    description 'Object Changed'
+    category communication;
+// }
