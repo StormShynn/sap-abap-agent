@@ -735,3 +735,9 @@ Lấy theo `msg-CareerPaths/sap-abap-internship`, rút gọn thành 6 tuần:
   không yêu cầu" trong `agents/sap-daily-learner.md`).
 - Sau khi hoàn thành 1 bước, tự cập nhật `LEARNING_PROGRESS.md` + tạo lesson card qua
   `reference/scripts/lesson_card_add.py` (xem mục "Lesson Cards" của skill này).
+
+## Lien ket: hoc tu he thong that
+
+Muon doc table/class/CDS **tren tenant dang MCP** roi rut lesson local + dong bo Notion
+(scrub, fail-open): dung skill `sap-learn-from-system` + `CHECKLIST.md`.
+Khac tip/quiz hang ngay cua skill nay; DB Notion dung chung "SAP Skills" (muc 3b).

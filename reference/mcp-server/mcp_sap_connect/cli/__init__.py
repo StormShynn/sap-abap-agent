@@ -121,8 +121,8 @@ def main() -> None:
         _cmd_reset()
     elif cmd == "doctor":
         from ..doctor import main as run_doctor
-        run_doctor()
-    elif cmd == "mcp-setup":
+        sys.exit(run_doctor(cmd_args))
+    elif cmd in ("mcp-setup", "register-mcp-servers"):
         if cmd_args and cmd_args[0] == "--status-json":
             _cmd_mcp_status_json()
         elif cmd_args and cmd_args[0] == "--register-json":
@@ -139,14 +139,14 @@ def main() -> None:
                     i += 1
             if not name:
                 import json as _json
-                print(_json.dumps({"ok": False, "error": "Thieu ten server. Dung: mcp-setup --register-json <name> [--env K=V ...]"}))
+                print(_json.dumps({"ok": False, "error": "Thieu ten server. Dung: mcp-sap-connect register-mcp-servers --register-json <name> [--env K=V ...]"}))
                 sys.exit(1)
             sys.exit(0 if _cmd_mcp_register_json(name, env_overrides) else 1)
         elif cmd_args and cmd_args[0] == "--unregister-json":
             name = cmd_args[1] if len(cmd_args) > 1 else ""
             if not name:
                 import json as _json
-                print(_json.dumps({"ok": False, "error": "Thieu ten server. Dung: mcp-setup --unregister-json <name>"}))
+                print(_json.dumps({"ok": False, "error": "Thieu ten server. Dung: mcp-sap-connect register-mcp-servers --unregister-json <name>"}))
                 sys.exit(1)
             sys.exit(0 if _cmd_mcp_unregister_json(name) else 1)
         else:
@@ -198,23 +198,26 @@ def _show_help() -> None:
     print("    connect [profile-id]   Test kết nối profile (đọc + ghi/CSRF)")
     print("    ping [profile-id]      Kiểm tra nhanh session còn hiệu lực (chỉ đọc, nhẹ hơn connect)")
     print("    reauth [profile-id]    Đăng nhập lại (lấy cookie mới) - không hỏi lại từ đầu như setup")
-    print("    mcp-setup              Đăng ký MCP servers với Claude Code (--status-json/--register-json/--unregister-json cho GUI)")
+    print("    register-mcp-servers   Đăng ký MCP servers với Claude Code (alias: mcp-setup; --status-json/--register-json/--unregister-json cho GUI)")
+    print("    mcp-setup              Alias cũ của register-mcp-servers")
     print("    profiles list          Liệt kê tất cả profile")
     print("    profiles use <id>      Chọn profile active")
     print("    profiles show          Xem chi tiết profile active")
     print("    profiles remove <id>   Xóa một profile")
     print("    reset                  Xóa TẤT CẢ dữ liệu (cẩn thận!)")
-    print("    doctor                 Kiểm tra môi trường (PATH, dependency...)")
+    print("    doctor [--json]        Kiểm tra môi trường (PATH, dependency...); --json cho GUI")
     print()
     print("  (Khong argument = chay MCP stdio server, dung cho claude mcp add)")
     print()
     print("  Examples:")
     print("    mcp-sap-connect setup https://xxx.s4hana.cloud.sap")
+    print("    mcp-sap-connect register-mcp-servers")
     print("    mcp-sap-connect mcp-setup")
     print("    mcp-sap-connect connect")
     print("    mcp-sap-connect reauth")
     print("    mcp-sap-connect profiles list")
     print("    mcp-sap-connect doctor")
+    print("    mcp-sap-connect doctor --json")
     print()
     print("  Neu 'mcp-sap-connect' khong duoc nhan dien (not recognized), chay:")
     print("    python -m mcp_sap_connect.doctor")
@@ -1344,6 +1347,9 @@ _MCP_JSON_INVENTORY: list[dict[str, Any]] = [
      "description": "ABAP deep analysis (vibing-steampunk) - package health/dead-code/debug. "
                      "Tu dien SAP_ADT_URL tu profile active (+ SAP_ADT_USER/PASSWORD neu authMode=password).",
      "envVars": []},
+    {"name": "notion", "category": "special", "transport": "http",
+     "description": "Notion remote MCP (HTTP). Sau khi dang ky: mo Claude Code va chay /mcp de OAuth.",
+     "envVars": [], "url": "https://mcp.notion.com/mcp"},
 ]
 
 # Manual = can clone/build/license. GUI khong duoc dead-end "xem doc": status-json

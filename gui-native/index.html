@@ -7,6 +7,36 @@
     <link rel="stylesheet" href="/src/styles.css" />
   </head>
   <body>
+    <!-- Custom titlebar (tauri.conf.json: decorations=false) -->
+    <div id="titlebar" class="titlebar" data-tauri-drag-region>
+      <div class="titlebar-left" data-tauri-drag-region>
+        <span class="titlebar-logo" aria-hidden="true">⬢</span>
+        <span class="titlebar-title" data-tauri-drag-region>SAP ABAP Agent</span>
+      </div>
+      <div class="titlebar-right">
+        <button id="btn-theme" class="win-btn" title="Chuyển chế độ sáng/tối">🌙</button>
+        <button id="win-min" class="win-btn" title="Thu nhỏ" aria-label="Minimize">
+          <svg viewBox="0 0 12 12" width="12" height="12" aria-hidden="true">
+            <path d="M1.5 6h9" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" />
+          </svg>
+        </button>
+        <button id="win-max" class="win-btn" title="Phóng to / khôi phục" aria-label="Maximize">
+          <svg id="win-max-icon" viewBox="0 0 12 12" width="12" height="12" aria-hidden="true">
+            <rect x="1.6" y="1.6" width="8.8" height="8.8" rx="1.2" fill="none" stroke="currentColor" stroke-width="1.1" />
+          </svg>
+          <svg id="win-restore-icon" class="hidden" viewBox="0 0 12 12" width="12" height="12" aria-hidden="true">
+            <path d="M3.2 3.4V2.2h7v6.6h-1.4" fill="none" stroke="currentColor" stroke-width="1.1" />
+            <rect x="1.8" y="3.4" width="6.8" height="6.8" rx="1.1" fill="none" stroke="currentColor" stroke-width="1.1" />
+          </svg>
+        </button>
+        <button id="win-close" class="win-btn win-close" title="Đóng (ẩn vào tray)" aria-label="Close">
+          <svg viewBox="0 0 12 12" width="12" height="12" aria-hidden="true">
+            <path d="M2.2 2.2l7.6 7.6M9.8 2.2l-7.6 7.6" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" />
+          </svg>
+        </button>
+      </div>
+    </div>
+
     <div id="app">
       <div id="runtime-banner" class="runtime-banner hidden" role="status">
         <div class="runtime-banner-body">
@@ -16,28 +46,35 @@
         </div>
         <button id="btn-runtime-recheck" class="btn btn-accent">Kiểm tra lại</button>
       </div>
-      <header class="header">
+
+      <header class="header card">
         <div class="row">
           <label for="profile-select" class="label-bold">Profile:</label>
           <select id="profile-select" class="profile-select"></select>
-          <button id="btn-refresh" class="btn btn-flat">Refresh</button>
+          <button id="btn-refresh" class="btn btn-flat" title="Làm mới danh sách profile">
+            <span aria-hidden="true">⟳</span> Refresh
+          </button>
           <div class="add-menu">
             <button id="btn-add" class="btn btn-accent">+ Add ▾</button>
             <div id="add-dropdown" class="dropdown hidden">
-              <button data-action="wizard">Setup wizard (interactive)...</button>
-              <button data-action="from-file">Setup from file (--from-file)...</button>
-              <button data-action="import-json">Import from JSON backup...</button>
+              <button data-action="wizard">🧙 Setup wizard (interactive)...</button>
+              <button data-action="from-file">📄 Setup from file (--from-file)...</button>
+              <button data-action="import-json">📥 Import from JSON backup...</button>
             </div>
           </div>
         </div>
         <div class="row url-row">
+          <span class="url-dot" aria-hidden="true"></span>
           <span id="url-text" class="muted">(no profile selected)</span>
         </div>
         <div class="row license-row">
           <span id="license-text" class="license-text muted"></span>
-          <button id="btn-license" class="btn btn-flat">📋 License</button>
-          <button id="btn-mcp-servers" class="btn btn-flat">🧩 MCP Servers</button>
-          <button id="btn-about" class="btn btn-flat" title="About / Check update">ℹ About</button>
+          <div class="toolbar-spacer"></div>
+          <button id="btn-doctor" class="btn btn-flat btn-sm" title="Chạy mcp-sap-connect doctor (PATH / dependency)">🩺 Doctor</button>
+          <button id="btn-license" class="btn btn-flat btn-sm" title="Chi tiết license / credentials">📋 License</button>
+          <button id="btn-mcp-servers" class="btn btn-flat btn-sm" title="Cài đặt MCP servers">🧩 MCP Servers</button>
+          <button id="btn-plugin-control" class="btn btn-flat btn-sm" title="Cập nhật plugin SAP ABAP Agent">📦 Plugin</button>
+          <button id="btn-about" class="btn btn-flat btn-sm" title="About / Check update">ℹ About</button>
         </div>
       </header>
 
@@ -50,15 +87,21 @@
       </section>
 
       <section class="log-section">
-        <div class="label-bold">Log:</div>
+        <div class="log-head">
+          <span class="label-bold">Log</span>
+          <span id="status-text" class="muted status-text">Ready</span>
+        </div>
         <div class="log-card">
           <pre id="log-text" class="log-text"></pre>
         </div>
         <div class="log-toolbar">
-          <button id="btn-clear" class="btn btn-flat">Clear</button>
-          <button id="btn-copy" class="btn btn-flat">Copy</button>
-          <button id="btn-done" class="btn btn-done" disabled>✓ Đã đăng nhập xong</button>
-          <span id="status-text" class="muted status-text">Ready</span>
+          <button id="btn-clear" class="btn btn-flat btn-sm">Clear</button>
+          <button id="btn-copy" class="btn btn-flat btn-sm">Copy</button>
+          <button id="btn-open-log-dir" class="btn btn-flat btn-sm" title="Mở thư mục log (~/.mcp-sap-connect/log)">📂 Mở thư mục log</button>
+          <button id="btn-copy-path-fix" class="btn btn-flat btn-sm" title="Copy lệnh sửa PATH vào clipboard (từ doctor --json)" disabled>Copy PATH fix</button>
+          <button id="btn-clear-on-job" class="btn btn-flat btn-sm toggle-btn" title="Tự động xóa log khi bắt đầu job mới" aria-pressed="false">Clear on job start</button>
+          <div class="toolbar-spacer"></div>
+          <button id="btn-done" class="btn btn-done btn-sm" disabled>✓ Đã đăng nhập xong</button>
         </div>
       </section>
     </div>
@@ -68,8 +111,8 @@
         <div class="modal-header">
           <h2>License / Credentials Status (auto-refresh 1s)</h2>
           <div>
-            <button id="btn-license-refresh" class="btn btn-flat">Refresh</button>
-            <button id="btn-license-close" class="btn btn-flat">Close</button>
+            <button id="btn-license-refresh" class="btn btn-flat btn-sm">Refresh</button>
+            <button id="btn-license-close" class="btn btn-flat btn-sm">Close</button>
           </div>
         </div>
         <div id="license-rows" class="license-rows"></div>
@@ -83,11 +126,11 @@
           <div class="mcp-preset-row">
             <button id="btn-mcp-preset-core" class="btn btn-flat btn-sm" title="sap-btp, sap-dict-bridge, cds-kb, mcp-sap-docs-btp">Cài Core</button>
             <button id="btn-mcp-preset-research" class="btn btn-flat btn-sm" title="Core + arc-1 + sap-vsp">Preset Research</button>
-            <button id="btn-mcp-refresh" class="btn btn-flat">Làm mới</button>
-            <button id="btn-mcp-close" class="btn btn-flat">Đóng</button>
+            <button id="btn-mcp-refresh" class="btn btn-flat btn-sm">Làm mới</button>
+            <button id="btn-mcp-close" class="btn btn-flat btn-sm">Đóng</button>
           </div>
         </div>
-        <p class="muted" style="margin-top: 0">
+        <p class="muted mcp-intro">
           Đăng ký MCP với Claude Code. <strong>Core (bắt buộc)</strong>: sap-btp, sap-dict-bridge, cds-kb, mcp-sap-docs-btp.
           Sau khi đăng ký, khởi động lại Claude Code để nhận server mới.
         </p>
@@ -97,11 +140,45 @@
             <span id="mcp-core-cta-detail" class="muted"></span>
           </div>
           <div class="mcp-core-cta-actions">
-            <button id="btn-mcp-register-required" class="btn btn-accent">Đăng ký MCP bắt buộc</button>
+            <button id="btn-mcp-register-required" class="btn btn-accent btn-sm">Đăng ký MCP bắt buộc</button>
             <button id="btn-mcp-skip-required" class="btn btn-flat btn-sm">Để sau</button>
           </div>
         </div>
+        <div id="mcp-notion-cta" class="mcp-notion-cta hidden">
+          <div class="mcp-notion-cta-text">
+            <strong>Notion đã đăng ký</strong>
+            <span class="muted">Mở Claude Code và chạy <code>/mcp</code> để hoàn tất OAuth Notion (remote HTTP).</span>
+          </div>
+        </div>
         <div id="mcp-rows" class="license-rows"></div>
+      </div>
+    </div>
+
+    <div id="plugin-modal" class="modal-overlay hidden">
+      <div class="modal-panel modal-panel-small about-panel">
+        <div class="modal-header">
+          <h2>Cập nhật Plugin</h2>
+          <button id="btn-plugin-close" class="btn btn-flat btn-sm">Đóng</button>
+        </div>
+        <div class="about-row">
+          <span class="muted">Đã cài</span>
+          <span id="plugin-installed-text">…</span>
+        </div>
+        <div class="about-row">
+          <span class="muted">Cập nhật lần cuối</span>
+          <span id="plugin-last-updated-text">…</span>
+        </div>
+        <div class="about-row about-row-update">
+          <span class="muted">Cập nhật</span>
+          <div class="about-update-actions">
+            <button id="btn-plugin-update" class="btn btn-accent btn-sm" disabled>Cập nhật plugin</button>
+          </div>
+        </div>
+        <p id="plugin-update-msg" class="muted about-update-msg"></p>
+        <p class="muted about-footnote">
+          Cập nhật skills/agents/hooks qua <code>claude plugin update</code>. Cần khởi động lại
+          Claude Code (không phải app này) để áp dụng.
+        </p>
       </div>
     </div>
 
@@ -109,7 +186,7 @@
       <div class="modal-panel modal-panel-small about-panel">
         <div class="modal-header">
           <h2>SAP ABAP Agent</h2>
-          <button id="btn-about-close" class="btn btn-flat">Close</button>
+          <button id="btn-about-close" class="btn btn-flat btn-sm">Close</button>
         </div>
         <div class="about-row">
           <span class="muted">Version</span>
@@ -130,9 +207,18 @@
           </div>
         </div>
         <p id="about-update-msg" class="muted about-update-msg"></p>
+        <div class="about-row">
+          <span class="muted">Notifications</span>
+          <button
+            id="btn-notify-toggle"
+            class="btn btn-flat btn-sm toggle-btn"
+            title="Tắt/bật thông báo Windows cho job & update"
+            aria-pressed="true"
+          >🔔 On</button>
+        </div>
         <p class="muted about-footnote">
           Auto-update qua tag <code>gui-latest</code> / <code>update.json</code> (ký minisign).
-          Plugin/CLI (<code>mcp-server-v*</code>) cập nhật riêng qua pip / marketplace.
+          Plugin Claude Code: xem nút 📦 Plugin. CLI (<code>mcp-server-v*</code>): pip / <code>update.ps1</code>.
         </p>
       </div>
     </div>

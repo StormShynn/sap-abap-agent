@@ -66,8 +66,8 @@ Dự án là **open-source**, mọi đóng góp đều được chào đón!
 ```text
 sap-abap-agent/
 +-- .claude-plugin/            # Manifest plugin Claude Code
-+-- commands/                  # /sap-setup, /sap-connect, /mcp-setup, /sync-skills,
-|                               #   /sap-generate-report, /sap-generate-adobe-form, /sap-new-object
++-- commands/                  # /sap-setup, /sap-connect, /register-mcp-servers,
+|                              # /sync-skills, /sap-new-object, /sap-generate-report, …
 +-- skills/
 |   +-- sap-ask-consultant/    # 🧠 Auto-scoring routing engine (28 agents)
 |   +-- sap-daily-learner/     # 📚 Daily SAP Learning — Hermes-like (self-improving)
@@ -1325,7 +1325,7 @@ Plugin có **2 cơ chế kích hoạt khác nhau**, dễ nhầm nếu chỉ đ�
 |---|---|
 | `/sap-setup` | Cài đặt toàn bộ cho máy mới, tự động hết mức có thể (pip install, đăng ký MCP) — chỉ dừng lại đúng 1 chỗ: điền file config mẫu với credential thật |
 | `/sap-connect` | Thiết lập/quản lý profile kết nối SAP BTP |
-| `/mcp-setup` | Đăng ký toàn bộ MCP server 1 lần |
+| `/register-mcp-servers` | Đăng ký MCP servers vào Claude Code (1 lần). **Không** phải `/mcp` (OAuth). Alias cũ: `/mcp-setup` |
 | `/sync-skills` | Đồng bộ skill/agent/command mới nhất từ GitHub |
 | `/sap-generate-report` | Chạy nguyên pipeline sinh báo cáo từ file đặc tả — tự chọn CDS+Fiori hay classical ALV theo edition |
 | `/sap-generate-adobe-form` | Chạy nguyên pipeline sinh class in PDF qua Adobe Document Services |

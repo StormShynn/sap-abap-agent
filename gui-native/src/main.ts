@@ -1,10 +1,47 @@
 import { invoke } from "@tauri-apps/api/core";
 import { getVersion } from "@tauri-apps/api/app";
 import { listen } from "@tauri-apps/api/event";
+import { getCurrentWindow } from "@tauri-apps/api/window";
 import { open as openFileDialog } from "@tauri-apps/plugin-dialog";
 import { openUrl } from "@tauri-apps/plugin-opener";
 import { check, type Update } from "@tauri-apps/plugin-updater";
 import { relaunch } from "@tauri-apps/plugin-process";
+import {
+  isPermissionGranted,
+  requestPermission,
+  sendNotification,
+} from "@tauri-apps/plugin-notification";
+
+// Shoelace (Web Components) — themes + components dùng trong GUI này
+import "@shoelace-style/shoelace/dist/themes/light.css";
+import "@shoelace-style/shoelace/dist/themes/dark.css";
+import "@shoelace-style/shoelace/dist/components/alert/alert.js";
+import "@shoelace-style/shoelace/dist/components/badge/badge.js";
+import "@shoelace-style/shoelace/dist/components/progress-bar/progress-bar.js";
+import { registerIconLibrary } from "@shoelace-style/shoelace/dist/utilities/icon-library.js";
+
+// Shoelace mặc định tải icon từ CDN — bị CSP chặn trong Tauri. Đăng ký thư
+// viện icon local (inline SVG data URI) để chạy offline, không cần network.
+const SL_ICONS: Record<string, string> = {
+  "x-lg":
+    '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z"/></svg>',
+  "check2-circle":
+    '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M2.5 8a5.5 5.5 0 0 1 8.25-4.764.5.5 0 0 0 .5-.866A6.5 6.5 0 1 0 14.5 8a.5.5 0 0 0-1 0 5.5 5.5 0 1 1-11 0"/><path d="M15.354 3.354a.5.5 0 0 0-.708-.708L8 9.293 5.354 6.646a.5.5 0 1 0-.708.708l3 3a.5.5 0 0 0 .708 0z"/></svg>',
+  "exclamation-triangle":
+    '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M7.938 2.016A.13.13 0 0 1 8.002 2a.13.13 0 0 1 .063.016.15.15 0 0 1 .054.057l6.857 11.667c.036.06.035.124.002.183a.2.2 0 0 1-.054.06.1.1 0 0 1-.066.017H1.146a.1.1 0 0 1-.066-.017.2.2 0 0 1-.054-.06.18.18 0 0 1 .002-.183L7.884 2.073a.15.15 0 0 1 .054-.057m1.044-.45a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767z"/><path d="M7.002 12a1 1 0 1 1 2 0 1 1 0 0 1-2 0M7.1 5.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0z"/></svg>',
+  "exclamation-octagon":
+    '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M4.54.146A.5.5 0 0 1 4.893 0h6.214a.5.5 0 0 1 .353.146l4.394 4.394a.5.5 0 0 1 .146.353v6.214a.5.5 0 0 1-.146.353l-4.394 4.394a.5.5 0 0 1-.353.146H4.893a.5.5 0 0 1-.353-.146L.146 11.46A.5.5 0 0 1 0 11.107V4.893a.5.5 0 0 1 .146-.353zM5.1 1 1 5.1v5.8L5.1 15h5.8l4.1-4.1V5.1L10.9 1z"/><path d="M7.002 11a1 1 0 1 1 2 0 1 1 0 0 1-2 0M7.1 4.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0z"/></svg>',
+  "info-circle":
+    '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/><path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0"/></svg>',
+};
+
+registerIconLibrary("default", {
+  resolver: (name: string) => {
+    const svg = SL_ICONS[name] ?? SL_ICONS["info-circle"];
+    return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+  },
+  mutator: (svg: SVGElement) => svg,
+});
 
 // ===== Types (khop voi struct Rust ben src-tauri/src/mcp_cli.rs + jobs.rs) =====
 
@@ -64,9 +101,226 @@ interface RuntimeStatus {
   install_hint: string;
 }
 
+interface DoctorReport {
+  all_ok: boolean;
+  path_ok: boolean;
+  scripts_dir: string | null;
+  path_fix: string | null;
+}
+
+interface PluginStatusData {
+  claudeAvailable: boolean;
+  found: boolean;
+  pluginId: string | null;
+  version: string | null;
+  lastUpdated: string | null;
+  detail: string | null;
+}
+
 const REPO_URL = "https://github.com/StormShynn/sap-abap-agent";
 const RELEASES_URL = `${REPO_URL}/releases`;
 const GUI_LATEST_URL = `${REPO_URL}/releases/tag/gui-latest`;
+
+// ===== Theme (dark/light) =====
+// Sync <html> class `sl-theme-dark` (Shoelace) + `data-theme` (our CSS vars).
+
+const THEME_KEY = "sap-abap-agent.gui.theme";
+
+function systemPrefersDark(): boolean {
+  return window.matchMedia?.("(prefers-color-scheme: dark)").matches ?? false;
+}
+
+function loadTheme(): "dark" | "light" {
+  try {
+    const saved = localStorage.getItem(THEME_KEY);
+    if (saved === "dark" || saved === "light") return saved;
+  } catch {
+    /* private mode */
+  }
+  return systemPrefersDark() ? "dark" : "light";
+}
+
+function applyTheme(theme: "dark" | "light") {
+  document.documentElement.classList.toggle("sl-theme-dark", theme === "dark");
+  document.documentElement.dataset.theme = theme;
+  try {
+    localStorage.setItem(THEME_KEY, theme);
+  } catch {
+    /* private mode */
+  }
+  if (el.btnTheme) {
+    el.btnTheme.textContent = theme === "dark" ? "☀️" : "🌙";
+  }
+}
+
+function toggleTheme() {
+  applyTheme(document.documentElement.dataset.theme === "dark" ? "light" : "dark");
+}
+
+// ===== Window controls (decorations: false — custom titlebar) =====
+// getCurrentWindow() o module level se crash khi chay ngoai Tauri (browser
+// dev / preview thuần). Lazy-init + try/catch de app van hoat dong.
+
+let appWindow: ReturnType<typeof getCurrentWindow> | null = null;
+
+function getAppWindow() {
+  if (!appWindow) {
+    try {
+      appWindow = getCurrentWindow();
+    } catch {
+      appWindow = null;
+    }
+  }
+  return appWindow;
+}
+
+async function refreshMaximizeIcon() {
+  const win = getAppWindow();
+  if (!win) return;
+  let maximized = false;
+  try {
+    maximized = await win.isMaximized();
+  } catch {
+    /* dev / non-window context */
+  }
+  el.winMaxIcon.classList.toggle("hidden", maximized);
+  el.winRestoreIcon.classList.toggle("hidden", !maximized);
+}
+
+function initWindowControls() {
+  const win = getAppWindow();
+  if (!win) {
+    // Chay ngoai Tauri: an luon cac nut dieu khien cua so.
+    el.winMin.classList.add("hidden");
+    el.winMax.classList.add("hidden");
+    el.winClose.classList.add("hidden");
+    return;
+  }
+  el.winMin.addEventListener("click", () => void win.minimize());
+  el.winMax.addEventListener("click", () => {
+    void win.toggleMaximize().then(refreshMaximizeIcon);
+  });
+  el.winClose.addEventListener("click", () => void win.close());
+  // Windows convention: double-click titlebar to toggle maximize.
+  el.titlebar.addEventListener("dblclick", (e) => {
+    if ((e.target as HTMLElement).closest("button")) return;
+    void win.toggleMaximize().then(refreshMaximizeIcon);
+  });
+  void refreshMaximizeIcon();
+  void win.onResized(() => void refreshMaximizeIcon());
+}
+
+// ===== Toast helper (Shoelace) — thay the alert() =====
+
+type ToastVariant = "success" | "danger" | "warning" | "primary" | "neutral";
+
+function showToast(message: string, variant: ToastVariant = "primary", duration = 4500) {
+  const alert = Object.assign(document.createElement("sl-alert"), {
+    variant,
+    duration,
+    closable: true,
+  });
+  alert.textContent = message;
+  document.body.appendChild(alert);
+  alert.toast();
+}
+
+// ===== Windows notifications (tauri-plugin-notification) =====
+// Rust side da init plugin (lib.rs); capability `notification:default` da co.
+// Chay ngoai Tauri (browser dev/preview): isPermissionGranted() se reject →
+// notify() im lang, khong crash.
+
+let notifyPermission: boolean | null = null;
+
+// ===== Notifications on/off setting (localStorage) =====
+// User co the tat thong bao Windows cho job/update. Khi tat, notify() im lang
+// (khong request permission, khong hien gi). Setting duoc sync sang Rust qua
+// invoke "set_notifications_enabled" de tray menu cung ton trong setting.
+
+const NOTIFY_DISABLED_KEY = "sap-abap-agent.gui.notifyDisabled";
+
+function loadNotifyDisabled(): boolean {
+  try {
+    return localStorage.getItem(NOTIFY_DISABLED_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
+function setNotifyDisabled(disabled: boolean) {
+  try {
+    if (disabled) localStorage.setItem(NOTIFY_DISABLED_KEY, "1");
+    else localStorage.removeItem(NOTIFY_DISABLED_KEY);
+  } catch {
+    /* private mode */
+  }
+  el.btnNotifyToggle.classList.toggle("active", !disabled);
+  el.btnNotifyToggle.setAttribute("aria-pressed", String(!disabled));
+  el.btnNotifyToggle.textContent = disabled ? "🔕 Off" : "🔔 On";
+  // Sync sang Rust (gate notify() trong tray.rs) — khong fail neu chay ngoai Tauri.
+  invoke("set_notifications_enabled", { enabled: !disabled }).catch(() => {});
+}
+
+function toggleNotifyDisabled() {
+  setNotifyDisabled(!loadNotifyDisabled());
+}
+
+async function ensureNotifyPermission(): Promise<boolean> {
+  if (notifyPermission !== null) return notifyPermission;
+  try {
+    let granted = await isPermissionGranted();
+    if (!granted) {
+      const permission = await requestPermission();
+      granted = permission === "granted";
+    }
+    notifyPermission = granted;
+  } catch {
+    notifyPermission = false; // non-Tauri context
+  }
+  return notifyPermission;
+}
+
+async function notify(title: string, body: string) {
+  if (loadNotifyDisabled()) return; // user tat thong bao
+  if (!(await ensureNotifyPermission())) return;
+  try {
+    sendNotification({ title, body });
+  } catch (err) {
+    console.warn("sendNotification failed", err);
+  }
+}
+
+// ===== Clear-on-job-start toggle =====
+
+const CLEAR_ON_JOB_KEY = "sap-abap-agent.gui.clearOnJobStart";
+
+function loadClearOnJobStart(): boolean {
+  try {
+    return localStorage.getItem(CLEAR_ON_JOB_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
+function setClearOnJobStart(enabled: boolean) {
+  try {
+    if (enabled) localStorage.setItem(CLEAR_ON_JOB_KEY, "1");
+    else localStorage.removeItem(CLEAR_ON_JOB_KEY);
+  } catch {
+    /* private mode */
+  }
+  el.btnClearOnJob.classList.toggle("active", enabled);
+  el.btnClearOnJob.setAttribute("aria-pressed", String(enabled));
+}
+
+function toggleClearOnJobStart() {
+  setClearOnJobStart(!loadClearOnJobStart());
+}
+
+/** Goi truoc khi bat dau job moi: neu toggle ON thi xoa log cu. */
+function maybeClearLogForNewJob() {
+  if (loadClearOnJobStart()) clearLog();
+}
 
 // ===== State =====
 
@@ -75,6 +329,8 @@ let licenseCache: Map<string, LicenseStatus> = new Map();
 let selectedId: string | null = null;
 let earlyFinishPath: string | null = null;
 let licenseDashboardOpen = false;
+/** Cached PowerShell/shell PATH fix from last doctor --json (null when PATH OK). */
+let cachedPathFix: string | null = null;
 
 // ===== DOM refs (gan trong init()) =====
 const el = {
@@ -90,6 +346,7 @@ const el = {
   urlText: byId<HTMLSpanElement>("url-text"),
   licenseText: byId<HTMLSpanElement>("license-text"),
   btnLicense: byId<HTMLButtonElement>("btn-license"),
+  btnDoctor: byId<HTMLButtonElement>("btn-doctor"),
   btnReauth: byId<HTMLButtonElement>("btn-reauth"),
   btnConnect: byId<HTMLButtonElement>("btn-connect"),
   btnPing: byId<HTMLButtonElement>("btn-ping"),
@@ -99,6 +356,9 @@ const el = {
   logCard: byId<HTMLDivElement>("log-text").parentElement as HTMLDivElement,
   btnClear: byId<HTMLButtonElement>("btn-clear"),
   btnCopy: byId<HTMLButtonElement>("btn-copy"),
+  btnOpenLogDir: byId<HTMLButtonElement>("btn-open-log-dir"),
+  btnCopyPathFix: byId<HTMLButtonElement>("btn-copy-path-fix"),
+  btnClearOnJob: byId<HTMLButtonElement>("btn-clear-on-job"),
   btnDone: byId<HTMLButtonElement>("btn-done"),
   statusText: byId<HTMLSpanElement>("status-text"),
   licenseModal: byId<HTMLDivElement>("license-modal"),
@@ -110,13 +370,22 @@ const el = {
   mcpRows: byId<HTMLDivElement>("mcp-rows"),
   mcpCoreCta: byId<HTMLDivElement>("mcp-core-cta"),
   mcpCoreCtaDetail: byId<HTMLSpanElement>("mcp-core-cta-detail"),
+  mcpNotionCta: byId<HTMLDivElement>("mcp-notion-cta"),
   btnMcpRegisterRequired: byId<HTMLButtonElement>("btn-mcp-register-required"),
   btnMcpSkipRequired: byId<HTMLButtonElement>("btn-mcp-skip-required"),
   btnMcpRefresh: byId<HTMLButtonElement>("btn-mcp-refresh"),
   btnMcpClose: byId<HTMLButtonElement>("btn-mcp-close"),
   btnMcpPresetCore: byId<HTMLButtonElement>("btn-mcp-preset-core"),
   btnMcpPresetResearch: byId<HTMLButtonElement>("btn-mcp-preset-research"),
+  btnPluginControl: byId<HTMLButtonElement>("btn-plugin-control"),
+  pluginModal: byId<HTMLDivElement>("plugin-modal"),
+  pluginInstalledText: byId<HTMLSpanElement>("plugin-installed-text"),
+  pluginLastUpdatedText: byId<HTMLSpanElement>("plugin-last-updated-text"),
+  btnPluginUpdate: byId<HTMLButtonElement>("btn-plugin-update"),
+  pluginUpdateMsg: byId<HTMLParagraphElement>("plugin-update-msg"),
+  btnPluginClose: byId<HTMLButtonElement>("btn-plugin-close"),
   btnAbout: byId<HTMLButtonElement>("btn-about"),
+  btnNotifyToggle: byId<HTMLButtonElement>("btn-notify-toggle"),
   aboutModal: byId<HTMLDivElement>("about-modal"),
   aboutVersion: byId<HTMLSpanElement>("about-version"),
   aboutUpdateActions: byId<HTMLDivElement>("about-update-actions"),
@@ -135,12 +404,20 @@ const el = {
   confirmMessage: byId<HTMLParagraphElement>("confirm-message"),
   confirmCancel: byId<HTMLButtonElement>("confirm-cancel"),
   confirmOk: byId<HTMLButtonElement>("confirm-ok"),
+  titlebar: byId<HTMLDivElement>("titlebar"),
+  btnTheme: byId<HTMLButtonElement>("btn-theme"),
+  winMin: byId<HTMLButtonElement>("win-min"),
+  winMax: byId<HTMLButtonElement>("win-max"),
+  winClose: byId<HTMLButtonElement>("win-close"),
+  winMaxIcon: byId<SVGElement>("win-max-icon"),
+  winRestoreIcon: byId<SVGElement>("win-restore-icon"),
 };
 
-function byId<T extends HTMLElement>(id: string): T {
+function byId<T extends Element>(id: string): T {
   const found = document.getElementById(id);
   if (!found) throw new Error(`Missing element #${id}`);
-  return found as T;
+  // getElementById tra ve HTMLElement — cast qua unknown vi T co the la SVGElement.
+  return found as unknown as T;
 }
 
 // ===== Small reusable modal helpers (thay the tk.simpledialog / messagebox) =====
@@ -200,19 +477,87 @@ function confirmDialog(title: string, message: string): Promise<boolean> {
   });
 }
 
-// ===== Log helpers =====
+// ===== Log helpers (raw text + timestamped/colorized render) =====
+// rawLog la nguon that (de Copy / Clear — khong kem timestamp). logLines luu
+// tung dong + timestamp tai thoi diem append (renderLog chay lai toan bo moi
+// lan nen timestamp phai tinh luc append, khong phai luc render). logText hien
+// thi HTML co mau theo muc: lenh `$` (cmd), [OK], [ERROR], [WARN], [exit ...]
+// (dim), moi dong co prefix [HH:MM:SS] muted.
+
+interface LogLine {
+  ts: string;
+  text: string;
+}
+
+let rawLog = "";
+let logLines: LogLine[] = [];
+
+function escapeHtml(s: string): string {
+  return s.replace(/[&<>"']/g, (c) => {
+    switch (c) {
+      case "&": return "&amp;";
+      case "<": return "&lt;";
+      case ">": return "&gt;";
+      case '"': return "&quot;";
+      default: return "&#39;";
+    }
+  });
+}
+
+function logLineClass(line: string): string {
+  if (/\[ERROR\]|\[err\]/i.test(line)) return "log-err";
+  if (/\[WARN\]/i.test(line)) return "log-warn";
+  if (/\[OK\]/i.test(line)) return "log-ok";
+  if (/^\[exit /.test(line.trim())) return "log-dim";
+  if (line.trimStart().startsWith("$")) return "log-cmd";
+  return "";
+}
+
+function nowTimestamp(): string {
+  const d = new Date();
+  const p = (n: number) => String(n).padStart(2, "0");
+  return `${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`;
+}
+
+// Follow mode: chi auto-scroll xuong day khi user DANG o day (cach day < 40px).
+// Neu user da cuon len doc log cu, giu nguyen vi tri doc khi log them dong moi.
+function renderLog() {
+  const scrolledAway =
+    el.logCard.scrollHeight - el.logCard.scrollTop - el.logCard.clientHeight > 40;
+  el.logText.innerHTML = logLines
+    .map(({ ts, text }) => {
+      if (!text) return ""; // dong rong: giu nguyen, khong prefix timestamp
+      const cls = logLineClass(text);
+      const safe = escapeHtml(text);
+      const body = cls ? `<span class="${cls}">${safe}</span>` : safe;
+      return `<span class="log-ts">[${ts}]</span> ${body}`;
+    })
+    .join("\n");
+  if (!scrolledAway) {
+    el.logCard.scrollTop = el.logCard.scrollHeight;
+  }
+}
 
 function appendLog(text: string) {
-  el.logText.textContent += text.endsWith("\n") ? text : text + "\n";
-  el.logCard.scrollTop = el.logCard.scrollHeight;
+  const ts = nowTimestamp();
+  rawLog += text.endsWith("\n") ? text : text + "\n";
+  // Giu ca dong rong (log format) — moi dong 1 timestamp rieng tai luc append.
+  const chunks = text.split("\n");
+  if (text.endsWith("\n")) chunks.pop();
+  for (const chunk of chunks) {
+    logLines.push({ ts, text: chunk });
+  }
+  renderLog();
 }
 
 function clearLog() {
-  el.logText.textContent = "";
+  rawLog = "";
+  logLines = [];
+  renderLog();
 }
 
 async function copyLog() {
-  await navigator.clipboard.writeText(el.logText.textContent ?? "");
+  await navigator.clipboard.writeText(rawLog);
 }
 
 function setStatus(text: string) {
@@ -383,6 +728,12 @@ function setButtonsEnabled(enabled: boolean) {
   for (const btn of [el.btnReauth, el.btnConnect, el.btnPing, el.btnSetActive, el.btnRemove]) {
     btn.disabled = !(enabled && hasProfile);
   }
+  el.btnDoctor.disabled = !enabled;
+  updateCopyPathFixButton(enabled);
+}
+
+function updateCopyPathFixButton(jobIdle = !currentJobLabel) {
+  el.btnCopyPathFix.disabled = !(jobIdle && !!cachedPathFix);
 }
 
 // ===== Action handlers =====
@@ -394,6 +745,7 @@ async function onReauth() {
   earlyFinishPath = await invoke<string>("make_early_finish_path");
   el.btnDone.disabled = false;
 
+  maybeClearLogForNewJob();
   appendLog(`$ mcp-sap-connect reauth ${pid}`);
   currentJobLabel = `reauth ${pid}`;
   setButtonsEnabled(false);
@@ -414,6 +766,7 @@ async function onReauth() {
 async function onConnect() {
   if (!selectedId || currentJobLabel) return;
   const pid = selectedId;
+  maybeClearLogForNewJob();
   appendLog(`$ mcp-sap-connect connect ${pid}`);
   currentJobLabel = `connect ${pid}`;
   setButtonsEnabled(false);
@@ -429,6 +782,7 @@ async function onConnect() {
 async function onPing() {
   if (!selectedId || currentJobLabel) return;
   const pid = selectedId;
+  maybeClearLogForNewJob();
   appendLog(`$ mcp-sap-connect ping ${pid}`);
   currentJobLabel = `ping ${pid}`;
   setButtonsEnabled(false);
@@ -443,15 +797,97 @@ async function onPing() {
 
 async function onSetActive() {
   if (!selectedId) return;
+  const previous = profilesData.active;
   try {
     await invoke("set_active_profile", { profileId: selectedId });
   } catch (err) {
-    alert(`Lỗi: ${err}`);
+    showToast(`Lỗi: ${err}`, "danger");
     return;
   }
   appendLog(`[OK] Đã set '${selectedId}' làm profile active.`);
+  if (previous && previous !== selectedId) {
+    appendLog(
+      "[WARN] sap-vsp (nếu đã đăng ký) không tự nhận profile mới — " +
+        "chạy lại mcp-setup / MCP Servers để rebind SAP_ADT_*.",
+    );
+  }
   setStatus(`Active: ${selectedId}`);
   await refreshProfiles();
+}
+
+async function onDoctor() {
+  if (currentJobLabel) return;
+  maybeClearLogForNewJob();
+  appendLog("$ mcp-sap-connect doctor");
+  currentJobLabel = "doctor";
+  setButtonsEnabled(false);
+  setStatus("Đang chạy doctor...");
+  try {
+    await invoke("start_streamed", { args: ["doctor"], envExtra: null, label: currentJobLabel });
+  } catch (err) {
+    appendLog(`[ERROR] ${err}`);
+    resetJobState();
+  }
+}
+
+async function refreshDoctorPathFix(opts: { announce?: boolean } = {}) {
+  try {
+    const report = await invoke<DoctorReport>("doctor_json");
+    cachedPathFix = report.path_ok ? null : report.path_fix ?? null;
+    updateCopyPathFixButton();
+    if (!opts.announce) return;
+    if (report.path_ok) {
+      appendLog("[Doctor] PATH OK — không cần Copy PATH fix.");
+    } else if (cachedPathFix) {
+      appendLog(
+        "[Doctor] PATH thiếu Scripts — bấm «Copy PATH fix» rồi dán vào PowerShell, mở lại terminal/app.",
+      );
+      if (report.scripts_dir) {
+        appendLog(`[Doctor] Scripts dir: ${report.scripts_dir}`);
+      }
+    } else {
+      appendLog("[Doctor] Không tìm thấy mcp-sap-connect — chạy pip install trước (xem runtime banner).");
+    }
+  } catch (err) {
+    cachedPathFix = null;
+    updateCopyPathFixButton();
+    if (opts.announce) {
+      appendLog(`[WARN] Không đọc được doctor --json: ${err}`);
+    }
+  }
+}
+
+/** Mo thu muc log (~/.mcp-sap-connect/log) trong Explorer. */
+async function onOpenLogDir() {
+  try {
+    const path = await invoke<string>("open_log_dir");
+    appendLog(`[OK] Đã mở thư mục log: ${path}`);
+    setStatus("Đã mở thư mục log");
+  } catch (err) {
+    appendLog(`[ERROR] Không mở được thư mục log: ${err}`);
+    showToast(`Không mở được thư mục log: ${err}`, "danger");
+  }
+}
+
+async function onCopyPathFix() {
+  let fix = cachedPathFix;
+  if (!fix) {
+    await refreshDoctorPathFix();
+    fix = cachedPathFix;
+  }
+  if (!fix) {
+    appendLog("[WARN] Không có PATH fix để copy (PATH đã OK hoặc chưa cài mcp-sap-connect).");
+    setStatus("Không có PATH fix");
+    return;
+  }
+  try {
+    await navigator.clipboard.writeText(fix);
+    appendLog("[OK] Đã copy lệnh PATH fix vào clipboard. Dán vào PowerShell (User PATH), rồi mở terminal/app mới.");
+    setStatus("Đã copy PATH fix");
+  } catch (err) {
+    await promptText("PATH fix", "Copy lệnh bên dưới:", fix);
+    appendLog(`[WARN] Clipboard lỗi (${err}) — đã hiện hộp thoại để copy tay.`);
+  }
 }
 
 async function onRemove() {
@@ -465,7 +901,7 @@ async function onRemove() {
   try {
     await invoke("remove_profile", { profileId: pid });
   } catch (err) {
-    alert(`Lỗi: ${err}`);
+    showToast(`Lỗi: ${err}`, "danger");
     return;
   }
   appendLog(`[OK] Đã xóa profile '${pid}'.`);
@@ -499,6 +935,7 @@ async function onNewSetup() {
   );
   if (url === null) return; // user cancelled
   const args = url.trim() ? ["setup", url.trim()] : ["setup"];
+  maybeClearLogForNewJob();
   appendLog(`$ mcp-sap-connect ${args.join(" ")}  (mở cửa sổ CMD mới)`);
   currentJobLabel = "setup";
   setStatus("Setup đang chạy (cửa sổ CMD riêng)...");
@@ -525,6 +962,7 @@ async function onSetupFromFile() {
   earlyFinishPath = await invoke<string>("make_early_finish_path");
   el.btnDone.disabled = false;
 
+  maybeClearLogForNewJob();
   appendLog(`$ mcp-sap-connect setup --from-file "${path}"`);
   currentJobLabel = "setup --from-file";
   setButtonsEnabled(false);
@@ -549,14 +987,16 @@ async function onImportJson() {
   if (!path || Array.isArray(path)) return;
   try {
     const result = await invoke<{ profileId: string; url: string }>("import_json_backup", { path });
-    alert(
-      `Đã đăng ký profile: ${result.profileId}\nURL: ${result.url}\n\n` +
-        "Tiếp theo hãy copy secrets.json vào thư mục profile này trên máy mới (không tự import được vì đã mã hóa DPAPI).",
+    showToast(
+      `Đã đăng ký profile: ${result.profileId} (${result.url}). ` +
+        "Copy secrets.json vào thư mục profile này trên máy mới (không tự import được vì đã mã hóa DPAPI).",
+      "success",
+      7000,
     );
     appendLog(`[OK] Đã import profile: ${result.profileId}`);
     await refreshProfiles();
   } catch (err) {
-    alert(`Import failed: ${err}`);
+    showToast(`Import failed: ${err}`, "danger");
   }
 }
 
@@ -585,19 +1025,24 @@ function renderLicenseDashboard(statuses: LicenseStatus[]) {
 
     const header = document.createElement("div");
     header.className = "license-row-header";
-    header.textContent = `${s.is_active ? "★ " : "  "}${s.profile_id}  (${s.type})`;
+    const star = document.createElement("span");
+    star.textContent = s.is_active ? "★" : "";
+    const pidText = document.createElement("span");
+    pidText.textContent = s.profile_id;
+    const typeBadge = document.createElement("sl-badge");
+    typeBadge.variant = s.type === "oauth2" ? "warning" : "primary";
+    typeBadge.pill = true;
+    typeBadge.textContent = s.type;
+    header.append(star, pidText, typeBadge);
     card.appendChild(header);
 
     const wrap = document.createElement("div");
     wrap.className = "progress-wrap";
-    const track = document.createElement("div");
-    track.className = "progress-track";
-    const fill = document.createElement("div");
-    fill.className = "progress-fill";
-    track.appendChild(fill);
+    const bar = document.createElement("sl-progress-bar");
+    bar.value = 0;
     const countdown = document.createElement("div");
     countdown.className = "countdown-text";
-    wrap.appendChild(track);
+    wrap.appendChild(bar);
     wrap.appendChild(countdown);
     card.appendChild(wrap);
 
@@ -622,20 +1067,20 @@ function tickLicenseDashboard(statuses: LicenseStatus[]) {
   for (const s of statuses) {
     const card = el.licenseRows.querySelector(`[data-pid="${CSS.escape(s.profile_id)}"]`);
     if (!card) continue;
-    const fill = card.querySelector<HTMLDivElement>(".progress-fill")!;
+    const bar = card.querySelector<HTMLElementTagNameMap["sl-progress-bar"]>("sl-progress-bar")!;
     const countdown = card.querySelector<HTMLDivElement>(".countdown-text")!;
     if (s.expires_at == null) {
-      fill.style.width = "0%";
+      bar.value = 0;
       countdown.textContent = "unknown";
       countdown.style.color = "var(--muted)";
       continue;
     }
     const remaining = s.expires_at - Date.now() / 1000;
     const pct = pctForRow(s);
-    fill.style.width = `${pct}%`;
-    fill.classList.remove("warn", "danger");
-    if (pct < 5) fill.classList.add("danger");
-    else if (pct < 20) fill.classList.add("warn");
+    bar.value = pct;
+    bar.classList.remove("warn", "danger");
+    if (pct < 5) bar.classList.add("danger");
+    else if (pct < 20) bar.classList.add("warn");
     countdown.textContent = humanizeDuration(remaining);
     countdown.style.color = pct < 5 ? "var(--danger)" : pct < 20 ? "var(--warn)" : "var(--ok)";
   }
@@ -719,6 +1164,12 @@ function updateMcpCoreCta(data: McpStatusData) {
   }
 }
 
+function updateMcpNotionCta(data: McpStatusData) {
+  const notion = data.servers.find((s) => s.name === "notion");
+  const show = !!notion?.registered;
+  el.mcpNotionCta.classList.toggle("hidden", !show);
+}
+
 async function openMcpModal() {
   el.mcpModal.classList.remove("hidden");
   await refreshMcpStatus();
@@ -734,8 +1185,10 @@ async function refreshMcpStatus() {
     const data = await invoke<McpStatusData>("mcp_status");
     renderMcpRows(data);
     updateMcpCoreCta(data);
+    updateMcpNotionCta(data);
   } catch (err) {
     el.mcpCoreCta.classList.add("hidden");
+    el.mcpNotionCta.classList.add("hidden");
     el.mcpRows.innerHTML = `<p class="muted">Lỗi đọc trạng thái MCP: ${err}</p>`;
   }
 }
@@ -795,8 +1248,9 @@ function renderMcpRow(s: McpServerStatus): HTMLElement {
   name.textContent = s.name;
   main.appendChild(name);
 
-  const badge = document.createElement("span");
-  badge.className = `mcp-row-badge ${s.registered ? "ok" : "off"}`;
+  const badge = document.createElement("sl-badge");
+  badge.variant = s.registered ? "success" : "neutral";
+  badge.pill = true;
   badge.textContent = s.registered ? "✓ Đã đăng ký" : "○ Chưa đăng ký";
   main.appendChild(badge);
 
@@ -839,6 +1293,14 @@ function renderMcpRow(s: McpServerStatus): HTMLElement {
   desc.textContent = s.description;
   row.appendChild(desc);
 
+  if (s.name === "notion" && s.registered) {
+    const note = document.createElement("div");
+    note.className = "mcp-row-oauth-note";
+    note.textContent =
+      "Sau đăng ký: mở Claude Code và chạy /mcp để hoàn tất OAuth Notion (remote HTTP).";
+    row.appendChild(note);
+  }
+
   return row;
 }
 
@@ -874,6 +1336,11 @@ async function onRegisterMcpServer(s: McpServerStatus) {
   try {
     await invoke("mcp_register", { name: s.name, env });
     appendLog(`[OK] Đã đăng ký MCP server '${s.name}'. Khởi động lại Claude Code để nhận server mới.`);
+    if (s.name === "notion") {
+      appendLog(
+        "[MCP] Notion remote MCP cần OAuth: mở Claude Code và chạy /mcp để hoàn tất đăng nhập Notion.",
+      );
+    }
   } catch (err) {
     appendLog(`[ERROR] Đăng ký '${s.name}' thất bại: ${err}`);
   }
@@ -1116,9 +1583,90 @@ async function onCheckUpdate() {
   }
 }
 
+// ===== Plugin Control (claude plugin update) =====
+//
+// Rieng biet voi About/Auto-updater o tren: About cap nhat CHINH APP GUI nay
+// (tauri-plugin-updater, tag gui-latest). Muc nay cap nhat plugin Claude Code
+// (skills/agents/hooks) qua goi thang binary `claude` (plugin_cli.rs) - restart
+// Claude Code (KHONG PHAI app nay) moi ap dung, GUI khong tu lam duoc.
+
+function formatAgo(iso: string): string {
+  const then = new Date(iso).getTime();
+  if (Number.isNaN(then)) return "không rõ";
+  const seconds = (Date.now() - then) / 1000;
+  if (seconds < 60) return "vừa xong";
+  if (seconds < 3600) return `${Math.floor(seconds / 60)} phút trước`;
+  if (seconds < 86400) return `${Math.floor(seconds / 3600)} giờ trước`;
+  return `${Math.floor(seconds / 86400)} ngày trước`;
+}
+
+async function openPluginModal() {
+  el.pluginModal.classList.remove("hidden");
+  await refreshPluginStatus();
+}
+
+function closePluginModal() {
+  el.pluginModal.classList.add("hidden");
+}
+
+function setPluginMsg(text: string, isError = false) {
+  el.pluginUpdateMsg.textContent = text;
+  el.pluginUpdateMsg.classList.toggle("about-update-error", isError);
+}
+
+async function refreshPluginStatus() {
+  el.pluginInstalledText.textContent = "…";
+  el.pluginLastUpdatedText.textContent = "…";
+  el.btnPluginUpdate.disabled = true;
+  setPluginMsg("");
+  try {
+    const st = await invoke<PluginStatusData>("plugin_status");
+    if (!st.claudeAvailable) {
+      el.pluginInstalledText.textContent = "(không rõ)";
+      el.pluginLastUpdatedText.textContent = "(không rõ)";
+      setPluginMsg("⚠ Không tìm thấy 'claude' trong PATH — cài Claude Code trước.", true);
+      return;
+    }
+    if (!st.found) {
+      el.pluginInstalledText.textContent = "(chưa cài)";
+      el.pluginLastUpdatedText.textContent = "(chưa cài)";
+      setPluginMsg(st.detail ?? "Chưa tìm thấy plugin đã cài.", true);
+      return;
+    }
+    el.pluginInstalledText.textContent = `${st.pluginId} (v${st.version})`;
+    el.pluginLastUpdatedText.textContent = st.lastUpdated ? formatAgo(st.lastUpdated) : "không rõ";
+    el.btnPluginUpdate.disabled = false;
+  } catch (err) {
+    el.pluginInstalledText.textContent = "(lỗi)";
+    el.pluginLastUpdatedText.textContent = "(lỗi)";
+    setPluginMsg(String(err), true);
+  }
+}
+
+async function onPluginUpdateClick() {
+  el.btnPluginUpdate.disabled = true;
+  setPluginMsg("Đang cập nhật… (có thể mất đến ~2 phút)");
+  maybeClearLogForNewJob();
+  appendLog("$ claude plugin marketplace update ... && claude plugin update ...");
+  try {
+    const msg = await invoke<string>("plugin_update");
+    setPluginMsg(msg);
+    appendLog(`[OK] Plugin update:\n${msg}`);
+    setStatus("Plugin: đã cập nhật");
+  } catch (err) {
+    setPluginMsg(String(err), true);
+    appendLog(`[ERROR] Plugin update: ${err}`);
+    setStatus("Plugin: cập nhật lỗi");
+  }
+  await refreshPluginStatus();
+}
+
 // ===== Wiring =====
 
 function initEventListeners() {
+  initWindowControls();
+  el.btnTheme.addEventListener("click", toggleTheme);
+
   el.profileSelect.addEventListener("change", onProfileChanged);
   el.btnRefresh.addEventListener("click", () => void refreshProfiles());
 
@@ -1142,9 +1690,13 @@ function initEventListeners() {
   el.btnPing.addEventListener("click", () => void onPing());
   el.btnSetActive.addEventListener("click", () => void onSetActive());
   el.btnRemove.addEventListener("click", () => void onRemove());
+  el.btnDoctor.addEventListener("click", () => void onDoctor());
 
   el.btnClear.addEventListener("click", clearLog);
   el.btnCopy.addEventListener("click", () => void copyLog());
+  el.btnOpenLogDir.addEventListener("click", () => void onOpenLogDir());
+  el.btnCopyPathFix.addEventListener("click", () => void onCopyPathFix());
+  el.btnClearOnJob.addEventListener("click", toggleClearOnJobStart);
   el.btnDone.addEventListener("click", () => void onDoneClicked());
 
   el.btnLicense.addEventListener("click", () => void openLicenseDashboard());
@@ -1165,8 +1717,13 @@ function initEventListeners() {
     void onMcpPreset(MCP_PRESET_RESEARCH, "Research"),
   );
 
+  el.btnPluginControl.addEventListener("click", () => void openPluginModal());
+  el.btnPluginClose.addEventListener("click", closePluginModal);
+  el.btnPluginUpdate.addEventListener("click", () => void onPluginUpdateClick());
+
   el.btnAbout.addEventListener("click", () => void openAboutModal());
   el.btnAboutClose.addEventListener("click", closeAboutModal);
+  el.btnNotifyToggle.addEventListener("click", toggleNotifyDisabled);
   el.btnAboutRepo.addEventListener("click", () => void openUrl(REPO_URL));
   el.btnCheckUpdate.onclick = () => void onCheckUpdate();
   el.btnRuntimeRecheck.addEventListener("click", () => void checkRuntime().then((ok) => {
@@ -1181,9 +1738,31 @@ function initEventListeners() {
     setStatus(`${label}: rc=${code}`);
     resetJobState();
     void refreshProfiles();
+    if (label === "doctor" || label.startsWith("doctor")) {
+      void refreshDoctorPathFix({ announce: true });
+    }
+    if (code === 0) {
+      void notify(`✓ ${label} hoàn tất`, "Thao tác chạy thành công (rc=0).");
+    } else {
+      void notify(`❌ ${label} thất bại (rc=${code})`, "Xem log trong cửa sổ SAP ABAP Agent để biết chi tiết.");
+    }
   });
   void listen("open-license-dashboard", () => void openLicenseDashboard());
   void listen("open-about", () => void openAboutModal());
+  void listen("open-plugin-panel", () => void openPluginModal());
+  // Tray menu: "Check for updates..." — mo About va chay check ngay lap tuc.
+  // Khi co ban moi, notify Windows cho nhat quan voi quiet background check.
+  void listen("tray-check-update", () => {
+    openAboutModal();
+    void onCheckUpdate().then(() => {
+      if (pendingUpdate) {
+        void notify(
+          `Có bản cập nhật mới v${pendingUpdate.version}`,
+          "Mở About (ℹ) để tải & cài.",
+        );
+      }
+    });
+  });
 
   // Countdown tick moi giay: header label + dashboard (neu dang mo)
   setInterval(() => {
@@ -1195,6 +1774,9 @@ function initEventListeners() {
 }
 
 window.addEventListener("DOMContentLoaded", () => {
+  applyTheme(loadTheme());
+  setClearOnJobStart(loadClearOnJobStart());
+  setNotifyDisabled(loadNotifyDisabled());
   initEventListeners();
   resetUpdateActions();
   void checkRuntime().then((ok) => {
@@ -1206,6 +1788,7 @@ window.addEventListener("DOMContentLoaded", () => {
     if (!update) return;
     appendLog(`[Update] Có bản mới ${update.version} — mở About để tải & cài.`);
     setStatus(`Có bản GUI mới: ${update.version}`);
+    void notify(`Có bản cập nhật mới v${update.version}`, "Mở About (ℹ) trong SAP ABAP Agent để tải & cài.");
   }).catch(() => {
     /* ignore 404 / offline until gui-latest exists */
   });
