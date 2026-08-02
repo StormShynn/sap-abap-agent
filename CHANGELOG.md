@@ -8,24 +8,16 @@ Format dựa trên [Keep a Changelog](https://keepachangelog.com/) và [Semantic
 
 ## [Unreleased]
 
-### Fixed
-
-- Interactive `mcp-setup` + `commands/mcp-setup.md`: URL `cds-kb` →
-  `cds-kb-mcp-kit-production` (khớp inventory / `.mcp.json`).
-
 ### Added
 
-- `emit_cursor_mcp_pack.py` + `reference/templates/cursor-mcp-core/` — Core MCP pack
-  cho Cursor/VS Code (docs-only, không port skills).
-- Rollout: Company DB override playbook + weekly Notion promote cadence.
-- `validate_team_setup.py`: Notion learning tip + Core reminder sau READY.
+- Skill `sap-generative-ai` — Generative AI Hub / Joule / ISLM / ABAP Cloud AI patterns.
+- Skill `sap-scaffold-cap` + `reference/templates/cap-boilerplate/` — CAP Node scaffold.
+- `reference/templates/rap-events-boilerplate/` + deeper `sap-rap-events` checklist;
+  `sap-scaffold-rap` copies events template when TECHNICAL_SPEC needs events.
 
 ### Changed
 
-- Onboarding / rollout: **Core** thống nhất =
-  `sap-btp` + `sap-dict-bridge` + `cds-kb` + `mcp-sap-docs-btp`.
-- Notion troubleshooting: default shared (không bắt buộc `set`).
-- Doc pins / badge → **1.23.1**; `KNOWN_LIMITATIONS` / `SECURITY` bỏ link plan cũ.
+- CAP consultant points scaffold to `sap-scaffold-cap`; skill inventory **42**.
 
 
 ## [v1.23.1] — 2026-08-02

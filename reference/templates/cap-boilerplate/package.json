@@ -1,0 +1,21 @@
+{
+  "name": "z-cap-boilerplate",
+  "version": "0.0.1",
+  "description": "Minimal CAP Node boilerplate for sap-scaffold-cap",
+  "dependencies": {
+    "@sap/cds": "^8",
+    "express": "^4"
+  },
+  "scripts": {
+    "start": "cds-serve",
+    "watch": "cds watch"
+  },
+  "cds": {
+    "requires": {
+      "db": {
+        "kind": "sqlite",
+        "credentials": { "url": ":memory:" }
+      }
+    }
+  }
+}

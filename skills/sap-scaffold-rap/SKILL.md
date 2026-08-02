@@ -281,10 +281,20 @@ outbound), hoac dung background job + `COMMIT ENTITIES ... RESPONSE OF` o class 
   CONVERT dung (`utclong` vs `timestamp`/`timestampl` co cu phap CONVERT khac nhau, dac biet vi
   tri `TIME ZONE` trong cau lenh).
 
+## Business events (khi TECHNICAL_SPEC yeu cau)
+
+Neu INTAKE/TECHNICAL_SPEC co publish/consume event / Event Mesh:
+
+1. Doc checklist `sap-rap-events` muc 9.
+2. Copy `reference/templates/rap-events-boilerplate/` vao package Z* (doi ten prefix).
+3. Merge fragment BDEF + raise handler vao BO vua scaffold — **khong** chi lien ket Reference.
+4. Ghi COM_0109 + topic vao TECHNICAL_SPEC / finish notes.
+
 ## Reference
 
 - `reference/process/sap-service-type-context.md` — edition gate (Buoc 0), BAT BUOC truoc scaffold.
 - `reference/templates/rap-boilerplate/managed/` — template 3-layer day du.
+- `reference/templates/rap-events-boilerplate/` — event param + BDEF + raise + CAP stub.
 - Skill `sap-clean-code` — quy uoc dat ten, VDM layer.
 - Skill `sap-extensibility` — decision tree managed/unmanaged/side-by-side + rang buoc theo edition.
 - Skill `sap-abap-sql` — ABAP SQL, AMDP cho performance pattern trong RAP.
