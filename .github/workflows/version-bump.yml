@@ -219,15 +219,18 @@ jobs:
           git push -u origin "$BRANCH" --force
           PR_URL=$(gh pr list --head "$BRANCH" --base main --json url --jq '.[0].url // empty')
           if [[ -z "$PR_URL" ]]; then
+            printf '%s\n' \
+              "Automated version bump from version-bump.yml." \
+              "" \
+              "Opened as a PR because VERSION_BUMP_TOKEN is unset and ruleset Protect main blocks direct pushes from github-actions[bot]." \
+              "" \
+              "Loop guard: subject contains [skip version-bump]." \
+              > /tmp/bump-pr-body.md
             PR_URL=$(gh pr create \
               --base main \
               --head "$BRANCH" \
               --title "$SUBJECT" \
-              --body "Automated version bump from \`version-bump.yml\`.
-
-Opened as a PR because \`VERSION_BUMP_TOKEN\` is unset and ruleset **Protect main** blocks direct pushes from \`github-actions[bot]\`.
-
-Loop guard: subject contains \`[skip version-bump]\`.")
+              --body-file /tmp/bump-pr-body.md)
           else
             echo "Reusing existing PR: $PR_URL"
           fi
