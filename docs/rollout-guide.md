@@ -4,7 +4,7 @@ Hướng dẫn cho **team lead / Basis / champion** khi đưa SAP ABAP Agent t�
 Happy-path từng người: [`onboarding-guide.md`](onboarding-guide.md).  
 Sự cố team: [`team-troubleshooting.md`](team-troubleshooting.md).
 
-**Phiên bản tài liệu:** khớp plugin **1.22.8** (xem `.claude-plugin/plugin.json`).
+**Phiên bản tài liệu:** khớp plugin **1.23.1** (xem `.claude-plugin/plugin.json`).
 
 ---
 
@@ -125,16 +125,39 @@ mcp-sap-connect mcp-setup
    python reference/scripts/notion_skills_db.py get --source
    # expect: 9d54b58613ad485f8b8f19909adbb219    default
    ```
-4. (Tuỳ chọn) DB riêng công ty:
-   ```powershell
-   python reference/scripts/notion_skills_db.py set "<company-db-id-or-url>"
-   ```
+4. (Tuỳ chọn) DB riêng công ty — xem [Company DB override](#company-db-override) bên dưới.
 
-### 7. Smoke
+### 7. Cursor / VS Code seat (MCP only)
+
+```powershell
+python reference/scripts/emit_cursor_mcp_pack.py -o %USERPROFILE%\.cursor\mcp.json
+```
+
+Không cài plugin Claude — chỉ Core MCP. Xem `reference/templates/cursor-mcp-core/`.
+
+### 8. Smoke
 
 - `Liệt kê profile SAP của tôi`
 - (Dev) tìm 1 class `Z*` / ping
 - (Team Notion) hỏi topic đã có note — không tạo DB mới
+- CDS: search 1 view qua `cds-kb` (xác nhận URL `kit-production`)
+
+---
+
+## Company DB override
+
+Khi policy **không** cho phép dùng StormShynn shared DB:
+
+1. Tạo Notion database **SAP Skills** (schema như `sap-daily-learner` mục 3b).
+2. Share cho mọi seat (browser).
+3. Trên **mỗi máy**:
+   ```powershell
+   python reference/scripts/notion_skills_db.py set "<company-db-id-or-url>"
+   python reference/scripts/notion_skills_db.py get --source
+   # expect: <id>    pin
+   ```
+4. Quay về shared StormShynn: `notion_skills_db.py clear`.
+5. Pre-flight: `validate_team_setup.py` sẽ báo `(pin override)`.
 
 ---
 
@@ -158,6 +181,8 @@ Org muốn bỏ SmartScreen: xem [`org-authenticode-setup.md`](org-authenticode-
 
 - [ ] Mọi seat `validate_team_setup.py` READY (spot-check người mới)
 - [ ] Notion: seat mới `get --source` = `default` (hoặc cùng pin company nếu override)
+- [ ] **Promote loop:** trong Notion “SAP Skills”, lọc `Lan dung lai` cao / chưa `Da promote`
+      → champion review → đề xuất đưa vào `reference/modules/` (hoặc skill local promote)
 - [ ] Không ai commit `.mcp-sap-connect/` / secrets
 - [ ] Plugin/wheel theo version wiki (badge README / Releases)
 - [ ] Sự cố lặp → bổ sung [`team-troubleshooting.md`](team-troubleshooting.md)

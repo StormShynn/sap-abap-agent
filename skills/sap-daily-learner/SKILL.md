@@ -396,8 +396,9 @@ chi luu local (danh dau rieng tu) — khong dong bo len Notion." Ly do: Notion g
 CHUNG ca team thay, khac han truoc day khi skill chi nam local tren may nguoi tao.
 
 **Ghi sau** (sau khi da tao xong skill local nhu muc 3, VA khong bi danh dau rieng tu o tren):
-4. Resolve database id theo muc "Resolve database id" o tren (pin / search loud / create chi khi
-   user xac nhan). Lay data source id qua `notion-fetch`.
+4. Resolve database id theo muc "Resolve database id" o tren (`notion_skills_db.py get`
+   — mac dinh StormShynn shared; override env/pin neu co; **CAM** tao DB im lang).
+   Lay data source id qua `notion-fetch`.
 5. Goi tool create-pages duoi dung data source do, dien properties + noi dung y het skill local
    vua tao. **Tu dong, KHONG hoi xac nhan** (dong bo la mac dinh sau khi da resolve DB).
 6. Bao them cho user 1 dong: "☁️ Da dong bo len Notion (SAP Skills) - ca team dung duoc."

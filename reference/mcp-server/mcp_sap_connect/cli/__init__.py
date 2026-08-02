@@ -1276,7 +1276,7 @@ def _cmd_mcp_setup() -> None:
     header("Remote servers (bat buoc)")
     ok("Dang ky cds-kb...")
     _register("cds-kb", "sse",
-              url="https://cds-kb-mcp-production.up.railway.app/sse")
+              url="https://cds-kb-mcp-kit-production.up.railway.app/sse")
     ok("Dang ky mcp-sap-docs-btp...")
     sap_hub_key = os.environ.get("SAP_API_HUB_KEY", "")
     _register("mcp-sap-docs-btp", "sse",
