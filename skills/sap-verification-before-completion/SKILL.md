@@ -65,7 +65,8 @@ Truoc khi bao "xong" cho scaffold/ticket ABAP, phai co **it nhat** cac muc sau
 | Syntax (neu vua sua source) | MCP `sap_syntax_check` | Khong error (warning ghi chu) |
 | Activate | MCP `sap_activate` (tung object / theo dependency) | Status activated / khong loi activation |
 | Unit test (neu co test class) | MCP `sap_run_unit_tests` **hoac** ADT Unit runner | 0 FAIL; so test PASS > 0 neu da sinh test |
-| ATC (pipeline codegen) | Skill `sap-atc-review` → `ATC_REVIEW.md` | Ket qua **PASS** (WARN duoc phep neu da ghi chu) |
+| ATC system (khi co MCP) | MCP `sap_run_atc` (objectUri + checkVariant) | `status=PASS` (priority ≤ 2 = 0); trich JSON vao cau tra loi |
+| ATC local checklist | Skill `sap-atc-review` → `ATC_REVIEW.md` | Ket qua **PASS** (WARN duoc phep neu da ghi chu) |
 
 ### Override (advisory soft-gate, khong hard-block CI)
 

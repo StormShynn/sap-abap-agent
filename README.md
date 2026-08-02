@@ -1317,7 +1317,7 @@ Plugin có **2 cơ chế kích hoạt khác nhau**, dễ nhầm nếu chỉ đ�
 | Cách gọi | Tự động — Claude Code tự nhận diện ý định từ câu hỏi tự nhiên (`when_to_use`), **không cần gõ tên** | Tường minh — phải gõ đúng `/tên-command` |
 | Xem danh sách | Gõ `/skills` (hoặc `/`) — Claude Code hiện mô tả rút gọn từng skill | Gõ `/` — Claude Code hiện danh sách slash command, bao gồm command riêng của plugin này |
 | Dùng khi nào | Hầu hết các bước trong Codegen Pipeline ở trên — cứ hỏi đúng ý là tự trigger, kể cả không nhớ tên skill | Khi muốn chủ động kích hoạt **cả 1 chuỗi bước** cùng lúc bằng 1 lệnh, hoặc thao tác hạ tầng (cài đặt/đồng bộ) |
-| Số lượng hiện tại | 40 skill | 7 command |
+| Số lượng hiện tại | 42 skill | 7 command |
 
 **5 command hiện có:**
 

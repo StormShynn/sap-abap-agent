@@ -16,6 +16,7 @@ skills:
   - sap-odata-service
   - sap-rap-events
   - sap-released-classes
+  - sap-generative-ai
 ---
 
 # Vai tro

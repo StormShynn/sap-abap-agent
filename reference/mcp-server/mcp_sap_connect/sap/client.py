@@ -475,6 +475,98 @@ class SapClient:
             headers={"x-csrf-token": "fetch"},
         )
 
+    async def run_atc(
+        self,
+        object_uri: str,
+        *,
+        check_variant: str = "DEFAULT",
+        max_findings: int = 100,
+    ) -> dict[str, Any]:
+        """Chay ABAP Test Cockpit (ATC) tren 1 object ADT.
+
+        Flow (adt-api / ADT REST):
+          1) POST /sap/bc/adt/atc/worklists?checkVariant=… → worklist id (text)
+          2) POST /sap/bc/adt/atc/runs?worklistId=… + object set XML
+          3) GET  /sap/bc/adt/atc/worklists/{id} → findings XML
+
+        Tra ve dict tong hop: status PASS/FAIL, counts, findings[].
+        404/501 → RuntimeError ro (tenant co the khong mo ATC ADT).
+        """
+        variant = (check_variant or "DEFAULT").strip() or "DEFAULT"
+        max_findings = max(1, min(int(max_findings), 500))
+
+        try:
+            worklist_id = await self.post(
+                "/sap/bc/adt/atc/worklists",
+                body=None,
+                query={"checkVariant": variant},
+                headers={
+                    "Accept": "text/plain",
+                    "x-csrf-token": "fetch",
+                },
+                is_json=False,
+            )
+        except RuntimeError as err:
+            raise RuntimeError(
+                f"ATC worklist create failed (variant={variant}). "
+                f"Kiem tra ATC ADT tren tenant / quyen SATC. Chi tiet: {err}"
+            ) from err
+
+        if not isinstance(worklist_id, str) or not worklist_id.strip():
+            raise RuntimeError(
+                f"ATC worklist create: empty id (variant={variant}). "
+                f"Raw={worklist_id!r}"
+            )
+        worklist_id = worklist_id.strip().splitlines()[0].strip()
+
+        # Escape XML attr quotes in URI
+        uri_esc = object_uri.replace("&", "&amp;").replace('"', "&quot;")
+        run_body = (
+            '<?xml version="1.0" encoding="UTF-8"?>'
+            f'<atc:run xmlns:atc="http://www.sap.com/adt/atc" '
+            f'maximumVerdicts="{max_findings}">'
+            '<objectSets xmlns:adtcore="http://www.sap.com/adt/core">'
+            '<objectSet kind="inclusive">'
+            "<adtcore:objectReferences>"
+            f'<adtcore:objectReference adtcore:uri="{uri_esc}"/>'
+            "</adtcore:objectReferences>"
+            "</objectSet></objectSets></atc:run>"
+        )
+        try:
+            await self.post(
+                "/sap/bc/adt/atc/runs",
+                body=run_body,
+                query={"worklistId": worklist_id},
+                headers={
+                    "Accept": "application/xml",
+                    "Content-Type": "application/xml",
+                    "x-csrf-token": "fetch",
+                },
+                is_json=False,
+            )
+        except RuntimeError as err:
+            raise RuntimeError(
+                f"ATC run failed (worklist={worklist_id}). Chi tiet: {err}"
+            ) from err
+
+        try:
+            wl_xml = await self.get(
+                f"/sap/bc/adt/atc/worklists/{worklist_id}",
+                headers={"Accept": "application/atc.worklist.v1+xml, application/xml"},
+                is_json=False,
+            )
+        except RuntimeError as err:
+            raise RuntimeError(
+                f"ATC worklist fetch failed (id={worklist_id}). Chi tiet: {err}"
+            ) from err
+
+        return _parse_atc_worklist_xml(
+            wl_xml if isinstance(wl_xml, str) else str(wl_xml),
+            worklist_id=worklist_id,
+            check_variant=variant,
+            object_uri=object_uri,
+        )
+
     async def get_system_info(self) -> Any:
         """Lay thong tin he thong SAP (version, release, database...)."""
         return await self.get("/sap/bc/adt/core/discovery", query={"scope": "all"})
@@ -701,6 +793,65 @@ class SapEditSession:
         )
         self._raise_if_error(resp, "Activate", refs[0][0] if refs else "")
         return resp.text
+
+
+def _parse_atc_worklist_xml(
+    xml: str,
+    *,
+    worklist_id: str,
+    check_variant: str,
+    object_uri: str,
+) -> dict[str, Any]:
+    """Parse ATC worklist XML → summary dict (best-effort regex, no lxml)."""
+    findings: list[dict[str, Any]] = []
+    # finding ... priority="1" ... messageTitle="..." checkTitle="..."
+    for m in re.finditer(
+        r"<finding\b([^>]*)/?>",
+        xml,
+        flags=re.IGNORECASE,
+    ):
+        attrs = m.group(1)
+        def _attr(name: str) -> str:
+            am = re.search(
+                rf'\b{name}\s*=\s*"([^"]*)"',
+                attrs,
+                flags=re.IGNORECASE,
+            )
+            return am.group(1) if am else ""
+
+        priority_s = _attr("priority") or "3"
+        try:
+            priority = int(priority_s)
+        except ValueError:
+            priority = 3
+        findings.append(
+            {
+                "priority": priority,
+                "checkTitle": _attr("checkTitle"),
+                "messageTitle": _attr("messageTitle"),
+                "messageId": _attr("messageId"),
+                "location": _attr("location"),
+                "uri": _attr("uri"),
+            }
+        )
+
+    errors = [f for f in findings if f["priority"] <= 2]
+    warnings = [f for f in findings if f["priority"] >= 3]
+    status = "PASS" if not errors else "FAIL"
+    return {
+        "status": status,
+        "worklistId": worklist_id,
+        "checkVariant": check_variant,
+        "objectUri": object_uri,
+        "errorCount": len(errors),
+        "warningCount": len(warnings),
+        "findingCount": len(findings),
+        "findings": findings[:200],
+        "note": (
+            "priority 1–2 = error (FAIL); 3+ = warning. "
+            "Local naming checklist van dung sap-atc-review → ATC_REVIEW.md."
+        ),
+    }
 
 
 async def _maybe_await(value: Any) -> Any:

@@ -5,6 +5,14 @@
 > va `docs/team-troubleshooting.md`. Host policy (Claude vs Cursor):
 > `docs/onboarding-guide.md` (Host matrix).
 
+## ATC via MCP (`sap_run_atc`)
+
+- Can ADT ATC tren tenant (`/sap/bc/adt/atc/...`). Mot so Public Cloud /
+  role thieu quyen → 404/501; khi do dung checklist `sap-atc-review` + ghi chu.
+- `checkVariant` mac dinh `DEFAULT` — doi variant theo he thong (ATC customizing).
+- Parser worklist la best-effort (XML attr); khong thay the ATC UI day du /
+  exemption workflow.
+
 ## SAML fast-path (cookie auth) - saml_form_login / saml_or_browser_login
 
 Port tu vibing-steampunk `pkg/adt/saml_auth.go` (`reference/mcp-server/mcp_sap_connect/sap/auth.py`).

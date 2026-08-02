@@ -71,6 +71,9 @@ Doc cau hoi user, ap dung ma tran duoi day. Moi keyword co **weight** (1-3). Mod
 | **EWM** 🆕 | `sap-ewm-consultant-cloud` | warehouse, EWM, inbound, outbound, picking, packing, wave, slotting | kho, warehouse order, RF, handling unit, yard, labor | kitting, VAS, cycle counting, putaway, replenishment, storage bin | ≥ 2 |
 | **Fiori/UI5** 🆕 | `sap-fiori-consultant-cloud` | Fiori, UI5, Fiori Elements, Adaptation Project, Launchpad | giao dien, frontend, UX, tile, semantic object | Fiori app, role, catalog, group, SAP Build, Work Zone | ≥ 2 |
 | **CAP** 🆕 | `sap-cap-consultant-cloud` | CAP, cloud application programming, CDS (CAP), extension, BTP dev | side-by-side, BTP, Node.js, Java, OData V4 | MTA, CF deploy, CAP project, srv, annotation | ≥ 2 |
+
+> **CAP scaffold**: neu user muon sinh project (`cds init`, `mta.yaml`, handler mau) → skill
+> `sap-scaffold-cap` (khong thay the consultant cho cau hoi kien truc).
 | **CPI** 🆕 | `sap-cpi-consultant-cloud` | CPI, iFlow, integration flow, adapter, interface | tich hop, integration, API management, mapping, message | SOAP, OData adapter, SFTP, Event Mesh, Groovy | ≥ 2 |
 | **SuccessFactors** 🆕 | `sap-successfactors-consultant-cloud` | SuccessFactors, SF, HXM, Employee Central, recruiting, talent | HR cloud, performance, compensation, LMS | MDF, business rule, integration SF, onboarding, CPI | ≥ 2 |
 | **BTP Admin** 🆕 | `sap-btp-admin-consultant-cloud` | BTP admin, CF, Cloud Foundry, Kyma, destination | cockpit, subaccount, Cloud Connector, XSUAA | role collection, service marketplace, MTA deploy, CI/CD | ≥ 2 |
