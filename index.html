@@ -696,17 +696,21 @@
     }
 
     /* ===== ANIMATIONS ===== */
+    /* Visible by default: opacity:0 + paused/failed animation hid path sections in preview. */
     .fade-in {
-      opacity: 0;
-      transform: translateY(20px);
-      animation: fadeInUp .5s ease forwards;
+      animation: fadeInUp .5s ease both;
     }
     #gioi-thieu { animation-delay: .1s; }
     #tinh-nang { animation-delay: .2s; }
     #cai-dat { animation-delay: .3s; }
 
     @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
       to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .fade-in { animation: none; }
     }
 
     /* ===== RESPONSIVE ===== */
@@ -1033,6 +1037,7 @@
     }
     .path-section > h2 {
       margin-top: 0;
+      color: var(--text-bright);
     }
     .path-lead {
       color: var(--text-dim);
@@ -1313,7 +1318,7 @@
     </section>
 
     <!-- ===== PATH: CLAUDE CODE ===== -->
-    <section id="path-claude" class="path-section fade-in">
+    <section id="path-claude" class="path-section">
       <h2><span class="section-icon">💻</span> Lối 1 — Claude Code (5 bước)</h2>
       <p class="path-lead">Dành cho ABAP developer / consultant dùng Claude Code. Mục tiêu: ping được hệ thống và hỏi được câu đầu tiên.</p>
       <ol class="path-steps">
@@ -1356,7 +1361,7 @@
     </section>
 
     <!-- ===== PATH: GUI ===== -->
-    <section id="path-gui" class="path-section fade-in">
+    <section id="path-gui" class="path-section">
       <h2><span class="section-icon">🖥️</span> Lối 2 — GUI desktop (Windows)</h2>
       <p class="path-lead">Dành cho người muốn cấu hình bằng giao diện. App cũ (ví dụ 1.19) không có About/updater — nên cài bản mới từ <code>gui-latest</code>.</p>
       <ol class="path-steps">
@@ -1399,7 +1404,7 @@
     </section>
 
     <!-- ===== PATH: LEARN ===== -->
-    <section id="path-learn" class="path-section fade-in">
+    <section id="path-learn" class="path-section">
       <h2><span class="section-icon">📚</span> Lối 3 — Học &amp; hỏi SAP</h2>
       <p class="path-lead">Dành cho consultant / learner. Có thể hỏi module mà chưa cần codegen; kết nối hệ thống vẫn hữu ích khi cần đọc object thật.</p>
       <ol class="path-steps">
