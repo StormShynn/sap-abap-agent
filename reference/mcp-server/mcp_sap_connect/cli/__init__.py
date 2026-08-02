@@ -122,7 +122,7 @@ def main() -> None:
     elif cmd == "doctor":
         from ..doctor import main as run_doctor
         run_doctor()
-    elif cmd == "mcp-setup":
+    elif cmd in ("mcp-setup", "register-mcp-servers"):
         if cmd_args and cmd_args[0] == "--status-json":
             _cmd_mcp_status_json()
         elif cmd_args and cmd_args[0] == "--register-json":
@@ -139,14 +139,14 @@ def main() -> None:
                     i += 1
             if not name:
                 import json as _json
-                print(_json.dumps({"ok": False, "error": "Thieu ten server. Dung: mcp-setup --register-json <name> [--env K=V ...]"}))
+                print(_json.dumps({"ok": False, "error": "Thieu ten server. Dung: mcp-sap-connect register-mcp-servers --register-json <name> [--env K=V ...]"}))
                 sys.exit(1)
             sys.exit(0 if _cmd_mcp_register_json(name, env_overrides) else 1)
         elif cmd_args and cmd_args[0] == "--unregister-json":
             name = cmd_args[1] if len(cmd_args) > 1 else ""
             if not name:
                 import json as _json
-                print(_json.dumps({"ok": False, "error": "Thieu ten server. Dung: mcp-setup --unregister-json <name>"}))
+                print(_json.dumps({"ok": False, "error": "Thieu ten server. Dung: mcp-sap-connect register-mcp-servers --unregister-json <name>"}))
                 sys.exit(1)
             sys.exit(0 if _cmd_mcp_unregister_json(name) else 1)
         else:
@@ -198,7 +198,8 @@ def _show_help() -> None:
     print("    connect [profile-id]   Test kết nối profile (đọc + ghi/CSRF)")
     print("    ping [profile-id]      Kiểm tra nhanh session còn hiệu lực (chỉ đọc, nhẹ hơn connect)")
     print("    reauth [profile-id]    Đăng nhập lại (lấy cookie mới) - không hỏi lại từ đầu như setup")
-    print("    mcp-setup              Đăng ký MCP servers với Claude Code (--status-json/--register-json/--unregister-json cho GUI)")
+    print("    register-mcp-servers   Đăng ký MCP servers với Claude Code (alias: mcp-setup; --status-json/--register-json/--unregister-json cho GUI)")
+    print("    mcp-setup              Alias cũ của register-mcp-servers")
     print("    profiles list          Liệt kê tất cả profile")
     print("    profiles use <id>      Chọn profile active")
     print("    profiles show          Xem chi tiết profile active")
@@ -210,6 +211,7 @@ def _show_help() -> None:
     print()
     print("  Examples:")
     print("    mcp-sap-connect setup https://xxx.s4hana.cloud.sap")
+    print("    mcp-sap-connect register-mcp-servers")
     print("    mcp-sap-connect mcp-setup")
     print("    mcp-sap-connect connect")
     print("    mcp-sap-connect reauth")

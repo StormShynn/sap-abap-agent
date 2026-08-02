@@ -24,6 +24,9 @@ Format dựa trên [Keep a Changelog](https://keepachangelog.com/) và [Semantic
 
 ### Added
 
+- Command `/register-mcp-servers` (rename từ `/mcp-setup`) — đăng ký MCP servers;
+  CLI alias `mcp-sap-connect register-mcp-servers` (giữ `mcp-setup`). Phân biệt rõ với
+  `/mcp` (Claude Code OAuth).
 - Skill `sap-learn-from-system` + `CHECKLIST.md` — học từ object SAP thật qua MCP
   (lesson local scrub + đồng bộ Notion "SAP Skills", private/fail-open).
   Routing keywords trong `sap-ask-consultant`.
