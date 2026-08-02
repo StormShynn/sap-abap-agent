@@ -28,6 +28,8 @@ jobs:
         uses: actions/checkout@v7
         with:
           fetch-depth: 0
+          # Same as version-bump.yml — ruleset "Protect main" needs admin PAT.
+          token: ${{ secrets.VERSION_BUMP_TOKEN || github.token }}
 
       # Gop 3 step (extract version + count agents + count skills + sed) thanh 1
       # script Python portable. Logic giong nguyen (cung regex pattern).
