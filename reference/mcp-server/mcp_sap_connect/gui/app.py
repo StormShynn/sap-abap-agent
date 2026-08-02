@@ -24,6 +24,7 @@ from typing import Any
 
 from .. import license as _lic
 from ..config.profile import (
+    get_current_active,
     list_profiles,
     set_active_profile,
 )
@@ -116,6 +117,7 @@ class SapBtpGui:
         self.add_btn.grid(row=0, column=3)
         add_menu = tk.Menu(self.add_btn, tearoff=0)
         add_menu.add_command(label="Setup wizard (interactive)...", command=self._on_new_setup)
+        add_menu.add_command(label="Setup from file (--from-file)...", command=self._on_setup_from_file)
         add_menu.add_command(label="Import from JSON backup...", command=self._on_import_json)
         self.add_btn.configure(menu=add_menu)
 
@@ -365,6 +367,37 @@ class SapBtpGui:
         self.status_var.set("Setup dang chay (cua so CMD rieng)...")
         self._notify_tray("Setup dang chay trong cua so CMD rieng.")
 
+    def _on_setup_from_file(self) -> None:
+        """Tao profile moi tu 1 file JSON da dien san (xem reference/templates/
+        mcp-sap-connect-profile-sample/) - goi `mcp-sap-connect setup --from-file`
+        trong cua so CMD moi (giong _on_new_setup: van co the can interactive,
+        vd SAML fast-path fallback sang browser, hoi dang ky MCP servers cuoi).
+
+        Khac _on_import_json: file o day la TEMPLATE da dien credential that
+        (profileId/url/authMode/cookies hoac clientId+clientSecret...), tao
+        profile MOI kem secrets ma hoa - khong phai backup config.json cua
+        profile da co san (khong co secrets) nhu _on_import_json.
+        """
+        if self._job is not None and self._job.running:
+            messagebox.showinfo("Busy", "Hay doi lenh hien tai ket thuc truoc.")
+            return
+
+        from tkinter import filedialog
+
+        path = filedialog.askopenfilename(
+            title="Chon file profile da dien (vd profile.cookie.json)",
+            parent=self.root,
+            filetypes=[("JSON files", "*.json"), ("All files", "*.*")],
+        )
+        if not path:
+            return
+
+        args = ["setup", "--from-file", path]
+        self._append_log(f'$ mcp-sap-connect setup --from-file "{path}"  (mo cua so CMD moi)\n')
+        runner.start_new_console(args, on_done=self._on_setup_done)
+        self.status_var.set("Setup tu file dang chay (cua so CMD rieng)...")
+        self._notify_tray("Setup tu file dang chay trong cua so CMD rieng.")
+
     def _on_import_json(self) -> None:
         """Import profile tu file config.json backup (BTW: khong import secrets vi
         secrets.json da ma hoa DPAPI, chi may cua user moi giai ma duoc)."""
@@ -495,11 +528,17 @@ class SapBtpGui:
         if not pid:
             return
         try:
+            previous = get_current_active()
             set_active_profile(pid)
         except Exception as err:
             messagebox.showerror("Error", str(err))
             return
         self._append_log(f"[OK] Da set '{pid}' lam profile active.\n")
+        if previous and previous != pid:
+            self._append_log(
+                "[WARN] sap-vsp (neu da dang ky) khong tu nhan profile moi — "
+                "chay lai mcp-setup / MCP Servers de rebind SAP_ADT_*.\n"
+            )
         self.status_var.set(f"Active: {pid}")
         self._refresh_profiles()
         self._notify_tray(f"Profile active: {pid}")

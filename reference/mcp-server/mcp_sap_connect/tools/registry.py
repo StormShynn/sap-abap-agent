@@ -11,7 +11,7 @@ import os
 from typing import Any
 
 from ..config.profile import get_current_active, list_profiles
-from ..sap.client import SapClient
+from ..sap.client import create_sap_client
 
 
 def _pick_profile(args: dict[str, Any] | None) -> str | None:
@@ -194,8 +194,7 @@ def build_tools() -> list[dict[str, Any]]:
 # ===== Handlers ====================================================
 async def _handle_ping(args: dict[str, Any] | None) -> str:
     pid = _pick_profile(args)
-    client = SapClient(pid)
-    await client.init()
+    client = await create_sap_client(pid)
     try:
         me = await client.get(
             "/sap/bc/adt/repository/informationsystem/search",
@@ -224,35 +223,35 @@ async def _handle_list_profiles(_args: dict[str, Any] | None) -> str:
 
 async def _handle_list_packages(args: dict[str, Any] | None) -> str:
     args = args or {}
-    client = SapClient(_pick_profile(args))
+    client = await create_sap_client(_pick_profile(args))
     data = await client.list_packages(args.get("parent") or "")
     return _to_json(data)
 
 
 async def _handle_search(args: dict[str, Any] | None) -> str:
     args = args or {}
-    client = SapClient(_pick_profile(args))
+    client = await create_sap_client(_pick_profile(args))
     data = await client.search_objects(args["query"], args.get("objectType") or "")
     return _to_json(data)
 
 
 async def _handle_read_source(args: dict[str, Any] | None) -> str:
     args = args or {}
-    client = SapClient(_pick_profile(args))
+    client = await create_sap_client(_pick_profile(args))
     src = await client.read_source(args["objectUri"], args["objectType"])
     return src if isinstance(src, str) else _to_json(src)
 
 
 async def _handle_syntax_check(args: dict[str, Any] | None) -> str:
     args = args or {}
-    client = SapClient(_pick_profile(args))
+    client = await create_sap_client(_pick_profile(args))
     data = await client.syntax_check(args["objectUri"], args["objectType"])
     return _to_json(data)
 
 
 async def _handle_activate(args: dict[str, Any] | None) -> str:
     args = args or {}
-    client = SapClient(_pick_profile(args))
+    client = await create_sap_client(_pick_profile(args))
     data = await client.activate(args["objectUri"], args["objectType"])
     return _to_json(data)
 
@@ -261,14 +260,14 @@ async def _handle_activate(args: dict[str, Any] | None) -> str:
 
 async def _handle_find_where_used(args: dict[str, Any] | None) -> str:
     args = args or {}
-    client = SapClient(_pick_profile(args))
+    client = await create_sap_client(_pick_profile(args))
     data = await client.find_where_used(args["objectName"], args["objectType"])
     return _to_json(data)
 
 
 async def _handle_execute_query(args: dict[str, Any] | None) -> str:
     args = args or {}
-    client = SapClient(_pick_profile(args))
+    client = await create_sap_client(_pick_profile(args))
     top = min(int(args.get("top", 50) or 50), 500)
     object_type = (args.get("objectType") or "TABL").strip()
     data = await client.execute_query(args["tableName"], object_type=object_type, top=top)
@@ -277,21 +276,21 @@ async def _handle_execute_query(args: dict[str, Any] | None) -> str:
 
 async def _handle_run_unit_tests(args: dict[str, Any] | None) -> str:
     args = args or {}
-    client = SapClient(_pick_profile(args))
+    client = await create_sap_client(_pick_profile(args))
     data = await client.run_unit_tests(args["objectUri"], args["objectType"])
     return _to_json(data)
 
 
 async def _handle_get_system_info(args: dict[str, Any] | None) -> str:
     args = args or {}
-    client = SapClient(_pick_profile(args))
+    client = await create_sap_client(_pick_profile(args))
     data = await client.get_system_info()
     return _to_json(data)
 
 
 async def _handle_analyze_dump(args: dict[str, Any] | None) -> str:
     args = args or {}
-    client = SapClient(_pick_profile(args))
+    client = await create_sap_client(_pick_profile(args))
     dump_id = (args.get("dumpId") or "").strip()
     top = min(int(args.get("top", 20) or 20), 100)
     data = await client.analyze_dump(dump_id=dump_id or None, top=top)

@@ -1,6 +1,6 @@
 # SAP ABAP Agent (Tiếng Việt)
 
-[![Version](https://img.shields.io/badge/version-1.12.0-blue.svg)](CHANGELOG.md) [![Python](https://img.shields.io/badge/Python-3.10+-blue.svg)](https://python.org) [![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE) [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](CODE_OF_CONDUCT.md) [![Security Policy](https://img.shields.io/badge/Security-View_Policy-blue.svg)](SECURITY.md) [![Changelog](https://img.shields.io/badge/Changelog-%23ff69b4.svg)](CHANGELOG.md) [![CI/CD](https://github.com/StormShynn/sap-abap-agent/actions/workflows/deploy.yml/badge.svg)](https://github.com/StormShynn/sap-abap-agent/actions/workflows/deploy.yml) [![GitHub Pages](https://img.shields.io/github/deployments/StormShynn/sap-abap-agent/github-pages?label=GitHub%20Pages&logo=github)](https://stormshynn.github.io/sap-abap-agent/)
+[![Version](https://img.shields.io/badge/version-1.22.8-blue.svg)](CHANGELOG.md) [![Python](https://img.shields.io/badge/Python-3.10+-blue.svg)](https://python.org) [![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE) [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](CODE_OF_CONDUCT.md) [![Security Policy](https://img.shields.io/badge/Security-View_Policy-blue.svg)](SECURITY.md) [![Changelog](https://img.shields.io/badge/Changelog-%23ff69b4.svg)](CHANGELOG.md) [![CI/CD](https://github.com/StormShynn/sap-abap-agent/actions/workflows/deploy.yml/badge.svg)](https://github.com/StormShynn/sap-abap-agent/actions/workflows/deploy.yml) [![GitHub Pages](https://img.shields.io/github/deployments/StormShynn/sap-abap-agent/github-pages?label=GitHub%20Pages&logo=github)](https://stormshynn.github.io/sap-abap-agent/)
 
 Plugin Claude Code + MCP server tự động kết nối **SAP BTP / S/4HANA Cloud** để thao tác
 ABAP (đọc / tìm / syntax-check / activate). Hỗ trợ **multi-profile** — mỗi project SAP
@@ -26,14 +26,27 @@ có profile riêng (URL, tenant, secret), lưu trong **folder user** trên máy
   cho daily-learner — lấy pattern từ agent-skills-for-context-engineering.
 
 
-- **🖥️ GUI desktop + system tray** (`mcp-sap-connect-gui`, cần extra `[gui]`): Tkinter window với
-  4 nút lớn (Reauth / Connect / Set Active / Remove) + log console streaming real-time +
-  status bar; tray icon (pystray) với menu chuột phải + balloon thông báo. Ẩn xuống tray khi
-  bấm X. Có license dashboard riêng (720×460) với progressbar đếm ngược thời gian sống của
-  cookie/token (xanh >20%, cam 5-20%, đỏ <5%, auto-refresh 1Hz).
+- **🖥️ GUI desktop native (Tauri)** — khuyến nghị Windows: installer NSIS từ tag `gui-v*` /
+  rolling `gui-latest`, PATH-only (cần `mcp-sap-connect` trên PATH). Profile / Reauth /
+  Connect / Ping / MCP Servers / License dashboard / system tray + **in-app updater**
+  (minisign). Xem [`gui-native/README.md`](gui-native/README.md). Legacy Tkinter
+  (`pip install "mcp-sap-connect[gui]"`) vẫn hỗ trợ ≥2 minor — không khuyến nghị user mới.
 - **⏱️ Early-finish cho reauth auto mode** (Playwright): thay vì đợi 30s timeout, tool kết
   thúc sớm khi (1) user bấm Enter/OK, (2) session cookie + ADT discovery OK, hoặc (3) URL
   ổn định 3s. Test real timing URL-stable: 4.6s thay vì 30s.
+- **⚡ SAML fast-path cho cookie auth** (port từ [vibing-steampunk](https://github.com/StormShynn/vibing-steampunk)):
+  đăng nhập qua HTTP form-fill trực tiếp (**~1–3s chỉ khi IAS không MFA**, KHÔNG mở browser).
+  Nếu IAS yêu cầu MFA/OTP/FIDO → fast-path thất bại và **tự fallback browser** (chậm hơn,
+  không còn 1–3s). Thành công thì username/password được mã hóa lưu lại (cùng cơ chế với
+  `authMode=password`) để tự dùng lại cho **mọi lần reauth sau** khi vẫn không MFA. Có ở
+  cả wizard tương tác (option 1, mặc định) và `setup --from-file`
+  (`samlBootstrapUsername`/`samlBootstrapPassword`). Chi tiết: `KNOWN_LIMITATIONS.md`.
+- **🔁 Auto-reauth cho MỌI MCP tool call**: trước đây chỉ `mcp-sap-connect connect`/`reauth` (lệnh
+  CLI thủ công) mới tự đăng nhập lại khi session hết hạn — các tool `sap_*` thật (gọi từ Claude)
+  không có cơ chế này, lỗi thẳng giữa chừng. `create_sap_client()` (factory dùng chung cho mọi
+  tool handler + keep-alive) giờ tự chọn đúng reauth handler theo config profile, nên session hết
+  hạn giữa lúc Claude đang dùng tool sẽ tự phục hồi (SAML fast-path trước, browser sau) thay vì
+  rớt giữa chừng.
 - **🛡️ Ctrl+C handling an toàn** (`ReauthCancelled` / `UserCancelled`): không in traceback 10+
   dòng nữa, cookie cũ KHÔNG bị save đè khi user hủy giữa luồng, browser Playwright luôn được
   đóng, cơ chế 2-lần Ctrl+C (lần 1 cảnh báo, lần 2 trong 2s mới hủy thật).
@@ -159,30 +172,40 @@ tích sâu qua `sap-vsp`, DDIC qua `sap-dict-bridge`) riêng. Xem
 
 ## Cài đặt (1 lần)
 
-Yêu cầu: **Python >= 3.10**. **Không cần clone repo** — chỉ cần tải 1 file `.whl` và `pip install`:
+**Happy path end-user:** xem [`docs/onboarding-guide.md`](docs/onboarding-guide.md)
+(3 persona: ABAP Dev / Functional / Key user) — ≤ 15 phút / persona.
+**Team / công ty:** [`docs/rollout-guide.md`](docs/rollout-guide.md) +
+[`docs/team-troubleshooting.md`](docs/team-troubleshooting.md).
+Host matrix: **Claude Code** = plugin + hooks đầy đủ; **Cursor / VS Code** = MCP
+docs-only (không skill pack / SessionStart hooks) — chi tiết trong onboarding.
+
+Tóm tắt kỹ thuật (reference):
+
+1. `pip install "mcp-sap-connect[win-dpapi]"` rồi `python -m mcp_sap_connect.doctor`
+2. Windows GUI: **ưu tiên NSIS** tag `gui-v*` / rolling `gui-latest` (PATH-only — không embed Python;
+   MSI cần admin / Error 1925 nếu không elevate)
+3. Claude Code (mỗi máy):
+   ```text
+   /plugin marketplace add StormShynn/sap-abap-agent
+   /plugin install sap-abap-agent
+   ```
+   rồi đăng ký MCP **Core** (`sap-btp`, `sap-dict-bridge`, …). N users = N lần
+   marketplace add trên máy/account đó. Cursor: chỉ MCP — bỏ bước `/plugin`.
+   Team rollout: [`docs/rollout-guide.md`](docs/rollout-guide.md).
+
+Wheel pin (MCP package; có thể lệch patch so với plugin — ưu tiên
+`pip install "mcp-sap-connect[win-dpapi]"` nếu không cần URL cố định):
 
 ```bash
-pip install https://github.com/StormShynn/sap-abap-agent/releases/download/mcp-server-v1.14.0/mcp_sap_connect-1.14.0-py3-none-any.whl
-```
-
-(Hoặc tải file `.whl` về trước rồi `pip install đường-dẫn-file.whl` nếu máy không có internet lúc chạy lệnh.)
-
-Trên Windows, cài thêm extra `win-dpapi` để mã hóa secrets bằng DPAPI (thêm `[win-dpapi]` ngay sau tên file, trước phần mở rộng `.whl`):
-
-```bash
-pip install "mcp_sap_connect-1.14.0-py3-none-any.whl[win-dpapi]"
-```
-
-Nếu muốn dùng Cookie-based auth kiểu **tự mở browser đăng nhập** (không cần F12 copy tay), cài thêm extra `playwright`
-và download browser binary:
-
-```bash
-pip install "mcp_sap_connect-1.14.0-py3-none-any.whl[playwright]"
+pip install https://github.com/StormShynn/sap-abap-agent/releases/download/mcp-server-v1.23.0/mcp_sap_connect-1.22.0-py3-none-any.whl
+pip install "mcp_sap_connect-1.22.0-py3-none-any.whl[win-dpapi]"
+# Cookie browser auto-login (tùy chọn):
+pip install "mcp_sap_connect-1.22.0-py3-none-any.whl[playwright]"
 playwright install chromium
 ```
 
-Sau bước cài, bạn sẽ có lệnh `mcp-sap-connect` trong PATH (entry point khai báo trong `pyproject.toml`).
-
+> Cùng OS account = cùng vault `.mcp-sap-connect` (không tách người dùng trong
+> một login). Cách ly: OS user riêng hoặc `MCP_SAP_CONNECT_HOME`.
 <details>
 <summary>Dev / contributor: cài từ source (editable install)</summary>
 
@@ -217,7 +240,19 @@ kiểm tra các dependency hay bị thiếu ngầm (pywin32/DPAPI, playwright+ch
 
 ## Thêm project SAP mới
 
-Cách nhanh nhất — truyền URL trực tiếp:
+**Cách 2 — điền file, không cần trả lời wizard từng bước** (khuyến dùng nếu muốn ít thao tác
+tương tác nhất): copy 1 trong 4 file mẫu ở `reference/templates/mcp-sap-connect-profile-sample/`
+(theo đúng phương thức xác thực bạn có) ra thư mục local của bạn, điền các field `<...>`, rồi:
+
+```bash
+mcp-sap-connect setup --from-file duong-dan-file-da-dien.json
+```
+
+Lệnh này gọi đúng logic lưu trữ/mã hóa như wizard tương tác bên dưới — chỉ khác là không hỏi
+từng câu trong terminal. Xem `reference/templates/mcp-sap-connect-profile-sample/README.md` để
+biết chi tiết từng field + ví dụ cho cả 5 edition. `/sap-setup` tự làm bước copy này giúp bạn.
+
+**Cách 1 — wizard tương tác (trả lời từng câu hỏi)**, truyền URL trực tiếp:
 
 ```bash
 mcp-sap-connect setup https://project1.s4hana.cloud.sap
@@ -229,11 +264,18 @@ Wizard sẽ tự sinh profile id từ hostname (`project1.s4hana.cloud.sap`) và
 2. **Password** — `username` + `password`
 3. **Bearer token** — token có sẵn, nhập tay
 4. **Cookie-based** — session cookie SAP (`MYSAPSSO2`, `SAP_SESSIONID`, `sap-usercontext`...). Wizard hỏi tiếp lấy cookie từ đâu:
-   - (1) File cookie Netscape format
-   - (2) Paste tay (F12 -> Application -> Cookies)
-   - (3) **Auto** — tự mở browser cho bạn đăng nhập, tự lấy cookie (cần extra `playwright`, không có sẽ fallback về paste tay)
+   - (1) **SAML fast-path** (mặc định) — nhập username/password IAS, tự POST form qua HTTP
+     (~1–3s **chỉ khi không MFA**, KHÔNG mở browser). Có MFA/OTP → thất bại và tự rơi
+     xuống (2) (browser, chậm hơn — đừng kỳ vọng 1–3s). Thành công thì lưu (mã hóa) để
+     tự dùng lại cho lần reauth sau khi vẫn không MFA.
+   - (2) Auto — tự mở browser cho bạn đăng nhập (hỗ trợ cả MFA/SSO), tự lấy cookie (cần
+     extra `playwright`)
+   - (3) File cookie Netscape format
+   - (4) Paste tay (F12 -> Application -> Cookies)
 
-   Sau khi có cookie, tự động re-auth qua browser popup (hoặc Playwright) mỗi lần session hết hạn (401).
+   Sau khi có cookie, tự động re-auth (SAML fast-path trước nếu có credential đã lưu, fallback
+   browser popup/Playwright) mỗi lần session hết hạn (401) — kể cả khi hết hạn giữa lúc Claude
+   đang gọi tool `sap_*` thật, không chỉ qua lệnh `connect`/`reauth` thủ công.
 
 Sau đó hỏi thêm Region, service type (s4hc_(private) / s4hc_(public) / btp / onprem).
 
@@ -270,49 +312,32 @@ mcp-sap-connect connect                            # test profile active
 mcp-sap-connect connect project1.s4hana.cloud.sap  # test 1 profile cụ thể
 ```
 
-## GUI desktop + system tray (tùy chọn)
+## GUI desktop (khuyến nghị: native Tauri)
 
-Nếu bạn không thích gõ lệnh, cài thêm GUI + tray icon:
+**PATH-only:** cài CLI trước, rồi cài installer GUI (không embed Python).
 
-```bash
-pip install mcp-sap-connect[gui]
+```powershell
+pip install "mcp-sap-connect[win-dpapi]"
+python -m mcp_sap_connect.doctor
 ```
 
-Lệnh này cài thêm `pystray` + `Pillow`. Sau khi cài xong, có thêm command `mcp-sap-connect-gui`:
+Sau đó cài bản native từ Release tag `gui-v*` (hoặc About → Check for updates) — **ưu tiên NSIS** `.exe`
+(current-user, không cần admin). MSI thường cần elevation (Error 1925 nếu cài
+silent không có quyền). Hoặc build từ `gui-native/`. Chi tiết:
+[`gui-native/README.md`](gui-native/README.md).
+
+App mở ra: kiểm tra runtime → Add profile → Ping/Connect → MCP Servers.
+
+### Legacy: Tkinter GUI (pip extra `[gui]`)
+
+Vẫn hỗ trợ ≥2 minor sau GA native; không khuyến nghị cho user mới:
 
 ```bash
-mcp-sap-connect-gui                  # Mở GUI + tray (mặc định)
-mcp-sap-connect-gui --no-tray         # Chỉ GUI, không có tray icon
-mcp-sap-connect-gui --tray-only       # Chỉ tray (ẩn hoàn toàn, không cửa sổ)
+pip install "mcp-sap-connect[gui]"
+mcp-sap-connect-gui
 ```
 
-**Giao diện GUI (780×560):**
-
-- **Profile selector** (dropdown) với badge inline hiển thị trạng thái cookie/token —
-  ví dụ `* project1.s4hana.cloud.sap  ⚠ 29m 57s` (cam = sắp hết hạn), `❌` (đỏ = hết hạn),
-  `✓ 7h 59m` (xanh = OK).
-- **4 nút lớn**: 🔐 Reauth · 🔌 Connect · ⭐ Set Active · 🗑 Remove.
-- **➕ Add** (góc trên phải): menu thả xuống với **Setup wizard** (mở CMD mới chạy
-  `mcp-sap-connect setup`) và **Import from JSON backup** (chọn file `config.json`, tự
-  derive profile id từ `btpUrl`).
-- **Log console** streaming real-time từ subprocess — copy để paste vào issue khi cần debug.
-- **📋 License** (góc dưới phải): mở **License Dashboard** (Toplevel 720×460) hiển thị tất cả
-  profile với progressbar đếm ngược thời gian sống của cookie/token (xanh >20%, cam 5-20%,
-  đỏ <5%, auto-refresh 1Hz). Click vào dòng status dưới URL cũng mở dashboard.
-
-**Tray icon (Windows notification area):**
-
-- Menu chuột phải: **Reauth (active)** · **Connect (active)** · **Profiles** (sub-menu
-  chọn nhanh profile active) · **Open License Dashboard** · **Open GUI** · **Quit**.
-- Click chuột trái: toggle hiện/ẩn GUI.
-- Balloon Windows ở góc phải thông báo kết quả `reauth` / `connect`.
-- **Ẩn xuống tray khi bấm X** trên cửa sổ GUI (để thoát hẳn, dùng **Quit** trong menu tray).
-
-**Sớm hơn 30s timeout cho reauth auto mode:** tool kết thúc sớm khi (1) bạn bấm Enter trong
-terminal CLI / nút **✓ Đã đăng nhập xong** trong GUI, (2) session cookie + ADT discovery OK,
-hoặc (3) URL ổn định 3s liên tiếp. Test thực tế URL-stable: 4.6s thay vì 30s.
-
-Xem chi tiết tại `mcp_sap_connect/gui/README.md`.
+Xem thêm `reference/mcp-server/mcp_sap_connect/gui/README.md`.
 
 ## License dashboard (xem cookie/token còn hạn bao lâu)
 
@@ -354,7 +379,13 @@ mcp-sap-connect license project1.s4hana.cloud.sap      # chi tiết 1 profile
 ```
 
 - **Cookie expires** được ước lượng = `last_saved + cookie_max_age_hours` (mặc định 8h,
-  override bằng cách thêm `"cookieMaxAgeHours": N` vào `config.json` của profile).
+  override bằng cách thêm `"cookieMaxAgeHours": N` vào `config.json` của profile) — SAP
+  không gửi kèm thời gian hết hạn thật trong session cookie (`SAP_SESSIONID_*`/
+  `sap-usercontext` là session cookie thuần, `expires=None`, đã verify trực tiếp qua
+  cookie jar thật), nên đây là giới hạn kỹ thuật thật sự, không phải làm ẩu. Bù lại, cơ
+  chế keep-alive (ping mỗi 5 phút) giờ tự "gia hạn" ước lượng mỗi lần ping thành công
+  (bằng chứng thật session còn sống), và đánh dấu hết hạn **ngay lập tức** khi ping thất
+  bại — thay vì luôn hiển thị số giờ tĩnh từ lúc đăng nhập, không phản ánh thực tế.
 - **OAuth2 token expires** được lưu chính xác từ response `expires_in` của token endpoint.
 - **Tray notification** tự động khi mở GUI nếu có profile sắp hết hạn (<1h) hoặc đã hết hạn.
 
@@ -475,16 +506,12 @@ Setup phía người được mời, theo đúng thứ tự:
 2. Tự chạy `/mcp` trong Claude Code, chọn `notion`, đăng nhập **bằng tài khoản Notion của chính
    họ** (không dùng chung tài khoản với người tạo database).
 
-> ⚠️ **Rủi ro cần biết**: cơ chế tìm database hiện tại dựa theo **tên** (`notion-search "SAP
-> Skills"` → thấy thì dùng, không thấy thì tự tạo mới). Chưa test được với 1 tài khoản Notion thứ
-> 2 liệu search có chắc chắn tìm ra database đã được share (khác với database tự tạo) hay không —
-> nếu không tìm ra, Claude sẽ **tự tạo 1 database "SAP Skills" mới, riêng, không báo lỗi gì cả**,
-> làm mất ý nghĩa dùng chung (mỗi người 1 bản, không đồng bộ).
->
-> **Cách né**: trước khi để `sap-daily-learner` tự chạy lần đầu, người mới nên tự bảo Claude
-> "search notion database SAP Skills" và kiểm tra kết quả có đúng database cũ (có dữ liệu sẵn)
-> hay không — thấy database rỗng/khác thì báo ngay để xử lý thủ công, tránh bị tạo trùng trong
-> im lặng.
+> **Pin database (bắt buộc cho team dùng chung)** — sau bước 1–2, pin id/URL database đã share:
+> ```powershell
+> python reference/scripts/notion_skills_db.py set "<database-id-or-url>"
+> ```
+> hoặc env `SAP_ABAP_AGENT_NOTION_SKILLS_DB`. Có pin thì agent **không** auto-create DB theo tên.
+> Không pin: search theo tên; 0 hoặc nhiều kết quả → báo rõ / hỏi pin — **không** tạo trùng im lặng.
 
 Chi tiết đầy đủ: `skills/sap-daily-learner/SKILL.md` mục 3b.
 
@@ -646,7 +673,7 @@ echo '{}' | python hooks/error_reporter.py status
 Output mẫu:
 ```json
 {
-  "plugin_version": "1.12.0",
+  "plugin_version": "1.22.8",
   "total_logged_errors": 12,
   "total_logged_fixes": 3,
   "active_error_groups_24h": 2,
@@ -1297,7 +1324,7 @@ Plugin có **2 cơ chế kích hoạt khác nhau**, dễ nhầm nếu chỉ đ�
 
 | Command | Dùng khi |
 |---|---|
-| `/sap-setup` | Cài đặt toàn bộ cho máy mới lần đầu (pip install, profile đầu tiên, đăng ký MCP) — tự phát hiện bước nào đã xong |
+| `/sap-setup` | Cài đặt toàn bộ cho máy mới, tự động hết mức có thể (pip install, đăng ký MCP) — chỉ dừng lại đúng 1 chỗ: điền file config mẫu với credential thật |
 | `/sap-connect` | Thiết lập/quản lý profile kết nối SAP BTP |
 | `/mcp-setup` | Đăng ký toàn bộ MCP server 1 lần |
 | `/sync-skills` | Đồng bộ skill/agent/command mới nhất từ GitHub |
@@ -1422,6 +1449,7 @@ Nếu bạn biết repo open-source khác cùng chủ đề, mở issue / PR th�
 | File                                         | Mục đích                                              |
 |----------------------------------------------|--------------------------------------------------------|
 | [`docs/onboarding-guide.md`](docs/onboarding-guide.md)         | Hướng dẫn end-user cài đặt + dùng thử                  |
+| [`docs/rollout-guide.md`](docs/rollout-guide.md)               | Rollout nhiều user / team (OS account, MCP Core)       |
 | [`docs/sap-mcp-recommendations.md`](docs/sap-mcp-recommendations.md) | Khuyến nghị MCP server bổ sung (Tier 1/2/3, opt-in)     |
 | [`CONTRIBUTING.md`](CONTRIBUTING.md)         | Hướng dẫn đóng góp skill/agent/docs                    |
 | [`SKILL_TEMPLATE.md`](SKILL_TEMPLATE.md)     | Template chuẩn để tạo skill/agent/reference module    |

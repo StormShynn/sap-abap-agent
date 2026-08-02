@@ -1,0 +1,59 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "SAP ABAP Agent",
+  "version": "1.23.1",
+  "identifier": "com.stormshyn.sap-abap-agent-gui",
+  "build": {
+    "beforeDevCommand": "npm run dev",
+    "devUrl": "http://localhost:1420",
+    "beforeBuildCommand": "npm run build",
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "withGlobalTauri": true,
+    "windows": [
+      {
+        "label": "main",
+        "title": "SAP ABAP Agent",
+        "width": 800,
+        "height": 620,
+        "minWidth": 680,
+        "minHeight": 480
+      }
+    ],
+    "security": {
+      "csp": "default-src 'self'; connect-src ipc: http://ipc.localhost https://github.com https://api.github.com https://objects.githubusercontent.com; img-src 'self' asset: http://asset.localhost data: blob:; style-src 'self' 'unsafe-inline'; script-src 'self'; font-src 'self' data:; object-src 'none'; base-uri 'self'; form-action 'none'; frame-ancestors 'none'"
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": [
+      "nsis",
+      "msi"
+    ],
+    "createUpdaterArtifacts": true,
+    "windows": {
+      "nsis": {
+        "installMode": "currentUser",
+        "displayLanguageSelector": false
+      }
+    },
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
+    "shortDescription": "Native GUI for mcp-sap-connect (PATH-only)",
+    "longDescription": "Desktop UI and tray for SAP ABAP Agent profiles, reauth, connect, and MCP setup. Requires mcp-sap-connect on PATH (pip install); does not embed Python."
+  },
+  "plugins": {
+    "updater": {
+      "endpoints": [
+        "https://github.com/StormShynn/sap-abap-agent/releases/download/gui-latest/update.json"
+      ],
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEZCNjZCODI3QzQ2OUJGNzkKUldSNXYybkVKN2htK3kya29DSkJ5SEgzRnhIK2pNSUtISXdPZ3FiRHUrdUppVmtVYVhHT01nRTEK"
+    }
+  }
+}

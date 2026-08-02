@@ -58,6 +58,21 @@ Template co san (copy roi thay `<OBJECT>`/`<Object>`/`<Field...>`): `reference/t
 
 ## Quy trinh
 
+### Buoc 0: Xac dinh ngu canh (BAT BUOC, KHONG tu doan)
+
+Thu tu, dung lai o buoc nao da biet trong phien nay (cung pattern voi `sap-scaffold-report`):
+
+1. Neu chua co `TECHNICAL_SPEC.md` → chay `sap-write-technical-spec` truoc (pattern phai la RAP
+   Managed/Unmanaged).
+2. **Edition**: doc `reference/process/sap-service-type-context.md` neu chua biet he thong dang
+   lam viec la `s4hc_(public)` / `s4hc_(private)` / `onprem` / `btp` trong phien nay. RAP scaffold
+   o day gia dinh ABAP Cloud / Clean Core — neu edition = `onprem` (hoac Private Cloud dang chon
+   compat classic), **dung lai** va xac nhan voi user truoc khi sinh managed RAP 3-layer.
+3. **Extensibility / rang buoc**: neu van con mo "custom logic dat o dau / released API nao duoc
+   phep", doc `skills/sap-extensibility/SKILL.md` (Buoc 0 + bang theo edition) — KHONG scaffold
+   behavior goi API unreleased.
+4. **Package**: chay `sap-deployment-target` neu chua xac nhan package deploy tren he thong that.
+
 ### Buoc 1: Doc TECHNICAL_SPEC.md
 
 Lay: danh sach object can tao, pseudo code behavior definition, test plan.
@@ -268,9 +283,10 @@ outbound), hoac dung background job + `COMMIT ENTITIES ... RESPONSE OF` o class 
 
 ## Reference
 
+- `reference/process/sap-service-type-context.md` — edition gate (Buoc 0), BAT BUOC truoc scaffold.
 - `reference/templates/rap-boilerplate/managed/` — template 3-layer day du.
 - Skill `sap-clean-code` — quy uoc dat ten, VDM layer.
-- Skill `sap-extensibility` — decision tree managed/unmanaged/side-by-side.
+- Skill `sap-extensibility` — decision tree managed/unmanaged/side-by-side + rang buoc theo edition.
 - Skill `sap-abap-sql` — ABAP SQL, AMDP cho performance pattern trong RAP.
 - Skill `sap-odata-service` — RAP-based OData V4, service binding patterns.
 - Skill `sap-authorization` — DCL, RAP instance-based authorization.

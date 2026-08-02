@@ -47,7 +47,7 @@ async def main():
     with patch('mcp_sap_connect.config.store.load_config', return_value=fake_cfg), \
          patch('mcp_sap_connect.config.secrets.load_secrets', new=AsyncMock(return_value={'cookies': {}})), \
          patch('mcp_sap_connect.config.secrets.update_secrets', new=AsyncMock(return_value={})), \
-         patch('mcp_sap_connect.cli.__init__.SapCookieAuth', return_value=mock_auth):
+         patch('mcp_sap_connect.sap.auth.SapCookieAuth', return_value=mock_auth):
 
         # Patch sys.stdin de khong bi block o thread watcher (TTY check)
         import sys as _sys

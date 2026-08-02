@@ -29,6 +29,22 @@ tools: [Read, Bash, Glob, Grep, Write]
 Ap dung skill `sap-verification-before-completion`: moi muc duoi day can **bang chung chay
 that**, khong phai "code nhin on la xong".
 
+### Gate bang chung (HARD STOP trong skill — advisory doi voi CI)
+
+Khong duoc ghi `Ket qua: READY` trong `FINISH_CHECKLIST.md` neu thieu bat ky muc
+**required** nao. Ten tool + tieu chi:
+
+| Muc | Required? | Bang chung chap nhan | PASS khi |
+|---|---|---|---|
+| Activation | Yes | MCP `sap_activate` log / ADT activation status | Moi object TECHNICAL_SPEC activated, 0 activation error |
+| ATC | Yes | `out/<ticket>/ATC_REVIEW.md` | Status **PASS** (WARN: ghi chu, van duoc READY) |
+| Unit test | Yes neu da sinh test class | MCP `sap_run_unit_tests` output **hoac** ADT runner log | 0 FAIL |
+| Transport | Yes truoc release | So TR + object list khop TECHNICAL_SPEC | Khong thua/thieu object |
+| abapGit | Optional neu chua push | Trang thai working tree / remote | Khong commit `in/`/`out/` |
+
+**Override:** chi khi user noi ro "bo qua muc X". Khi do `Ket qua: NOT READY` (hoac
+`READY WITH GAPS`), liet ke muc thieu — **cam** ghi READY sach.
+
 ## Quy trinh
 
 ### Buoc 1: Doc lai out/<ticket>/
@@ -116,6 +132,7 @@ Neu **NOT READY**: liet ke ro con thieu gi, khong dong ticket.
 | F2 | "Test da sinh la coi nhu pass" | Phai chay that, dan ket qua that |
 | F3 | "Activate duoc 1 object dau la cac object sau cung on" | Check tung object, loi activation thuong o object sau (behavior/service) |
 | F4 | "Transport co object la du, khong can check thua" | Object thua/thieu so voi TECHNICAL_SPEC deu la loi |
+| F5 | "Chua activate/test nhung user muon dong ticket" | NOT READY / READY WITH GAPS + liet ke muc thieu — khong READY sach |
 
 ## Reference
 

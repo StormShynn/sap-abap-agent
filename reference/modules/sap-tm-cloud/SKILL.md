@@ -13,6 +13,11 @@ Scope item chinh la **BPL** (Transportation Management). Kiem tra tren Best Prac
 cho release hien tai. Dung ket hop voi skill `sap-extensibility` (bac thang extensibility chung)
 va `sap-clean-code` (dat ten).]
 
+## Tich hop
+
+Skill lien quan (bat buoc khi de xuat custom/mo rong): `sap-extensibility`, `sap-clean-code`,
+`sap-docs-research`. Agent `sap-tm-consultant-cloud` da nap cac skill nay qua frontmatter.
+
 ## 1. Cau hinh (SSCUI)
 
 | Khu vuc | Scope item | Mo ta |

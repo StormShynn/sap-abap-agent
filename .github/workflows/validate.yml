@@ -29,12 +29,12 @@ jobs:
           fetch-depth: 0
 
       - name: Setup Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7
         with:
           python-version: "3.12"
 
-      - name: Install ruff
-        run: pip install ruff
+      - name: Install ruff + pytest
+        run: pip install ruff pytest pytest-cov
 
       - name: Validate plugin structure
         run: python reference/scripts/validate_plugin.py
@@ -62,23 +62,34 @@ jobs:
           echo '{"tool_input":{"file_path":"README.md"}}' | python hooks/post_tool_select_star.py 2>&1 | grep -q 'SELECT \*' && { echo "post_tool_select_star: WARN detected on non-ABAP - BUG"; exit 1; } || echo "post_tool_select_star: clean (no warn for non-ABAP)"
 
       - name: pytest collect-only (smoke)
-        # collect-only de khong can install ca mcp_sap_connect deps.
-        # Test that pytest discovery khong crash.
+        # Root tests/ import mcp_sap_connect — install package (+ deps) first.
         run: |
-          python -m pytest tests/ reference/mcp-server/tests/ --collect-only -q -p no:cacheprovider
+          pip install -e "reference/mcp-server[dev]"
+          python -m pytest tests/ --collect-only -q -p no:cacheprovider
 
-      - name: Run pytest with coverage (root tests only)
-        # Chi chay test cho `tests/` root (reference/scripts/, hooks/).
-        # Skip reference/mcp-server/tests/ vi can install deps cua MCP server.
+      - name: Run pytest with coverage (root + hooks)
+        # NOTE: do not put `# comment` on a `\` continuation line — it eats the backslash.
         run: |
-          pip install pytest-cov
           python -m pytest tests/ hooks/hook_tests/ \
             --cov=reference/scripts \
             --cov=hooks \
             --cov-report=xml:coverage.xml \
             --cov-report=term-missing:skip-covered \
-            --cov-fail-under=60  # coverage gate (warning-only vi co || echo phia sau) \
-            -q --no-header -p no:cacheprovider || echo "::warning::Some tests failed (non-blocking at smoke level)"
+            --cov-fail-under=60 \
+            -q --no-header -p no:cacheprovider
+
+      - name: Upload coverage.xml (report artifact; gate remains cov-fail-under)
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: coverage-xml
+          path: coverage.xml
+          if-no-files-found: ignore
+
+      - name: Run MCP server unit tests
+        working-directory: reference/mcp-server
+        run: |
+          python -m pytest tests/ -q --no-header -p no:cacheprovider
 
       - name: ruff (lint)
         # Su dung config o root pyproject.toml. Loi lint khong block CI

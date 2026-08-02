@@ -58,3 +58,52 @@ updates:
           - "minor"
           - "patch"
     open-pull-requests-limit: 5
+
+  - package-ecosystem: "npm"
+    directory: "/gui-native"
+    schedule:
+      interval: "weekly"
+      day: "wednesday"
+      time: "09:00"
+      timezone: "Asia/Saigon"
+    commit-message:
+      prefix: "ci(npm)"
+      prefix-development: "ci(npm-dev)"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "ci"
+    groups:
+      tauri-frontend:
+        patterns:
+          - "@tauri-apps/*"
+          - "vite"
+          - "typescript"
+        update-types:
+          - "minor"
+          - "patch"
+    open-pull-requests-limit: 5
+
+  - package-ecosystem: "cargo"
+    directory: "/gui-native/src-tauri"
+    schedule:
+      interval: "weekly"
+      day: "wednesday"
+      time: "09:00"
+      timezone: "Asia/Saigon"
+    commit-message:
+      prefix: "ci(cargo)"
+      prefix-development: "ci(cargo-dev)"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "ci"
+    groups:
+      tauri-rust:
+        patterns:
+          - "tauri*"
+          - "serde*"
+        update-types:
+          - "minor"
+          - "patch"
+    open-pull-requests-limit: 5

@@ -1,4 +1,4 @@
-"""CLI entry point: mcp-sap-connect setup / connect / profiles / reset.
+﻿"""CLI entry point: mcp-sap-connect setup / connect / profiles / reset.
 
 Usage:
   mcp-sap-connect                              Chay MCP stdio server (khong argument)
@@ -41,10 +41,13 @@ from ..sap.auth import (
     _parse_cookie_string,
     _parse_netscape_cookie_text,
     _session_cookie_names,
+    saml_or_browser_login,
 )
 from ..setup_vsp import VspSetupError, ensure_vsp
-from . import _cancel as _sig
 from .prompt import UserCancelled, ask, header, info, ok, warn
+
+# Lazy-import _cancel at use sites — eager from . import _cancel can raise
+# partially initialized module on some CI/pytest import orders (Linux).
 
 
 def _ask_service() -> str:
@@ -91,23 +94,67 @@ def main() -> None:
 
     runner = _make_runner()
     if cmd == "setup":
-        url = cmd_args[0] if cmd_args else ""
-        runner(_wizard_setup, url)
+        if cmd_args and cmd_args[0] == "--from-file":
+            if len(cmd_args) < 2:
+                print("  ❌ Thieu duong dan file. Dung: mcp-sap-connect setup --from-file <path>")
+            else:
+                runner(_setup_from_file, cmd_args[1])
+        else:
+            url = cmd_args[0] if cmd_args else ""
+            runner(_wizard_setup, url)
     elif cmd == "connect":
         runner(_cmd_connect, cmd_args[0] if cmd_args else None)
+    elif cmd == "ping":
+        runner(_cmd_ping, cmd_args[0] if cmd_args else None)
     elif cmd == "reauth":
         runner(_cmd_reauth, cmd_args[0] if cmd_args else None)
     elif cmd == "profiles" and cmd_args:
-        runner(_cmd_profiles, cmd_args[0], cmd_args[1] if len(cmd_args) > 1 else None)
+        json_mode = "--json" in cmd_args
+        pos_args = [a for a in cmd_args if a != "--json"]
+        runner(
+            _cmd_profiles,
+            pos_args[0],
+            pos_args[1] if len(pos_args) > 1 else None,
+            json_mode,
+        )
     elif cmd == "reset":
         _cmd_reset()
     elif cmd == "doctor":
         from ..doctor import main as run_doctor
         run_doctor()
     elif cmd == "mcp-setup":
-        _cmd_mcp_setup()
+        if cmd_args and cmd_args[0] == "--status-json":
+            _cmd_mcp_status_json()
+        elif cmd_args and cmd_args[0] == "--register-json":
+            name = cmd_args[1] if len(cmd_args) > 1 else ""
+            env_overrides: dict[str, str] = {}
+            i = 2
+            while i < len(cmd_args):
+                if cmd_args[i] == "--env" and i + 1 < len(cmd_args):
+                    k, _, v = cmd_args[i + 1].partition("=")
+                    if k:
+                        env_overrides[k] = v
+                    i += 2
+                else:
+                    i += 1
+            if not name:
+                import json as _json
+                print(_json.dumps({"ok": False, "error": "Thieu ten server. Dung: mcp-setup --register-json <name> [--env K=V ...]"}))
+                sys.exit(1)
+            sys.exit(0 if _cmd_mcp_register_json(name, env_overrides) else 1)
+        elif cmd_args and cmd_args[0] == "--unregister-json":
+            name = cmd_args[1] if len(cmd_args) > 1 else ""
+            if not name:
+                import json as _json
+                print(_json.dumps({"ok": False, "error": "Thieu ten server. Dung: mcp-setup --unregister-json <name>"}))
+                sys.exit(1)
+            sys.exit(0 if _cmd_mcp_unregister_json(name) else 1)
+        else:
+            _cmd_mcp_setup()
     elif cmd == "license":
-        _cmd_license(cmd_args[0] if cmd_args else None)
+        json_mode = "--json" in cmd_args
+        pos_args = [a for a in cmd_args if a != "--json"]
+        _cmd_license(pos_args[0] if pos_args else None, json_mode=json_mode)
     else:
         print(f"  ❌ Unknown command: {cmd}")
         _show_help()
@@ -123,10 +170,15 @@ def _make_runner():
       _read_cookie_paste) - huy setup/ghi config ban dau.
 
     Tat ca duong di khac (return binh thuong, exception that bai) giu nguyen.
+    Rieng coroutine tra ve DUNG False (vd _setup_from_file khi reject) se doi
+    thanh exit code 1 - de GUI (doc rc qua job-done) phan biet duoc thanh cong/
+    that bai, thay vi luon thay rc=0 du in ra loi.
     """
     def runner(coro_fn, *args):
         try:
-            asyncio.run(coro_fn(*args))
+            result = asyncio.run(coro_fn(*args))
+            if result is False:
+                sys.exit(1)
         except ReauthCancelled as err:
             print(f"\n  ⏹  Huy dang nhap lai ({err.where}). Cookie cu KHONG bi thay doi.")
         except UserCancelled as err:
@@ -143,9 +195,10 @@ def _show_help() -> None:
     print()
     print("  Commands:")
     print("    setup [URL]            Thêm project SAP mới (wizard)")
-    print("    connect [profile-id]   Test kết nối profile")
+    print("    connect [profile-id]   Test kết nối profile (đọc + ghi/CSRF)")
+    print("    ping [profile-id]      Kiểm tra nhanh session còn hiệu lực (chỉ đọc, nhẹ hơn connect)")
     print("    reauth [profile-id]    Đăng nhập lại (lấy cookie mới) - không hỏi lại từ đầu như setup")
-    print("    mcp-setup              Đăng ký MCP servers với Claude Code")
+    print("    mcp-setup              Đăng ký MCP servers với Claude Code (--status-json/--register-json/--unregister-json cho GUI)")
     print("    profiles list          Liệt kê tất cả profile")
     print("    profiles use <id>      Chọn profile active")
     print("    profiles show          Xem chi tiết profile active")
@@ -267,19 +320,24 @@ async def _wizard_setup(url: str) -> None:
         print()
 
         cookie_source = ask(
-            "Lay cookies tu: (1) File Netscape format  (2) Nhap tay  "
-            "(3) Auto - mo browser dang nhap (can playwright)",
-            default="3",
+            "Lay cookies tu: (1) SAML fast-path (nhap user/pass, ~1-3s, KHONG mo browser -"
+            " chi dung neu IAS KHONG MFA)  (2) Auto - mo browser dang nhap (ho tro ca MFA)  "
+            "(3) File Netscape format  (4) Nhap tay",
+            default="1",
         )
 
         if cookie_source == "1":
-            cookie_file = ask("Duong dan file cookies (Netscape format)")
-            cookies = _load_cookies_from_file(cookie_file)
-            if not cookies:
-                print("  ⚠️ Khong doc duoc cookies tu file. Thu nhap tay.")
-                cookie_str = ask("Cookie string (name=value; name2=value2)")
-                cookies = _parse_cookie_string(cookie_str)
-        elif cookie_source == "3":
+            saml_user = ask("SAP Username (dang nhap IAS)")
+            saml_pass = ask("SAP Password (dang nhap IAS)", secret=True)
+            saml_cookies = await _try_saml_fastpath(url, saml_user, saml_pass, secrets_data)
+            saml_user = saml_pass = ""
+            if saml_cookies is None:
+                cookies = {}
+                cookie_source = "2"  # roi qua nhanh browser ben duoi
+            else:
+                cookies = saml_cookies
+
+        if cookie_source == "2":
             from ..sap.auth import web_login_auto
             try:
                 result = await web_login_auto({"base_url": url, "profile_id": profile_id})
@@ -291,7 +349,14 @@ async def _wizard_setup(url: str) -> None:
                 print("  ⚠️ Khong lay duoc cookie tu browser. Thu nhap tay.")
                 cookie_str = ask("Cookie string (name=value; name2=value2)")
                 cookies = _parse_cookie_string(cookie_str)
-        else:
+        elif cookie_source == "3":
+            cookie_file = ask("Duong dan file cookies (Netscape format)")
+            cookies = _load_cookies_from_file(cookie_file)
+            if not cookies:
+                print("  ⚠️ Khong doc duoc cookies tu file. Thu nhap tay.")
+                cookie_str = ask("Cookie string (name=value; name2=value2)")
+                cookies = _parse_cookie_string(cookie_str)
+        elif cookie_source == "4":
             print()
             print("  👉 Mo SAP system trong trinh duyet, dang nhap, sau do:")
             print("     (F12 -> Application -> Cookies -> Copy cookie string,")
@@ -311,8 +376,9 @@ async def _wizard_setup(url: str) -> None:
 
         # Reauth mode
         reauth_mode = ask(
-            "Che do re-auth khi session het han? (1) Manual paste  (2) Auto (Playwright)",
-            default="2" if cookie_source == "3" else "1",
+            "Che do re-auth khi session het han? (1) Manual paste  "
+            "(2) Auto (SAML fast-path neu con dung duoc, fallback browser)",
+            default="2" if cookie_source in ("1", "2") else "1",
         )
         config_data["reauthMode"] = "auto" if reauth_mode == "2" else "manual"
         config_data.update({
@@ -349,15 +415,248 @@ async def _wizard_setup(url: str) -> None:
     print()
     info("Ban co the kiem tra ket noi bang: mcp-sap-connect connect")
     print()
-    if ask("Dang ky MCP servers voi Claude Code ngay?", default="y").lower() in ("", "y", "yes"):
-        _cmd_mcp_setup()
+    info("Dang ky MCP servers: chay 'mcp-sap-connect mcp-setup' (hoac nut MCP Servers trong GUI) khi can.")
+
+
+# ===== SETUP TU FILE (non-interactive) =============================
+
+_PLACEHOLDER_MARKERS = ("<", ">", "YOUR_", "REPLACE_ME")
+
+
+def _looks_like_placeholder(value: Any) -> bool:
+    """True neu value con la placeholder chua dien (vd '<CLIENT_ID>')."""
+    return isinstance(value, str) and any(m in value for m in _PLACEHOLDER_MARKERS)
+
+
+def _wire_early_finish_event(reauth_mode: str) -> asyncio.Event:
+    """Cho web_login_auto: 2 cach bao 'da dang nhap xong, kiem tra ngay' thay vi
+    cho poll tu nhien den khi tu phat hien session/timeout:
+      1. GUI: SAP_BTP_EARLY_FINISH_FILE duoc touch -> event.set().
+      2. CLI (reauth_mode == 'auto'): user bam Enter -> stdin doc 1 dong -> event.set().
+    Dung chung boi _cmd_reauth va _setup_from_file (auto cookie mode).
+    """
+    early_event = asyncio.Event()
+    marker_path = os.environ.get("SAP_BTP_EARLY_FINISH_FILE")
+    is_tty = sys.stdin and sys.stdin.isatty()
+
+    if marker_path:
+        async def _watch_file():
+            from pathlib import Path as _P
+            while not early_event.is_set():
+                if _P(marker_path).exists():
+                    early_event.set()
+                    break
+                await asyncio.sleep(0.1)
+        asyncio.get_event_loop().create_task(_watch_file())
+    elif is_tty and reauth_mode == "auto":
+        def _stdin_watcher():
+            try:
+                line = sys.stdin.readline()
+                if line is not None:
+                    early_event.set()
+            except Exception:
+                pass
+        threading.Thread(target=_stdin_watcher, daemon=True).start()
+
+    return early_event
+
+
+async def _try_saml_fastpath(
+    url: str, username: str, password: str, secrets_data: dict[str, Any]
+) -> dict[str, str] | None:
+    """Thu dang nhap SAML fast-path (HTTP form-fill, khong mo browser).
+
+    Thanh cong: ghi samlUsername/samlPassword vao secrets_data (caller tu
+    save_secrets sau do - ham nay khong tu luu) de tu dung lai cho lan reauth
+    sau, tra ve cookies. That bai (sai cred, MFA...): canh bao va tra ve None
+    - caller tu fallback ve web_login_auto (browser).
+
+    Dung chung boi _wizard_setup va _setup_from_file (2 noi co logic giong
+    het nhau truoc day).
+    """
+    from ..sap.auth import SamlLoginError, saml_form_login
+
+    info("Thu dang nhap nhanh qua SAML form (HTTP truc tiep, khong mo browser)...")
+    try:
+        result = await saml_form_login(url, username, password)
+    except SamlLoginError as err:
+        warn(f"Dang nhap nhanh khong thanh cong ({err}) - fallback ve mo browser...")
+        return None
+    secrets_data["samlUsername"] = username
+    secrets_data["samlPassword"] = password
+    ok("Dang nhap nhanh thanh cong - da luu (ma hoa) de tu dung lai cho lan reauth sau.")
+    return result.cookies
+
+
+async def _setup_from_file(path: str) -> bool:
+    """Tao profile tu 1 file JSON da dien san (xem reference/templates/
+    mcp-sap-connect-profile-sample/), thay vi tra loi wizard tuong tac tung buoc.
+
+    Goi lai DUNG 3 ham upsert_profile/save_config/save_secrets ma _wizard_setup
+    da dung - KHONG viet lai logic ma hoa/luu tru. Muc dich: user chi can dien
+    1 file roi chay 1 lenh, khong con phai tra loi tung cau hoi trong terminal.
+
+    Tra ve True/False (thay vi None) de runner() dich ra exit code dung - GUI
+    (start_streamed) doc rc de bao thanh cong/that bai, khong the doc lai stdout
+    da troi qua nhu console rieng truoc day.
+    """
+    import json
+    from pathlib import Path
+
+    header("SAP ABAP Agent — Setup tu file")
+
+    file = Path(path).expanduser()
+    if not file.is_file():
+        print(f"  ❌ Khong tim thay file: {file}")
+        return False
+    try:
+        data: dict[str, Any] = json.loads(file.read_text(encoding="utf-8-sig"))
+    except json.JSONDecodeError as err:
+        print(f"  ❌ File JSON khong hop le ({file}): {err}")
+        return False
+
+    raw_url = str(data.get("url", "")).strip()
+    if not raw_url or _looks_like_placeholder(raw_url):
+        print("  ❌ File thieu field 'url' hop le (con la placeholder hoac rong).")
+        return False
+    url = normalize_btp_url(raw_url)
+
+    profile_id = str(data.get("profileId", "")).strip() or derive_profile_id_from_url(url)
+    if not profile_id:
+        print("  ❌ Khong sinh duoc profile ID tu 'url', va file khong co field 'profileId'.")
+        return False
+
+    auth_mode = str(data.get("authMode", "")).strip()
+    if auth_mode not in ("oauth2", "password", "bearer", "cookie"):
+        print(f"  ❌ 'authMode' khong hop le: {auth_mode!r}. Phai la 1 trong: "
+              f"oauth2, password, bearer, cookie.")
+        return False
+
+    try:
+        service = normalize_service_type(data.get("service", SERVICE_TYPE_DEFAULT))
+    except ValueError as err:
+        print(f"  ❌ {err}")
+        return False
+
+    config_data: dict[str, Any] = {
+        "authMode": auth_mode,
+        "btpUrl": url.rstrip("/"),
+        "region": str(data.get("region", "eu10")).strip() or "eu10",
+        "service": service,
+    }
+    secrets_data: dict[str, Any] = {}
+
+    if auth_mode == "oauth2":
+        client_id = str(data.get("clientId", "")).strip()
+        client_secret = str(data.get("clientSecret", "")).strip()
+        if not client_id or not client_secret or _looks_like_placeholder(client_id) or _looks_like_placeholder(client_secret):
+            print("  ❌ Thieu hoac chua thay placeholder cho 'clientId'/'clientSecret'.")
+            return False
+        config_data["clientId"] = client_id
+        config_data["scope"] = str(data.get("scope", "")).strip()
+        secrets_data["clientSecret"] = client_secret
+
+    elif auth_mode == "password":
+        username = str(data.get("username", "")).strip()
+        password = str(data.get("password", "")).strip()
+        if not username or not password or _looks_like_placeholder(username) or _looks_like_placeholder(password):
+            print("  ❌ Thieu hoac chua thay placeholder cho 'username'/'password'.")
+            return False
+        config_data["clientId"] = str(data.get("clientId", "")).strip()
+        secrets_data["username"] = username
+        secrets_data["password"] = password
+
+    elif auth_mode == "bearer":
+        token = str(data.get("accessToken", "")).strip()
+        if not token or _looks_like_placeholder(token):
+            print("  ❌ Thieu hoac chua thay placeholder cho 'accessToken'.")
+            return False
+        secrets_data["accessToken"] = token
+
+    elif auth_mode == "cookie":
+        cookies = data.get("cookies")
+        cookies_missing = (
+            not isinstance(cookies, dict) or not cookies
+            or any(_looks_like_placeholder(v) for v in cookies.values())
+        )
+        reauth_mode = "auto" if data.get("reauthMode") == "auto" else "manual"
+
+        if cookies_missing and reauth_mode == "auto":
+            # Fast-path TUY CHON: neu file co dien them samlBootstrapUsername/
+            # samlBootstrapPassword (khong placeholder), thu dang nhap SAML
+            # qua HTTP form-fill truc tiep truoc (~1-3s, khong mo browser) -
+            # port tu vibing-steampunk. CHI hoat dong voi IAS user/pass thuan,
+            # KHONG MFA. Khong dien 2 field nay -> giu nguyen hanh vi cu (bo
+            # qua thang xuong browser).
+            #
+            # Neu thanh cong: luu lai username/password nay (ma hoa trong
+            # secrets, cung co che voi authMode=password) duoi ten
+            # samlUsername/samlPassword, de saml_or_browser_login tu dung lai
+            # cho cac lan reauth SAU nay (khong can mo browser moi lan session
+            # het han). Neu that bai (vd MFA) thi KHONG luu, tranh luu credential
+            # da biet la khong dung duoc qua duong nay.
+            saml_user = str(data.get("samlBootstrapUsername", "")).strip()
+            saml_pass = str(data.get("samlBootstrapPassword", "")).strip()
+            if (
+                saml_user and saml_pass
+                and not _looks_like_placeholder(saml_user)
+                and not _looks_like_placeholder(saml_pass)
+            ):
+                cookies = await _try_saml_fastpath(url, saml_user, saml_pass, secrets_data)
+                saml_user = saml_pass = ""
+                cookies_missing = not isinstance(cookies, dict) or not cookies
+
+            if cookies_missing:
+                from ..sap.auth import web_login_auto
+                info("Cookies con placeholder + reauthMode=auto -> tu mo browser de dang nhap...")
+                info("(Neu bam Enter o terminal nay sau khi dang nhap xong, kiem tra session se chay ngay,"
+                     " khong can cho tu phat hien/timeout.)")
+                early_event = _wire_early_finish_event(reauth_mode)
+                try:
+                    result = await web_login_auto({
+                        "base_url": url,
+                        "profile_id": profile_id,
+                        "early_finish_event": early_event,
+                    })
+                    cookies = result.cookies
+                except Exception as err:
+                    print(f"  ❌ Auto-login qua browser loi: {err}")
+                    cookies = None
+                cookies_missing = not isinstance(cookies, dict) or not cookies
+
+        if cookies_missing:
+            print("  ❌ Thieu hoac chua thay placeholder cho 'cookies' (phai la object "
+                  "{\"MYSAPSSO2\": \"...\", ...}), va auto-login qua browser (neu co) khong lay duoc cookie.")
+            return False
+        secrets_data["cookies"] = cookies
+        config_data["reauthMode"] = reauth_mode
+
+    tenant = str(data.get("tenant", "")).strip()
+    if tenant:
+        config_data["tenant"] = tenant
+
+    upsert_profile(profile_id, url=url)
+    save_config(profile_id, config_data)
+    if secrets_data:
+        await save_secrets(profile_id, secrets_data)
+
+    print()
+    ok(f"Da tao profile '{profile_id}' tu file '{file}'!")
+    info(f"Auth mode: {auth_mode}")
+    info(f"URL: {url}")
+    info(f"Service: {service}")
+    print()
+    info("Kiem tra ket noi bang: mcp-sap-connect connect")
+    print()
+    info("Dang ky MCP servers: chay 'mcp-sap-connect mcp-setup' (hoac nut MCP Servers trong GUI) khi can.")
+    return True
 
 
 # ===== CONNECT =====================================================
 
 async def _cmd_connect(profile_id: str | None) -> None:
     from ..config.store import load_config
-    from ..sap.auth import web_login_auto, web_login_popup
+    from ..sap.auth import web_login_popup
     from ..sap.client import SapClient
 
     try:
@@ -376,8 +675,8 @@ async def _cmd_connect(profile_id: str | None) -> None:
     reauth_handler = None
     if auth_mode == "cookie":
         if reauth_mode == "auto":
-            reauth_handler = web_login_auto
-            info("Re-auth mode: Auto (Playwright)")
+            reauth_handler = saml_or_browser_login
+            info("Re-auth mode: Auto (SAML fast-path neu co credential luu san, fallback browser)")
         else:
             reauth_handler = web_login_popup
             info("Re-auth mode: Manual (paste cookie)")
@@ -428,6 +727,58 @@ async def _cmd_connect(profile_id: str | None) -> None:
             print(f"     mcp-sap-connect reauth {pid}")
 
 
+# ===== PING (kiem tra nhanh session con hieu luc, khong xin CSRF/write) ====
+
+async def _cmd_ping(profile_id: str | None) -> None:
+    """Kiem tra nhanh session con dung duoc khong (1 GET doc - giong buoc dau
+    cua 'connect'/tool sap_ping) - KHONG xin CSRF/write token, nen nhe hon va
+    an toan goi thuong xuyen hon 'connect' (vd truoc khi bat dau lam viec that,
+    khong lo profile read-only bi bao loi write). Dung 'connect' neu can kiem
+    tra ca kha nang ghi truoc khi goi cac lenh GHI that (activate/list_packages...).
+    """
+    from ..config.store import load_config
+    from ..sap.auth import web_login_popup
+    from ..sap.client import SapClient
+
+    try:
+        cfg = await asyncio.to_thread(load_config, profile_id)
+    except RuntimeError as err:
+        print(f"  ❌ {err}")
+        return
+
+    pid = profile_id or get_current_active() or "?"
+    auth_mode = cfg.get("authMode", "oauth2")
+    reauth_mode = cfg.get("reauthMode", "manual")
+
+    header(f"Ping — {pid}")
+
+    reauth_handler = None
+    if auth_mode == "cookie":
+        reauth_handler = saml_or_browser_login if reauth_mode == "auto" else web_login_popup
+
+    client = SapClient(pid, reauth_handler=reauth_handler)
+    try:
+        await client.init()
+    except Exception as err:
+        print(f"  ❌ Init that bai: {err}")
+        return
+
+    try:
+        await client.get(
+            "/sap/bc/adt/repository/informationsystem/search",
+            query={"operation": "quickSearch", "query": "ZZZZZZ_NO_MATCH_AAA", "maxResults": 1},
+        )
+        ok(f"Session con hieu luc — Profile: {pid}")
+        info(f"URL: {cfg.get('btpUrl', '?')}")
+        info(f"Auth: {auth_mode}")
+    except Exception as err:
+        print(f"  ❌ Session het han hoac loi: {err}")
+        if auth_mode == "cookie":
+            print()
+            print("  💡 Dang nhap lai (nhanh hon, khong hoi lai tu dau nhu setup):")
+            print(f"     mcp-sap-connect reauth {pid}")
+
+
 # ===== REAUTH (dang nhap lai / lay cookie moi, khong can setup lai tu dau) ==
 
 async def _cmd_reauth(profile_id: str | None) -> None:
@@ -438,7 +789,7 @@ async def _cmd_reauth(profile_id: str | None) -> None:
     dung khi chi can dang nhap lai vi session het han, khong doi gi khac.
     """
     from ..config.store import load_config
-    from ..sap.auth import SapCookieAuth, web_login_auto, web_login_popup
+    from ..sap.auth import SapCookieAuth, web_login_popup
 
     try:
         cfg = await asyncio.to_thread(load_config, profile_id)
@@ -455,45 +806,17 @@ async def _cmd_reauth(profile_id: str | None) -> None:
         return
 
     reauth_mode = cfg.get("reauthMode", "manual")
-    reauth_handler = web_login_auto if reauth_mode == "auto" else web_login_popup
+    reauth_handler = saml_or_browser_login if reauth_mode == "auto" else web_login_popup
 
     header(f"Dang nhap lai — {pid}")
-    info(f"Re-auth mode: {'Auto (Playwright)' if reauth_mode == 'auto' else 'Manual (paste cookie)'}")
+    info(f"Re-auth mode: {'Auto (SAML fast-path neu co, fallback browser)' if reauth_mode == 'auto' else 'Manual (paste cookie)'}")
 
-    # Wire "early finish" signal: cho auto mode, 2 cach de ket thuc som:
-    #  1. GUI: SAP_BTP_EARLY_FINISH_FILE duoc touch -> asyncio.Event set.
-    #  2. CLI: user bam Enter -> stdin doc 1 dong -> asyncio.Event set.
-    early_event = None
-    import asyncio as _aio
-    import os as _os
-    early_event = _aio.Event()
-
-    marker_path = _os.environ.get("SAP_BTP_EARLY_FINISH_FILE")
-    is_tty = sys.stdin and sys.stdin.isatty()
-
-    if marker_path:
-        # GUI mode: watch file marker qua asyncio loop (khong can thread rieng)
-        async def _watch_file():
-            from pathlib import Path as _P
-            while not early_event.is_set():
-                if _P(marker_path).exists():
-                    early_event.set()
-                    break
-                await _aio.sleep(0.1)
-        _aio.get_event_loop().create_task(_watch_file())
-    elif is_tty and reauth_mode == "auto":
-        # CLI mode: thread rieng doc stdin (Enter)
-        def _stdin_watcher():
-            try:
-                line = sys.stdin.readline()
-                if line is not None:
-                    early_event.set()
-            except Exception:
-                pass
-        threading.Thread(target=_stdin_watcher, daemon=True).start()
+    early_event = _wire_early_finish_event(reauth_mode)
 
     # Bat handler Ctrl+C 2-lan: lan 1 canh bao, lan 2 huy that.
     # Khoi phuc default handler khi xong (ke ca khi raise).
+    from . import _cancel as _sig
+
     _sig.install_double_ctrl_c(ReauthCancelled, lambda w: ReauthCancelled(w))
     try:
         cookie_auth = SapCookieAuth(pid, reauth_handler=reauth_handler)
@@ -566,13 +889,30 @@ def _safe_display_value(key: str, value: Any) -> str:
     return str(value)
 
 
-def _cmd_license(profile_id):
+def _cmd_license(profile_id, *, json_mode: bool = False):
     """In trang thai license (cookie/token) cua 1 hoac tat ca profile.
 
     Args:
         profile_id: neu None -> in tat ca profile. Neu co -> in chi tiet 1 profile.
+        json_mode: --json - in JSON thuan (list_all_statuses()/get_profile_status())
+            thay vi bang/text de dung tin cay cho consumer khac (vd GUI native)
+            thay vi phai regex-parse output nguoi doc.
     """
     from .. import license as _lic
+
+    if json_mode:
+        import json as _json
+        if profile_id:
+            try:
+                print(_json.dumps(_lic.get_profile_status(profile_id), ensure_ascii=False))
+            except Exception as err:
+                print(_json.dumps({"error": str(err)}, ensure_ascii=False))
+        else:
+            try:
+                print(_json.dumps(_lic.list_all_statuses(), ensure_ascii=False))
+            except Exception as err:
+                print(_json.dumps({"error": str(err)}, ensure_ascii=False))
+        return
 
     if profile_id:
         # In chi tiet 1 profile
@@ -668,9 +1008,13 @@ def _cmd_license(profile_id):
 # ===== PROFILES ====================================================
 
 
-async def _cmd_profiles(subcmd: str, arg: str | None) -> None:
+async def _cmd_profiles(subcmd: str, arg: str | None, json_mode: bool = False) -> None:
     if subcmd == "list":
         data = list_profiles()
+        if json_mode:
+            import json as _json
+            print(_json.dumps(data, ensure_ascii=False))
+            return
         active = data.get("active")
         print()
         header("Cac profile SAP")
@@ -681,6 +1025,50 @@ async def _cmd_profiles(subcmd: str, arg: str | None) -> None:
                 print(f"     URL: {p.get('url', '?')}")
         print(f"\n  Active: {active or '(none)'}")
         print()
+
+    elif subcmd == "import" and arg:
+        # Import 1 profile tu file config.json backup (KHONG co secrets - da ma
+        # hoa DPAPI, chi may cu moi giai ma duoc). Dung cho GUI "Import from
+        # JSON backup" - tach thanh CLI subcommand rieng thay vi goi thang
+        # upsert_profile/derive_profile_id_from_url tu Python noi bo, de
+        # consumer khac (vd GUI native) khong phai tu viet lai logic nay.
+        import json as _json
+
+        from ..config.profile import derive_profile_id_from_url, upsert_profile
+
+        try:
+            with open(arg, encoding="utf-8") as f:
+                data = _json.load(f)
+        except Exception as err:
+            result = {"ok": False, "error": f"Khong doc duoc file JSON: {err}"}
+            print(_json.dumps(result, ensure_ascii=False) if json_mode else f"  ❌ {result['error']}")
+            return
+
+        url = data.get("btpUrl") if isinstance(data, dict) else None
+        if not url:
+            result = {"ok": False, "error": "File thieu truong 'btpUrl' (chon dung file config.json)."}
+            print(_json.dumps(result, ensure_ascii=False) if json_mode else f"  ❌ {result['error']}")
+            return
+
+        pid = derive_profile_id_from_url(url)
+        if not pid:
+            result = {"ok": False, "error": f"Khong suy ra duoc profile id tu URL: {url}"}
+            print(_json.dumps(result, ensure_ascii=False) if json_mode else f"  ❌ {result['error']}")
+            return
+
+        try:
+            upsert_profile(pid, url=url)
+        except Exception as err:
+            result = {"ok": False, "error": str(err)}
+            print(_json.dumps(result, ensure_ascii=False) if json_mode else f"  ❌ {err}")
+            return
+
+        result = {"ok": True, "profileId": pid, "url": url}
+        if json_mode:
+            print(_json.dumps(result, ensure_ascii=False))
+        else:
+            ok(f"Da dang ky profile '{pid}' (URL: {url}).")
+            info("Nho copy secrets.json cua profile nay tu may cu neu can (khong tu import duoc).")
 
     elif subcmd == "use" and arg:
         try:
@@ -719,10 +1107,11 @@ async def _cmd_profiles(subcmd: str, arg: str | None) -> None:
 
     else:
         print("  Usage:")
-        print("    mcp-sap-connect profiles list")
+        print("    mcp-sap-connect profiles list [--json]")
         print("    mcp-sap-connect profiles use <id>")
         print("    mcp-sap-connect profiles show [id]")
         print("    mcp-sap-connect profiles remove <id>")
+        print("    mcp-sap-connect profiles import <config.json-path> [--json]")
 
 
 # ===== RESET =======================================================
@@ -788,6 +1177,70 @@ def _setup_vsp_server(register_fn) -> None:
     register_fn("sap-vsp", "stdio", cmd=vsp_path, args=["mcp"], env=vsp_env)
 
 
+def _claude_mcp_add(
+    claude_path: str, name: str, transport: str, *,
+    url: str | None = None, cmd: str | None = None,
+    args: list[str] | None = None, env: dict[str, str] | None = None,
+) -> tuple[bool, str]:
+    """Goi `claude mcp add` dung DUNG cu phap that: `claude mcp add [options]
+    <name> <commandOrUrl> [args...]` (verified qua `claude mcp add --help` +
+    test truc tiep voi server tam roi xoa lai):
+
+    - KHONG co flag --url - URL la positional giong command.
+    - stdio: -e/--env PHAI dat TRUOC "--", dat SAU se bi hieu la literal arg
+      cho subprocess thay vi env var that.
+    - sse/http/ws: -e/--env la variadic (<env...>) - dat TRUOC url se "nuot"
+      luon url lam gia tri cua no (loi "missing required argument
+      'commandOrUrl'"), dat SAU url thi claude IM LANG bo qua (khong loi,
+      nhung KHONG luu gi ca - 'claude mcp get' khong hien Environment).
+      SSE/HTTP khong co subprocess de nhan env var - co che dung THAT su la
+      HTTP header qua -H/--header "KEY: VALUE" dat SAU url (xac nhan qua
+      'claude mcp get' hien dung muc Headers).
+
+    Tra ve (ok, chi_tiet_loi) - chi_tiet_loi rong khi ok=True.
+    """
+    import subprocess
+
+    cli = [claude_path, "mcp", "add", "--transport", transport, name]
+    if transport in ("sse", "http", "ws"):
+        if url:
+            cli.append(url)
+        if env:
+            for k, v in env.items():
+                if v:
+                    cli.extend(["--header", f"{k}: {v}"])
+    elif cmd:
+        if env:
+            for k, v in env.items():
+                if v:
+                    cli.extend(["--env", f"{k}={v}"])
+        cli.append("--")
+        cli.append(cmd)
+        if args:
+            cli.extend(args)
+    try:
+        result = subprocess.run(cli, capture_output=True, text=True)
+    except OSError as err:
+        return False, str(err)
+    if result.returncode == 0:
+        return True, ""
+    return False, (result.stderr or result.stdout or "").strip()
+
+
+def _claude_mcp_remove(claude_path: str, name: str) -> tuple[bool, str]:
+    """Goi `claude mcp remove <name>`."""
+    import subprocess
+
+    cli = [claude_path, "mcp", "remove", name]
+    try:
+        result = subprocess.run(cli, capture_output=True, text=True)
+    except OSError as err:
+        return False, str(err)
+    if result.returncode == 0:
+        return True, ""
+    return False, (result.stderr or result.stdout or "").strip()
+
+
 def _cmd_mcp_setup() -> None:
     """Dang ky toan bo MCP servers voi Claude Code (bat buoc + tuy chon)."""
     header("MCP Server Setup — Dang ky MCP servers voi Claude Code")
@@ -806,26 +1259,10 @@ def _cmd_mcp_setup() -> None:
                   url: str | None = None, cmd: str | None = None,
                   args: list[str] | None = None,
                   env: dict[str, str] | None = None) -> bool:
-        """Goi claude mcp add, tra True neu thanh cong."""
-        cli = [claude_path, "mcp", "add", "--transport", transport]
-        if transport in ("sse", "http", "ws"):
-            if url:
-                cli.extend(["--url", url])
-        else:
-            if cmd:
-                cli.append("--")
-                cli.append(cmd)
-                if args:
-                    cli.extend(args)
-        if env:
-            for k, v in env.items():
-                if v:
-                    cli.extend(["--env", f"{k}={v}"])
-        try:
-            subprocess.run(cli, check=True)
-            return True
-        except subprocess.CalledProcessError:
-            return False
+        ok_, detail = _claude_mcp_add(claude_path, name, transport, url=url, cmd=cmd, args=args, env=env)
+        if not ok_:
+            warn(f"  -> That bai dang ky '{name}': {detail or '(khong ro loi)'}")
+        return ok_
 
     # --- Core servers (bat buoc) ---
     header("Core servers (bat buoc)")
@@ -877,6 +1314,169 @@ def _cmd_mcp_setup() -> None:
 
     ok("Hoan tat! Khoi dong lai Claude Code de nhan server moi.")
     info("Kiem tra bang: claude mcp list")
+
+
+# ===== MCP SETUP - JSON mode (non-interactive, dung cho GUI) ==========
+# Ban thu gon cua danh sach server ma _cmd_mcp_setup() da biet (KHONG doc tu
+# reference/scripts/mcp_inventory.json - file do chi co trong git checkout day
+# du cua repo dev, khong nam trong package da publish qua pip ma GUI/end-user
+# thuc su cai). Sua ca 2 noi (dict o day + _cmd_mcp_setup o tren) neu doanh
+# sach server thay doi.
+
+_MCP_JSON_INVENTORY: list[dict[str, Any]] = [
+    {"name": "sap-btp", "category": "core", "transport": "stdio",
+     "description": "Main mcp-sap-connect server: profiles, search, read source, activate",
+     "envVars": [], "cmd": "mcp-sap-connect", "args": []},
+    {"name": "sap-dict-bridge", "category": "core", "transport": "stdio",
+     "description": "DDIC create (Domain/DataElement/Table) via mcp-sap-connect's cookie auth",
+     "envVars": [], "cmd": "python", "args": ["-m", "mcp_sap_connect.bridge_server"]},
+    {"name": "cds-kb", "category": "remote", "transport": "sse",
+     "description": "Remote CDS view knowledge base (7,355 views)",
+     "envVars": [], "url": "https://cds-kb-mcp-production.up.railway.app/sse"},
+    {"name": "mcp-sap-docs-btp", "category": "remote", "transport": "sse",
+     "description": "Remote SAP Docs / API Hub / Help Portal search",
+     "envVars": ["SAP-API-HUB-KEY"],
+     "url": "https://sap-docs-extend-mcp.cfapps.ap21.hana.ondemand.com/sse"},
+    {"name": "arc-1", "category": "adt-alternative", "transport": "stdio",
+     "description": "Enterprise ADT MCP (XSUAA, audit log) - alternative to sap-btp",
+     "envVars": [], "cmd": "npx", "args": ["-y", "arc-1@latest"]},
+    {"name": "mcp-abap-adt", "category": "adt-alternative", "transport": "stdio",
+     "description": "Community read-only ADT MCP (mario-andreschak) - needs its own basic auth",
+     "envVars": ["ADT_URL", "ADT_USER", "ADT_PASS", "ADT_CLIENT"],
+     "cmd": "npx", "args": ["-y", "mcp-abap-adt"], "envDefaults": {"ADT_CLIENT": "100"}},
+    {"name": "sap-vsp", "category": "special", "transport": "stdio",
+     "description": "ABAP deep analysis (vibing-steampunk) - package health/dead-code/debug. "
+                     "Tu dien SAP_ADT_URL tu profile active (+ SAP_ADT_USER/PASSWORD neu authMode=password).",
+     "envVars": []},
+]
+
+_MCP_MANUAL_SERVERS: list[dict[str, str]] = [
+    {"name": "sap-notes", "description": "SAP Notes / KBA lookup (can clone + build)",
+     "doc": "skills/mcp-sap-notes/SKILL.md"},
+    {"name": "sap-gui", "description": "SAP GUI Scripting automation (Windows, SAP GUI required)",
+     "doc": "skills/mcp-sap-gui/SKILL.md"},
+    {"name": "sf-mcp", "description": "SuccessFactors (open-source, 62+ tools)",
+     "doc": "skills/mcp-sap-successfactors/SKILL.md"},
+    {"name": "sf-cdata", "description": "SuccessFactors (CData SQL-based, read-only)",
+     "doc": "skills/mcp-sap-successfactors/SKILL.md"},
+    {"name": "sap-concur", "description": "Concur Travel & Expense (CData SQL-based)",
+     "doc": "skills/mcp-sap-concur/SKILL.md"},
+    {"name": "sap-fieldglass", "description": "Fieldglass Services Procurement (CData SQL-based)",
+     "doc": "skills/mcp-sap-fieldglass/SKILL.md"},
+]
+
+
+def _get_registered_mcp_names() -> set[str]:
+    """Doc ten server da co trong ~/.claude.json (moi scope: user + tung
+    project). Dinh nghia don gian - chi check key ton tai, KHONG check tinh
+    trang ket noi that (Claude Code tu quan ly rieng qua 'claude mcp list')."""
+    import json
+    from pathlib import Path
+
+    path = Path.home() / ".claude.json"
+    if not path.exists():
+        return set()
+    try:
+        data: dict[str, Any] = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return set()
+    names: set[str] = set((data.get("mcpServers") or {}).keys())
+    for proj in (data.get("projects") or {}).values():
+        names.update(((proj or {}).get("mcpServers")) or {})
+    return names
+
+
+def _cmd_mcp_status_json() -> None:
+    import json
+    import shutil
+
+    registered = _get_registered_mcp_names()
+    items: list[dict[str, Any]] = []
+    for e in _MCP_JSON_INVENTORY:
+        items.append({
+            "name": e["name"], "category": e["category"], "description": e["description"],
+            "envVars": e.get("envVars", []), "registered": e["name"] in registered,
+        })
+    for e in _MCP_MANUAL_SERVERS:
+        items.append({
+            "name": e["name"], "category": "manual", "description": e["description"],
+            "envVars": [], "registered": e["name"] in registered, "doc": e["doc"],
+        })
+    print(json.dumps({
+        "servers": items,
+        "claudeAvailable": shutil.which("claude") is not None,
+    }, ensure_ascii=False))
+
+
+def _cmd_mcp_register_json(name: str, env_overrides: dict[str, str]) -> bool:
+    import json
+    import shutil
+
+    claude_path = shutil.which("claude")
+    if not claude_path:
+        print(json.dumps({"ok": False, "name": name, "error": "Khong tim thay 'claude' trong PATH."}, ensure_ascii=False))
+        return False
+
+    if name == "sap-vsp":
+        outcome: dict[str, Any] = {}
+
+        def _register(nm: str, transport: str, *, url=None, cmd=None, args=None, env=None) -> bool:
+            ok_, detail = _claude_mcp_add(claude_path, nm, transport, url=url, cmd=cmd, args=args, env=env)
+            outcome["ok"] = ok_
+            outcome["detail"] = detail
+            return ok_
+
+        _setup_vsp_server(_register)
+        result: dict[str, Any] = {"ok": outcome.get("ok", False), "name": name}
+        if not result["ok"]:
+            result["error"] = outcome.get("detail") or "Khong dang ky duoc sap-vsp (xem chi tiet o tren)."
+        print(json.dumps(result, ensure_ascii=False))
+        return bool(result["ok"])
+
+    entry = next((e for e in _MCP_JSON_INVENTORY if e["name"] == name), None)
+    if entry is None or entry["category"] == "manual":
+        print(json.dumps({"ok": False, "name": name, "error": f"Server '{name}' khong the tu dang ky qua duong nay."}, ensure_ascii=False))
+        return False
+
+    needed = entry.get("envVars", [])
+    missing = [v for v in needed if not env_overrides.get(v)]
+    if missing:
+        print(json.dumps({"ok": False, "name": name, "error": "Thieu env var bat buoc.", "missingEnvVars": missing}, ensure_ascii=False))
+        return False
+
+    env: dict[str, str] = dict(entry.get("envDefaults", {}))
+    env.update({k: v for k, v in env_overrides.items() if v})
+
+    ok_, detail = _claude_mcp_add(
+        claude_path, name, entry["transport"],
+        url=entry.get("url"), cmd=entry.get("cmd"), args=entry.get("args"),
+        env=env if env else None,
+    )
+    result = {"ok": ok_, "name": name}
+    if not ok_:
+        result["error"] = detail or "claude mcp add that bai."
+    print(json.dumps(result, ensure_ascii=False))
+    return ok_
+
+
+def _cmd_mcp_unregister_json(name: str) -> bool:
+    import json
+    import shutil
+
+    claude_path = shutil.which("claude")
+    if not claude_path:
+        print(json.dumps({"ok": False, "name": name, "error": "Khong tim thay 'claude' trong PATH."}, ensure_ascii=False))
+        return False
+    if not name or name.strip() != name or any(c.isspace() for c in name):
+        print(json.dumps({"ok": False, "name": name, "error": "Ten server khong hop le."}, ensure_ascii=False))
+        return False
+
+    ok_, detail = _claude_mcp_remove(claude_path, name)
+    result: dict[str, Any] = {"ok": ok_, "name": name}
+    if not ok_:
+        result["error"] = detail or "claude mcp remove that bai."
+    print(json.dumps(result, ensure_ascii=False))
+    return ok_
 
 
 # ===== Helpers =====================================================

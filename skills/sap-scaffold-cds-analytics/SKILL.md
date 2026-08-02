@@ -33,7 +33,14 @@ scaffold la **noi dung moi**, chua doi chieu — kiem tra ky truoc production.
 - ❌ Bao cao vuot kha nang embedded analytics (data warehouse, nhieu nguon, planning) — can SAC/
   BW/4HANA, xem `reference/modules/sap-bw-cloud/SKILL.md`.
 
-## Buoc 0: Uu tien base co san — ĐỪNG tu xay Cube tu dau neu khong can
+## Buoc 0: Edition + uu tien base co san — ĐỪNG tu xay Cube tu dau neu khong can
+
+1. **Edition**: doc `reference/process/sap-service-type-context.md` neu chua biet
+   `s4hc_(public)` / `s4hc_(private)` / `onprem` / `btp`. Embedded analytics + Custom Analytical
+   Query gia dinh Cloud — neu on-prem/BW-only, xac nhan voi user (xem `sap-bw-cloud`) truoc khi
+   scaffold Cube.
+2. **Extensibility**: neu con mo ve custom field / released analytics view, doc
+   `skills/sap-extensibility/SKILL.md` Buoc 0.
 
 Theo `reference/modules/sap-bw-cloud/SKILL.md`: cach mac dinh cho analytics tren S/4HANA Cloud la
 **Custom Analytical Query TREN CDS view da released** (Fiori app "Custom Analytical Queries" — key

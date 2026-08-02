@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SAP ABAP Agent</title>
+    <link rel="stylesheet" href="/src/styles.css" />
+  </head>
+  <body>
+    <div id="app">
+      <div id="runtime-banner" class="runtime-banner hidden" role="status">
+        <div class="runtime-banner-body">
+          <strong id="runtime-banner-title">Thiếu mcp-sap-connect</strong>
+          <p id="runtime-banner-detail" class="runtime-banner-detail"></p>
+          <pre id="runtime-banner-hint" class="runtime-banner-hint"></pre>
+        </div>
+        <button id="btn-runtime-recheck" class="btn btn-accent">Kiểm tra lại</button>
+      </div>
+      <header class="header">
+        <div class="row">
+          <label for="profile-select" class="label-bold">Profile:</label>
+          <select id="profile-select" class="profile-select"></select>
+          <button id="btn-refresh" class="btn btn-flat">Refresh</button>
+          <div class="add-menu">
+            <button id="btn-add" class="btn btn-accent">+ Add ▾</button>
+            <div id="add-dropdown" class="dropdown hidden">
+              <button data-action="wizard">Setup wizard (interactive)...</button>
+              <button data-action="from-file">Setup from file (--from-file)...</button>
+              <button data-action="import-json">Import from JSON backup...</button>
+            </div>
+          </div>
+        </div>
+        <div class="row url-row">
+          <span id="url-text" class="muted">(no profile selected)</span>
+        </div>
+        <div class="row license-row">
+          <span id="license-text" class="license-text muted"></span>
+          <button id="btn-license" class="btn btn-flat">📋 License</button>
+          <button id="btn-mcp-servers" class="btn btn-flat">🧩 MCP Servers</button>
+          <button id="btn-about" class="btn btn-flat" title="About / Check update">ℹ About</button>
+        </div>
+      </header>
+
+      <section class="actions">
+        <button id="btn-reauth" class="btn btn-action">🔐<br />Reauth</button>
+        <button id="btn-connect" class="btn btn-action">🔌<br />Connect</button>
+        <button id="btn-ping" class="btn btn-action">📡<br />Ping</button>
+        <button id="btn-set-active" class="btn btn-action">⭐<br />Set Active</button>
+        <button id="btn-remove" class="btn btn-action btn-danger">🗑<br />Remove</button>
+      </section>
+
+      <section class="log-section">
+        <div class="label-bold">Log:</div>
+        <div class="log-card">
+          <pre id="log-text" class="log-text"></pre>
+        </div>
+        <div class="log-toolbar">
+          <button id="btn-clear" class="btn btn-flat">Clear</button>
+          <button id="btn-copy" class="btn btn-flat">Copy</button>
+          <button id="btn-done" class="btn btn-done" disabled>✓ Đã đăng nhập xong</button>
+          <span id="status-text" class="muted status-text">Ready</span>
+        </div>
+      </section>
+    </div>
+
+    <div id="license-modal" class="modal-overlay hidden">
+      <div class="modal-panel">
+        <div class="modal-header">
+          <h2>License / Credentials Status (auto-refresh 1s)</h2>
+          <div>
+            <button id="btn-license-refresh" class="btn btn-flat">Refresh</button>
+            <button id="btn-license-close" class="btn btn-flat">Close</button>
+          </div>
+        </div>
+        <div id="license-rows" class="license-rows"></div>
+      </div>
+    </div>
+
+    <div id="mcp-modal" class="modal-overlay hidden">
+      <div class="modal-panel">
+        <div class="modal-header">
+          <h2>MCP Servers Setup</h2>
+          <div class="mcp-preset-row">
+            <button id="btn-mcp-preset-core" class="btn btn-flat btn-sm" title="core + remote">Preset Core</button>
+            <button id="btn-mcp-preset-research" class="btn btn-flat btn-sm" title="Core + arc-1 + sap-vsp">Preset Research</button>
+            <button id="btn-mcp-refresh" class="btn btn-flat">Refresh</button>
+            <button id="btn-mcp-close" class="btn btn-flat">Close</button>
+          </div>
+        </div>
+        <p class="muted" style="margin-top: 0">
+          Đăng ký MCP server với Claude Code. Server đã đăng ký sẽ hiện ✓ - khởi động lại Claude Code để nhận server mới.
+        </p>
+        <div id="mcp-rows" class="license-rows"></div>
+      </div>
+    </div>
+
+    <div id="about-modal" class="modal-overlay hidden">
+      <div class="modal-panel modal-panel-small about-panel">
+        <div class="modal-header">
+          <h2>SAP ABAP Agent</h2>
+          <button id="btn-about-close" class="btn btn-flat">Close</button>
+        </div>
+        <div class="about-row">
+          <span class="muted">Version</span>
+          <span id="about-version">…</span>
+        </div>
+        <div class="about-row">
+          <span class="muted">Repository</span>
+          <button id="btn-about-repo" class="btn btn-flat about-link">StormShynn/sap-abap-agent</button>
+        </div>
+        <div class="about-row">
+          <span class="muted">Mode</span>
+          <span>PATH-only (không embed Python)</span>
+        </div>
+        <div class="about-row about-row-update">
+          <span class="muted">Updates</span>
+          <div id="about-update-actions" class="about-update-actions">
+            <button id="btn-check-update" class="btn btn-accent btn-sm">Check for updates</button>
+          </div>
+        </div>
+        <p id="about-update-msg" class="muted about-update-msg"></p>
+        <p class="muted about-footnote">
+          Auto-update qua tag <code>gui-latest</code> / <code>update.json</code> (ký minisign).
+          Plugin/CLI (<code>mcp-server-v*</code>) cập nhật riêng qua pip / marketplace.
+        </p>
+      </div>
+    </div>
+
+    <div id="prompt-modal" class="modal-overlay hidden">
+      <div class="modal-panel modal-panel-small">
+        <h3 id="prompt-title"></h3>
+        <p id="prompt-message" class="muted"></p>
+        <input id="prompt-input" type="text" class="prompt-input" />
+        <div class="modal-actions">
+          <button id="prompt-cancel" class="btn btn-flat">Hủy</button>
+          <button id="prompt-ok" class="btn btn-accent">OK</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="confirm-modal" class="modal-overlay hidden">
+      <div class="modal-panel modal-panel-small">
+        <h3 id="confirm-title"></h3>
+        <p id="confirm-message" class="muted"></p>
+        <div class="modal-actions">
+          <button id="confirm-cancel" class="btn btn-flat">Hủy</button>
+          <button id="confirm-ok" class="btn btn-danger-solid">Xóa</button>
+        </div>
+      </div>
+    </div>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

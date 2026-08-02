@@ -76,8 +76,9 @@ Doc cau hoi user, ap dung ma tran duoi day. Moi keyword co **weight** (1-3). Mod
 | **BTP Admin** 🆕 | `sap-btp-admin-consultant-cloud` | BTP admin, CF, Cloud Foundry, Kyma, destination | cockpit, subaccount, Cloud Connector, XSUAA | role collection, service marketplace, MTA deploy, CI/CD | ≥ 2 |
 | **Research** | `sap-docs-researcher` | CDS view, SAP note, SAP Help | Fiori app, API hub, documentation, ABAP syntax | release note, clean core, community, tra cuu, feature matrix | ≥ 2 |
 | **Daily Learner** 🧠 | `sap-daily-learner` | hoc, learning, tip, hermes, quiz, progress | bai tap, lộ trình, track, tien do, on tap, practice | daily, skill, test, cau hoi, trac nghiem, study, beginner, advanced | ≥ 1 |
+| **Review** | `abap-reviewer` | review code, ATC, clean ABAP, naming, security review | code review, abap reviewer, review class, review CDS | naming convention, released API, ATC check, clean core review | ≥ 2 |
 
-**Luu y**: Daily Learner co threshold thap hon (≥ 1) de dam bao user luon co the nhan duoc goi y hoc tap.
+**Luu y**: Daily Learner co threshold thap hon (≥ 1) de dam bao user luon co the nhan duoc goi y hoc tap. Intent review/ATC/clean-code → `abap-reviewer` (khong dispatch module consultant).
 
 **Backend mapping** (Phase 4 - xem `reference/process/sap-multi-system-context.md` de biet chi tiet routingHints):
 | Module | Backend (mac dinh) | Khi nao re-route sang vsp |
@@ -146,6 +147,34 @@ ten trong output o muc "Co the hoi them" (xem Buoc 4).
   ung co the khac. Xem `reference/process/sap-service-type-context.md` de biet dieu chinh." KHONG
   chan dispatch, chi canh bao.
 
+### Buoc 4b: CORE-first cho 8 module da deep-split (Tier-2)
+
+Khi dispatch 1 trong **8 module da tach** core+deep, agent **CHI load CORE**
+(`reference/modules/sap-<m>-cloud/SKILL.md`) luc vao viec. **KHONG** doc full
+`deep/SKILL.md` truoc khi can — tranh phinh token khi chay song song.
+
+| Module | Agent | CORE path | DEEP path |
+|--------|-------|-----------|-----------|
+| FI | `sap-fi-consultant-cloud` | `reference/modules/sap-fi-cloud/SKILL.md` | `.../deep/SKILL.md` |
+| Fiori/UI5 | `sap-fiori-consultant-cloud` | `reference/modules/sap-fiori-cloud/SKILL.md` | `.../deep/SKILL.md` |
+| EWM | `sap-ewm-consultant-cloud` | `reference/modules/sap-ewm-cloud/SKILL.md` | `.../deep/SKILL.md` |
+| IBP | `sap-ibp-consultant-cloud` | `reference/modules/sap-ibp-cloud/SKILL.md` | `.../deep/SKILL.md` |
+| CAP | `sap-cap-consultant-cloud` | `reference/modules/sap-cap-cloud/SKILL.md` | `.../deep/SKILL.md` |
+| CPI | `sap-cpi-consultant-cloud` | `reference/modules/sap-cpi-cloud/SKILL.md` | `.../deep/SKILL.md` |
+| BTP Admin | `sap-btp-admin-consultant-cloud` | `reference/modules/sap-btp-admin-cloud/SKILL.md` | `.../deep/SKILL.md` |
+| SuccessFactors | `sap-successfactors-consultant-cloud` | `reference/modules/sap-successfactors-cloud/SKILL.md` | `.../deep/SKILL.md` |
+
+**Khi nao load DEEP** (sau CORE, dung `Grep` theo section tu route map CORE):
+
+- User hoi SSCUI / Fiori app ID / released API / gotcha cu the.
+- User hoi extensibility bac thang cho dung module do.
+- CORE route map chi den 1 section DEEP — chi doc section do, khong doc full file.
+
+Module **chua** deep-split (SD/MM/CO/...): van load full `SKILL.md` nhu hien tai.
+Khong tach them module trong skill nay — xem
+`reference/process/sap-context-module-routing.md`.
+Dong bo Tier-2.1: `skills/sap-routing-discipline/SKILL.md`.
+
 ### Buoc 5: Tra cuu kien thuc co san (local + Notion) truoc khi dispatch
 
 Voi tung module sap dispatch (danh sach tu Buoc 4), tra xem da co skill/kien thuc lien quan chua
@@ -164,14 +193,12 @@ phoi, khong bi gioi han quyen), khong sua tung agent:
      "$(python "${CLAUDE_PLUGIN_ROOT}/reference/scripts/agent_home.py" memory/procedural)" \
      "<ten-file-skill>.md"
    ```
-2. **Notion khi local mien (online, chi khi can)**: goi tool search cua MCP `notion` theo module +
-   tu khoa cau hoi — **chi search truoc** (index gon, re token), **KHONG fetch tat ca ket qua**.
-   Da test that (2026-07-16): search toan workspace van tra dung ket qua top-1 nhung lan noise
-   voi cac trang mac dinh cua Notion (VD "Getting Started") o workspace nho co it noi dung — neu
-   trong phien da biet data source id cua database "SAP Skills" (VD tu 1 lan `notion-fetch`/tao
-   database truoc do trong cung phien), uu tien truyen `data_source_url: "collection://<id>"`
-   cho tool search de gioi han pham vi, ket qua sach hon (da xac nhan qua test). Neu chua biet id
-   (lan dau trong phien) thi search toan workspace nhu binh thuong, khong sao.
+2. **Notion khi local mien (online, chi khi can)**: resolve id database "SAP Skills" truoc
+   (cung quy tac pin o `sap-daily-learner` muc 3b — `notion_skills_db.py get` / env
+   `SAP_ABAP_AGENT_NOTION_SKILLS_DB`). Co pin → search voi
+   `data_source_url: "collection://<id>"`. Chua pin → `notion-search "SAP Skills"`: 0 hoac >1
+   ket qua thi **bao user pin**, KHONG tao DB moi tu routing. Roi search theo module + tu khoa
+   cau hoi — **chi search truoc**, **KHONG fetch tat ca ket qua**.
    Trong ket qua, chon dung page khop chu de roi moi goi tool fetch lay noi dung day du cho page
    do. Thay page khop -> dua vao context khi dispatch, **dong thoi tu ghi 1 ban local cache** vao
    `memory/procedural/skills/` (copy co hoc noi dung da co/da duyet tren Notion — khac voi viec
@@ -194,8 +221,8 @@ bao cao dung luong hien tai (chi hien thi, KHONG tu xoa `memory/`):
 python "${CLAUDE_PLUGIN_ROOT}/reference/scripts/cleanup_agent_home.py"
 ```
 
-**Da co agent**: SD, FI, MM, CO, PP, QM, PM, WM, PS, HCM, BW, Basis, TM, TR, Ariba, CA, GTS, EHS, **IBP**, **EWM**, **Fiori/UI5**, **CAP**, **CPI**, **SuccessFactors**, **BTP Admin**, Research, **Daily Learner**
-**Tong cong**: 25 modules consultant + 1 researcher + 1 daily learner = **27 agents**.
+**Da co agent**: SD, FI, MM, CO, PP, QM, PM, WM, PS, HCM, BW, Basis, TM, TR, Ariba, CA, GTS, EHS, **IBP**, **EWM**, **Fiori/UI5**, **CAP**, **CPI**, **SuccessFactors**, **BTP Admin**, Research, **Daily Learner**, **Review** (`abap-reviewer`)
+**Tong cong**: 25 modules consultant + 1 researcher + 1 daily learner + 1 reviewer = **28 agents**.
 
 ## Quy trinh — Automated Routing Engine
 
@@ -212,10 +239,12 @@ python "${CLAUDE_PLUGIN_ROOT}/reference/scripts/cleanup_agent_home.py"
 3. **Kiem tra explicit mention** (Buoc 2).
 4. **Ap dung module coupling co dieu kien** (Buoc 3) — chi giu module coupling nao cung dat score >= 1.
 5. **Tong hop danh sach agent can dispatch, cap toi da 3** (Buoc 4) — du ra chuyen thanh goi y.
-6. **Tra cuu kien thuc co san** (Buoc 5) — local truoc, Notion khi local mien, fail-open neu loi.
-7. **Dispatch** song song, kem context da tra cuu duoc (neu co) cho tung agent.
-8. **Tong hop cau tra loi**: 1 agent → nguyen van; ≥2 agent → 1 doan tong hop + tung agent.
-9. **Goi y buoc tiep theo**: `abap-reviewer`, `sap-docs-researcher`, `sap-daily-learner` (cho cau hoi hoc tap).
+6. **Gan CORE-first** (Buoc 4b) cho agent thuoc 8 module deep-split — prompt/dispatch ghi
+   ro: load CORE truoc, DEEP chi khi can (theo route map).
+7. **Tra cuu kien thuc co san** (Buoc 5) — local truoc, Notion khi local mien, fail-open neu loi.
+8. **Dispatch** song song, kem context da tra cuu duoc (neu co) cho tung agent.
+9. **Tong hop cau tra loi**: 1 agent → nguyen van; ≥2 agent → 1 doan tong hop + tung agent.
+10. **Goi y buoc tiep theo**: `abap-reviewer`, `sap-docs-researcher`, `sap-daily-learner` (cho cau hoi hoc tap).
 
 ## Output format
 

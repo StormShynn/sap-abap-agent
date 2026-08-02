@@ -19,6 +19,8 @@ Cảm ơn bạn đã quan tâm đến việc đóng góp cho **SAP ABAP Agent**!
 - [Ý tưởng đóng góp](#ý-tưởng-đóng-góp)
 - [Test local trước khi submit](#test-local-trước-khi-submit)
 - [Tài nguyên](#tài-nguyên)
+- [Org / team rollout](#org--team-rollout)
+- [Branch ruleset / VERSION_BUMP_TOKEN](#branch-ruleset--version_bump_token)
 
 ---
 
@@ -421,6 +423,10 @@ Các text cần dịch:
 ---
 
 ## 🔄 Quy trình Pull Request
+
+**Canonical upstream:** `https://github.com/StormShynn/sap-abap-agent.git`
+(not a `-backup` mirror). Maintainers: `git remote set-url origin https://github.com/StormShynn/sap-abap-agent.git`.
+GUI signing / release notes: `gui-native/.signing/README.md`.
 
 ### Step-by-step
 
@@ -891,3 +897,36 @@ Ngoai ruff, con co cac standard check:
 - `check-yaml/json/toml`: validate syntax cac config file
 - `mixed-line-ending --fix=lf`: chuan hoa EOL = LF (tru `.bat`/`.ps1` da config rieng trong `.editorconfig`)
 - `check-added-large-files`: chan file > 1MB (loai tru `released-objects-index.json` da duoc annotate)
+
+---
+
+## Org / team rollout
+
+Khi đưa plugin tới nhiều developer (không phải contributor flow):
+
+- Mỗi người: OS account riêng + [`docs/rollout-guide.md`](docs/rollout-guide.md).
+- Claude Code: `/plugin marketplace add StormShynn/sap-abap-agent` rồi
+  `/plugin install sap-abap-agent` trên **từng máy** — không share thư mục
+  `.mcp-sap-connect`.
+- MCP mặc định = **Core**; Full research chỉ khi cần.
+- Onboarding end-user: [`docs/onboarding-guide.md`](docs/onboarding-guide.md).
+
+---
+
+## Branch ruleset / VERSION_BUMP_TOKEN
+
+Repo dùng GitHub **ruleset** `Protect main` (default branch):
+
+- Chặn xóa branch / force-push
+- Bắt buộc PR + status checks `validate` + `scan` (contributor)
+- **Admin** bypass luôn (push trực tiếp OK)
+
+`github-actions[bot]` **không** nằm trong bypass trên repo user-owned. Để
+`version-bump.yml` / `sync-index.yml` vẫn push được lên `main`, tạo PAT
+(classic, scope `repo`) của tài khoản admin rồi:
+
+```bash
+gh secret set VERSION_BUMP_TOKEN --repo StormShynn/sap-abap-agent
+```
+
+UI ruleset: https://github.com/StormShynn/sap-abap-agent/settings/rules

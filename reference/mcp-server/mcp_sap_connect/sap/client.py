@@ -319,9 +319,32 @@ class SapClient:
     async def _keep_alive_loop(self, interval_s: float) -> None:
         while True:
             await asyncio.sleep(interval_s)
-            with contextlib.suppress(Exception):
+            try:
                 await self.check_write_access()
-                # best-effort - loi that su se lo dien o lan goi tool tiep theo
+            except Exception:
+                # Ping that bai = bang chung THAT session da chet ngay luc nay
+                # (khong phai suy doan) - voi cookie auth, danh dau het han
+                # NGAY thay vi de license dashboard tiep tuc tin uoc luong cu
+                # (co the con sai toi 8h nua). Best-effort: loi ghi secrets o
+                # day khong duoc lam chet keep-alive loop - lan goi tool that
+                # su tiep theo van tu xu ly reauth binh thuong du buoc nay fail.
+                if self.use_cookie_auth:
+                    with contextlib.suppress(Exception):
+                        import time as _time
+
+                        from ..config.secrets import update_secrets
+                        await update_secrets(self.profile_id, {"cookie_expires_at": _time.time()})
+            else:
+                # Ping thanh cong = bang chung THAT session con song ngay luc
+                # nay - "gia han" uoc luong tu moc nay (goi lai save_cookies,
+                # cung co che voi luc setup/reauth) thay vi de nguyen moc uoc
+                # luong tinh tu lan login/reauth cu. Phan anh dung hon thuc te:
+                # nhieu SAP tenant het session vi IDLE timeout (khong phai het
+                # gio tuyet doi) - ping dinh ky da ngan duoc idle timeout nen
+                # uoc luong cung nen "song" theo, khong nen dung yen 1 cho.
+                if self.use_cookie_auth:
+                    with contextlib.suppress(Exception):
+                        await self.cookie_auth.save_cookies()
 
     def _build_url(self, path: str, query: dict[str, Any] | None) -> str:
         base = path if path.startswith("http") else f"{self._base()}/{path.lstrip('/')}"
@@ -473,6 +496,39 @@ class SapClient:
         """Mo 1 'phien edit' stateful cho chuoi create/lock/PUT source/unlock/
         activate 1 object ADT. Xem SapEditSession de biet ly do can thiet."""
         return SapEditSession(self)
+
+
+async def create_sap_client(profile_id: str | None = None) -> SapClient:
+    """Factory: tao + init SapClient VOI reauth_handler tu dong xac dinh tu
+    config cua profile, thay vi caller phai tu chon nhu truoc.
+
+    Truoc ham nay, moi MCP tool handler (registry.py/dictionary.py) tu goi
+    `SapClient(_pick_profile(args))` KHONG truyen reauth_handler - nghia la
+    neu session cookie het han giua luc dang dung tool that (khong phai qua
+    lenh CLI connect/reauth thu cong), CookieAuthProvider.reauth() se raise
+    RuntimeError ngay ("khong co reauth_handler"), khien tool that bai giua
+    chung khong the tu phuc hoi.
+
+    - authMode != "cookie": khong can reauth_handler (OAuth2 tu refresh token).
+    - authMode == "cookie" + reauthMode == "auto": saml_or_browser_login - tu
+      dung lai SAML credential da luu (secrets) neu co, fallback mo browser
+      that neu khong (giong reauthMode=auto o lenh CLI connect/reauth).
+    - authMode == "cookie" + reauthMode == "manual": KHONG gan reauth_handler
+      (nguoi dung chon che do can tu paste cookie tay - khong the tu dong hoa
+      an toan). Session het han se van bao loi ro rang, huong dan chay
+      `mcp-sap-connect reauth` thay vi treo/gia vo thanh cong.
+    """
+    from ..config.store import load_config
+    from .auth import saml_or_browser_login
+
+    cfg = await _maybe_await(load_config(profile_id))
+    reauth_handler = None
+    if cfg.get("authMode") == "cookie" and cfg.get("reauthMode") == "auto":
+        reauth_handler = saml_or_browser_login
+
+    client = SapClient(profile_id, reauth_handler=reauth_handler)
+    await client.init()
+    return client
 
 
 class SapEditSession:

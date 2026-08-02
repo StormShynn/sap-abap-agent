@@ -96,14 +96,14 @@ load deep khi user hoi cu the ve SSCUI/API/Fiori.
 - **Token khi dispatch song song 3 module**: giam ~60-70% (vi moi module chi load core).
 - **Agent khong "tra loi tu CORE"** nham (vi CORE khong chua thong tin co the tra loi sai).
 - **Backwards compatible**: DEEP file giu nguyen ten `SKILL.md`, agent van doc duoc bang `Read`.
-- **De tach them**: 17 module con lai ap dung pattern giong FI.
+- **De tach them**: cac module `reference/modules/` chua co `deep/` (backlog) ap dung pattern
+  giong FI; da co deep: FI, Fiori, EWM, IBP, CAP, CPI, BTP Admin, SuccessFactors.
 
 ## Tich hop
 
-- Skill `sap-ask-consultant` - hien khong biet ve 2-layer, can update o Tier 2 tiep theo de
-  routing engine chi dispatch core cho cac module da tach.
-- Skill `sap-routing-discipline` - co the bo sung rule: "neu module chua tach, canh bao context
-  load full".
+- Skill `sap-ask-consultant` — **Buoc 4b CORE-first** cho 8 module da deep-split (FI, Fiori,
+  EWM, IBP, CAP, CPI, BTP Admin, SuccessFactors): dispatch load CORE truoc, DEEP theo route map.
+- Skill `sap-routing-discipline` — Tier 2.1 liet ke cung 8 module; module chua tach van load full.
 
 ## Luu y
 

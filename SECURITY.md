@@ -57,6 +57,7 @@ Security Policy này áp dụng cho tất cả các component trong repository:
 | Component | Mô tả | Có chứa secrets? |
 |-----------|-------|------------------|
 | `reference/mcp-server/` | MCP server Python kết nối SAP BTP | ✅ Có (xử lý credentials) |
+| `gui-native/` | Tauri GUI + auto-updater (minisign) | ❌ Không chứa SAP secrets; **signing private key** chỉ trên CI secrets / máy release — không commit |
 | `.claude-plugin/plugin.json` | Manifest plugin | ❌ Không |
 | `agents/` | Agent definitions (YAML + markdown) | ❌ Không |
 | `skills/` | Skill implementations | ❌ Không |
@@ -133,6 +134,9 @@ Mỗi project SAP có profile riêng, secret riêng, mã hóa độc lập:
 - ❌ **Không share** file `secrets.json` hoặc `profiles/` cho người khác
 - ❌ **Không dùng** SAP ABAP Agent trên tenant production chưa được phép
 - ❌ **Không paste** credentials, session cookies, hoặc token vào public chat/public issues
+- ❌ **Không commit** `TAURI_SIGNING_PRIVATE_KEY` / file `*.key` của GUI updater (chỉ GitHub Actions secrets; xem `gui-native/.signing/README.md`)
+- ❌ **Không dùng chung một OS account** cho nhiều người — Windows DPAPI / macOS-Linux key
+  gắn user+host; cùng login = cùng vault. Xem `docs/rollout-guide.md` và `KNOWN_LIMITATIONS.md`
 
 ### Checklist bảo mật hàng ngày
 
@@ -152,7 +156,8 @@ Mỗi project SAP có profile riêng, secret riêng, mã hóa độc lập:
 | GitHub Issues (public) | Câu hỏi chung về bảo mật | 1 tuần |
 | [@StormShynn](https://github.com/StormShynn) | Liên hệ trực tiếp maintainer | 48 giờ |
 
-**PGP Key**: (Coming soon)
+**PGP Key**: Chưa công bố. Báo cáo lỗ hổng qua **confidential GitHub issue** hoặc
+DM maintainer — **không** kỳ vọng signed disclosure cho đến khi key được liệt kê tại đây.
 
 ---
 

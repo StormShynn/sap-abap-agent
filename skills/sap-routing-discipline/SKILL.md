@@ -25,7 +25,7 @@ API, Fiori app cu the ma kien thuc chung khong co.
 | # | Vien co | Phai lam |
 |---|---|---|
 | R1 | "Cau hoi don gian, tra loi luon khoi check module" | Van chay qua scoring `sap-ask-consultant` |
-| R2 | "Ro rang la cau hoi code/ABAP, khoi can agent tu van" | Kiem tra co lan nghiep vu khong (vd "sao GL nay khong post" = FI + code) |
+| R2 | "Ro rang la cau hoi code/ABAP, khoi can agent tu van" | Kiem tra co lan nghiep vu khong (vd "sao GL nay khong post" = FI + code). Intent **review/ATC/clean-code/naming** → `abap-reviewer` qua `sap-ask-consultant` (hang Review), khong tu review bang kien thuc chung |
 | R3 | "User hoi follow-up, dung context cu la du" | Follow-up doi module (SD -> FI) van phai re-route |
 | R4 | "Khong thay keyword ro, chac khong module nao ca" | Score duoi threshold: hoi lai user, khong tu suy dien tra loi |
 | R5 | "Da biet dap an tu kien thuc chung" | Agent chuyen sau co SSCUI/API/Fiori app cu the - kien thuc chung khong co |
@@ -49,8 +49,10 @@ theo mac dinh. Chi load DEEP layer (`deep/SKILL.md`) khi:
 - User hoi extensibility bac thang cho 1 module cu the.
 - Agent phai cross-check voi SAP Help / API Hub.
 
-Module FI da tach (xem `reference/modules/sap-fi-cloud/SKILL.md` core + `deep/SKILL.md`). 17
-module con lai se tach lan luot theo `reference/process/sap-context-module-routing.md`.
+Da tach core+deep (8): `sap-fi-cloud`, `sap-fiori-cloud`, `sap-ewm-cloud`, `sap-ibp-cloud`,
+`sap-cap-cloud`, `sap-cpi-cloud`, `sap-btp-admin-cloud`, `sap-successfactors-cloud`. Cac module
+`reference/modules/` con lai (backlog, khong bat buoc truoc release) tach lan luot theo
+`reference/process/sap-context-module-routing.md` — uu tien module hay duoc dispatch.
 
 Khi dispatch nhieu module song song (vd SD + FI + CO), **tong token** = tong CORE layers (nho)
 + chi module nao load DEEP (neu can). Truoc day: tong FULL SKILL.md cua 3 module (~600 lines).

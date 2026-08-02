@@ -31,15 +31,17 @@ Wizard tu sinh profile id tu hostname URL, hoi phuong thuc xac thuc, roi hoi cac
 
 Neu user hoi "sao khong thay/goi y cookie-based" -- day la **option 4**, khong duoc goi y mac dinh vi OAuth2 (option 1) la lua chon khuyen dung, nhung wizard van in day du ca 4 option moi lan chay `setup`.
 
-Chon option 4 xong, wizard hoi tiep **lay cookie tu dau** (chon 1-3):
+Chon option 4 xong, wizard hoi tiep **lay cookie tu dau** (chon 1-4):
 
 | # | Cach lay cookie | Ghi chu |
 |---|-----------------|---------|
-| 1 | File cookie Netscape format | User da export cookie ra file san |
-| 2 | Paste tay | User tu F12 -> Application -> Cookies -> copy, roi paste vao terminal |
-| 3 | **Auto** (mac dinh) | Tu mo browser cho user dang nhap user/pass nhu binh thuong, tu dong trich cookie sau khi login -- khong can F12. Can extra `playwright`: `pip install -e ".[playwright]"` + `playwright install chromium`. Neu chua cai, tu fallback ve option 2 (paste tay) kem canh bao, khong crash. |
+| 1 | **SAML fast-path** (mac dinh) | Nhap truc tiep username/password dang nhap IAS, tu POST form qua HTTP truc tiep (~1-3s, KHONG mo browser) -- port tu vibing-steampunk. Chi dung duoc neu IAS KHONG yeu cau MFA. Thanh cong se luu (ma hoa, cung co che voi authMode=password) de tu dung lai cho MOI lan reauth sau (ke ca khi session het han giua luc dung tool `sap_*` that, khong chi qua lenh `connect`/`reauth`). That bai (sai cred, hoac IAS doi hoi MFA) tu fallback xuong option 2, khong hoi lai. |
+| 2 | Auto (mo browser) | Tu mo browser cho user dang nhap user/pass nhu binh thuong (ho tro ca MFA/SSO), tu dong trich cookie sau khi login -- khong can F12. Can extra `playwright`: `pip install -e ".[playwright]"` + `playwright install chromium`. Neu chua cai, tu fallback ve option 4 (paste tay) kem canh bao, khong crash. |
+| 3 | File cookie Netscape format | User da export cookie ra file san |
+| 4 | Paste tay | User tu F12 -> Application -> Cookies -> copy, roi paste vao terminal |
 
-Neu user noi "muon mo web nhap user/pass tu lay cookie" -- chinh la **option 3** o buoc nay.
+Neu user noi "muon mo web nhap user/pass tu lay cookie" -- chinh la **option 2** o buoc nay (option 1
+khong mo browser, dung HTTP truc tiep nen nhanh hon nhieu nhung khong ho tro MFA).
 
 ## MCP server
 

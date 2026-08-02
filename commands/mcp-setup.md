@@ -1,9 +1,12 @@
 ---
-description: Dang ky toan bo MCP servers (13 servers) chi bang 1 lenh — su dung chung lau dai
+description: Dang ky toan bo MCP servers (15 servers) chi bang 1 lenh — su dung chung lau dai
 argument-hint: "[--apply | --json | --skip-env]"
 ---
 
 # MCP Setup — Dang ky toan bo MCP servers trong 1 lan
+
+Danh sach day du (ten, category, transport, env): `reference/scripts/mcp_inventory.json`
+(hien **15 servers** — doi inventory khi them/bot server, khong hardcode so o day).
 
 ## Cach dung
 
@@ -19,11 +22,11 @@ python reference/scripts/mcp_register.py --json
 ```
 
 Script se tu dong:
-1. Quet inventory (13 servers)
+1. Quet inventory (`mcp_inventory.json` — 15 servers)
 2. Kiem tra server nao da register roi
-3. **Core + Remote** (sap-btp, sap-dict-bridge, cds-kb, mcp-sap-docs-btp) → register ngay
-4. **ADT alternatives** (arc-1, mcp-abap-adt) → hoi xac nhan + env vars
-5. **Product-specific** → huong dan cai dat thu cong
+3. **Core + Remote** (sap-btp, sap-dict-bridge, cds-kb, mcp-sap-docs-btp, notion) → register ngay
+4. **ADT alternatives** (arc-1, mcp-abap-adt, …) → hoi xac nhan + env vars
+5. **Product-specific / dev-tool** → huong dan cai dat thu cong (hoac prompt Y/n)
 6. Ghi vao `~/.claude.json` (user scope) + `.mcp.json` (project scope)
 
 ## Kiem tra

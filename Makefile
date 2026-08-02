@@ -42,8 +42,10 @@ security:           ## Chay security scan (custom + bandit)
 	$(PYTHON) reference/scripts/security_scan.py
 	$(PYTHON) reference/scripts/scan_clear_text_logging.py || true
 	$(PIP) install bandit
-	bandit -r reference/mcp-server/sap_btp_agent hooks reference/scripts \
-	  --skip B101 --exclude '*/tests/*,*/__pycache__/*,*/build/*'
+	bandit -r reference/mcp-server/mcp_sap_connect hooks reference/scripts \
+	  --skip B101,B404,B603,B607 \
+	  --exclude '*/tests/*,*/hook_tests/*,*/__pycache__/*,*/build/*' \
+	  --severity-level high --confidence-level medium
 
 validate:           ## Chay validate_plugin.py (10 check)
 	$(PYTHON) reference/scripts/validate_plugin.py

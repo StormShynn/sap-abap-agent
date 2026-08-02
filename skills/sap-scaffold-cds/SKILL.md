@@ -35,16 +35,27 @@ skill `sap-doc-to-md` de biet duong dan day du).
 
 ## Quy trinh
 
-### Buoc 0: Xac dinh CDS base (released)
+### Buoc 0: Xac dinh ngu canh + CDS base (BAT BUOC, KHONG tu doan)
 
-Neu build tren du lieu standard SAP (khong phai `ztb_*` custom):
-1. Tim CDS base theo phan he — hoi agent consultant tuong ung (vd `sap-mm-consultant-cloud`) hoac
-   `sap-docs-research` / skill `sap-cds-kb`. Uu tien `I_*` (VDM interface) da released, khop
-   nghiep vu + field FS yeu cau.
-2. **Verify released** cho dung version Cloud dang dung (catalog KHONG tu noi released) — dung
-   `sap-docs-research` hoac View Browser trong Eclipse ADT.
-3. Neu chua released hoac thieu field -> tim nguon chinh thong (`api.sap.com`/`help.sap.com`).
-   `ZI_*` cua ta `select from` view base do; KHONG tu bia ten view standard.
+Thu tu, dung lai o buoc nao da biet trong phien nay (cung pattern voi `sap-scaffold-report`):
+
+1. Neu chua co `TECHNICAL_SPEC.md` / field list → chay `sap-write-technical-spec` (hoac lay field
+   list tu `INTAKE.md`) truoc; pattern phai la chi-read CDS (khong RAP/CRUD).
+2. **Edition**: doc `reference/process/sap-service-type-context.md` neu chua biet
+   `s4hc_(public)` / `s4hc_(private)` / `onprem` / `btp`. Scaffold CDS 3-layer + Fiori annotations
+   o day gia dinh ABAP Cloud — neu on-prem / classical-only, **dung lai** va xac nhan (co the can
+   `sap-scaffold-report` nhanh classical thay vi CDS cloud).
+3. **Extensibility / rang buoc**: neu con mo ve released API / custom field / DCL, doc
+   `skills/sap-extensibility/SKILL.md` (Buoc 0 + bang theo edition) truoc khi chon base view.
+4. **Package**: chay `sap-deployment-target` neu chua xac nhan package deploy tren he thong that.
+5. **CDS base (released)** — neu build tren du lieu standard SAP (khong phai `ztb_*` custom):
+   - Tim CDS base theo phan he — hoi agent consultant tuong ung (vd `sap-mm-consultant-cloud`)
+     hoac `sap-docs-research` / skill `sap-cds-kb`. Uu tien `I_*` (VDM interface) da released,
+     khop nghiep vu + field FS yeu cau.
+   - **Verify released** cho dung version Cloud dang dung (catalog KHONG tu noi released) — dung
+     `sap-docs-research` hoac View Browser trong Eclipse ADT.
+   - Neu chua released hoac thieu field -> tim nguon chinh thong (`api.sap.com`/`help.sap.com`).
+     `ZI_*` cua ta `select from` view base do; KHONG tu bia ten view standard.
 
 ### Buoc 1: Tao interface view (ZI_*)
 
@@ -155,6 +166,8 @@ define service ZUI_<OBJECT>_SD {
 
 ## Reference
 
+- `reference/process/sap-service-type-context.md` — edition gate (Buoc 0), BAT BUOC truoc scaffold.
+- Skill `sap-extensibility` — rang buoc / released API theo edition.
 - Template: `reference/templates/rap-boilerplate/managed/zi_object.ddls.asddls`,
   `zr_object.ddls.asddls`, `zr_object.mde.asmd` (bo qua phan behavior neu khong can CRUD).
 - Naming: skill `sap-clean-code`.

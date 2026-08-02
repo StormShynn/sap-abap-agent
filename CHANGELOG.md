@@ -6,6 +6,329 @@ Format dựa trên [Keep a Changelog](https://keepachangelog.com/) và [Semantic
 
 ---
 
+## [v1.23.1] — 2026-08-02
+
+### Changed
+
+- Auto-bumped by CI (version-bump.yml).
+
+
+## [v1.23.0] — 2026-08-02
+
+### Changed
+
+- Auto-bumped by CI (version-bump.yml).
+
+
+## [v1.22.9] — 2026-08-02
+
+### Added
+
+- **Company rollout pack**: expanded `docs/rollout-guide.md`, `docs/team-troubleshooting.md`,
+  `docs/org-authenticode-setup.md`; scripts `validate_team_setup.py`,
+  `team_profile_export.py`, `notion_skills_db.py`, `claude_plugin_install.ps1`.
+- Finish/verification evidence gates + MCP soft Stop nudge (`verify_nudge` mark-verified-mcp);
+  vsp warn on active-profile change; coverage.xml CI artifact.
+
+### Changed
+
+- Auto-bumped by CI (version-bump.yml).
+
+
+## [v1.22.8] — 2026-08-02
+
+### Added
+
+- **Multi-user / team rollout**: `docs/rollout-guide.md`, CONTRIBUTING org section,
+  shared-OS-account caveats (onboarding, SECURITY, KNOWN_LIMITATIONS).
+
+### Fixed
+
+- README / index.html wheel pins → `mcp_sap_connect-1.22.0`; marketplace add steps;
+  broken KNOWN_LIMITATIONS plan link; honest PGP status in SECURITY.md.
+- CLI: lazy-import `cli._cancel` so pytest collect of `tests/test_cli_*` no longer
+  hits "partially initialized module" circular import on Linux CI.
+
+### Changed
+
+- Docs pins / badge follow product **1.22.8** (GUI channel tag `gui-v1.22.7` ships
+  from prior commit; retag `gui-v1.22.8` after validate green).
+
+
+## [v1.22.7] — 2026-08-02
+
+### Added
+
+- `sap-ask-consultant` Buoc 4b: CORE-first routing for 8 deep-split modules
+  (FI/Fiori/EWM/IBP/CAP/CPI/BTP Admin/SuccessFactors).
+- `security_scan.py --sarif` + upload in `security-scan.yml`.
+- CodeQL matrix language `rust` (`build-mode: none`) for `gui-native/src-tauri`.
+
+### Changed
+
+- Docs/DX: README badge + hero Tauri-first; onboarding + `gui-native/README` pin **1.22.7**.
+- Updater channel: deterministic artifact ranking (`.nsis.zip` → signed `*-setup.exe` fallback)
+  + CI assertion in `gui-release.yml`.
+- Tauri CSP: replace `csp: null` with local-webview safe default.
+- Validate CI: run `reference/mcp-server/tests`; drop obsolete CLI circular-import ignores;
+  coverage step fails the job (no soft `|| warning`).
+- Pages deploy: slim artifact (exclude `node_modules` / `target` / caches).
+- Authenticode: document secrets absent; fail-soft wiring unchanged (human cert still required).
+
+
+## [v1.22.6] — 2026-08-02
+
+### Changed
+
+- Auto-bumped by CI (version-bump.yml).
+
+
+## [v1.22.5] — 2026-08-02
+
+### Changed
+
+- Auto-bumped by CI (version-bump.yml).
+
+
+## [v1.22.4] — 2026-08-02
+
+### Changed
+
+- Auto-bumped by CI (version-bump.yml).
+
+
+## [v1.22.3] — 2026-08-02
+
+### Changed
+
+- Auto-bumped by CI (version-bump.yml).
+
+
+## [v1.22.2] — 2026-08-02
+
+### Changed
+
+- Auto-bumped by CI (version-bump.yml).
+
+
+## [v1.22.1] — 2026-08-02
+
+### Added
+
+- Scaffold RAP/CDS/CDS-analytics: Buoc-0 edition gate (`sap-service-type-context` +
+  `sap-extensibility`), aligned with `sap-scaffold-report`.
+- `docs/architecture.md` §6.1 — short skill-vs-agent routing table (docs-research,
+  daily-learner, atc-review vs abap-reviewer).
+- `validate_plugin.py`: warn when README skill-count copy drifts from `skills/`.
+
+### Changed
+
+- `sap-daily-learner`: Write/Edit scoped to `<agent-home>` (promote to `reference/modules/`
+  still requires explicit user confirm).
+- Module deep-split backlog copy: 8 modules already split (was stale "17 remaining").
+- GUI signing docs: set secrets via `cmd /c` stdin to avoid UTF-8 BOM (Tauri decode error 239).
+- Auto-bumped by CI (version-bump.yml).
+
+
+## [v1.22.0] — 2026-08-02
+
+### Changed
+
+- Auto-bumped by CI (version-bump.yml).
+
+
+## [v1.21.0] — 2026-08-01
+
+### Added
+
+- GUI CI (`gui-ci.yml`): `npm run build` + Windows `cargo check` on `gui-native/**`.
+- MCP unregister (`mcp-setup --unregister-json`) + GUI **Hủy đăng ký** / presets Core & Research.
+- Dependabot npm (`/gui-native`) + cargo (`/gui-native/src-tauri`).
+- Quiet startup update check (log/status when `gui-latest` has a newer build).
+
+### Changed
+
+- Validate CI installs pytest before collect-only; Bandit gate = HIGH only (skip B404/B603/B607),
+  path `mcp_sap_connect` (fix Makefile).
+- `version-bump.yml` syncs GUI manifests with plugin; `gui-release.yml` asserts tag = package/
+  Cargo/tauri version.
+- GUI manifests **1.21.0**; onboarding/README/SECURITY updater notes.
+- Auto-bumped by CI (version-bump.yml).
+
+
+## [v1.20.1] — 2026-08-01
+
+### Changed
+
+- Auto-bumped by CI (version-bump.yml).
+
+
+## [v1.20.0] — 2026-08-01
+
+### Changed
+
+- Auto-bumped by CI (version-bump.yml).
+
+
+## [v1.19.2] — 2026-08-01
+
+### Added
+
+- **GUI auto-updater** (`gui-native/`): `tauri-plugin-updater` + `tauri-plugin-process`,
+  `createUpdaterArtifacts`, endpoint `gui-latest/update.json`, About modal Download & Install
+  + relaunch (giống mcp-switch). CI `gui-release.yml` ký minisign, sinh `update.json`,
+  publish tag `gui-v*` và rolling `gui-latest`. Xem `gui-native/.signing/README.md`
+  (cần secrets `TAURI_SIGNING_PRIVATE_KEY`).
+
+### Changed
+
+- Auto-bumped by CI (version-bump.yml).
+
+
+## [v1.19.1] — 2026-08-01
+
+### Changed
+
+- Auto-bumped by CI (version-bump.yml).
+- Docs: ưu tiên **NSIS** current-user; MSI silent không admin → Error 1925/1603
+  (ghi chú onboarding + README GUI).
+
+
+## [v1.19.0] — 2026-08-01
+
+### Added
+
+- **Onboarding 3 persona** (`docs/onboarding-guide.md` v1.19.0) — ABAP Dev / Functional /
+  Key user; README mục Cài đặt rút gọn → link onboarding.
+- **GUI Windows release workflow** (`.github/workflows/gui-release.yml`) — build NSIS+MSI
+  trên `windows-latest` khi push tag `gui-v*` (hoặc `workflow_dispatch`), upload artifact +
+  GitHub Release. PATH-only: không embed Python.
+- Local proof: `npm run tauri build` tạo
+  `SAP ABAP Agent_1.19.0_x64-setup.exe` + `..._1.19.0_...msi` (copy gitignored
+  `gui-native/dist-bundle/`); manifest GUI đồng bộ **1.19.0** với product.
+
+### Changed
+
+- Auto-bumped by CI (version-bump.yml).
+- README badge/wheel examples đồng bộ `1.19.0` (sửa drift filename sau bump).
+
+
+## [v1.18.0] — 2026-08-01
+
+### Added
+
+- **GUI native PATH-only ship prep** (`gui-native/` v1.18.0): version align với product;
+  `check_runtime` + first-run banner khi thiếu `mcp-sap-connect`; bundle targets NSIS+MSI;
+  Tkinter GUI đánh dấu legacy trong README (vẫn hỗ trợ ≥2 minor).
+- **MCP Servers Setup panel** (`gui-native/`) — nút "🧩 MCP Servers" mới trong GUI native (Tauri), mở modal
+  liệt kê toàn bộ MCP server mà `mcp-sap-connect mcp-setup` biết đăng ký (core/remote/adt-alternative/
+  special/manual), chia nhóm, hiện trạng thái đã đăng ký (đọc `~/.claude.json`) và nút "Đăng ký" per-server
+  — gọi `claude mcp add` qua subprocess, hỏi env var cần thiết (nếu có) bằng modal có sẵn trước khi đăng ký.
+  Khác `mcp-switch` (bật/tắt server đã cấu hình sẵn) — panel này CẤU HÌNH server còn thiếu, không toggle.
+- `mcp-sap-connect mcp-setup --status-json` / `--register-json <name> [--env K=V ...]` (`cli/__init__.py`)
+  — chế độ non-interactive mới, tách từ `_cmd_mcp_setup()` (giữ nguyên hành vi wizard tương tác cũ), dùng
+  cho GUI qua 2 lệnh Rust mới `mcp_status`/`mcp_register` (`src-tauri/src/mcp_cli.rs`).
+- **`mcp-sap-connect ping [profile-id]`** (`_cmd_ping`) + nút "📡 Ping" mới trong GUI native (giữa Connect
+  và Set Active) — kiểm tra nhanh session còn hiệu lực hay không bằng 1 GET đọc (giống bước đầu của
+  `connect`/tool `sap_ping`), KHÔNG xin CSRF/write token nên nhẹ hơn `connect` (vốn làm cả đọc lẫn ghi) —
+  dùng khi chỉ cần biết nhanh session còn sống, chưa cần gọi lệnh ghi thật.
+
+### Fixed
+
+- **`claude mcp add` bị gọi sai cú pháp ở CẢ `_cmd_mcp_setup()` interactive lẫn logic mới** — xác nhận qua
+  test trực tiếp với `claude mcp add --help` + chạy lệnh thật (tạo server tạm rồi xóa lại), 3 lỗi:
+  - Flag `--url` không tồn tại (URL là positional, giống `command`) — trước đây khiến đăng ký `cds-kb`/
+    `mcp-sap-docs-btp` luôn thất bại with `error: unknown option '--url'`, nhưng lỗi bị NUỐT ÂM THẦM vì
+    `_cmd_mcp_setup()` không kiểm tra giá trị trả về của `_register()`.
+  - `stdio`: `-e/--env` đặt SAU dấu `"--"` bị hiểu là literal arg cho subprocess thay vì env var thật —
+    khiến `mcp-abap-adt` (ADT_URL/ADT_USER/ADT_PASS/ADT_CLIENT, gồm cả password) trước đây bị truyền sai
+    thành command-line argument thay vì environment variable.
+  - `sse`/`http`/`ws`: `--env` là flag variadic (`<env...>`) — đặt TRƯỚC url sẽ "nuốt" luôn url (lỗi
+    `missing required argument 'commandOrUrl'`), đặt SAU thì `claude` im lặng bỏ qua không lưu gì cả.
+    Cơ chế đúng cho auth của remote server là HTTP header qua `-H/--header "KEY: VALUE"` đặt SAU url
+    (`mcp-sap-docs-btp` cần `SAP-API-HUB-KEY` theo cách này).
+  - Fix chung ở `_claude_mcp_add()` (hàm mới, dùng chung cho cả wizard cũ và JSON mode mới) +
+    `_cmd_mcp_setup()` giờ in cảnh báo rõ khi 1 server đăng ký thất bại thay vì im lặng.
+  Test: `reference/mcp-server/tests/test_claude_mcp_add.py` (mock subprocess, xác nhận shape lệnh).
+- **`setup --from-file` qua GUI: exit code luôn = 0 dù reject, output mất vì console riêng đóng quá nhanh**
+  — `_setup_from_file()` giờ trả `True`/`False` thay vì `None`, `_make_runner()` dịch `False` thành
+  `sys.exit(1)`; GUI đổi từ `start_new_console` (cửa sổ CMD riêng, không interactive nên đóng gần như ngay,
+  không kịp đọc) sang `start_streamed` (log vào panel chính, cuộn lại được) + vẫn hỗ trợ nút "Đã đăng nhập
+  xong" qua marker file cho nhánh browser-fallback. Test: `test_setup_from_file.py`.
+- **`reference/mcp-server/tests/conftest.py`**: `collect_ignore_glob = ["test_*.py"]` vô tình bỏ qua ÂM
+  THẦM toàn bộ thư mục `tests/` khi chạy `pytest tests/` (glob khớp luôn cả file có `def test_*` hợp lệ,
+  không chỉ 6 script cũ chạy side-effect ở module-level mà comment gốc nhắm tới) — phát hiện khi thấy
+  `pytest reference/mcp-server/tests/` báo "collected 0 items" dù các file test riêng lẻ chạy đúng. Đổi
+  sang `collect_ignore` liệt kê đích danh 6 file cũ (`test_int2/3.py`, `test_auto4/5.py`,
+  `test_auto_real2.py`, `test_gui_btn.py` — xác nhận từng file không có `def test_*` nào, chỉ chạy script
+  ngay lúc import). 20 test thật (`test_saml_form_login.py`, `test_keep_alive_expiry.py`,
+  `test_claude_mcp_add.py`, `test_setup_from_file.py`) giờ mới thực sự được chạy khi gọi
+  `pytest reference/mcp-server/tests/` thay vì bị bỏ qua âm thầm.
+
+## [v1.17.1] — 2026-07-31
+
+### Changed
+
+- Auto-bumped by CI (version-bump.yml).
+
+
+## [v1.17.0] — 2026-07-31
+
+### Changed
+
+- Auto-bumped by CI (version-bump.yml).
+
+
+## [v1.17.0] — 2026-08-01
+
+### Added
+
+- **SAML fast-path cho cookie auth** (`saml_form_login`, `reference/mcp-server/mcp_sap_connect/sap/auth.py`)
+  — port từ [vibing-steampunk](https://github.com/StormShynn/vibing-steampunk) `pkg/adt/saml_auth.go`:
+  đăng nhập SP-initiated SAML bằng HTTP form-fill trực tiếp (tự GET target → parse `<form>` login IAS
+  (`_FirstFormParser`, stdlib `html.parser`) → điền username/password → POST → theo chuỗi SAMLResponse
+  auto-submit tối đa 10 hop) thay vì mở browser + poll cookie. Test thật: ~1-3s so với 30s timeout của
+  đường browser. Giữ nguyên các chốt bảo mật của bản gốc: `_validate_form_action` chặn POST form ra
+  host lạ (chống exfiltrate SAMLResponse/credential) + chặn downgrade HTTPS→HTTP cho form action,
+  `_resolve_redirect_location` (lenient hơn, chỉ chặn downgrade) riêng cho redirect Location-header
+  thường và form auto-submit SAMLRequest (SP→IdP đổi host là bình thường/bắt buộc ở 2 chỗ này — 2 bug
+  bị lẫn lộn 2 loại check này đã phát hiện + sửa qua test thật với tenant thật trước khi release).
+  **Chỉ dùng được khi IAS không yêu cầu MFA** — xem `KNOWN_LIMITATIONS.md`.
+- **Persist SAML credential để tự dùng lại** (`saml_or_browser_login`): đăng nhập nhanh thành công lần
+  đầu sẽ lưu `samlUsername`/`samlPassword` (mã hóa, cùng cơ chế với `authMode=password`) vào
+  `secrets.json` của profile — các lần reauth sau (session hết hạn) tự dùng lại credential đã lưu qua
+  fast-path trước, fallback `web_login_auto` (browser, hỗ trợ MFA) nếu không có credential lưu sẵn hoặc
+  fast-path thất bại vì bất kỳ lý do gì.
+- **`create_sap_client()` factory** (`sap/client.py`) — tự chọn đúng `reauth_handler` theo config profile
+  (`saml_or_browser_login` nếu `authMode=cookie` + `reauthMode=auto`). Thay thế toàn bộ 22 chỗ
+  `SapClient(_pick_profile(args))` không có `reauth_handler` trong `tools/registry.py`/`tools/dictionary.py`
+  (mọi MCP tool `sap_*` thật) + cơ chế keep-alive (`server.py`) — trước đây session hết hạn giữa lúc
+  Claude đang gọi tool thật sẽ lỗi thẳng (`RuntimeError: khong co reauth_handler`), không tự phục hồi
+  được như 2 lệnh CLI `connect`/`reauth` (đây là 2 chỗ DUY NHẤT có wiring reauth trước bản này).
+- **Wizard tương tác** (`mcp-sap-connect setup <url>`, cookie auth): thêm SAML fast-path làm lựa chọn
+  **đầu tiên/mặc định** (menu cũ 3 option File/Paste tay/Auto browser → menu mới 4 option, SAML lên
+  đầu) — thất bại tự fallback xuống browser, không cần chọn lại.
+- Field mới trong `profile.cookie.json` (`--from-file`): `samlBootstrapUsername`/`samlBootstrapPassword`
+  (tùy chọn, opt-in — không điền thì hành vi y hệt cũ).
+
+### Fixed
+
+- `_wire_early_finish_event`: nhánh `_setup_from_file` (cookie + `reauthMode=auto`) trước đây gọi
+  `web_login_auto` không có `early_finish_event`, thiếu cơ chế "bấm Enter là kiểm tra ngay" đã có sẵn
+  ở `_cmd_reauth` — tách thành helper dùng chung, dùng ở cả 2 nơi.
+
+## [v1.16.0] — 2026-07-31
+
+### Changed
+
+- Auto-bumped by CI (version-bump.yml).
+
+## [v1.15.0] — 2026-07-31
+
+### Changed
+
+- Auto-bumped by CI (version-bump.yml).
+
 ## [v1.14.0] — 2026-07-31
 
 ### Changed
@@ -77,6 +400,21 @@ Format dựa trên [Keep a Changelog](https://keepachangelog.com/) và [Semantic
     thành 1 lệnh tự phát hiện bước nào đã xong, idempotent (chạy lại an toàn). Không tự nhập
     credential/URL hộ user, không hardcode số version wheel (tra `gh release list` trước khi
     build URL cài đặt).
+- **`mcp-sap-connect setup --from-file <path>`** (mới trong `reference/mcp-server/mcp_sap_connect/cli/__init__.py`)
+  — tạo profile từ 1 file JSON đã điền sẵn thay vì trả lời wizard tương tác từng bước. Gọi lại
+  đúng 3 hàm wizard đã dùng (`upsert_profile`/`save_config`/`save_secrets`) — không viết lại
+  logic mã hóa/lưu trữ. Từ chối rõ ràng nếu field còn placeholder (`<...>`), không bao giờ tạo
+  profile với giá trị giả. Đã verify bằng chạy thật (không chỉ đọc code): nhánh điền đủ tạo
+  profile đúng (secret mã hóa DPAPI thật, `routingHints` tự sinh theo schema v2 có sẵn); nhánh
+  còn placeholder bị từ chối, không tạo gì.
+  - Thêm `reference/templates/mcp-sap-connect-profile-sample/` — 4 file mẫu (1 mỗi auth mode:
+    oauth2/password/bearer/cookie) + `README.md` giải thích từng field và ví dụ giá trị cho cả
+    5 edition (`s4hc_(public)`/`s4hc_(private)`/`btp`/`onprem`/`rise_with_sap`).
+  - Viết lại `/sap-setup` để tự động hết mức có thể theo phản hồi ban đầu — bỏ các câu hỏi
+    Claude tự quyết định được (OS, extra `win-dpapi`, dùng wheel hay editable), copy 4 file mẫu
+    ra thư mục `in/` local của user (KHÔNG bao giờ để user điền secret thật trực tiếp vào
+    `reference/templates/` git-tracked của repo), chỉ còn đúng 1 điểm dừng bắt buộc: điền
+    credential thật.
 - **Hook mới `hooks/first_run_check.py`** (SessionStart, 3 hook thứ tự:
   `session_start_skill.py` → `cron_deliver.py` → `first_run_check.py`) — tự kiểm tra offline
   (đọc `mcp_sap_connect.config.paths.get_profiles_dir()`, không gọi MCP/mạng) xem máy đã có
