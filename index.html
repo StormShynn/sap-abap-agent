@@ -968,6 +968,184 @@
       padding: 12px 14px;
       display: block;
     }
+
+    /* ===== PERSONA-FIRST LANDING ===== */
+    .persona-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin: 28px 0 8px;
+      text-align: left;
+    }
+    .persona-card {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px 18px;
+      text-decoration: none;
+      color: inherit;
+      transition: border-color .2s, transform .2s, background .2s;
+    }
+    .persona-card:hover {
+      border-color: var(--accent);
+      background: var(--bg-code);
+      text-decoration: none;
+      transform: translateY(-2px);
+      color: inherit;
+    }
+    .persona-card .pc-kicker {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+    .persona-card h3 {
+      font-size: 17px;
+      color: var(--text-bright);
+      margin: 0;
+      line-height: 1.35;
+    }
+    .persona-card p {
+      font-size: 13.5px;
+      color: var(--text-dim);
+      margin: 0;
+      flex: 1;
+    }
+    .persona-card .pc-cta {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--accent);
+    }
+    .persona-card.pc-gui { border-top: 3px solid var(--cyan); }
+    .persona-card.pc-claude { border-top: 3px solid var(--accent); }
+    .persona-card.pc-learn { border-top: 3px solid var(--green); }
+
+    .path-section {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px 22px 20px;
+      margin: 18px 0 28px;
+    }
+    .path-section > h2 {
+      margin-top: 0;
+    }
+    .path-lead {
+      color: var(--text-dim);
+      font-size: 14.5px;
+      margin: 0 0 16px;
+    }
+    .path-steps {
+      list-style: none;
+      counter-reset: pathstep;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin: 0;
+      padding: 0;
+    }
+    .path-steps li {
+      counter-increment: pathstep;
+      display: grid;
+      grid-template-columns: 28px 1fr;
+      gap: 12px;
+      align-items: start;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 12px 14px;
+      margin: 0;
+    }
+    .path-steps li::before {
+      content: counter(pathstep);
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: var(--accent-glow);
+      border: 1px solid var(--accent);
+      color: var(--accent);
+      font-weight: 700;
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .path-steps strong { color: var(--text-bright); display: block; margin-bottom: 2px; }
+    .path-steps span, .path-steps p { color: var(--text-dim); font-size: 13.5px; margin: 0; }
+    .path-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .sidebar details.nav-group {
+      margin: 4px 0;
+    }
+    .sidebar details.nav-group > summary {
+      list-style: none;
+      cursor: pointer;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .8px;
+      color: var(--text-dim);
+      padding: 12px 8px 6px;
+      font-weight: 600;
+      user-select: none;
+    }
+    .sidebar details.nav-group > summary::-webkit-details-marker { display: none; }
+    .sidebar details.nav-group > summary::after {
+      content: '+';
+      float: right;
+      opacity: .7;
+    }
+    .sidebar details.nav-group[open] > summary::after { content: '−'; }
+    .sidebar details.nav-group .nav-link {
+      padding-left: 18px;
+      font-size: 13px;
+    }
+    .arch-compact {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin: 16px 0 12px;
+    }
+    .arch-layer {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 14px;
+    }
+    .arch-layer h4 {
+      margin: 0 0 6px;
+      font-size: 14px;
+      color: var(--text-bright);
+    }
+    .arch-layer p {
+      margin: 0;
+      font-size: 13px;
+      color: var(--text-dim);
+    }
+    details.deep-ref {
+      margin: 12px 0 0;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: var(--bg);
+      padding: 10px 14px;
+    }
+    details.deep-ref > summary {
+      cursor: pointer;
+      font-weight: 600;
+      color: var(--text-dim);
+      font-size: 13.5px;
+    }
+    @media (max-width: 900px) {
+      .persona-grid, .arch-compact { grid-template-columns: 1fr; }
+    }
+
 </style>
   <script src="https://cdn.jsdelivr.net/npm/flexsearch@0.7.43/dist/flexsearch.bundle.min.js"></script>
   
@@ -990,71 +1168,82 @@
   </div>
 
     <nav>
-    <div class="nav-section">Bắt đầu</div>
-    <a class="nav-link" href="#gioi-thieu"><span class="nav-icon">🏠</span> Giới thiệu</a>
-    <a class="nav-link" href="#tinh-nang"><span class="nav-icon">✨</span> Tính năng</a>
-    <a class="nav-link" href="#architecture"><span class="nav-icon">🏗️</span> Kiến trúc hệ thống</a>
+    <div class="nav-section">Chọn lối vào</div>
+    <a class="nav-link" href="#path-claude"><span class="nav-icon">💻</span> Claude Code</a>
+    <a class="nav-link" href="#path-gui"><span class="nav-icon">🖥️</span> GUI desktop</a>
+    <a class="nav-link" href="#path-learn"><span class="nav-icon">📚</span> Học &amp; hỏi SAP</a>
+
+    <div class="nav-section">Claude Code</div>
     <a class="nav-link" href="#cai-dat"><span class="nav-icon">📦</span> Cài đặt</a>
-    <a class="nav-link" href="#env"><span class="nav-icon">🌐</span> Biến môi trường</a>
-    <a class="nav-link" href="#error-reporting"><span class="nav-icon">🐛</span> Báo cáo lỗi tự động</a>
-
-    <div class="nav-section">Kết nối SAP</div>
-    <a class="nav-link" href="#them-project"><span class="nav-icon">➕</span> Thêm project SAP</a>
-    <a class="nav-link" href="#oauth2"><span class="nav-icon">🔐</span> OAuth2 chi tiết</a>
-    <a class="nav-link" href="#cookie-auth"><span class="nav-icon">🍪</span> Cookie Auth + Web Popup</a>
-    <a class="nav-link" href="#ket-noi"><span class="nav-icon">🔌</span> Kiểm tra kết nối</a>
-    <a class="nav-link" href="#quan-ly-profile"><span class="nav-icon">👥</span> Quản lý profile</a>
-
-    <div class="nav-section">Sử dụng MCP</div>
     <a class="nav-link" href="#dang-ky-mcp"><span class="nav-icon">⚙️</span> Đăng ký MCP</a>
+    <a class="nav-link" href="#them-project"><span class="nav-icon">➕</span> Thêm project SAP</a>
+    <a class="nav-link" href="#ket-noi"><span class="nav-icon">🔌</span> Kiểm tra kết nối</a>
     <a class="nav-link" href="#tools"><span class="nav-icon">🛠️</span> MCP Tools</a>
-    <a class="nav-link" href="#commands"><span class="nav-icon">⌨️</span> Lệnh CLI</a>
+    <a class="nav-link" href="#codegen-pipeline"><span class="nav-icon">🏗️</span> Codegen FS→ABAP</a>
 
-    <div class="nav-section">Consultant System</div>
+    <div class="nav-section">Học &amp; hỏi</div>
     <a class="nav-link" href="#consultant-system"><span class="nav-icon">🧠</span> 28 agents</a>
-    <a class="nav-link" href="#consultant-routing"><span class="nav-icon">🔀</span> Auto-scoring routing</a>
-    <a class="nav-link" href="#agent-directory"><span class="nav-icon">📇</span> Chi tiết từng Agent</a>
     <a class="nav-link" href="#cach-dat-cau-hoi"><span class="nav-icon">💡</span> Cách đặt câu hỏi</a>
-    <a class="nav-link" href="#daily-learner"><span class="nav-icon">📚</span> Học SAP mỗi ngày</a>
+    <a class="nav-link" href="#daily-learner"><span class="nav-icon">📚</span> Học mỗi ngày</a>
+    <a class="nav-link" href="#agent-directory"><span class="nav-icon">📇</span> Danh mục agent</a>
 
-    <div class="nav-section">Skills MCP</div>
-    <a class="nav-link" href="#skill-cds-kb"><span class="nav-icon">📚</span> CDS Knowledge Base</a>
-    <a class="nav-link" href="#skill-docs-research"><span class="nav-icon">📖</span> SAP Docs Research</a>
-    <a class="nav-link" href="#skill-sap-notes-mcp"><span class="nav-icon">📝</span> SAP Notes MCP</a>
-    <a class="nav-link" href="#skill-sap-gui-mcp"><span class="nav-icon">🖥️</span> SAP GUI MCP</a>
-    <a class="nav-link" href="#skill-adt-mcp"><span class="nav-icon">🔧</span> ADT MCP (3 options)</a>
-    <a class="nav-link" href="#skill-sap-successfactors-mcp"><span class="nav-icon">👥</span> SuccessFactors MCP</a>
-    <a class="nav-link" href="#skill-sap-concur-mcp"><span class="nav-icon">✈️</span> SAP Concur MCP</a>
-    <a class="nav-link" href="#skill-sap-fieldglass-mcp"><span class="nav-icon">🛠️</span> Fieldglass MCP</a>
+    <details class="nav-group">
+      <summary>Kết nối nâng cao</summary>
+      <a class="nav-link" href="#oauth2"><span class="nav-icon">🔐</span> OAuth2 chi tiết</a>
+      <a class="nav-link" href="#cookie-auth"><span class="nav-icon">🍪</span> Cookie Auth</a>
+      <a class="nav-link" href="#quan-ly-profile"><span class="nav-icon">👥</span> Quản lý profile</a>
+      <a class="nav-link" href="#env"><span class="nav-icon">🌐</span> Biến môi trường</a>
+      <a class="nav-link" href="#cap-nhat"><span class="nav-icon">🔄</span> Cập nhật</a>
+    </details>
 
-    <div class="nav-section">Skills ABAP</div>
-    <a class="nav-link" href="#skill-service-type-context"><span class="nav-icon">🧭</span> Service Type Context</a>
-    <a class="nav-link" href="#skill-clean-code"><span class="nav-icon">🧹</span> Clean Code & Naming</a>
-    <a class="nav-link" href="#skill-extensibility"><span class="nav-icon">🧩</span> Extensibility Ladder</a>
-    <a class="nav-link" href="#skill-key-user-toolkit"><span class="nav-icon">🛠️</span> Key User Toolkit</a>
-    <a class="nav-link" href="#skill-btp-setup"><span class="nav-icon">🔌</span> BTP Setup Helper</a>
-    <a class="nav-link" href="#skill-doc-to-md"><span class="nav-icon">📄</span> Doc → Markdown</a>
-    <a class="nav-link" href="#skill-released-classes"><span class="nav-icon">📋</span> Released ABAP Classes</a>
-    <a class="nav-link" href="#skill-abap-sql"><span class="nav-icon">🗃️</span> ABAP SQL & AMDP</a>
-    <a class="nav-link" href="#skill-badi"><span class="nav-icon">🔌</span> Cloud BAdI Enhancement</a>
-    <a class="nav-link" href="#skill-authorization"><span class="nav-icon">🛡️</span> Authorization & DCL</a>
-    <a class="nav-link" href="#skill-cloud-migration"><span class="nav-icon">🔄</span> Cloud Migration</a>
-    <a class="nav-link" href="#skill-odata-service"><span class="nav-icon">🌐</span> OData Service</a>
-    <a class="nav-link" href="#skill-rap-events"><span class="nav-icon">📨</span> RAP Business Events</a>
-    <a class="nav-link" href="#skill-steampunk"><span class="nav-icon">☁️</span> Steampunk / BTP ABAP</a>
-    <a class="nav-link" href="#skill-btp-connectivity"><span class="nav-icon">🔗</span> BTP Connectivity</a>
-    <a class="nav-link" href="#skill-btp-best-practices"><span class="nav-icon">✅</span> BTP Best Practices</a>
+    <details class="nav-group">
+      <summary>Skills MCP</summary>
+      <a class="nav-link" href="#skill-cds-kb"><span class="nav-icon">📚</span> CDS Knowledge Base</a>
+      <a class="nav-link" href="#skill-docs-research"><span class="nav-icon">📖</span> SAP Docs Research</a>
+      <a class="nav-link" href="#skill-sap-notes-mcp"><span class="nav-icon">📝</span> SAP Notes MCP</a>
+      <a class="nav-link" href="#skill-sap-gui-mcp"><span class="nav-icon">🖥️</span> SAP GUI MCP</a>
+      <a class="nav-link" href="#skill-adt-mcp"><span class="nav-icon">🔧</span> ADT MCP</a>
+      <a class="nav-link" href="#skill-sap-successfactors-mcp"><span class="nav-icon">👥</span> SuccessFactors</a>
+      <a class="nav-link" href="#skill-sap-concur-mcp"><span class="nav-icon">✈️</span> Concur</a>
+      <a class="nav-link" href="#skill-sap-fieldglass-mcp"><span class="nav-icon">🛠️</span> Fieldglass</a>
+    </details>
 
-    <div class="nav-section">Codegen Pipeline</div>
-    <a class="nav-link" href="#codegen-pipeline"><span class="nav-icon">🏗️</span> FS.docx → ABAP code</a>
-    <a class="nav-link" href="#workflow-by-goal"><span class="nav-icon">🎯</span> Báo cáo / API / Form</a>
+    <details class="nav-group">
+      <summary>Skills ABAP</summary>
+      <a class="nav-link" href="#skill-service-type-context"><span class="nav-icon">🧭</span> Service Type</a>
+      <a class="nav-link" href="#skill-clean-code"><span class="nav-icon">🧹</span> Clean Code</a>
+      <a class="nav-link" href="#skill-extensibility"><span class="nav-icon">🧩</span> Extensibility</a>
+      <a class="nav-link" href="#skill-key-user-toolkit"><span class="nav-icon">🛠️</span> Key User</a>
+      <a class="nav-link" href="#skill-btp-setup"><span class="nav-icon">🔌</span> BTP Setup</a>
+      <a class="nav-link" href="#skill-doc-to-md"><span class="nav-icon">📄</span> Doc → MD</a>
+      <a class="nav-link" href="#skill-released-classes"><span class="nav-icon">📋</span> Released Classes</a>
+      <a class="nav-link" href="#skill-abap-sql"><span class="nav-icon">🗃️</span> ABAP SQL</a>
+      <a class="nav-link" href="#skill-badi"><span class="nav-icon">🔌</span> Cloud BAdI</a>
+      <a class="nav-link" href="#skill-authorization"><span class="nav-icon">🛡️</span> Authorization</a>
+      <a class="nav-link" href="#skill-cloud-migration"><span class="nav-icon">🔄</span> Migration</a>
+      <a class="nav-link" href="#skill-odata-service"><span class="nav-icon">🌐</span> OData</a>
+      <a class="nav-link" href="#skill-rap-events"><span class="nav-icon">📨</span> RAP Events</a>
+      <a class="nav-link" href="#skill-steampunk"><span class="nav-icon">☁️</span> Steampunk</a>
+      <a class="nav-link" href="#skill-btp-connectivity"><span class="nav-icon">🔗</span> Connectivity</a>
+      <a class="nav-link" href="#skill-btp-best-practices"><span class="nav-icon">✅</span> Best Practices</a>
+      <a class="nav-link" href="#workflow-by-goal"><span class="nav-icon">🎯</span> Báo cáo / API / Form</a>
+    </details>
 
-    <div class="nav-section">Tham khảo</div>
-    <a class="nav-link" href="#cau-truc"><span class="nav-icon">📁</span> Cấu trúc thư mục</a>
-    <a class="nav-link" href="#loi-thuong-gap"><span class="nav-icon">⚠️</span> Lỗi thường gặp</a>
-    <a class="nav-link" href="#dong-gop"><span class="nav-icon">🤝</span> Đóng góp</a>
-    <a class="nav-link" href="#about-github"><span class="nav-icon">🐙</span> About GitHub</a>
+    <details class="nav-group">
+      <summary>Tham khảo</summary>
+      <a class="nav-link" href="#gioi-thieu"><span class="nav-icon">🏠</span> Giới thiệu</a>
+      <a class="nav-link" href="#tinh-nang"><span class="nav-icon">✨</span> Tính năng</a>
+      <a class="nav-link" href="#architecture"><span class="nav-icon">🏗️</span> Kiến trúc</a>
+      <a class="nav-link" href="#consultant-routing"><span class="nav-icon">🔀</span> Routing engine</a>
+      <a class="nav-link" href="#commands"><span class="nav-icon">⌨️</span> Lệnh CLI</a>
+      <a class="nav-link" href="#error-reporting"><span class="nav-icon">🐛</span> Báo cáo lỗi</a>
+      <a class="nav-link" href="#cau-truc"><span class="nav-icon">📁</span> Cấu trúc thư mục</a>
+      <a class="nav-link" href="#loi-thuong-gap"><span class="nav-icon">⚠️</span> Lỗi thường gặp</a>
+      <a class="nav-link" href="#dong-gop"><span class="nav-icon">🤝</span> Đóng góp</a>
+      <a class="nav-link" href="#about-github"><span class="nav-icon">🐙</span> About GitHub</a>
+    </details>
   </nav>
+
 
 
 </aside>
@@ -1064,7 +1253,7 @@
 
   <!-- TOP HEADER -->
   <header class="top-header">
-    <div class="page-title">📘 Hướng dẫn sử dụng</div>
+    <div class="page-title">Chọn lối vào · Hướng dẫn</div>
     <div style="display:flex;align-items:center;gap:8px;">
             <div class="search-container">
         <span class="search-icon">🔍</span>
@@ -1089,21 +1278,164 @@
     <section class="hero fade-in">
       <div class="badge">
         <span class="dot"></span>
-        Đã kết nối &amp; sẵn sàng
+        Plugin + MCP + GUI cho SAP ABAP Cloud
       </div>
       <h1>
         <span class="gradient">SAP ABAP Agent</span>
-        <br>cho Claude Code
       </h1>
-      <p>Plugin Claude Code + MCP Server tự động kết nối SAP BTP / S/4HANA Cloud để thao tác ABAP — đọc, tìm, syntax-check, activate. Hỗ trợ <strong>multi-profile</strong> cho nhiều project SAP cùng lúc.</p>
-      <div class="hero-actions">
-        <a href="#cai-dat" class="btn btn-primary">⚡ Bắt đầu cài đặt</a>
-        <a href="#them-project" class="btn btn-ghost">➕ Thêm project SAP</a>
-        <a href="#daily-learner" class="btn btn-ghost" style="border-color:var(--purple);color:var(--purple);">📚 Học SAP mỗi ngày</a>
-        <a href="https://github.com/your-repo/sap-abap-agent" target="_blank" class="btn btn-ghost">📂 GitHub</a>
+      <p>Làm việc với SAP BTP / S/4HANA Cloud qua Claude Code hoặc GUI desktop — đọc ABAP, hỏi consultant, scaffold RAP/CDS. Chọn một lối vào phù hợp với bạn:</p>
+      <div class="persona-grid">
+        <a class="persona-card pc-claude" href="#path-claude">
+          <div class="pc-kicker">Lối 1</div>
+          <h3>Claude Code</h3>
+          <p>Cài MCP + plugin, kết nối hệ thống, thao tác ABAP và codegen ngay trong terminal.</p>
+          <span class="pc-cta">Bắt đầu cài đặt →</span>
+        </a>
+        <a class="persona-card pc-gui" href="#path-gui">
+          <div class="pc-kicker">Lối 2</div>
+          <h3>GUI desktop</h3>
+          <p>Cài app Windows, đăng ký MCP bắt buộc trong giao diện, quản lý profile không cần lệnh dài.</p>
+          <span class="pc-cta">Tải GUI →</span>
+        </a>
+        <a class="persona-card pc-learn" href="#path-learn">
+          <div class="pc-kicker">Lối 3</div>
+          <h3>Học &amp; hỏi SAP</h3>
+          <p>Hỏi theo module (SD/FI/MM…), để AI routing chọn consultant, hoặc học tip mỗi ngày.</p>
+          <span class="pc-cta">Xem cách hỏi →</span>
+        </a>
+      </div>
+      <div class="hero-actions" style="margin-top:22px;">
+        <a href="#path-claude" class="btn btn-primary">⚡ Claude Code</a>
+        <a href="https://github.com/StormShynn/sap-abap-agent/releases/tag/gui-latest" target="_blank" class="btn btn-ghost">🖥️ Tải GUI</a>
+        <a href="#path-learn" class="btn btn-ghost">📚 Học &amp; hỏi</a>
+        <a href="https://github.com/StormShynn/sap-abap-agent" target="_blank" class="btn btn-ghost">📂 GitHub</a>
       </div>
     </section>
 
+    <!-- ===== PATH: CLAUDE CODE ===== -->
+    <section id="path-claude" class="path-section fade-in">
+      <h2><span class="section-icon">💻</span> Lối 1 — Claude Code (5 bước)</h2>
+      <p class="path-lead">Dành cho ABAP developer / consultant dùng Claude Code. Mục tiêu: ping được hệ thống và hỏi được câu đầu tiên.</p>
+      <ol class="path-steps">
+        <li>
+          <div>
+            <strong>Cài MCP server (wheel)</strong>
+            <span>Cài bằng pip — không cần clone repo. Chi tiết lệnh ở mục <a href="#cai-dat">Cài đặt</a>.</span>
+          </div>
+        </li>
+        <li>
+          <div>
+            <strong>Đăng ký MCP bắt buộc</strong>
+            <span>Thêm <code>sap-btp</code>, <code>sap-dict-bridge</code>, <code>cds-kb</code>, <code>mcp-sap-docs-btp</code>. Xem <a href="#dang-ky-mcp">Đăng ký MCP</a>.</span>
+          </div>
+        </li>
+        <li>
+          <div>
+            <strong>Thêm project SAP</strong>
+            <span>Chạy wizard setup / thêm profile OAuth2. Xem <a href="#them-project">Thêm project SAP</a>.</span>
+          </div>
+        </li>
+        <li>
+          <div>
+            <strong>Kiểm tra kết nối</strong>
+            <span><code>sap_ping</code> / doctor — xác nhận tenant sẵn sàng. Xem <a href="#ket-noi">Kiểm tra kết nối</a>.</span>
+          </div>
+        </li>
+        <li>
+          <div>
+            <strong>Dùng hàng ngày</strong>
+            <span>Đọc/tìm/activate qua MCP Tools, hoặc codegen từ FS. Xem <a href="#tools">MCP Tools</a> và <a href="#codegen-pipeline">Codegen</a>.</span>
+          </div>
+        </li>
+      </ol>
+      <div class="path-actions">
+        <a href="#cai-dat" class="btn btn-primary">Sang Cài đặt</a>
+        <a href="#dang-ky-mcp" class="btn btn-ghost">Đăng ký MCP</a>
+        <a href="#them-project" class="btn btn-ghost">Thêm project</a>
+      </div>
+    </section>
+
+    <!-- ===== PATH: GUI ===== -->
+    <section id="path-gui" class="path-section fade-in">
+      <h2><span class="section-icon">🖥️</span> Lối 2 — GUI desktop (Windows)</h2>
+      <p class="path-lead">Dành cho người muốn cấu hình bằng giao diện. App cũ (ví dụ 1.19) không có About/updater — nên cài bản mới từ <code>gui-latest</code>.</p>
+      <ol class="path-steps">
+        <li>
+          <div>
+            <strong>Tải bộ cài NSIS</strong>
+            <span>Mở release <a href="https://github.com/StormShynn/sap-abap-agent/releases/tag/gui-latest" target="_blank">gui-latest</a> → file <code>*_x64-setup.exe</code>.</span>
+          </div>
+        </li>
+        <li>
+          <div>
+            <strong>Cài và mở app</strong>
+            <span>Chạy installer, mở SAP ABAP Agent. Kiểm tra phiên bản ở About.</span>
+          </div>
+        </li>
+        <li>
+          <div>
+            <strong>Đăng ký MCP bắt buộc</strong>
+            <span>Dùng CTA trong GUI để đăng ký các MCP core — tránh nút “xem doc” chết.</span>
+          </div>
+        </li>
+        <li>
+          <div>
+            <strong>Thêm / chọn profile SAP</strong>
+            <span>Nhập thông tin BTP/S4HC giống lối Claude Code. Chi tiết OAuth ở <a href="#oauth2">OAuth2</a>.</span>
+          </div>
+        </li>
+        <li>
+          <div>
+            <strong>Cập nhật sau này</strong>
+            <span>About → Check update (đọc <code>gui-latest/update.json</code>). Bản quá cũ cần cài lại tay.</span>
+          </div>
+        </li>
+      </ol>
+      <div class="path-actions">
+        <a href="https://github.com/StormShynn/sap-abap-agent/releases/tag/gui-latest" target="_blank" class="btn btn-primary">Tải GUI mới nhất</a>
+        <a href="#oauth2" class="btn btn-ghost">OAuth2 chi tiết</a>
+        <a href="#loi-thuong-gap" class="btn btn-ghost">Lỗi thường gặp</a>
+      </div>
+    </section>
+
+    <!-- ===== PATH: LEARN ===== -->
+    <section id="path-learn" class="path-section fade-in">
+      <h2><span class="section-icon">📚</span> Lối 3 — Học &amp; hỏi SAP</h2>
+      <p class="path-lead">Dành cho consultant / learner. Có thể hỏi module mà chưa cần codegen; kết nối hệ thống vẫn hữu ích khi cần đọc object thật.</p>
+      <ol class="path-steps">
+        <li>
+          <div>
+            <strong>Cài plugin / MCP tối thiểu</strong>
+            <span>Ít nhất Claude Code + plugin SAP ABAP Agent. Xem <a href="#cai-dat">Cài đặt</a> nếu chưa có.</span>
+          </div>
+        </li>
+        <li>
+          <div>
+            <strong>Hỏi theo module</strong>
+            <span>Ví dụ: <code>hoi SD: cau hinh pricing</code> — engine tự chọn consultant. Xem <a href="#cach-dat-cau-hoi">Cách đặt câu hỏi</a>.</span>
+          </div>
+        </li>
+        <li>
+          <div>
+            <strong>Xem danh mục 28 agents</strong>
+            <span>Biết module nào có sẵn trước khi hỏi sâu. Xem <a href="#agent-directory">Chi tiết từng Agent</a>.</span>
+          </div>
+        </li>
+        <li>
+          <div>
+            <strong>Bật học mỗi ngày (opt-in)</strong>
+            <span>Daily tip + skill tự tạo — mặc định tắt. Xem <a href="#daily-learner">Học SAP mỗi ngày</a>.</span>
+          </div>
+        </li>
+      </ol>
+      <div class="path-actions">
+        <a href="#cach-dat-cau-hoi" class="btn btn-primary">Cách đặt câu hỏi</a>
+        <a href="#consultant-system" class="btn btn-ghost">28 agents</a>
+        <a href="#daily-learner" class="btn btn-ghost">Daily learner</a>
+      </div>
+    </section>
+
+    <!-- ===== GIỚI THIỆU ===== -->
     <!-- ===== GIỚI THIỆU ===== -->
     <section id="gioi-thieu" class="fade-in">
       <h2><span class="section-icon">🏠</span> Giới thiệu</h2>
@@ -1127,14 +1459,14 @@
           <p>Hermes-like daily learning agent. Tự động track tiến độ, gửi tip hằng ngày, tạo skill documents từ câu hỏi phức tạp.</p>
         </div>
         <div class="feature-card">
-          <span class="fc-icon">🔀</span>
-          <h4>Keyword scoring + coupling</h4>
-          <p>Mỗi module có keyword matrix weight 3/2/1. Module coupling tự động dispatch các module liên quan.</p>
+          <span class="fc-icon">🖥️</span>
+          <h4>GUI desktop + updater</h4>
+          <p>App Windows đăng ký MCP, quản lý profile, kiểm tra cập nhật qua kênh <code>gui-latest</code>.</p>
         </div>
         <div class="feature-card" style="border-color:var(--cyan);">
-          <span class="fc-icon">🧠</span>
-          <h4>Context Engineering (v0.6.2)</h4>
-          <p>Trim MCP output, scaffold summary giua cac layer, 2-layer module routing (CORE+DEEP), 3-tier memory cho daily-learner.</p>
+          <span class="fc-icon">🔌</span>
+          <h4>MCP core sẵn sàng</h4>
+          <p>sap-btp, dict-bridge, CDS KB, SAP Docs — đủ để đọc/tìm/activate và tra cứu Cloud.</p>
         </div>
 <div class="feature-card">
           <span class="fc-icon">⚡</span>
@@ -1153,7 +1485,25 @@
     <section id="architecture">
       <h2><span class="section-icon">🏗️</span> Kiến trúc hệ thống</h2>
 
-      <p>SAP ABAP Agent hoạt động như một <strong>plugin Claude Code</strong> kết hợp với <strong>MCP servers</strong> và <strong>hệ thống agent routing</strong>. Dưới đây là sơ đồ tổng quan:</p>
+      <p>Ba tầng đơn giản: bạn hỏi trong Claude/GUI → routing + skills → MCP nói chuyện với SAP.</p>
+
+      <div class="arch-compact">
+        <div class="arch-layer">
+          <h4>1. Bạn</h4>
+          <p>Claude Code hoặc GUI desktop — câu hỏi nghiệp vụ, lệnh setup, codegen.</p>
+        </div>
+        <div class="arch-layer">
+          <h4>2. Agent + Skills</h4>
+          <p>28 consultants, routing theo keyword, skills ABAP/MCP hướng dẫn đúng quy trình Cloud.</p>
+        </div>
+        <div class="arch-layer">
+          <h4>3. MCP → SAP</h4>
+          <p>sap-btp, dict-bridge, CDS KB, docs — đọc/tìm/activate/tạo object trên BTP / S/4HANA Cloud.</p>
+        </div>
+      </div>
+
+      <details class="deep-ref">
+        <summary>Xem sơ đồ chi tiết (ASCII) và file map</summary>
 
       <div class="tree" style="line-height:2.0;">
 <span class="dir">┌─────────────────────────────────────────────────────────┐</span>
@@ -1245,6 +1595,8 @@
 <span class="branch">├──</span> <span class="file">index.html</span>               <span class="file"> ← Trang hướng dẫn này</span>
 <span class="branch">└──</span> <span class="file">README.md</span>                <span class="file"> ← Tổng quan dự án</span>
       </div>
+      </details>
+
     </section>
 
     <!-- ===== CÀI ĐẶT ===== -->
@@ -4031,6 +4383,61 @@ java -jar cdata.jdbc.sapfieldglass.jar --license</code><button class="copy-btn" 
   const htmlEl = document.documentElement;
 
   const translations = {
+    "Plugin + MCP + GUI cho SAP ABAP Cloud": "Plugin + MCP + GUI for SAP ABAP Cloud",
+    "Làm việc với SAP BTP / S/4HANA Cloud qua Claude Code hoặc GUI desktop — đọc ABAP, hỏi consultant, scaffold RAP/CDS. Chọn một lối vào phù hợp với bạn:":
+        "Work with SAP BTP / S/4HANA Cloud via Claude Code or the desktop GUI — read ABAP, ask consultants, scaffold RAP/CDS. Pick the path that fits you:",
+    "Lối 1": "Path 1",
+    "Lối 2": "Path 2",
+    "Lối 3": "Path 3",
+    "Claude Code": "Claude Code",
+    "GUI desktop": "Desktop GUI",
+    "Học & hỏi SAP": "Learn & ask SAP",
+    "Cài MCP + plugin, kết nối hệ thống, thao tác ABAP và codegen ngay trong terminal.":
+        "Install MCP + plugin, connect your system, work with ABAP and codegen in the terminal.",
+    "Cài app Windows, đăng ký MCP bắt buộc trong giao diện, quản lý profile không cần lệnh dài.":
+        "Install the Windows app, register required MCP servers in the UI, manage profiles without long commands.",
+    "Hỏi theo module (SD/FI/MM…), để AI routing chọn consultant, hoặc học tip mỗi ngày.":
+        "Ask by module (SD/FI/MM…), let AI routing pick a consultant, or learn with daily tips.",
+    "Bắt đầu cài đặt →": "Start setup →",
+    "Tải GUI →": "Download GUI →",
+    "Xem cách hỏi →": "See how to ask →",
+    "Lối 1 — Claude Code (5 bước)": "Path 1 — Claude Code (5 steps)",
+    "Lối 2 — GUI desktop (Windows)": "Path 2 — Desktop GUI (Windows)",
+    "Lối 3 — Học & hỏi SAP": "Path 3 — Learn & ask SAP",
+    "Dành cho ABAP developer / consultant dùng Claude Code. Mục tiêu: ping được hệ thống và hỏi được câu đầu tiên.":
+        "For ABAP developers / consultants using Claude Code. Goal: ping the system and ask your first question.",
+    "Dành cho người muốn cấu hình bằng giao diện. App cũ (ví dụ 1.19) không có About/updater — nên cài bản mới từ":
+        "For people who prefer a GUI. Older apps (e.g. 1.19) lack About/updater — install a fresh build from",
+    "Dành cho consultant / learner. Có thể hỏi module mà chưa cần codegen; kết nối hệ thống vẫn hữu ích khi cần đọc object thật.":
+        "For consultants / learners. You can ask modules without codegen; a live system still helps when you need real objects.",
+    "Cài MCP server (wheel)": "Install MCP server (wheel)",
+    "Đăng ký MCP bắt buộc": "Register required MCP servers",
+    "Thêm project SAP": "Add SAP project",
+    "Kiểm tra kết nối": "Check connection",
+    "Dùng hàng ngày": "Day-to-day use",
+    "Tải bộ cài NSIS": "Download the NSIS installer",
+    "Cài và mở app": "Install and open the app",
+    "Thêm / chọn profile SAP": "Add / select an SAP profile",
+    "Cập nhật sau này": "Update later",
+    "Cài plugin / MCP tối thiểu": "Install minimal plugin / MCP",
+    "Hỏi theo module": "Ask by module",
+    "Xem danh mục 28 agents": "Browse the 28 agents",
+    "Bật học mỗi ngày (opt-in)": "Enable daily learning (opt-in)",
+    "Ba tầng đơn giản: bạn hỏi trong Claude/GUI → routing + skills → MCP nói chuyện với SAP.":
+        "Three simple layers: you ask in Claude/GUI → routing + skills → MCP talks to SAP.",
+    "Xem sơ đồ chi tiết (ASCII) và file map": "Show detailed ASCII diagram and file map",
+    "GUI desktop + updater": "Desktop GUI + updater",
+    "App Windows đăng ký MCP, quản lý profile, kiểm tra cập nhật qua kênh":
+        "Windows app to register MCP, manage profiles, and check updates via the",
+    "MCP core sẵn sàng": "Core MCP ready",
+    "sap-btp, dict-bridge, CDS KB, SAP Docs — đủ để đọc/tìm/activate và tra cứu Cloud.":
+        "sap-btp, dict-bridge, CDS KB, SAP Docs — enough to read/search/activate and research Cloud.",
+    "Chọn lối vào": "Choose a path",
+    "Học & hỏi": "Learn & ask",
+    "Kết nối nâng cao": "Advanced connection",
+    "Tham khảo": "Reference",
+    "Chọn lối vào · Hướng dẫn": "Choose a path · Guide",
+
     // --- sap-security-review + abap-reviewer 3-layer addition (2026-07-15) ---
     "cả 3 tầng": "all 3 layers",
     " — đặt tên/clean code (namespace Z/Y, bỏ Hungarian notation), kiến trúc/extensibility (cú pháp bị cấm, released API), VÀ bảo mật (": " — naming/clean code (Z/Y namespace, dropping Hungarian notation), architecture/extensibility (banned syntax, released APIs), AND security (",
