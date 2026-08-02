@@ -140,6 +140,13 @@ def main() -> None:
                 print(_json.dumps({"ok": False, "error": "Thieu ten server. Dung: mcp-setup --register-json <name> [--env K=V ...]"}))
                 sys.exit(1)
             sys.exit(0 if _cmd_mcp_register_json(name, env_overrides) else 1)
+        elif cmd_args and cmd_args[0] == "--unregister-json":
+            name = cmd_args[1] if len(cmd_args) > 1 else ""
+            if not name:
+                import json as _json
+                print(_json.dumps({"ok": False, "error": "Thieu ten server. Dung: mcp-setup --unregister-json <name>"}))
+                sys.exit(1)
+            sys.exit(0 if _cmd_mcp_unregister_json(name) else 1)
         else:
             _cmd_mcp_setup()
     elif cmd == "license":
@@ -189,7 +196,7 @@ def _show_help() -> None:
     print("    connect [profile-id]   Test kết nối profile (đọc + ghi/CSRF)")
     print("    ping [profile-id]      Kiểm tra nhanh session còn hiệu lực (chỉ đọc, nhẹ hơn connect)")
     print("    reauth [profile-id]    Đăng nhập lại (lấy cookie mới) - không hỏi lại từ đầu như setup")
-    print("    mcp-setup              Đăng ký MCP servers với Claude Code (--status-json/--register-json cho GUI)")
+    print("    mcp-setup              Đăng ký MCP servers với Claude Code (--status-json/--register-json/--unregister-json cho GUI)")
     print("    profiles list          Liệt kê tất cả profile")
     print("    profiles use <id>      Chọn profile active")
     print("    profiles show          Xem chi tiết profile active")
@@ -1216,6 +1223,20 @@ def _claude_mcp_add(
     return False, (result.stderr or result.stdout or "").strip()
 
 
+def _claude_mcp_remove(claude_path: str, name: str) -> tuple[bool, str]:
+    """Goi `claude mcp remove <name>`."""
+    import subprocess
+
+    cli = [claude_path, "mcp", "remove", name]
+    try:
+        result = subprocess.run(cli, capture_output=True, text=True)
+    except OSError as err:
+        return False, str(err)
+    if result.returncode == 0:
+        return True, ""
+    return False, (result.stderr or result.stdout or "").strip()
+
+
 def _cmd_mcp_setup() -> None:
     """Dang ky toan bo MCP servers voi Claude Code (bat buoc + tuy chon)."""
     header("MCP Server Setup — Dang ky MCP servers voi Claude Code")
@@ -1430,6 +1451,26 @@ def _cmd_mcp_register_json(name: str, env_overrides: dict[str, str]) -> bool:
     result = {"ok": ok_, "name": name}
     if not ok_:
         result["error"] = detail or "claude mcp add that bai."
+    print(json.dumps(result, ensure_ascii=False))
+    return ok_
+
+
+def _cmd_mcp_unregister_json(name: str) -> bool:
+    import json
+    import shutil
+
+    claude_path = shutil.which("claude")
+    if not claude_path:
+        print(json.dumps({"ok": False, "name": name, "error": "Khong tim thay 'claude' trong PATH."}, ensure_ascii=False))
+        return False
+    if not name or name.strip() != name or any(c.isspace() for c in name):
+        print(json.dumps({"ok": False, "name": name, "error": "Ten server khong hop le."}, ensure_ascii=False))
+        return False
+
+    ok_, detail = _claude_mcp_remove(claude_path, name)
+    result: dict[str, Any] = {"ok": ok_, "name": name}
+    if not ok_:
+        result["error"] = detail or "claude mcp remove that bai."
     print(json.dumps(result, ensure_ascii=False))
     return ok_
 

@@ -1,8 +1,8 @@
 ---
 title: Onboarding Guide
 audience: end-user
-version: 1.19.0
-last_updated: 2026-08-01
+version: 1.21.0
+last_updated: 2026-08-02
 ---
 
 # Hướng dẫn Onboarding — SAP ABAP Agent
@@ -29,9 +29,11 @@ Doctor phải báo `mcp-sap-connect` trên PATH (hoặc in lệnh sửa PATH). M
 
 ### A2. GUI Windows (khuyến nghị) hoặc chỉ CLI
 
-- **GUI:** ưu tiên **NSIS** từ tag `gui-v1.19.0` / `gui-native/dist-bundle/`
-  (current-user). MSI cần admin (Error 1925 nếu không elevate).
-  Mở **SAP ABAP Agent** → nếu banner vàng: làm A1 rồi bấm **Kiểm tra lại**.
+- **GUI:** ưu tiên **NSIS** từ Release mới nhất tag `gui-v*` / rolling
+  `gui-latest` (About → Check for updates sau khi đã cài). Bản local:
+  `gui-native/dist-bundle/` nếu bạn tự build. MSI cần admin (Error 1925 nếu
+  không elevate). Mở **SAP ABAP Agent** → nếu banner vàng: làm A1 rồi bấm
+  **Kiểm tra lại**.
 - **CLI only:** bỏ qua GUI, dùng lệnh ở A3.
 
 ### A3. Thêm profile SAP

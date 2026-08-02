@@ -24,6 +24,15 @@ cd gui-native
 npx tauri signer generate -w "$env:TEMP\sap-abap-agent-gui-keys\sap-abap-agent-gui.key" --ci -f
 ```
 
+## Updater endpoint
+
+Rolling tag **`gui-latest`** (recreated each `gui-v*` release):
+
+`https://github.com/StormShynn/sap-abap-agent/releases/download/gui-latest/update.json`
+
+**Canonical publish remote:** `https://github.com/StormShynn/sap-abap-agent.git`
+(mirror/backup remotes must not receive `gui-v*` / release assets by mistake).
+
 ## Local sign (empty password)
 
 Tauri treats missing password as interactive prompt (hangs in CI/non-TTY). Pass an
@@ -33,9 +42,3 @@ use a shell cmdline instead:
 ```powershell
 npx tauri signer sign "path\to\file.nsis.zip" -f $key --password ""
 ```
-
-## Updater endpoint
-
-Rolling tag **`gui-latest`** (recreated each `gui-v*` release):
-
-`https://github.com/StormShynn/sap-abap-agent/releases/download/gui-latest/update.json`

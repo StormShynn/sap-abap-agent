@@ -57,6 +57,20 @@ jobs:
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
+      - name: Assert GUI manifests match tag version
+        shell: bash
+        run: |
+          VERSION="${{ steps.meta.outputs.version }}"
+          PKG=$(jq -r '.version' gui-native/package.json)
+          TAU=$(jq -r '.version' gui-native/src-tauri/tauri.conf.json)
+          CARGO=$(grep -m1 '^version = ' gui-native/src-tauri/Cargo.toml | sed -E 's/^version = "([^"]+)"/\1/')
+          echo "tag=$VERSION package.json=$PKG tauri.conf=$TAU Cargo.toml=$CARGO"
+          fail=0
+          [[ "$PKG" == "$VERSION" ]] || { echo "package.json mismatch"; fail=1; }
+          [[ "$TAU" == "$VERSION" ]] || { echo "tauri.conf.json mismatch"; fail=1; }
+          [[ "$CARGO" == "$VERSION" ]] || { echo "Cargo.toml mismatch"; fail=1; }
+          exit "$fail"
+
       - name: Require signing secrets
         shell: bash
         env:

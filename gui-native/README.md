@@ -1,4 +1,4 @@
-# SAP ABAP Agent — GUI (Tauri) v1.19.0
+# SAP ABAP Agent — GUI (Tauri) v1.21.0
 
 Native desktop GUI cho `mcp-sap-connect` (Rust + Tauri v2 + vanilla TypeScript).
 

@@ -22,6 +22,7 @@ pub fn run() {
             mcp_cli::import_json_backup,
             mcp_cli::mcp_status,
             mcp_cli::mcp_register,
+            mcp_cli::mcp_unregister,
             jobs::start_streamed,
             jobs::start_new_console,
             jobs::cancel_job,

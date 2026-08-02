@@ -57,6 +57,7 @@ Security Policy này áp dụng cho tất cả các component trong repository:
 | Component | Mô tả | Có chứa secrets? |
 |-----------|-------|------------------|
 | `reference/mcp-server/` | MCP server Python kết nối SAP BTP | ✅ Có (xử lý credentials) |
+| `gui-native/` | Tauri GUI + auto-updater (minisign) | ❌ Không chứa SAP secrets; **signing private key** chỉ trên CI secrets / máy release — không commit |
 | `.claude-plugin/plugin.json` | Manifest plugin | ❌ Không |
 | `agents/` | Agent definitions (YAML + markdown) | ❌ Không |
 | `skills/` | Skill implementations | ❌ Không |
@@ -133,6 +134,7 @@ Mỗi project SAP có profile riêng, secret riêng, mã hóa độc lập:
 - ❌ **Không share** file `secrets.json` hoặc `profiles/` cho người khác
 - ❌ **Không dùng** SAP ABAP Agent trên tenant production chưa được phép
 - ❌ **Không paste** credentials, session cookies, hoặc token vào public chat/public issues
+- ❌ **Không commit** `TAURI_SIGNING_PRIVATE_KEY` / file `*.key` của GUI updater (chỉ GitHub Actions secrets; xem `gui-native/.signing/README.md`)
 
 ### Checklist bảo mật hàng ngày
 

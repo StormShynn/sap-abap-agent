@@ -140,11 +140,50 @@ jobs:
           # doc duoc version moi tu do. Cung regex pattern, cung output.
           python reference/scripts/build_index.py
 
+      # GUI tracks plugin semver (same product train). Keeps About/updater
+      # version aligned with marketplace bumps without a separate gui-v push.
+      - name: Sync GUI native version (package / Cargo / tauri.conf)
+        env:
+          NEW_VERSION: ${{ steps.version.outputs.new }}
+        run: |
+          set -euo pipefail
+          cd gui-native
+          jq --arg v "$NEW_VERSION" '.version = $v' package.json > /tmp/gui-package.json
+          mv /tmp/gui-package.json package.json
+          jq --arg v "$NEW_VERSION" '
+            .version = $v
+            | .packages[""].version = $v
+          ' package-lock.json > /tmp/gui-package-lock.json
+          mv /tmp/gui-package-lock.json package-lock.json
+          sed -i "s/^version = \".*\"/version = \"$NEW_VERSION\"/" src-tauri/Cargo.toml
+          jq --arg v "$NEW_VERSION" '.version = $v' src-tauri/tauri.conf.json > /tmp/tauri.conf.json
+          mv /tmp/tauri.conf.json src-tauri/tauri.conf.json
+          python - <<'PY'
+          from pathlib import Path
+          import os, re
+          v = os.environ["NEW_VERSION"]
+          lock = Path("src-tauri/Cargo.lock")
+          text = lock.read_text(encoding="utf-8")
+          text2, n = re.subn(
+              r'(name = "gui-native"\nversion = ")[^"]+(")',
+              rf"\g<1>{v}\2",
+              text,
+              count=1,
+          )
+          if n:
+              lock.write_text(text2, encoding="utf-8")
+          print(f"Cargo.lock gui-native bumps={n}")
+          PY
+          echo "GUI synced to $NEW_VERSION"
+
       - name: Commit and push
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add .claude-plugin/plugin.json .claude-plugin/marketplace.json CHANGELOG.md index.html
+          git add gui-native/package.json gui-native/package-lock.json \
+                  gui-native/src-tauri/Cargo.toml gui-native/src-tauri/Cargo.lock \
+                  gui-native/src-tauri/tauri.conf.json
           if [[ "${{ steps.changes.outputs.mcp }}" == "true" ]]; then
             git add reference/mcp-server/pyproject.toml \
                      reference/mcp-server/mcp_sap_connect/cli/__init__.py \

@@ -1,6 +1,6 @@
 # SAP ABAP Agent (Tiếng Việt)
 
-[![Version](https://img.shields.io/badge/version-1.19.1-blue.svg)](CHANGELOG.md) [![Python](https://img.shields.io/badge/Python-3.10+-blue.svg)](https://python.org) [![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE) [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](CODE_OF_CONDUCT.md) [![Security Policy](https://img.shields.io/badge/Security-View_Policy-blue.svg)](SECURITY.md) [![Changelog](https://img.shields.io/badge/Changelog-%23ff69b4.svg)](CHANGELOG.md) [![CI/CD](https://github.com/StormShynn/sap-abap-agent/actions/workflows/deploy.yml/badge.svg)](https://github.com/StormShynn/sap-abap-agent/actions/workflows/deploy.yml) [![GitHub Pages](https://img.shields.io/github/deployments/StormShynn/sap-abap-agent/github-pages?label=GitHub%20Pages&logo=github)](https://stormshynn.github.io/sap-abap-agent/)
+[![Version](https://img.shields.io/badge/version-1.21.0-blue.svg)](CHANGELOG.md) [![Python](https://img.shields.io/badge/Python-3.10+-blue.svg)](https://python.org) [![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE) [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](CODE_OF_CONDUCT.md) [![Security Policy](https://img.shields.io/badge/Security-View_Policy-blue.svg)](SECURITY.md) [![Changelog](https://img.shields.io/badge/Changelog-%23ff69b4.svg)](CHANGELOG.md) [![CI/CD](https://github.com/StormShynn/sap-abap-agent/actions/workflows/deploy.yml/badge.svg)](https://github.com/StormShynn/sap-abap-agent/actions/workflows/deploy.yml) [![GitHub Pages](https://img.shields.io/github/deployments/StormShynn/sap-abap-agent/github-pages?label=GitHub%20Pages&logo=github)](https://stormshynn.github.io/sap-abap-agent/)
 
 Plugin Claude Code + MCP server tự động kết nối **SAP BTP / S/4HANA Cloud** để thao tác
 ABAP (đọc / tìm / syntax-check / activate). Hỗ trợ **multi-profile** — mỗi project SAP
@@ -177,7 +177,7 @@ tích sâu qua `sap-vsp`, DDIC qua `sap-dict-bridge`) riêng. Xem
 Tóm tắt kỹ thuật (reference):
 
 1. `pip install "mcp-sap-connect[win-dpapi]"` rồi `python -m mcp_sap_connect.doctor`
-2. Windows GUI: **ưu tiên NSIS** tag `gui-v1.19.0` (PATH-only — không embed Python;
+2. Windows GUI: **ưu tiên NSIS** tag `gui-v*` / rolling `gui-latest` (PATH-only — không embed Python;
    MSI cần admin / Error 1925 nếu không elevate)
 3. Claude Code: `/plugin install sap-abap-agent` + đăng ký MCP core (`sap-btp`, `sap-dict-bridge`)
 
@@ -305,7 +305,7 @@ pip install "mcp-sap-connect[win-dpapi]"
 python -m mcp_sap_connect.doctor
 ```
 
-Sau đó cài bản native từ Release tag `gui-v1.19.0` — **ưu tiên NSIS** `.exe`
+Sau đó cài bản native từ Release tag `gui-v*` (hoặc About → Check for updates) — **ưu tiên NSIS** `.exe`
 (current-user, không cần admin). MSI thường cần elevation (Error 1925 nếu cài
 silent không có quyền). Hoặc build từ `gui-native/`. Chi tiết:
 [`gui-native/README.md`](gui-native/README.md).

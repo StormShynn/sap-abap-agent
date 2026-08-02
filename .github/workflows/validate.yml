@@ -33,8 +33,8 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Install ruff
-        run: pip install ruff
+      - name: Install ruff + pytest
+        run: pip install ruff pytest pytest-cov
 
       - name: Validate plugin structure
         run: python reference/scripts/validate_plugin.py
@@ -71,7 +71,6 @@ jobs:
         # Chi chay test cho `tests/` root (reference/scripts/, hooks/).
         # Skip reference/mcp-server/tests/ vi can install deps cua MCP server.
         run: |
-          pip install pytest-cov
           python -m pytest tests/ hooks/hook_tests/ \
             --cov=reference/scripts \
             --cov=hooks \

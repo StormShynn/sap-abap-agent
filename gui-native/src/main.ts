@@ -106,6 +106,8 @@ const el = {
   mcpRows: byId<HTMLDivElement>("mcp-rows"),
   btnMcpRefresh: byId<HTMLButtonElement>("btn-mcp-refresh"),
   btnMcpClose: byId<HTMLButtonElement>("btn-mcp-close"),
+  btnMcpPresetCore: byId<HTMLButtonElement>("btn-mcp-preset-core"),
+  btnMcpPresetResearch: byId<HTMLButtonElement>("btn-mcp-preset-research"),
   btnAbout: byId<HTMLButtonElement>("btn-about"),
   aboutModal: byId<HTMLDivElement>("about-modal"),
   aboutVersion: byId<HTMLSpanElement>("about-version"),
@@ -135,16 +137,24 @@ function byId<T extends HTMLElement>(id: string): T {
 
 // ===== Small reusable modal helpers (thay the tk.simpledialog / messagebox) =====
 
-function promptText(title: string, message: string, defaultValue = ""): Promise<string | null> {
+function promptText(
+  title: string,
+  message: string,
+  defaultValue = "",
+  options: { secret?: boolean } = {},
+): Promise<string | null> {
   return new Promise((resolve) => {
     el.promptTitle.textContent = title;
     el.promptMessage.textContent = message;
     el.promptInput.value = defaultValue;
+    el.promptInput.type = options.secret ? "password" : "text";
     el.promptModal.classList.remove("hidden");
     el.promptInput.focus();
 
     const cleanup = () => {
       el.promptModal.classList.add("hidden");
+      el.promptInput.type = "text";
+      el.promptInput.value = "";
       el.promptOk.onclick = null;
       el.promptCancel.onclick = null;
     };
@@ -742,6 +752,12 @@ function renderMcpRow(s: McpServerStatus): HTMLElement {
     btn.textContent = "Đăng ký";
     btn.addEventListener("click", () => void onRegisterMcpServer(s));
     main.appendChild(btn);
+  } else {
+    const btn = document.createElement("button");
+    btn.className = "btn btn-flat btn-sm";
+    btn.textContent = "Hủy đăng ký";
+    btn.addEventListener("click", () => void onUnregisterMcpServer(s));
+    main.appendChild(btn);
   }
 
   row.appendChild(main);
@@ -757,7 +773,13 @@ function renderMcpRow(s: McpServerStatus): HTMLElement {
 async function onRegisterMcpServer(s: McpServerStatus) {
   const env: Record<string, string> = {};
   for (const varName of s.envVars) {
-    const val = await promptText(`${s.name}: ${varName}`, `Nhập giá trị cho biến môi trường '${varName}':`);
+    const secret = /key|token|secret|password|passwd/i.test(varName);
+    const val = await promptText(
+      `${s.name}: ${varName}`,
+      `Nhập giá trị cho biến môi trường '${varName}':`,
+      "",
+      { secret },
+    );
     if (val === null) return; // user huy giua chung - khong dang ky
     env[varName] = val;
   }
@@ -770,6 +792,58 @@ async function onRegisterMcpServer(s: McpServerStatus) {
     appendLog(`[ERROR] Đăng ký '${s.name}' thất bại: ${err}`);
   }
   await refreshMcpStatus();
+}
+
+async function onUnregisterMcpServer(s: McpServerStatus) {
+  const ok = await confirmDialog(
+    "Hủy đăng ký MCP",
+    `Gỡ '${s.name}' khỏi Claude Code (claude mcp remove)?`,
+  );
+  if (!ok) return;
+  appendLog(`$ mcp-sap-connect mcp-setup --unregister-json ${s.name}`);
+  try {
+    await invoke("mcp_unregister", { name: s.name });
+    appendLog(`[OK] Đã hủy đăng ký '${s.name}'. Khởi động lại Claude Code nếu đang mở.`);
+  } catch (err) {
+    appendLog(`[ERROR] Hủy đăng ký '${s.name}' thất bại: ${err}`);
+  }
+  await refreshMcpStatus();
+}
+
+const MCP_PRESET_CORE = ["sap-btp", "sap-dict-bridge", "cds-kb", "mcp-sap-docs-btp"];
+const MCP_PRESET_RESEARCH = [...MCP_PRESET_CORE, "arc-1", "sap-vsp"];
+
+async function onMcpPreset(names: string[], label: string) {
+  appendLog(`[MCP] Áp dụng preset ${label}...`);
+  let data: McpStatusData;
+  try {
+    data = await invoke<McpStatusData>("mcp_status");
+  } catch (err) {
+    appendLog(`[ERROR] Không đọc được MCP status: ${err}`);
+    return;
+  }
+  if (!data.claudeAvailable) {
+    appendLog("[ERROR] Không tìm thấy 'claude' trong PATH.");
+    return;
+  }
+  const byName = new Map(data.servers.map((s) => [s.name, s]));
+  for (const name of names) {
+    const s = byName.get(name);
+    if (!s) {
+      appendLog(`[WARN] Preset bỏ qua '${name}' (không có trong inventory).`);
+      continue;
+    }
+    if (s.registered) {
+      appendLog(`[OK] '${name}' đã đăng ký — bỏ qua.`);
+      continue;
+    }
+    if (s.category === "manual") {
+      appendLog(`[WARN] '${name}' cần cài thủ công — bỏ qua.`);
+      continue;
+    }
+    await onRegisterMcpServer(s);
+  }
+  appendLog(`[MCP] Preset ${label} xong.`);
 }
 
 // ===== About / Auto-updater (tauri-plugin-updater + gui-latest/update.json) =====
@@ -946,6 +1020,10 @@ function initEventListeners() {
   el.btnMcpServers.addEventListener("click", () => void openMcpModal());
   el.btnMcpRefresh.addEventListener("click", () => void refreshMcpStatus());
   el.btnMcpClose.addEventListener("click", closeMcpModal);
+  el.btnMcpPresetCore.addEventListener("click", () => void onMcpPreset(MCP_PRESET_CORE, "Core"));
+  el.btnMcpPresetResearch.addEventListener("click", () =>
+    void onMcpPreset(MCP_PRESET_RESEARCH, "Research"),
+  );
 
   el.btnAbout.addEventListener("click", () => void openAboutModal());
   el.btnAboutClose.addEventListener("click", closeAboutModal);
@@ -981,5 +1059,13 @@ window.addEventListener("DOMContentLoaded", () => {
   resetUpdateActions();
   void checkRuntime().then((ok) => {
     if (ok) void refreshProfiles();
+  });
+  // Quiet background check — surface only when an update exists (About for install).
+  void check().then((update) => {
+    if (!update) return;
+    appendLog(`[Update] Có bản mới ${update.version} — mở About để tải & cài.`);
+    setStatus(`Có bản GUI mới: ${update.version}`);
+  }).catch(() => {
+    /* ignore 404 / offline until gui-latest exists */
   });
 });

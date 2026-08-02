@@ -8,8 +8,20 @@ Format dựa trên [Keep a Changelog](https://keepachangelog.com/) và [Semantic
 
 ## [v1.21.0] — 2026-08-01
 
+### Added
+
+- GUI CI (`gui-ci.yml`): `npm run build` + Windows `cargo check` on `gui-native/**`.
+- MCP unregister (`mcp-setup --unregister-json`) + GUI **Hủy đăng ký** / presets Core & Research.
+- Dependabot npm (`/gui-native`) + cargo (`/gui-native/src-tauri`).
+- Quiet startup update check (log/status when `gui-latest` has a newer build).
+
 ### Changed
 
+- Validate CI installs pytest before collect-only; Bandit gate = HIGH only (skip B404/B603/B607),
+  path `mcp_sap_connect` (fix Makefile).
+- `version-bump.yml` syncs GUI manifests with plugin; `gui-release.yml` asserts tag = package/
+  Cargo/tauri version.
+- GUI manifests **1.21.0**; onboarding/README/SECURITY updater notes.
 - Auto-bumped by CI (version-bump.yml).
 
 

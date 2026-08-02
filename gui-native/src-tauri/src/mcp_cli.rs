@@ -286,3 +286,15 @@ pub async fn mcp_register(name: String, env: HashMap<String, String>) -> Result<
     run_json(&args).await?;
     Ok(())
 }
+
+/// Go dang ky 1 MCP server (`mcp-setup --unregister-json <name>` → `claude mcp remove`).
+#[tauri::command]
+pub async fn mcp_unregister(name: String) -> Result<(), String> {
+    let args = vec![
+        "mcp-setup".to_string(),
+        "--unregister-json".to_string(),
+        name,
+    ];
+    run_json(&args).await?;
+    Ok(())
+}
