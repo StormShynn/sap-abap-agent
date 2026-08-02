@@ -1,8 +1,9 @@
 # Known Limitations
 
 > File nay track cac han che da biet nhung chua fix (khong phai bug - la
-> scope quyet dinh co chu dich). Xem `docs/plans/active/sap-multi-system-router.md`
-> cho context day du.
+> scope quyet dinh co chu dich). Multi-user / vault: xem `docs/rollout-guide.md`
+> va `docs/team-troubleshooting.md`. Host policy (Claude vs Cursor):
+> `docs/onboarding-guide.md` (Host matrix).
 
 ## SAML fast-path (cookie auth) - saml_form_login / saml_or_browser_login
 
@@ -43,8 +44,8 @@ Port tu vibing-steampunk `pkg/adt/saml_auth.go` (`reference/mcp-server/mcp_sap_c
   neu muon dung `sap-vsp` tren cac profile nay.
 - **Debug adapter chua tich hop sau**: cac tinh nang Lua scripting, checkpoint,
   force-replay cua `vsp` debug adapter chua duoc wire vao routing/skill nao -
-  out of scope cho v1 cua plan `sap-multi-system-router`. Co the dung truc
-  tiep qua tool `vsp_*` neu can, nhung khong co huong dan/routing tu dong.
+  out of scope (khong co plan active). Co the dung truc tiep qua tool `vsp_*`
+  neu can, nhung khong co huong dan/routing tu dong.
 - **Khong co tren PATH / auto-download that bai**: neu mang khong on dinh luc
   `mcp-setup` tai `vsp` tu GitHub Release, dang ky se bi skip (co warning ro).
   Cai thu cong binary tu

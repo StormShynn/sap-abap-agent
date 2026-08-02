@@ -19,6 +19,9 @@ import sys
 from dataclasses import dataclass
 
 
+DEFAULT_NOTION_DB = "9d54b58613ad485f8b8f19909adbb219"
+
+
 @dataclass
 class Check:
     name: str
@@ -79,7 +82,6 @@ def check_mcp_on_path() -> Check:
 def check_doctor() -> Check:
     ok, detail = _run([sys.executable, "-m", "mcp_sap_connect.doctor"])
     if not ok:
-        # doctor may exit non-zero when PATH missing but still useful
         ok2, detail2 = _run(["mcp-sap-connect", "doctor"])
         ok, detail = ok2, detail2
     return Check("mcp-sap-connect doctor", ok, detail[:200], required=False)
@@ -95,28 +97,42 @@ def check_claude() -> Check:
     )
 
 
-def check_notion_pin() -> Check:
+def check_notion_learning() -> Check:
+    """Resolve Notion SAP Skills id (default StormShynn shared = learning ready id)."""
     script = os.path.join(os.path.dirname(__file__), "notion_skills_db.py")
     if not os.path.isfile(script):
-        return Check("Notion DB id", False, "notion_skills_db.py missing", required=False)
+        return Check("Notion learning DB", False, "notion_skills_db.py missing", required=False)
     ok, detail = _run([sys.executable, script, "get", "--source"])
-    if ok and detail.strip():
-        parts = detail.strip().split()
-        db_id = parts[0] if parts else ""
-        source = parts[1] if len(parts) > 1 else "?"
-        short = (db_id[:12] + "…") if len(db_id) > 12 else db_id
+    if not (ok and detail.strip()):
         return Check(
-            "Notion DB id",
-            True,
-            f"{short} ({source})",
+            "Notion learning DB",
+            False,
+            "resolve failed — expect default StormShynn shared DB",
             required=False,
         )
-    return Check(
-        "Notion DB id",
-        False,
-        "resolve failed — expect default StormShynn shared DB",
-        required=False,
-    )
+    parts = detail.strip().split()
+    db_id = parts[0] if parts else ""
+    source = parts[1] if len(parts) > 1 else "?"
+    short = (db_id[:12] + "…") if len(db_id) > 12 else db_id
+    if source == "default" and db_id.replace("-", "") == DEFAULT_NOTION_DB:
+        tip = f"{short} (default) — Accept Share + /mcp Notion OAuth để đọc/ghi skill"
+    elif source in ("pin", "env"):
+        tip = f"{short} ({source} override) — Share DB công ty + OAuth; clear để về default"
+    else:
+        tip = f"{short} ({source})"
+    return Check("Notion learning DB", True, tip, required=False)
+
+
+def check_cursor_pack_script() -> Check:
+    script = os.path.join(os.path.dirname(__file__), "emit_cursor_mcp_pack.py")
+    if os.path.isfile(script):
+        return Check(
+            "Cursor MCP pack script",
+            True,
+            "emit_cursor_mcp_pack.py (docs-only host)",
+            required=False,
+        )
+    return Check("Cursor MCP pack script", False, "missing", required=False)
 
 
 def run_checks(persona: str) -> list[Check]:
@@ -127,9 +143,24 @@ def run_checks(persona: str) -> list[Check]:
         checks.append(check_doctor())
     if persona in ("A", "B", "C"):
         checks.append(check_claude())
-    if persona in ("A", "B", "C"):
-        checks.append(check_notion_pin())
+        checks.append(check_notion_learning())
+        checks.append(check_cursor_pack_script())
     return checks
+
+
+def _print_learning_next_steps(checks: list[Check]) -> None:
+    notion = next((c for c in checks if c.name == "Notion learning DB"), None)
+    print("Learning-ready next (optional):")
+    if notion and notion.ok:
+        print(f"  • Notion: {notion.detail}")
+    else:
+        print(
+            "  • Notion: python reference/scripts/notion_skills_db.py get --source"
+        )
+    print(
+        "  • Cursor/VS Code only: python reference/scripts/emit_cursor_mcp_pack.py -o …"
+    )
+    print("  • Core MCP = sap-btp + sap-dict-bridge + cds-kb + mcp-sap-docs-btp")
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -157,6 +188,7 @@ def main(argv: list[str] | None = None) -> int:
         print("Xem docs/onboarding-guide.md + docs/rollout-guide.md")
         return 1
     print("Result: READY — tiếp tục onboarding-guide / rollout-guide")
+    _print_learning_next_steps(checks)
     return 0
 
 

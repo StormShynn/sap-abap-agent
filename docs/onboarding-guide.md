@@ -1,7 +1,7 @@
 ---
 title: Onboarding Guide
 audience: end-user
-version: 1.22.8
+version: 1.23.1
 last_updated: 2026-08-02
 ---
 
@@ -34,35 +34,30 @@ MCP docs-only (không port skill pack).
 | Khả năng | Claude Code | Cursor / VS Code |
 |----------|-------------|------------------|
 | CLI `mcp-sap-connect` + GUI Windows | Có | Có |
-| MCP Core (`sap-btp`, `sap-dict-bridge`) | Có (`mcp-setup` / GUI) | Có (stdio MCP config) |
-| MCP research (`cds-kb`, `mcp-sap-docs-btp`) | Có (SSE hoặc supergateway) | Có (thường qua `supergateway`) |
+| **MCP Core** (`sap-btp`, `sap-dict-bridge`, `cds-kb`, `mcp-sap-docs-btp`) | Có (`mcp-setup` / GUI) | Có (emit pack → `mcp.json`) |
 | `/plugin install` + marketplace | Có | **Không** |
 | Skills / agents / SessionStart hooks (routing, verification nudge) | Có | **Không** |
 | Pipeline FS → scaffold → finish (kỷ luật tự động) | Có | Thủ công — bạn phải tự nhắc checklist |
+
+**Core (bắt buộc, thống nhất CLI/GUI/rollout):** 2 stdio + 2 remote SSE —
+`sap-btp`, `sap-dict-bridge`, `cds-kb`, `mcp-sap-docs-btp`. Không tách “research”
+ra khỏi Core.
 
 ### Cursor / VS Code — happy path MCP
 
 1. Cài CLI như persona A1: `pip install "mcp-sap-connect[win-dpapi]"` + `doctor`.
 2. `mcp-sap-connect setup` / `ping` / `connect` như thường.
-3. Đăng ký MCP trong settings của host (ví dụ Cursor `mcp.json`), **Core only**:
+3. Emit **Core pack** (không claim skill parity):
 
-```json
-{
-  "mcpServers": {
-    "sap-btp": {
-      "command": "mcp-sap-connect",
-      "args": []
-    },
-    "sap-dict-bridge": {
-      "command": "python",
-      "args": ["-m", "mcp_sap_connect.bridge_server"]
-    }
-  }
-}
+```powershell
+python reference/scripts/emit_cursor_mcp_pack.py -o %USERPROFILE%\.cursor\mcp.json
+# hoặc in ra stdout rồi dán vào Cursor Settings → MCP
+python reference/scripts/emit_cursor_mcp_pack.py
 ```
 
-Research servers: mẫu `supergateway` trong README. Đổi active profile khi đã
-đăng ký `sap-vsp` → chạy lại `mcp-sap-connect mcp-setup` (xem `KNOWN_LIMITATIONS.md`).
+Mẫu tĩnh: `reference/templates/cursor-mcp-core/mcp.json`. Remote SSE qua
+`npx supergateway` (Cursor stdio bridge). Đổi active profile khi đã đăng ký
+`sap-vsp` → chạy lại `mcp-sap-connect mcp-setup` (xem `KNOWN_LIMITATIONS.md`).
 
 4. **Không** kỳ vọng skill `sap-ask-consultant` / hooks tự chạy — hỏi thẳng tool
    hoặc mở file skill trong repo khi cần checklist.
@@ -124,8 +119,8 @@ mcp-sap-connect mcp-setup --register-json sap-dict-bridge
 
 | Preset | Servers |
 |--------|---------|
-| **Core only** | `sap-btp`, `sap-dict-bridge` |
-| **Full research** | Core + `cds-kb` + `mcp-sap-docs-btp` (+ Notion nếu team dùng) |
+| **Core (bắt buộc)** | `sap-btp`, `sap-dict-bridge`, `cds-kb`, `mcp-sap-docs-btp` |
+| **Full / extras** | Core + `sap-vsp`, ADT alt, … (+ Notion HTTP nếu team dùng skill notes) |
 
 ### A5. Thử ngay
 
