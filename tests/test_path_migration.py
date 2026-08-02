@@ -22,8 +22,9 @@ from mcp_sap_connect.config import paths
 
 @pytest.fixture
 def fresh_home(tmp_path, monkeypatch):
+    # Path.home() uses HOME on Unix and USERPROFILE on Windows — set both.
+    monkeypatch.setenv("HOME", str(tmp_path))
     monkeypatch.setenv("USERPROFILE", str(tmp_path))
-    monkeypatch.delenv("MCP_SAP_CONNECT_HOME", raising=False)
     monkeypatch.delenv("MCP_SAP_CONNECT_HOME", raising=False)
     monkeypatch.delenv("MCP_SAP_CONNECT_PROFILE", raising=False)
     monkeypatch.delenv("SAP_BTP_PROFILE", raising=False)
