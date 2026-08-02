@@ -2048,53 +2048,51 @@ sap-btp-agent setup https://project1.s4hana.cloud.sap
           <p>Dùng session cookies SAP thay vì OAuth2 tokens. Hỗ trợ <code>MYSAPSSO2</code>, <code>SAP_SESSIONID</code>, v.v.</p>
         </div>
         <div class="feature-card">
+          <span class="fc-icon">⚡</span>
+          <h4>SAML fast-path</h4>
+          <p>Nhập user/pass IAS → lấy cookie ~1–3s, <strong>không mở browser</strong>. Chỉ dùng khi IAS <strong>không MFA</strong>; có MFA thì chọn Auto browser.</p>
+        </div>
+        <div class="feature-card">
           <span class="fc-icon">🖥️</span>
-          <h4>Web Popup Re-Auth</h4>
-          <p>Khi session hết hạn (401), tự động mở browser cho user đăng nhập lại — lấy cookies mới, tiếp tục công việc.</p>
+          <h4>Web Popup / Auto Re-Auth</h4>
+          <p>Khi session hết hạn (401): SAML lại nếu còn credential, không được thì mở browser (Playwright) hoặc paste tay.</p>
         </div>
         <div class="feature-card">
           <span class="fc-icon">🛡️</span>
-          <h4>Stampede Protection</h4>
-          <p>Nhiều request cùng bị 401 chỉ kích hoạt 1 lần re-auth (mutex + cooldown 5s) — giống cơ chế <code>reauthMu</code> của vibing-steampunk.</p>
-        </div>
-        <div class="feature-card">
-          <span class="fc-icon">🔒</span>
-          <h4>Lưu cookies an toàn</h4>
-          <p>Cookies được mã hóa và lưu trong <code>secrets.json</code> (DPAPI / AES-256-GCM), phục hồi khi restart agent.</p>
+          <h4>Stampede + secrets</h4>
+          <p>Nhiều 401 chỉ re-auth 1 lần (cooldown 5s). Cookies mã hóa trong <code>secrets.json</code> (DPAPI / AES-256-GCM).</p>
         </div>
       </div>
 
       <h3>🔧 CLI Wizard — Cài đặt Cookie Auth</h3>
-      <p>Khi chạy <code>sap-btp-agent setup</code>, wizard sẽ hỏi bạn chọn phương thức xác thực. Chọn <strong>option 4 (Cookie-based)</strong>:</p>
+      <p>Khi chạy <code>sap-btp-agent setup</code> (hoặc <code>mcp-sap-connect setup</code>), wizard hỏi phương thức xác thực. <strong>Cookie-based là mặc định (option 4)</strong>:</p>
 
       <pre><code><span class="hl-com"># Chạy setup wizard</span>
 $ sap-btp-agent setup https://project1.s4hana.cloud.sap
 
-<span class="hl-com"># Wizard hỏi auth mode — chọn 4</span>
-? Chọn auth mode:
-  1. OAuth2 (client_credentials) <span class="hl-com">← Mặc định</span>
+<span class="hl-com"># Auth mode — mặc định 4 (Cookie)</span>
+? Chon (1-4) [4]:
+  1. OAuth2 (client_credentials)  — M2M, khuyen dung khi co client
   2. Password (username/password)
-  3. Bearer token (nhập tay)
-  <span class="hl-var">4. Cookie-based</span> <span class="hl-com">← MỚI!</span>
+  3. Bearer token
+  <span class="hl-var">4. Cookie-based</span> <span class="hl-com">← mặc định</span>
 
-<span class="hl-com"># Wizard hỏi tiếp lấy cookie từ đâu</span>
-? Lay cookies tu: (1) File Netscape format  (2) Nhap tay  (3) Auto - mo browser dang nhap [3]
-  <span class="hl-com">→ (3) Auto: tự mở browser cho bạn đăng nhập user/pass, tự lấy cookie — không cần F12</span>
-  <span class="hl-com">→ (2) Nhap tay: tự F12 → Application → Cookies → copy, paste cookie string</span>
+<span class="hl-com"># Nguồn cookie — mặc định 1 (SAML fast-path)</span>
+? Lay cookies tu: (1) SAML fast-path  (2) Auto - mo browser  (3) File Netscape  (4) Nhap tay [1]
+  <span class="hl-com">→ (1) SAML: nhập user/pass IAS, ~1–3s, KHÔNG mở browser — chỉ khi IAS không MFA</span>
+  <span class="hl-com">→ (2) Auto: Playwright mở browser (hỗ trợ MFA), tự lấy cookie</span>
+  <span class="hl-com">→ (3) File Netscape / (4) Nhập tay (F12 hoặc paste Netscape)</span>
 
-? Cookie string (name=value; name2=value2):
-  MYSAPSSO2=abc123...; SAP_SESSIONID=xyz456...
-
-<span class="hl-com"># Chọn chế độ re-auth</span>
+<span class="hl-com"># Re-auth khi session hết hạn</span>
 ? Che do re-auth khi session het han?
-  (1) Manual paste  <span class="hl-com">← Mở browser, user login, paste cookie</span>
-  (2) Auto (Playwright) <span class="hl-com">← Tự động mở + trích xuất cookies</span>
+  (1) Manual paste
+  (2) Auto (SAML fast-path neu con dung duoc, fallback browser) <span class="hl-com">← mặc định nếu chọn (1) hoặc (2) ở trên</span>
 
 <span class="hl-com"># Hoàn tất</span>
 ✅ Da tao profile 'project1.s4hana.cloud.sap' thanh cong!
   i Auth mode: cookie
-  i Re-auth mode: manual
-  i Nhan dien 3 cookies (MYSAPSSO2, SAP_SESSIONID, sap-usercontext)</code><button class="copy-btn" onclick="copyCode(this)">Sao chép</button></pre>
+  i Re-auth mode: auto
+  i Nhan dien N cookies (gom MYSAPSSO2, SAP_SESSIONID, ...)</code><button class="copy-btn" onclick="copyCode(this)">Sao chép</button></pre>
 
       <h3>🌐 Web Popup Re-Auth — Khi Session Hết Hạn</h3>
       <p>Khi đang code mà session SAP hết hạn (HTTP 401), agent tự động:</p>
@@ -2102,40 +2100,46 @@ $ sap-btp-agent setup https://project1.s4hana.cloud.sap
       <div class="tree">
 <span class="branch">1.</span> <span class="file">Phát hiện <span class="highlight">401 Unauthorized</span> từ SAP</span>
 <span class="branch">2.</span> <span class="file">Kích hoạt <span class="highlight">stampede guard</span> (chỉ 1 lần re-auth dù nhiều request cùng fail)</span>
-<span class="branch">3.</span> <span class="file">Gọi <span class="highlight">ReauthHandler</span> — mở trình duyệt web</span>
-<span class="branch">4.</span> <span class="file">Hiển thị thông báo <span class="hl-str">"🔐 SESSION SAP DA HET HAN!"</span> + URL đăng nhập</span>
-<span class="branch">5.</span> <span class="file">User đăng nhập vào SAP qua browser</span>
-<span class="branch">6.</span> <span class="file"><strong>Manual mode:</strong> User copy cookies từ DevTools (F12) → paste vào terminal</span>
-<span class="branch">7.</span> <span class="file"><strong>Auto mode:</strong> Playwright tự động trích xuất cookies sau login</span>
-<span class="branch">8.</span> <span class="file">Cookies mới được lưu vào <span class="highlight">secrets.json</span> (mã hóa)</span>
-<span class="branch">9.</span> <span class="file">Request được retry tự động với cookies mới → thành công!</span>
+<span class="branch">3.</span> <span class="file"><strong>Auto + SAML:</strong> thử form login IAS nhanh nếu còn credential bootstrap</span>
+<span class="branch">4.</span> <span class="file">Không được → gọi <span class="highlight">ReauthHandler</span> (browser / paste)</span>
+<span class="branch">5.</span> <span class="file"><strong>Manual:</strong> mở URL → F12 copy cookies → paste terminal</span>
+<span class="branch">6.</span> <span class="file"><strong>Auto browser:</strong> Playwright mở Chromium, login (kể cả MFA), lấy cookies</span>
+<span class="branch">7.</span> <span class="file">Cookies mới lưu <span class="highlight">secrets.json</span> (mã hóa) → retry request</span>
       </div>
 
-      <h3>🔐 Hai Chế Độ — Lấy Cookie Lần Đầu &amp; Re-Auth Khi Hết Hạn</h3>
-      <p>Playwright (Auto) dùng ở 2 chỗ độc lập trong wizard: lúc setup lần đầu (bước chọn nguồn cookie, option 3) và lúc session hết hạn giữa lúc dùng (bước chọn re-auth mode, option 2). Chọn Manual ở chỗ này không bắt buộc chọn Manual ở chỗ kia.</p>
+      <h3>🔐 Nguồn cookie lần đầu &amp; chế độ re-auth</h3>
+      <p>Hai bước độc lập: (A) lấy cookie lúc setup, (B) re-auth khi hết hạn. Chọn Manual ở A không bắt buộc Manual ở B.</p>
       <div class="features-grid">
         <div class="feature-card">
-          <span class="fc-icon">👆</span>
-          <h4>Manual Paste</h4>
-          <p>Dùng <code>webbrowser.open()</code> mở SAP URL. User login thủ công, sau đó mở DevTools (F12) → Application → Cookies → copy cookie string → paste vào terminal.</p>
-          <p style="margin-top:8px;font-size:12px;color:var(--text-dim);">✅ Không cần cài đặt thêm. Hoạt động trên mọi nền tảng.</p>
+          <span class="fc-icon">⚡</span>
+          <h4>SAML fast-path</h4>
+          <p>Setup option <strong>1</strong> (mặc định). Form login IAS, ~1–3s. <strong>Không dùng nếu IAS bật MFA</strong> — khi đó chọn Auto browser.</p>
         </div>
         <div class="feature-card">
           <span class="fc-icon">🤖</span>
-          <h4>Auto (Playwright)</h4>
-          <p>Dùng <code>playwright</code> mở Chromium, cho user login, tự động phát hiện khi đăng nhập xong và trích xuất cookies — dùng được cả lúc setup lần đầu và lúc re-auth.</p>
-          <p style="margin-top:8px;font-size:12px;color:var(--text-dim);">⚠️ Yêu cầu extra <code>playwright</code>. Tự động fallback về manual nếu chưa cài.</p>
+          <h4>Auto (browser / Playwright)</h4>
+          <p>Setup option <strong>2</strong>. Mở Chromium, hỗ trợ MFA. Re-auth Auto: SAML trước, fallback browser. Cần extra <code>playwright</code>.</p>
+          <p style="margin-top:8px;font-size:12px;color:var(--text-dim);">⚠️ Chưa cài Playwright → fallback manual paste.</p>
+        </div>
+        <div class="feature-card">
+          <span class="fc-icon">👆</span>
+          <h4>Manual / File</h4>
+          <p>Setup option <strong>3</strong> (Netscape) hoặc <strong>4</strong> (paste). Re-auth Manual: mở browser hệ thống + paste cookie / Netscape.</p>
+          <p style="margin-top:8px;font-size:12px;color:var(--text-dim);">✅ Không cần cài thêm.</p>
         </div>
       </div>
 
-      <h3>📦 Cài đặt Playwright (cho Auto mode)</h3>
-      <pre><code><span class="hl-com"># Trong reference/mcp-server/ — cài playwright + Chromium</span>
+      <h3>📦 Cài đặt Playwright (cho Auto browser)</h3>
+      <pre><code><span class="hl-com"># Wheel đã cài — thêm extra playwright + Chromium</span>
+pip install "mcp_sap_connect[playwright]"
+playwright install chromium
+
+<span class="hl-com"># Hoặc dev editable trong reference/mcp-server/</span>
 pip install -e ".[playwright]"
 playwright install chromium
 
-<span class="hl-com"># Setup lần đầu — chọn cookie source = Auto (option 3, mặc định)</span>
-sap-btp-agent setup https://project1.s4hana.cloud.sap
-<span class="hl-com"># → option 4 (Cookie) → option 3 (Auto, mở browser tự đăng nhập)</span></code><button class="copy-btn" onclick="copyCode(this)">Sao chép</button></pre>
+<span class="hl-com"># Setup: Cookie (4) → nguồn cookie Auto browser (2)</span>
+sap-btp-agent setup https://project1.s4hana.cloud.sap</code><button class="copy-btn" onclick="copyCode(this)">Sao chép</button></pre>
 
       <h3>🧠 Kiến trúc — Lấy cảm hứng từ vibing-steampunk</h3>
       <p>Cơ chế cookie re-auth được xây dựng dựa trên pattern từ <a href="https://github.com/StormShynn/vibing-steampunk" target="_blank">vibing-steampunk</a> (dự án ADT → MCP bridge bằng Go):</p>
