@@ -25,7 +25,7 @@ API, Fiori app cu the ma kien thuc chung khong co.
 | # | Vien co | Phai lam |
 |---|---|---|
 | R1 | "Cau hoi don gian, tra loi luon khoi check module" | Van chay qua scoring `sap-ask-consultant` |
-| R2 | "Ro rang la cau hoi code/ABAP, khoi can agent tu van" | Kiem tra co lan nghiep vu khong (vd "sao GL nay khong post" = FI + code) |
+| R2 | "Ro rang la cau hoi code/ABAP, khoi can agent tu van" | Kiem tra co lan nghiep vu khong (vd "sao GL nay khong post" = FI + code). Intent **review/ATC/clean-code/naming** → `abap-reviewer` qua `sap-ask-consultant` (hang Review), khong tu review bang kien thuc chung |
 | R3 | "User hoi follow-up, dung context cu la du" | Follow-up doi module (SD -> FI) van phai re-route |
 | R4 | "Khong thay keyword ro, chac khong module nao ca" | Score duoi threshold: hoi lai user, khong tu suy dien tra loi |
 | R5 | "Da biet dap an tu kien thuc chung" | Agent chuyen sau co SSCUI/API/Fiori app cu the - kien thuc chung khong co |

@@ -5,7 +5,7 @@ RAP object whose name is NOT in the Z/Y customer namespace (or a registered
 
 Covers the object-creation tools this repo documents/ships:
   - sap-dict-bridge (reference/mcp-server/mcp_sap_connect/tools/dictionary.py):
-    sap_create_domain, sap_create_data_element, sap_create_table
+    every sap_create_* tool plus name-bound sap_publish_service_binding
   - ADT MCP forks documented in reference/mcp-guides/mcp-sap-adt.md:
     CreateDomain, CreateDataElement, CreateTable, CreateStructure, CreateView,
     CreateBehaviorDef(inition), CreateMetadataExtension, CreateServiceDefinition
@@ -31,12 +31,22 @@ import json
 import re
 import sys
 
-# Ten tool CHINH XAC ma guard nay dang bao ve (xem docstring o tren).
+# Exact tool names this guard protects (see docstring). Compared lowercased.
 KNOWN_TOOL_NAMES = frozenset({
     # sap-dict-bridge (reference/mcp-server/mcp_sap_connect/tools/dictionary.py)
     "sap_create_domain",
     "sap_create_data_element",
     "sap_create_table",
+    "sap_create_cds_view",
+    "sap_create_service_definition",
+    "sap_create_metadata_extension",
+    "sap_create_access_control",
+    "sap_create_class",
+    "sap_create_interface",
+    "sap_create_package",
+    "sap_create_bdef",
+    "sap_create_service_binding",
+    "sap_publish_service_binding",  # name-bound publish of an existing binding
     # ADT MCP forks (reference/mcp-guides/mcp-sap-adt.md)
     "createdomain", "updatedomain", "deletedomain",
     "createdataelement", "updatedataelement", "deletedataelement",

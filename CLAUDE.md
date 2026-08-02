@@ -39,7 +39,7 @@ Claude Code plugin + MCP server (Python) cho SAP S/4HANA Cloud Public Edition.
 
 - Canonical source: `## [vX.Y.Z] — DATE` header trong `CHANGELOG.md`.
 - `reference/scripts/build_index.py` parse version tu CHANGELOG → update `index.html`.
-- `build_index.py` cung dem agents (28), skills (43, exclude `sap-user-skills`), CDS views (DDLS released tu `released-objects-index.json`).
+- `build_index.py` cung dem agents (28), skills (40, exclude `sap-user-skills`), CDS views (DDLS released tu `released-objects-index.json`).
 - Khi bump version: edit CHANGELOG.md header → push → `version-bump.yml` se bump plugin.json + pyproject.toml.
 
 ## Lien ket nhanh

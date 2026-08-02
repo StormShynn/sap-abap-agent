@@ -3,7 +3,7 @@
 > File này được `CLAUDE.md` đánh dấu "chưa có — có thể tạo nếu cần". Tạo ngày 2026-07-31
 > ngay sau đợt tái cấu trúc skill (`docs/audits/2026-Q3-skill-consolidation-part2.md`,
 > `docs/plans/completed/skill-consolidation-2026-07-31.md`) — mục đích: một nơi duy nhất vẽ
-> lại toàn bộ quy trình sử dụng 38 skill hiện có, để không cần đọc lại 28 agent + 38 skill mỗi
+> lại toàn bộ quy trình sử dụng 40 skill hiện có, để không cần đọc lại 28 agent + 40 skill mỗi
 > lần muốn nhớ "cái gì gọi cái gì".
 
 ## 1. Nguyên tắc tổng quan — 2 tầng
@@ -12,7 +12,7 @@ Plugin chỉ có **đúng 2 cách một skill được "dùng tới"**:
 
 | Tầng | Vị trí | Cách kích hoạt | Ai đọc |
 |---|---|---|---|
-| **Tầng chính** | `skills/` (38 skill) | Tự động, Claude Code quét `when_to_use` theo từ khóa bất kỳ lúc nào | Người dùng gõ tự nhiên |
+| **Tầng chính** | `skills/` (40 skill) | Tự động, Claude Code quét `when_to_use` theo từ khóa bất kỳ lúc nào | Người dùng gõ tự nhiên |
 | **Tầng ẩn nhưng liên kết** | `reference/modules/`, `reference/process/`, `reference/mcp-guides/` | Chỉ khi một skill/agent khác chủ động `Read` đúng đường dẫn, nêu rõ trong nội dung của nó | Chỉ agent/skill gọi tới, không tự trigger |
 
 Không có "skill con" nằm lồng trong skill khác — Claude Code chỉ quét `skills/<tên>/SKILL.md`
@@ -160,7 +160,7 @@ pipeline (mục 2): không báo "xong" nếu chỉ dựa vào đọc code, phả
 | `reference/modules/sap-btp-connectivity/SKILL.md` | `sap-btp-admin-consultant-cloud` + 8 module `*-integration/SKILL.md` (HCM, GTS, CA, Fiori role, BW, PS, TR, WM-EWM) |
 | `reference/modules/<module>-cloud/` (26 module) | Đúng 1 agent tư vấn tương ứng, theo `skills:` trong frontmatter |
 
-## 6. Danh mục 38 skill theo nhóm
+## 6. Danh mục 40 skill theo nhóm
 
 | Nhóm | Skill | Vai trò 1 dòng |
 |---|---|---|
@@ -170,7 +170,7 @@ pipeline (mục 2): không báo "xong" nếu chỉ dựa vào đọc code, phả
 | **Pipeline — tiền xử lý** | `sap-doc-to-md` | Convert .docx/.xlsx trước INTAKE |
 | **Pipeline — bước 1-2** | `sap-analyze-function-spec`, `sap-write-technical-spec` | FS → INTAKE → TECHNICAL_SPEC |
 | **Pipeline — gate an toàn** | `sap-deployment-target`, `sap-bootstrap-system-context` | Xác nhận package/quy ước trước scaffold |
-| **Pipeline — scaffold (bước 3)** | `sap-scaffold-rap`, `sap-scaffold-cds`, `sap-scaffold-cds-analytics`, `sap-cloud-dictionary`, `sap-virtual-element`, `sap-migrate-segw-to-rap` | Sinh code |
+| **Pipeline — scaffold (bước 3)** | `sap-scaffold-rap`, `sap-scaffold-cds`, `sap-scaffold-cds-analytics`, `sap-scaffold-report`, `sap-scaffold-adobe-form`, `sap-cloud-dictionary`, `sap-virtual-element`, `sap-migrate-segw-to-rap` | Sinh code |
 | **Pipeline — review/test (bước 4-5)** | `sap-atc-review`, `sap-unit-test`, `sap-cds-unit-test` | Lint + test |
 | **Pipeline — kết thúc (bước 6)** | `sap-finish-ticket` | Checklist đóng ticket |
 | **Review bổ sung** | `sap-security-review`, `sap-clean-code` | Gọi từ `abap-reviewer` |
@@ -179,7 +179,7 @@ pipeline (mục 2): không báo "xong" nếu chỉ dựa vào đọc code, phả
 | **Tra cứu/nghiên cứu** | `sap-cds-kb`, `sap-docs-research`, `sap-daily-learner` | Lookup xuyên suốt |
 | **Hạ tầng/troubleshoot** | `sap-btp-setup`, `sap-mcp-status` | Setup + chẩn đoán MCP |
 | **Action skill riêng lẻ** | `sap-package-backup`, `sap-handoff`, `sap-cloud-migration` | Gọi trực tiếp theo nhu cầu cụ thể |
-| **Placeholder** | `sap-user-skills` | Rỗng, chỗ user tự thêm skill riêng — không tính vào 38 |
+| **Placeholder** | `sap-user-skills` | Rỗng, chỗ user tự thêm skill riêng — không tính vào 40 |
 
 ## 7. Nguồn
 

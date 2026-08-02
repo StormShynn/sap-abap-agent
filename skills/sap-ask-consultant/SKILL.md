@@ -76,8 +76,9 @@ Doc cau hoi user, ap dung ma tran duoi day. Moi keyword co **weight** (1-3). Mod
 | **BTP Admin** 🆕 | `sap-btp-admin-consultant-cloud` | BTP admin, CF, Cloud Foundry, Kyma, destination | cockpit, subaccount, Cloud Connector, XSUAA | role collection, service marketplace, MTA deploy, CI/CD | ≥ 2 |
 | **Research** | `sap-docs-researcher` | CDS view, SAP note, SAP Help | Fiori app, API hub, documentation, ABAP syntax | release note, clean core, community, tra cuu, feature matrix | ≥ 2 |
 | **Daily Learner** 🧠 | `sap-daily-learner` | hoc, learning, tip, hermes, quiz, progress | bai tap, lộ trình, track, tien do, on tap, practice | daily, skill, test, cau hoi, trac nghiem, study, beginner, advanced | ≥ 1 |
+| **Review** | `abap-reviewer` | review code, ATC, clean ABAP, naming, security review | code review, abap reviewer, review class, review CDS | naming convention, released API, ATC check, clean core review | ≥ 2 |
 
-**Luu y**: Daily Learner co threshold thap hon (≥ 1) de dam bao user luon co the nhan duoc goi y hoc tap.
+**Luu y**: Daily Learner co threshold thap hon (≥ 1) de dam bao user luon co the nhan duoc goi y hoc tap. Intent review/ATC/clean-code → `abap-reviewer` (khong dispatch module consultant).
 
 **Backend mapping** (Phase 4 - xem `reference/process/sap-multi-system-context.md` de biet chi tiet routingHints):
 | Module | Backend (mac dinh) | Khi nao re-route sang vsp |
@@ -194,8 +195,8 @@ bao cao dung luong hien tai (chi hien thi, KHONG tu xoa `memory/`):
 python "${CLAUDE_PLUGIN_ROOT}/reference/scripts/cleanup_agent_home.py"
 ```
 
-**Da co agent**: SD, FI, MM, CO, PP, QM, PM, WM, PS, HCM, BW, Basis, TM, TR, Ariba, CA, GTS, EHS, **IBP**, **EWM**, **Fiori/UI5**, **CAP**, **CPI**, **SuccessFactors**, **BTP Admin**, Research, **Daily Learner**
-**Tong cong**: 25 modules consultant + 1 researcher + 1 daily learner = **27 agents**.
+**Da co agent**: SD, FI, MM, CO, PP, QM, PM, WM, PS, HCM, BW, Basis, TM, TR, Ariba, CA, GTS, EHS, **IBP**, **EWM**, **Fiori/UI5**, **CAP**, **CPI**, **SuccessFactors**, **BTP Admin**, Research, **Daily Learner**, **Review** (`abap-reviewer`)
+**Tong cong**: 25 modules consultant + 1 researcher + 1 daily learner + 1 reviewer = **28 agents**.
 
 ## Quy trinh — Automated Routing Engine
 

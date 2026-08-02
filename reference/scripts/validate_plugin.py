@@ -20,6 +20,8 @@ Checks:
      actual skills/ and reference/modules/ directory counts on disk
   10. version consistency between .claude-plugin/plugin.json and the newest CHANGELOG.md header
       (2 independent sources that can drift if only one gets bumped)
+  11. every sap_create_* (and name-bound sap_publish_*) in dictionary.py is listed in
+      hooks/zy_namespace_guard.py KNOWN_TOOL_NAMES
 
 Only checks facts derivable from this repo's own filesystem — third-party stats quoted in docs
 (e.g. a vendored MCP server's own tool count, an external knowledge base's row count) are NOT
@@ -303,6 +305,60 @@ def check_index_html_counts() -> None:
             )
 
 
+def check_namespace_guard_coverage() -> None:
+    """Every name-bound dict-bridge create/publish tool must be in the PreToolUse guard set."""
+    dictionary = (
+        ROOT
+        / "reference"
+        / "mcp-server"
+        / "mcp_sap_connect"
+        / "tools"
+        / "dictionary.py"
+    )
+    guard = ROOT / "hooks" / "zy_namespace_guard.py"
+    if not dictionary.exists() or not guard.exists():
+        warn(
+            "guard-coverage",
+            "dictionary.py or zy_namespace_guard.py missing, skipping guard coverage check",
+        )
+        return
+
+    dict_tools = set(
+        re.findall(
+            r'"name"\s*:\s*"(sap_create_[a-z0-9_]+|sap_publish_[a-z0-9_]+)"',
+            read(dictionary),
+        )
+    )
+    if not dict_tools:
+        fail(
+            "guard-coverage",
+            "dictionary.py: found no sap_create_*/sap_publish_* tool names in build_dict_tools()",
+        )
+        return
+
+    guard_text = read(guard)
+    known_match = re.search(
+        r"KNOWN_TOOL_NAMES\s*=\s*frozenset\(\{([^}]*)\}\)",
+        guard_text,
+        re.DOTALL,
+    )
+    if not known_match:
+        fail(
+            "guard-coverage",
+            "hooks/zy_namespace_guard.py: could not parse KNOWN_TOOL_NAMES frozenset",
+        )
+        return
+    known = {name.lower() for name in re.findall(r'"([a-zA-Z0-9_]+)"', known_match.group(1))}
+
+    missing = sorted(t for t in dict_tools if t.lower() not in known)
+    for name in missing:
+        fail(
+            "guard-coverage",
+            f"hooks/zy_namespace_guard.py KNOWN_TOOL_NAMES missing '{name}' "
+            f"(registered in dictionary.py build_dict_tools())",
+        )
+
+
 def check_version_consistency() -> None:
     plugin_json = ROOT / ".claude-plugin" / "plugin.json"
     changelog = ROOT / "CHANGELOG.md"
@@ -339,6 +395,7 @@ def main() -> int:
     check_python_syntax()
     check_routing_matrix_coverage()
     check_index_html_counts()
+    check_namespace_guard_coverage()
     check_version_consistency()
 
     if WARNINGS:
