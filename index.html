@@ -2784,7 +2784,6 @@ bash reference/scripts/update.sh</code></pre>
     
     <div class="divider"></div>
 <!-- ===== CÁCH ĐẶT CÂU HỎI ===== -->
-    <span id="daily-learner"></span>
     <section id="cach-dat-cau-hoi">
       <h2><span class="section-icon">💡</span> Cách đặt câu hỏi hiệu quả</h2>
 
@@ -2995,6 +2994,16 @@ bash reference/scripts/update.sh</code></pre>
 
       <p><strong>skills/sap-daily-learner/SKILL.md</strong> — Agent tự cải thiện (self-improving) lấy cảm hứng từ <strong>Hermes Agent</strong> bởi Nous Research. Vừa là gia sư SAP hàng ngày, vừa tự động tạo skill documents từ tương tác với người dùng.</p>
 
+      <div class="callout" style="margin:14px 0;padding:14px 16px;border:1px solid var(--border);border-left:4px solid var(--cyan);border-radius:var(--radius-sm);background:var(--bg-card);">
+        <p style="margin:0 0 8px;"><strong>Hermes MCP — optional, không thuộc Core</strong></p>
+        <p style="margin:0 0 8px;font-size:14px;color:var(--text-dim);"><code>sap-daily-learner</code> đã có memory 3 tầng, auto-skill, curator, cron và Notion <strong>trong plugin</strong>. Không cần cài Hermes Agent / <code>hermes mcp serve</code> để học SAP mỗi ngày.</p>
+        <ul style="margin:0;padding-left:18px;font-size:14px;color:var(--text-dim);">
+          <li><strong>Không thêm</strong> Hermes vào MCP bắt buộc (Core) của Claude Code / GUI.</li>
+          <li>Nếu bạn <em>đã</em> chạy <a href="https://github.com/NousResearch/hermes-agent" target="_blank">Hermes Agent</a> riêng: cấu hình Hermes như <strong>MCP client</strong> trỏ tới <code>mcp-sap-connect</code>, CDS KB, SAP Docs — để Hermes hỏi SAP, không thay daily-learner.</li>
+          <li><code>hermes mcp serve</code> chủ yếu expose messaging (Telegram/Discord…). Chỉ cân nhắc khi cần cầu đa kênh, không phải tip/skill SAP.</li>
+        </ul>
+      </div>
+
       <h3>🌟 Hai chế độ hoạt động</h3>
 
       <div class="features-grid">
@@ -3017,6 +3026,7 @@ bash reference/scripts/update.sh</code></pre>
             <tr><th>Hermes Agent</th><th>SAP Daily Learner</th></tr>
           </thead>
           <tbody>
+            <tr><td>MCP Integration</td><td>Plugin dùng MCP SAP (Core). Hermes MCP <strong>không</strong> bắt buộc — xem khung optional phía trên</td></tr>
             <tr><td>Automated Skill Creation</td><td>Tự sinh <code>skills/user-skills/</code> từ câu trả lời phức tạp</td></tr>
             <tr><td>Skill Reusability (team-shared)</td><td>Đồng bộ 2 chiều qua Notion — tra trước khi tự giải, tự đẩy skill mới lên cho cả team dùng; cả 25 agent tư vấn cũng tra chung kho này qua Bước 5 của <code>sap-ask-consultant</code></td></tr>
             <tr><td>Quarantine → Promote</td><td>Skill dùng lại ≥3 lần trên Notion thành "ứng viên promote" — lệnh <code>promote skill</code> đưa vào <code>reference/modules/</code> (git-tracked, đến mọi người dùng plugin), luôn hỏi xác nhận trước khi ghi, không tự commit</td></tr>
