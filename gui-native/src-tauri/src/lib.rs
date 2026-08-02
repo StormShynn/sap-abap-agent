@@ -14,7 +14,9 @@ pub fn run() {
         .plugin(tauri_plugin_updater::Builder::new().build())
         .plugin(tauri_plugin_process::init())
         .manage(jobs::JobState::default())
+        .manage(tray::NotifyState::new())
         .invoke_handler(tauri::generate_handler![
+            tray::set_notifications_enabled,
             mcp_cli::check_runtime,
             mcp_cli::list_profiles,
             mcp_cli::get_license_statuses,
