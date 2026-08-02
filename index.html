@@ -1168,7 +1168,7 @@
     <div class="icon">SA</div>
     <div>
       <h2>SAP ABAP Agent</h2>
-      <small>v1.24.1 · 28 agents · 43 skills</small>
+      <small>v1.24.2 · 28 agents · 42 skills</small>
     </div>
   </div>
 
@@ -1190,7 +1190,6 @@
     <a class="nav-link" href="#consultant-system"><span class="nav-icon">🧠</span> 28 agents</a>
     <a class="nav-link" href="#cach-dat-cau-hoi"><span class="nav-icon">💡</span> Cách đặt câu hỏi</a>
     <a class="nav-link" href="#daily-learner"><span class="nav-icon">📚</span> Học mỗi ngày</a>
-    <a class="nav-link" href="#learn-from-system"><span class="nav-icon">🔌</span> Học từ hệ thống</a>
     <a class="nav-link" href="#agent-directory"><span class="nav-icon">📇</span> Danh mục agent</a>
 
     <details class="nav-group">
@@ -1274,7 +1273,7 @@
         <span class="theme-icon-light">☀️</span>
         <span class="theme-icon-dark" style="display:none;">🌙</span>
       </button>
-      <span class="header-version">v1.24.1 · 28 agents · 43 skills</span>
+      <span class="header-version">v1.24.2 · 28 agents · 42 skills</span>
     </div>
   </header>
 
@@ -1430,6 +1429,43 @@
         <li>
           <div>
             <strong>Bật học mỗi ngày (opt-in)</strong>
+            <span>Daily tip + skill tự tạo — mặc định tắt. Xem <a href="#daily-learner">Học SAP mỗi ngày</a>.</span>
+          </div>
+        </li>
+      </ol>
+      <div class="path-actions">
+        <a href="#cach-dat-cau-hoi" class="btn btn-primary">Cách đặt câu hỏi</a>
+        <a href="#consultant-system" class="btn btn-ghost">28 agents</a>
+        <a href="#daily-learner" class="btn btn-ghost">Daily learner</a>
+      </div>
+    </section>
+
+    <!-- ===== PATH: LEARN ===== -->
+    <section id="path-learn" class="path-section">
+      <h2><span class="section-icon">📚</span> Lối 3 — Học &amp; hỏi SAP</h2>
+      <p class="path-lead">Dành cho consultant / learner. Có thể hỏi module mà chưa cần codegen; kết nối hệ thống vẫn hữu ích khi cần đọc object thật.</p>
+      <ol class="path-steps">
+        <li>
+          <div>
+            <strong>Cài plugin / MCP tối thiểu</strong>
+            <span>Ít nhất Claude Code + plugin SAP ABAP Agent. Xem <a href="#cai-dat">Cài đặt</a> nếu chưa có.</span>
+          </div>
+        </li>
+        <li>
+          <div>
+            <strong>Hỏi theo module</strong>
+            <span>Ví dụ: <code>hoi SD: cau hinh pricing</code> — engine tự chọn consultant. Xem <a href="#cach-dat-cau-hoi">Cách đặt câu hỏi</a>.</span>
+          </div>
+        </li>
+        <li>
+          <div>
+            <strong>Xem danh mục 28 agents</strong>
+            <span>Biết module nào có sẵn trước khi hỏi sâu. Xem <a href="#agent-directory">Chi tiết từng Agent</a>.</span>
+          </div>
+        </li>
+        <li>
+          <div>
+            <strong>Bật học mỗi ngày (opt-in)</strong>
             <span>Daily tip + skill tự tạo — mặc định tắt. Xem <a href="#daily-learner">Học SAP mỗi ngày</a>. Đã MCP ping? Thử <a href="#learn-from-system">học từ hệ thống</a>.</span>
           </div>
         </li>
@@ -1441,6 +1477,7 @@
       </div>
     </section>
 
+    <!-- ===== GIỚI THIỆU ===== -->
     <!-- ===== GIỚI THIỆU ===== -->
     <!-- ===== GIỚI THIỆU ===== -->
     <section id="gioi-thieu" class="fade-in">
@@ -2073,7 +2110,7 @@ mcp-sap-connect setup https://project1.s4hana.cloud.sap
       </div>
 
       <h3>🔧 CLI Wizard — Cài đặt Cookie Auth</h3>
-      <p>Khi chạy <code>mcp-sap-connect setup</code>, wizard hỏi phương thức xác thực. <strong>Cookie-based là mặc định (option 4)</strong>:</p>
+      <p>Khi chạy <code>sap-btp-agent setup</code> (hoặc <code>mcp-sap-connect setup</code>), wizard hỏi phương thức xác thực. <strong>Cookie-based là mặc định (option 4)</strong>:</p>
 
       <pre><code><span class="hl-com"># Chạy setup wizard</span>
 $ mcp-sap-connect setup https://project1.s4hana.cloud.sap
@@ -2147,7 +2184,7 @@ pip install -e ".[playwright]"
 playwright install chromium
 
 <span class="hl-com"># Setup: Cookie (4) → nguồn cookie Auto browser (2)</span>
-mcp-sap-connect setup https://project1.s4hana.cloud.sap</code><button class="copy-btn" onclick="copyCode(this)">Sao chép</button></pre>
+sap-btp-agent setup https://project1.s4hana.cloud.sap</code><button class="copy-btn" onclick="copyCode(this)">Sao chép</button></pre>
 
       <h3>🧠 Kiến trúc — Lấy cảm hứng từ vibing-steampunk</h3>
       <p>Cơ chế cookie re-auth được xây dựng dựa trên pattern từ <a href="https://github.com/StormShynn/vibing-steampunk" target="_blank">vibing-steampunk</a> (dự án ADT → MCP bridge bằng Go):</p>
@@ -2209,10 +2246,11 @@ mcp-sap-connect setup https://project1.s4hana.cloud.sap</code><button class="cop
     <section id="ket-noi">
       <h2><span class="section-icon">🔌</span> Kiểm tra kết nối</h2>
 
-      <p>Sau khi <a href="#them-project">thêm project</a>, kiểm tra profile trước khi dùng MCP:</p>
+      <p>Sau khi <a href="#them-project">thêm project</a>, kiểm tra profile trước khi dùng MCP. Entry point chính thức là <code>mcp-sap-connect</code>; <code>sap-btp-agent</code> vẫn là shim tương đương.</p>
 
       <pre><code><span class="hl-com"># Ping nhanh — chỉ đọc session (nhẹ, không xin CSRF/write)</span>
 mcp-sap-connect ping
+sap-btp-agent ping
 
 <span class="hl-com"># Connect đầy đủ — đọc + kiểm tra ghi (CSRF). Dùng trước activate / list_packages…</span>
 mcp-sap-connect connect
@@ -2236,7 +2274,7 @@ python -m mcp_sap_connect.doctor</code><button class="copy-btn" onclick="copyCod
     <section id="quan-ly-profile">
       <h2><span class="section-icon">👥</span> Quản lý nhiều profile</h2>
 
-      <p>Mỗi URL SAP = 1 profile (secrets riêng). Entry chính: <code>mcp-sap-connect</code>.</p>
+      <p>Mỗi URL SAP = 1 profile (secrets riêng). Entry chính: <code>mcp-sap-connect</code> (<code>sap-btp-agent</code> = shim cùng lệnh).</p>
 
       <div class="cmd-grid">
         <div class="cmd-item">
@@ -4298,7 +4336,7 @@ java -jar cdata.jdbc.sapfieldglass.jar --license</code><button class="copy-btn" 
     </section>
 
     <div class="footer">
-      <strong>SAP ABAP Agent</strong> &middot; v1.24.1 · 28 agents · 43 skills<br>
+      <strong>SAP ABAP Agent</strong> &middot; v1.24.2 · 28 agents · 42 skills<br>
       <span style="font-size:12px;">Trang hướng dẫn này được tạo bởi StormShynn Coding Assistant</span>
     </div>
 
