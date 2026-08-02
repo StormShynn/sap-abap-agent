@@ -14,7 +14,8 @@ Sau rollout, mỗi consultant/dev:
 
 1. Có **Claude Code** + plugin + MCP Core trên máy riêng.
 2. Kết nối đúng **tenant/profile** (secret không share file).
-3. (Tuỳ team) Pin chung **Notion “SAP Skills”** — một DB, không tạo trùng.
+3. Notion: **default** dùng StormShynn shared “SAP Skills”
+   (`9d54b58613ad485f8b8f19909adbb219`); công ty có thể override DB riêng.
 4. Biết host: Claude = full; Cursor = MCP only.
 
 ---
@@ -27,7 +28,7 @@ Sau rollout, mỗi consultant/dev:
 | **Không copy thư mục profile giữa máy** | Mỗi máy `setup` / GUI Add riêng. |
 | **Lab chung (escape hatch)** | `MCP_SAP_CONNECT_HOME` trỏ thư mục riêng / người — không khuyến nghị lâu dài. |
 | **Claude Code = full stack** | Skills + hooks + agents. Cursor / VS Code = **chỉ MCP**. |
-| **Notion team = pin DB** | `notion_skills_db.py set <id>` trên mọi máy sau khi Share. |
+| **Notion default = StormShynn shared** | Id hardcode trong `notion_skills_db.py`; override bằng `set`/env nếu cần DB riêng. |
 
 ### Kịch bản nhanh
 
@@ -36,7 +37,8 @@ Sau rollout, mỗi consultant/dev:
 | A — Nhiều máy, cùng tenant | Mỗi người setup + ping; export template không secret nếu cần thống nhất URL |
 | B — VM lab nhiều user | Mỗi user Windows account riêng |
 | C — Bắt buộc 1 OS user | `MCP_SAP_CONNECT_HOME` per person + kỷ luật tuyệt đối |
-| D — Skill notes team | 1 Notion DB + Share + pin id trên mọi máy |
+| D — Skill notes (mặc định) | OAuth Notion + Accept Share StormShynn DB — không cần `set` |
+| E — Skill notes DB riêng cty | `notion_skills_db.py set <company-db-id>` trên mọi máy |
 
 ---
 
@@ -44,7 +46,8 @@ Sau rollout, mỗi consultant/dev:
 
 1. Chọn **edition** tenant (`s4hc_(public)` / BTP / …) — ghi vào wiki nội bộ.
 2. Chuẩn bị **Communication Arrangement / user** đủ quyền ADT (không dùng chung 1 service key cho cả cty nếu policy cấm).
-3. (Khuyến nghị) Tạo Notion database **SAP Skills**, Share cho team, lấy URL/id.
+3. Notion: dùng **default StormShynn shared DB** (Share link cho seat mới). Chỉ tạo DB riêng
+   nếu policy công ty yêu cầu kho skill nội bộ — rồi `set` id trên mọi máy.
 4. Export template an toàn từ máy pilot (không secret):
    ```powershell
    python reference/scripts/team_profile_export.py <pilot-profile-id> -o team-s4-template.json
@@ -113,14 +116,18 @@ mcp-sap-connect mcp-setup
 | **Core (bắt buộc)** | `sap-btp`, `sap-dict-bridge`, `cds-kb`, `mcp-sap-docs-btp` | Mặc định mọi user — GUI nhắc khi thiếu |
 | **Full / Research** | + `sap-vsp`, ADT alt, … | Chỉ khi lead bật — tốn slot stdio |
 
-### 6. Notion (nếu team dùng skill notes)
+### 6. Notion (skill notes — mặc định shared)
 
-1. Accept Share trong browser.
+1. Accept Share StormShynn “SAP Skills” trong browser (lead gửi link).
 2. `/mcp` → OAuth Notion (tài khoản cá nhân).
-3. Pin:
+3. Xác nhận default (không bắt buộc `set`):
    ```powershell
-   python reference/scripts/notion_skills_db.py set "<database-id-or-url>"
-   python reference/scripts/notion_skills_db.py get
+   python reference/scripts/notion_skills_db.py get --source
+   # expect: 9d54b58613ad485f8b8f19909adbb219    default
+   ```
+4. (Tuỳ chọn) DB riêng công ty:
+   ```powershell
+   python reference/scripts/notion_skills_db.py set "<company-db-id-or-url>"
    ```
 
 ### 7. Smoke
@@ -150,7 +157,7 @@ Org muốn bỏ SmartScreen: xem [`org-authenticode-setup.md`](org-authenticode-
 ## Việc team lead theo dõi hàng tuần
 
 - [ ] Mọi seat `validate_team_setup.py` READY (spot-check người mới)
-- [ ] Notion: một DB, không ai tạo “SAP Skills” rỗng song song (`notion_skills_db.py get` giống nhau)
+- [ ] Notion: seat mới `get --source` = `default` (hoặc cùng pin company nếu override)
 - [ ] Không ai commit `.mcp-sap-connect/` / secrets
 - [ ] Plugin/wheel theo version wiki (badge README / Releases)
 - [ ] Sự cố lặp → bổ sung [`team-troubleshooting.md`](team-troubleshooting.md)

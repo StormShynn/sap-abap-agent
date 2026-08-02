@@ -506,12 +506,11 @@ Setup phía người được mời, theo đúng thứ tự:
 2. Tự chạy `/mcp` trong Claude Code, chọn `notion`, đăng nhập **bằng tài khoản Notion của chính
    họ** (không dùng chung tài khoản với người tạo database).
 
-> **Pin database (bắt buộc cho team dùng chung)** — sau bước 1–2, pin id/URL database đã share:
-> ```powershell
-> python reference/scripts/notion_skills_db.py set "<database-id-or-url>"
-> ```
-> hoặc env `SAP_ABAP_AGENT_NOTION_SKILLS_DB`. Có pin thì agent **không** auto-create DB theo tên.
-> Không pin: search theo tên; 0 hoặc nhiều kết quả → báo rõ / hỏi pin — **không** tạo trùng im lặng.
+> **Default đã gắn trong plugin:** StormShynn shared DB
+> `9d54b58613ad485f8b8f19909adbb219` — sau bước 1–2, `notion_skills_db.py get` đã ra id này
+> (không bắt buộc `set`). Muốn DB riêng (công ty):
+> `python reference/scripts/notion_skills_db.py set "<id-or-url>"` hoặc env
+> `SAP_ABAP_AGENT_NOTION_SKILLS_DB`. Quay về default: `notion_skills_db.py clear`.
 
 Chi tiết đầy đủ: `skills/sap-daily-learner/SKILL.md` mục 3b.
 
