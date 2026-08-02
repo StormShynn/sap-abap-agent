@@ -24,6 +24,8 @@ Format dựa trên [Keep a Changelog](https://keepachangelog.com/) và [Semantic
 
 ### Added
 
+- Skill `sap-learn-from-system` + `CHECKLIST.md` — học từ object SAP thật qua MCP
+  (lesson local; Notion share chưa auto). Routing keywords trong `sap-ask-consultant`.
 - Skill `sap-generative-ai` — Generative AI Hub / Joule / ISLM / ABAP Cloud AI patterns.
 - Skill `sap-scaffold-cap` + `reference/templates/cap-boilerplate/` — CAP Node scaffold.
 - `reference/templates/rap-events-boilerplate/` + deeper `sap-rap-events` checklist;
@@ -33,7 +35,8 @@ Format dựa trên [Keep a Changelog](https://keepachangelog.com/) và [Semantic
 
 ### Changed
 
-- CAP consultant points scaffold to `sap-scaffold-cap`; skill inventory **42**.
+- CAP consultant points scaffold to `sap-scaffold-cap`; skill inventory **43**
+  (incl. `sap-learn-from-system`).
 - MCP tool count docs **13**.
 
 

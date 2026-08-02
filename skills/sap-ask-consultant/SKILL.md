@@ -79,9 +79,10 @@ Doc cau hoi user, ap dung ma tran duoi day. Moi keyword co **weight** (1-3). Mod
 | **BTP Admin** 🆕 | `sap-btp-admin-consultant-cloud` | BTP admin, CF, Cloud Foundry, Kyma, destination | cockpit, subaccount, Cloud Connector, XSUAA | role collection, service marketplace, MTA deploy, CI/CD | ≥ 2 |
 | **Research** | `sap-docs-researcher` | CDS view, SAP note, SAP Help | Fiori app, API hub, documentation, ABAP syntax | release note, clean core, community, tra cuu, feature matrix | ≥ 2 |
 | **Daily Learner** 🧠 | `sap-daily-learner` | hoc, learning, tip, hermes, quiz, progress | bai tap, lộ trình, track, tien do, on tap, practice | daily, skill, test, cau hoi, trac nghiem, study, beginner, advanced | ≥ 1 |
+| **Learn From System** 🔌 | `sap-learn-from-system` | hoc tu he thong, learn from system, kham pha Z, explore object | doc class that, hoc table, package Z, lesson tu SAP | object that, MCP ping, rut pattern | ≥ 1 |
 | **Review** | `abap-reviewer` | review code, ATC, clean ABAP, naming, security review | code review, abap reviewer, review class, review CDS | naming convention, released API, ATC check, clean core review | ≥ 2 |
 
-**Luu y**: Daily Learner co threshold thap hon (≥ 1) de dam bao user luon co the nhan duoc goi y hoc tap. Intent review/ATC/clean-code → `abap-reviewer` (khong dispatch module consultant).
+**Luu y**: Daily Learner va Learn From System co threshold thap (≥ 1). Intent tip/quiz/progress → `sap-daily-learner`. Intent doc object that tren tenant dang ket noi → `sap-learn-from-system`. Intent review/ATC/clean-code → `abap-reviewer` (khong dispatch module consultant).
 
 **Backend mapping** (Phase 4 - xem `reference/process/sap-multi-system-context.md` de biet chi tiet routingHints):
 | Module | Backend (mac dinh) | Khi nao re-route sang vsp |
@@ -90,6 +91,7 @@ Doc cau hoi user, ap dung ma tran duoi day. Moi keyword co **weight** (1-3). Mod
 | `abap-reviewer` | `sap-connect` (review source) | Khong (review chi can source) |
 | `sap-docs-researcher` | `mcp-sap-docs-btp` (SSE remote) + Notion (neu co) | Khong |
 | `sap-daily-learner` | Local `memory/procedural/skills/` + Notion | Khong |
+| `sap-learn-from-system` | `sap-connect` (doc object that) + local `memory/semantic/` | Khong (Notion share = tuong lai) |
 
 **Cach tinh score**:
 - Moi ky tu dong tim kiem khong phan biet hoa thuong. Keyword weight 3 → score +3, weight 2 → +2,
@@ -247,7 +249,7 @@ python "${CLAUDE_PLUGIN_ROOT}/reference/scripts/cleanup_agent_home.py"
 7. **Tra cuu kien thuc co san** (Buoc 5) — local truoc, Notion khi local mien, fail-open neu loi.
 8. **Dispatch** song song, kem context da tra cuu duoc (neu co) cho tung agent.
 9. **Tong hop cau tra loi**: 1 agent → nguyen van; ≥2 agent → 1 doan tong hop + tung agent.
-10. **Goi y buoc tiep theo**: `abap-reviewer`, `sap-docs-researcher`, `sap-daily-learner` (cho cau hoi hoc tap).
+10. **Goi y buoc tiep theo**: `abap-reviewer`, `sap-docs-researcher`, `sap-daily-learner` (tip/quiz), `sap-learn-from-system` (hoc tu object that tren tenant).
 
 ## Output format
 

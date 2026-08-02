@@ -1168,7 +1168,7 @@
     <div class="icon">SA</div>
     <div>
       <h2>SAP ABAP Agent</h2>
-      <small>v1.24.1 · 28 agents · 42 skills</small>
+      <small>v1.24.1 · 28 agents · 43 skills</small>
     </div>
   </div>
 
@@ -1190,6 +1190,7 @@
     <a class="nav-link" href="#consultant-system"><span class="nav-icon">🧠</span> 28 agents</a>
     <a class="nav-link" href="#cach-dat-cau-hoi"><span class="nav-icon">💡</span> Cách đặt câu hỏi</a>
     <a class="nav-link" href="#daily-learner"><span class="nav-icon">📚</span> Học mỗi ngày</a>
+    <a class="nav-link" href="#learn-from-system"><span class="nav-icon">🔌</span> Học từ hệ thống</a>
     <a class="nav-link" href="#agent-directory"><span class="nav-icon">📇</span> Danh mục agent</a>
 
     <details class="nav-group">
@@ -1273,7 +1274,7 @@
         <span class="theme-icon-light">☀️</span>
         <span class="theme-icon-dark" style="display:none;">🌙</span>
       </button>
-      <span class="header-version">v1.24.1 · 28 agents · 42 skills</span>
+      <span class="header-version">v1.24.1 · 28 agents · 43 skills</span>
     </div>
   </header>
 
@@ -1429,7 +1430,7 @@
         <li>
           <div>
             <strong>Bật học mỗi ngày (opt-in)</strong>
-            <span>Daily tip + skill tự tạo — mặc định tắt. Xem <a href="#daily-learner">Học SAP mỗi ngày</a>.</span>
+            <span>Daily tip + skill tự tạo — mặc định tắt. Xem <a href="#daily-learner">Học SAP mỗi ngày</a>. Đã MCP ping? Thử <a href="#learn-from-system">học từ hệ thống</a>.</span>
           </div>
         </li>
       </ol>
@@ -1577,7 +1578,7 @@
 <span class="dir">📦 sap-abap-agent/</span>
 <span class="branch">├──</span> <span class="highlight">.claude-plugin/</span>        <span class="file"> ← Manifest + metadata</span>
 <span class="branch">├──</span> <span class="highlight">agents/</span>                 <span class="file"> ← 28 agent definitions (.md)</span>
-<span class="branch">├──</span> <span class="highlight">skills/</span>                 <span class="file"> ← 42 skill implementations</span>
+<span class="branch">├──</span> <span class="highlight">skills/</span>                 <span class="file"> ← 43 skill implementations</span>
 <span class="branch">│</span>   <span class="branch">├──</span> <span class="highlight">sap-ask-consultant/</span>    <span class="file"> ← Routing engine (28 agents)</span>
 <span class="branch">│</span>   <span class="branch">├──</span> <span class="highlight">sap-btp-setup/</span>         <span class="file"> ← BTP connection manager</span>
 <span class="branch">│</span>   <span class="branch">├──</span> <span class="highlight">sap-cds-kb/</span>            <span class="file"> ← CDS view search (7,355 views)</span>
@@ -2988,6 +2989,22 @@ bash reference/scripts/update.sh</code></pre>
 
     </section>
 
+    <!-- ===== LEARN FROM SYSTEM (anchor) ===== -->
+    <section id="learn-from-system" class="path-section">
+      <h2><span class="section-icon">🔌</span> Học từ hệ thống (MCP)</h2>
+      <p class="path-lead">Skill <code>sap-learn-from-system</code> — đọc table/class/CDS thật sau khi ping OK, ghi lesson local (Hermes-like). <strong>Chưa</strong> auto Notion.</p>
+      <ol class="path-steps">
+        <li><div><strong>Ping / connect</strong><span><code>mcp-sap-connect ping</code> hoặc MCP <code>sap_ping</code>.</span></div></li>
+        <li><div><strong>Chọn ≤ 5 object</strong><span>Tên rõ hoặc package Z* — xem checklist trong skill.</span></div></li>
+        <li><div><strong>Đọc + rút pattern</strong><span>Ghi <code>memory/semantic/notes/system/</code> — không dump source khách.</span></div></li>
+        <li><div><strong>Checklist kết thúc</strong><span><code>skills/sap-learn-from-system/CHECKLIST.md</code>. Notion share = bước sau.</span></div></li>
+      </ol>
+      <div class="path-actions">
+        <a href="#daily-learner" class="btn btn-ghost">Daily learner / tip</a>
+        <a href="#ket-noi" class="btn btn-ghost">Kiểm tra kết nối</a>
+      </div>
+    </section>
+
     <!-- ===== DAILY LEARNER SECTION ===== -->
     <section id="daily-learner">
       <h2><span class="section-icon">📚</span> Học SAP mỗi ngày — Hermes-like Agent</h2>
@@ -3002,6 +3019,12 @@ bash reference/scripts/update.sh</code></pre>
           <li>Nếu bạn <em>đã</em> chạy <a href="https://github.com/NousResearch/hermes-agent" target="_blank">Hermes Agent</a> riêng: cấu hình Hermes như <strong>MCP client</strong> trỏ tới <code>mcp-sap-connect</code>, CDS KB, SAP Docs — để Hermes hỏi SAP, không thay daily-learner.</li>
           <li><code>hermes mcp serve</code> chủ yếu expose messaging (Telegram/Discord…). Chỉ cân nhắc khi cần cầu đa kênh, không phải tip/skill SAP.</li>
         </ul>
+      </div>
+
+      <div class="callout" style="margin:14px 0;padding:14px 16px;border:1px solid var(--border);border-left:4px solid var(--green);border-radius:var(--radius-sm);background:var(--bg-card);">
+        <p style="margin:0 0 8px;"><strong>Học từ hệ thống đang kết nối</strong> — skill <code>sap-learn-from-system</code></p>
+        <p style="margin:0 0 8px;font-size:14px;color:var(--text-dim);">Sau khi MCP ping OK: đọc table/class/CDS <strong>thật</strong>, rút lesson card vào <code>~/.sap-abap-agent/memory/</code> (pattern only, không dump source khách). Checklist: <code>skills/sap-learn-from-system/CHECKLIST.md</code>.</p>
+        <p style="margin:0;font-size:14px;color:var(--text-dim);"><strong>Bản này:</strong> chưa auto Notion. Chia sẻ Notion (scrub) = bước sau. Gõ ví dụ: <code>hoc tu he thong</code> / <code>kham pha class ZCL_…</code>.</p>
       </div>
 
       <h3>🌟 Hai chế độ hoạt động</h3>
@@ -4275,7 +4298,7 @@ java -jar cdata.jdbc.sapfieldglass.jar --license</code><button class="copy-btn" 
     </section>
 
     <div class="footer">
-      <strong>SAP ABAP Agent</strong> &middot; v1.24.1 · 28 agents · 42 skills<br>
+      <strong>SAP ABAP Agent</strong> &middot; v1.24.1 · 28 agents · 43 skills<br>
       <span style="font-size:12px;">Trang hướng dẫn này được tạo bởi StormShynn Coding Assistant</span>
     </div>
 
