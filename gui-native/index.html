@@ -79,17 +79,28 @@
     <div id="mcp-modal" class="modal-overlay hidden">
       <div class="modal-panel">
         <div class="modal-header">
-          <h2>MCP Servers Setup</h2>
+          <h2>Cài đặt MCP Servers</h2>
           <div class="mcp-preset-row">
-            <button id="btn-mcp-preset-core" class="btn btn-flat btn-sm" title="core + remote">Preset Core</button>
+            <button id="btn-mcp-preset-core" class="btn btn-flat btn-sm" title="sap-btp, sap-dict-bridge, cds-kb, mcp-sap-docs-btp">Cài Core</button>
             <button id="btn-mcp-preset-research" class="btn btn-flat btn-sm" title="Core + arc-1 + sap-vsp">Preset Research</button>
-            <button id="btn-mcp-refresh" class="btn btn-flat">Refresh</button>
-            <button id="btn-mcp-close" class="btn btn-flat">Close</button>
+            <button id="btn-mcp-refresh" class="btn btn-flat">Làm mới</button>
+            <button id="btn-mcp-close" class="btn btn-flat">Đóng</button>
           </div>
         </div>
         <p class="muted" style="margin-top: 0">
-          Đăng ký MCP server với Claude Code. Server đã đăng ký sẽ hiện ✓ - khởi động lại Claude Code để nhận server mới.
+          Đăng ký MCP với Claude Code. <strong>Core (bắt buộc)</strong>: sap-btp, sap-dict-bridge, cds-kb, mcp-sap-docs-btp.
+          Sau khi đăng ký, khởi động lại Claude Code để nhận server mới.
         </p>
+        <div id="mcp-core-cta" class="mcp-core-cta hidden">
+          <div class="mcp-core-cta-text">
+            <strong>Thiếu MCP bắt buộc</strong>
+            <span id="mcp-core-cta-detail" class="muted"></span>
+          </div>
+          <div class="mcp-core-cta-actions">
+            <button id="btn-mcp-register-required" class="btn btn-accent">Đăng ký MCP bắt buộc</button>
+            <button id="btn-mcp-skip-required" class="btn btn-flat btn-sm">Để sau</button>
+          </div>
+        </div>
         <div id="mcp-rows" class="license-rows"></div>
       </div>
     </div>

@@ -419,6 +419,38 @@ body {
   margin-top: 6px;
 }
 
+.mcp-core-cta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin: 0 0 12px;
+  padding: 12px 14px;
+  border: 1px solid var(--warn, #c9a227);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--warn, #c9a227) 12%, transparent);
+}
+
+.mcp-core-cta.hidden {
+  display: none;
+}
+
+.mcp-core-cta-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 180px;
+  flex: 1;
+}
+
+.mcp-core-cta-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
 .mcp-category-header {
   font-weight: 600;
   font-size: 0.85em;

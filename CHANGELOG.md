@@ -14,6 +14,18 @@ Format dựa trên [Keep a Changelog](https://keepachangelog.com/) và [Semantic
   (`9d54b58613ad485f8b8f19909adbb219`) làm **default** trong `notion_skills_db.py`.
   Mọi user plugin dùng chung DB học skill; vẫn override bằng env/pin (`set`/`clear`).
   Parse URL `app.notion.com` + `get --source`.
+  
+### Added
+
+- **GUI MCP Setup**: CTA «Đăng ký MCP bắt buộc» (Core: `sap-btp`, `sap-dict-bridge`,
+  `cds-kb`, `mcp-sap-docs-btp`); nhắc confirm lần đầu khi runtime OK; «Để sau» nhớ
+  qua localStorage. Category thủ công: «Mở hướng dẫn» (browser) / «Copy lệnh cài»
+  / «Đăng ký» khi CLI hỗ trợ (vd. `sap-gui` qua uvx) — không còn dead-end «xem doc».
+
+### Changed
+
+- `mcp-setup --status-json`: thêm `docUrl`, `installHint`, `canRegister`, `coreServers`;
+  sửa URL `cds-kb` khớp `.mcp.json` (`cds-kb-mcp-kit-production`).
 
 ## [v1.23.1] — 2026-08-02
 
