@@ -608,6 +608,7 @@ button {
 .log-toolbar {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 6px;
   padding-top: 2px;
 }
