@@ -147,6 +147,34 @@ ten trong output o muc "Co the hoi them" (xem Buoc 4).
   ung co the khac. Xem `reference/process/sap-service-type-context.md` de biet dieu chinh." KHONG
   chan dispatch, chi canh bao.
 
+### Buoc 4b: CORE-first cho 8 module da deep-split (Tier-2)
+
+Khi dispatch 1 trong **8 module da tach** core+deep, agent **CHI load CORE**
+(`reference/modules/sap-<m>-cloud/SKILL.md`) luc vao viec. **KHONG** doc full
+`deep/SKILL.md` truoc khi can — tranh phinh token khi chay song song.
+
+| Module | Agent | CORE path | DEEP path |
+|--------|-------|-----------|-----------|
+| FI | `sap-fi-consultant-cloud` | `reference/modules/sap-fi-cloud/SKILL.md` | `.../deep/SKILL.md` |
+| Fiori/UI5 | `sap-fiori-consultant-cloud` | `reference/modules/sap-fiori-cloud/SKILL.md` | `.../deep/SKILL.md` |
+| EWM | `sap-ewm-consultant-cloud` | `reference/modules/sap-ewm-cloud/SKILL.md` | `.../deep/SKILL.md` |
+| IBP | `sap-ibp-consultant-cloud` | `reference/modules/sap-ibp-cloud/SKILL.md` | `.../deep/SKILL.md` |
+| CAP | `sap-cap-consultant-cloud` | `reference/modules/sap-cap-cloud/SKILL.md` | `.../deep/SKILL.md` |
+| CPI | `sap-cpi-consultant-cloud` | `reference/modules/sap-cpi-cloud/SKILL.md` | `.../deep/SKILL.md` |
+| BTP Admin | `sap-btp-admin-consultant-cloud` | `reference/modules/sap-btp-admin-cloud/SKILL.md` | `.../deep/SKILL.md` |
+| SuccessFactors | `sap-successfactors-consultant-cloud` | `reference/modules/sap-successfactors-cloud/SKILL.md` | `.../deep/SKILL.md` |
+
+**Khi nao load DEEP** (sau CORE, dung `Grep` theo section tu route map CORE):
+
+- User hoi SSCUI / Fiori app ID / released API / gotcha cu the.
+- User hoi extensibility bac thang cho dung module do.
+- CORE route map chi den 1 section DEEP — chi doc section do, khong doc full file.
+
+Module **chua** deep-split (SD/MM/CO/...): van load full `SKILL.md` nhu hien tai.
+Khong tach them module trong skill nay — xem
+`reference/process/sap-context-module-routing.md`.
+Dong bo Tier-2.1: `skills/sap-routing-discipline/SKILL.md`.
+
 ### Buoc 5: Tra cuu kien thuc co san (local + Notion) truoc khi dispatch
 
 Voi tung module sap dispatch (danh sach tu Buoc 4), tra xem da co skill/kien thuc lien quan chua
@@ -213,10 +241,12 @@ python "${CLAUDE_PLUGIN_ROOT}/reference/scripts/cleanup_agent_home.py"
 3. **Kiem tra explicit mention** (Buoc 2).
 4. **Ap dung module coupling co dieu kien** (Buoc 3) — chi giu module coupling nao cung dat score >= 1.
 5. **Tong hop danh sach agent can dispatch, cap toi da 3** (Buoc 4) — du ra chuyen thanh goi y.
-6. **Tra cuu kien thuc co san** (Buoc 5) — local truoc, Notion khi local mien, fail-open neu loi.
-7. **Dispatch** song song, kem context da tra cuu duoc (neu co) cho tung agent.
-8. **Tong hop cau tra loi**: 1 agent → nguyen van; ≥2 agent → 1 doan tong hop + tung agent.
-9. **Goi y buoc tiep theo**: `abap-reviewer`, `sap-docs-researcher`, `sap-daily-learner` (cho cau hoi hoc tap).
+6. **Gan CORE-first** (Buoc 4b) cho agent thuoc 8 module deep-split — prompt/dispatch ghi
+   ro: load CORE truoc, DEEP chi khi can (theo route map).
+7. **Tra cuu kien thuc co san** (Buoc 5) — local truoc, Notion khi local mien, fail-open neu loi.
+8. **Dispatch** song song, kem context da tra cuu duoc (neu co) cho tung agent.
+9. **Tong hop cau tra loi**: 1 agent → nguyen van; ≥2 agent → 1 doan tong hop + tung agent.
+10. **Goi y buoc tiep theo**: `abap-reviewer`, `sap-docs-researcher`, `sap-daily-learner` (cho cau hoi hoc tap).
 
 ## Output format
 

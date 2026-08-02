@@ -1,7 +1,7 @@
 ---
 title: Onboarding Guide
 audience: end-user
-version: 1.22.1
+version: 1.22.7
 last_updated: 2026-08-02
 ---
 
@@ -11,6 +11,52 @@ Chọn **đúng 1 persona** bên dưới và làm lần lượt. Mỗi đường
 Chi tiết sâu nằm ở [Tùy chọn nâng cao](#tuy-chon-nang-cao) — bỏ qua lần đầu.
 
 Yêu cầu chung: **Python ≥ 3.10**. Cần tenant SAP nếu muốn kết nối hệ thống thật.
+
+**Host khuyến nghị:** [Claude Code](#host-matrix-claude-code-vs-cursor--vs-code) (plugin +
+hooks đầy đủ). Cursor / VS Code chỉ dùng MCP — xem host matrix bên dưới.
+
+---
+
+## Host matrix — Claude Code vs Cursor / VS Code
+
+Policy: skills/hooks/plugin **chỉ** duy trì cho Claude Code. Cursor/VS Code =
+MCP docs-only (không port skill pack).
+
+| Khả năng | Claude Code | Cursor / VS Code |
+|----------|-------------|------------------|
+| CLI `mcp-sap-connect` + GUI Windows | Có | Có |
+| MCP Core (`sap-btp`, `sap-dict-bridge`) | Có (`mcp-setup` / GUI) | Có (stdio MCP config) |
+| MCP research (`cds-kb`, `mcp-sap-docs-btp`) | Có (SSE hoặc supergateway) | Có (thường qua `supergateway`) |
+| `/plugin install` + marketplace | Có | **Không** |
+| Skills / agents / SessionStart hooks (routing, verification nudge) | Có | **Không** |
+| Pipeline FS → scaffold → finish (kỷ luật tự động) | Có | Thủ công — bạn phải tự nhắc checklist |
+
+### Cursor / VS Code — happy path MCP
+
+1. Cài CLI như persona A1: `pip install "mcp-sap-connect[win-dpapi]"` + `doctor`.
+2. `mcp-sap-connect setup` / `ping` / `connect` như thường.
+3. Đăng ký MCP trong settings của host (ví dụ Cursor `mcp.json`), **Core only**:
+
+```json
+{
+  "mcpServers": {
+    "sap-btp": {
+      "command": "mcp-sap-connect",
+      "args": []
+    },
+    "sap-dict-bridge": {
+      "command": "python",
+      "args": ["-m", "mcp_sap_connect.bridge_server"]
+    }
+  }
+}
+```
+
+Research servers: mẫu `supergateway` trong README. Đổi active profile khi đã
+đăng ký `sap-vsp` → chạy lại `mcp-sap-connect mcp-setup` (xem `KNOWN_LIMITATIONS.md`).
+
+4. **Không** kỳ vọng skill `sap-ask-consultant` / hooks tự chạy — hỏi thẳng tool
+   hoặc mở file skill trong repo khi cần checklist.
 
 ---
 
@@ -27,13 +73,13 @@ python -m mcp_sap_connect.doctor
 
 Doctor phải báo `mcp-sap-connect` trên PATH (hoặc in lệnh sửa PATH). Mở **terminal mới** nếu vừa sửa PATH.
 
-### A2. GUI Windows (khuyến nghị) hoặc chỉ CLI
+### A2. GUI Windows (khuyến nghị: Tauri native) hoặc chỉ CLI
 
-- **GUI:** ưu tiên **NSIS** từ Release mới nhất tag `gui-v*` / rolling
-  `gui-latest` (About → Check for updates sau khi đã cài). Bản local:
-  `gui-native/dist-bundle/` nếu bạn tự build. MSI cần admin (Error 1925 nếu
+- **GUI (Tauri):** ưu tiên **NSIS** từ Release tag `gui-v*` / rolling
+  `gui-latest` v1.22.7+ (About → Check for updates). Bản local:
+  `gui-native/` (`npm run tauri build`). MSI cần admin (Error 1925 nếu
   không elevate). Mở **SAP ABAP Agent** → nếu banner vàng: làm A1 rồi bấm
-  **Kiểm tra lại**.
+  **Kiểm tra lại**. Legacy Tkinter: chỉ khi cần — xem bảng nâng cao.
 - **CLI only:** bỏ qua GUI, dùng lệnh ở A3.
 
 ### A3. Thêm profile SAP
@@ -146,8 +192,9 @@ Skill chính: `sap-key-user-toolkit` + consultant module khi cần.
 | Notion skill notes | `/mcp` → OAuth Notion; xem README |
 | Error reporting | Opt-in `SAP_ABAP_AGENT_ERROR_REPORTING=1` |
 | Daily learner cron | Opt-in Task Scheduler — tốn API |
-| sap-vsp / ADT thay thế | `KNOWN_LIMITATIONS.md`, `docs/sap-mcp-recommendations.md` |
-| Cursor / VS Code | MCP stdio/SSE; hooks tối ưu Claude Code |
+| sap-vsp / ADT thay thế | `KNOWN_LIMITATIONS.md` — đổi active profile → chạy lại `mcp-setup` để rebind `sap-vsp` |
+| Cookie / SAML reauth | Fast-path ~1–3s **chỉ khi IAS không MFA**; có MFA → browser (chậm hơn). Xem `KNOWN_LIMITATIONS.md` |
+| Cursor / VS Code | Xem [Host matrix](#host-matrix-claude-code-vs-cursor--vs-code) — MCP only, không hooks |
 | Legacy Tkinter GUI | `pip install "mcp-sap-connect[gui]"` — không khuyến nghị user mới |
 
 ---

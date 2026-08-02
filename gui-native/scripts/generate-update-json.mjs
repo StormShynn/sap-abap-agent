@@ -4,13 +4,21 @@
  * Usage:
  *   node scripts/generate-update-json.mjs <version> [artifacts-dir] [release-tag]
  *
- * - <version>: e.g. "1.19.0"
+ * - <version>: e.g. "1.22.7"
  * - [artifacts-dir]: default "artifacts"
- * - [release-tag]: download URL tag — prefer "gui-latest" (rolling) or "gui-v1.19.0"
+ * - [release-tag]: download URL tag — prefer "gui-latest" (rolling) or "gui-v1.22.7"
  *
  * Expected layout (from CI staging):
  *   artifacts/
  *     sap-abap-agent-gui-x86_64-pc-windows-msvc/  (installer + .sig / .nsis.zip + .sig)
+ *
+ * Artifact ranking (deterministic — first match with a sibling .sig wins):
+ *   1. *.nsis.zip   (preferred Tauri updater archive)
+ *   2. *.msi.zip
+ *   3. *.AppImage.tar.gz / *.app.tar.gz
+ *   4. *-setup.exe  (fallback when Tauri emits .exe.sig without .nsis.zip)
+ *
+ * MSI installers are never selected for the in-app updater URL (admin / Error 1925).
  */
 
 import fs from "fs";
@@ -37,6 +45,7 @@ const PLATFORM_MAP = {
   "x86_64-apple-darwin": "darwin-x86_64",
 };
 
+/** Lower rank index = higher preference. */
 const BUNDLE_EXT_RANK = [
   ".nsis.zip",
   ".msi.zip",
@@ -46,6 +55,21 @@ const BUNDLE_EXT_RANK = [
 
 function artifactDir(target) {
   return `sap-abap-agent-gui-${target}`;
+}
+
+function rankOf(name) {
+  const lower = name.toLowerCase();
+  const i = BUNDLE_EXT_RANK.findIndex((ext) => lower.endsWith(ext));
+  if (i !== -1) return i;
+  // Signed NSIS installer fallback (not MSI — per-machine / elevation).
+  if (lower.endsWith("-setup.exe") || lower.endsWith("_x64-setup.exe")) {
+    return BUNDLE_EXT_RANK.length;
+  }
+  if (lower.endsWith(".exe") && !lower.endsWith(".msi")) {
+    // Prefer *-setup.exe shape; demote generic .exe slightly
+    return BUNDLE_EXT_RANK.length + 1;
+  }
+  return Number.POSITIVE_INFINITY;
 }
 
 function findBundle(targetDir) {
@@ -69,41 +93,46 @@ function findBundle(targetDir) {
     }
   }
 
-  const ranked = [...bundles].sort((a, b) => {
-    const rank = (name) => {
-      const i = BUNDLE_EXT_RANK.findIndex((ext) => name.endsWith(ext));
-      return i === -1 ? BUNDLE_EXT_RANK.length : i;
+  const ranked = [...bundles]
+    .filter((b) => Number.isFinite(rankOf(b.name)))
+    .sort((a, b) => {
+      const dr = rankOf(a.name) - rankOf(b.name);
+      if (dr !== 0) return dr;
+      // Tie-break: stable lexicographic name
+      return a.name.localeCompare(b.name);
+    });
+
+  for (const bundle of ranked) {
+    const sig = sigs.get(bundle.name);
+    if (!sig) continue;
+    const kind =
+      rankOf(bundle.name) < BUNDLE_EXT_RANK.length
+        ? "archive"
+        : "installer-exe-fallback";
+    console.error(
+      `[generate-update-json] selected ${bundle.name} (${kind}) for ${path.basename(targetDir)}`,
+    );
+    if (kind === "installer-exe-fallback") {
+      console.error(
+        "[generate-update-json] NOTE: no signed .nsis.zip — using signed NSIS .exe. " +
+          "In-app updater supports this path; prefer createUpdaterArtifacts + signing so .nsis.zip appears next release.",
+      );
+    }
+    return {
+      signature: sig,
+      url: `${BASE_URL}/${encodeURIComponent(bundle.name)}`,
+      artifact: bundle.name,
+      kind,
     };
-    return rank(a.name) - rank(b.name);
-  });
-
-  for (const bundle of ranked) {
-    const sig = sigs.get(bundle.name);
-    if (sig) {
-      return {
-        signature: sig,
-        url: `${BASE_URL}/${encodeURIComponent(bundle.name)}`,
-      };
-    }
   }
 
-  const expected = BUNDLE_EXT_RANK.find((ext) =>
-    bundles.some((b) => b.name.endsWith(ext)),
+  const expectedArchive = BUNDLE_EXT_RANK.find((ext) =>
+    bundles.some((b) => b.name.toLowerCase().endsWith(ext)),
   );
-  if (expected) {
-    throw new Error(`Missing signature for updater artifact in ${targetDir}`);
-  }
-
-  // Fallback: signed raw .exe (Tauri sometimes emits .exe.sig without .nsis.zip)
-  for (const bundle of ranked) {
-    if (!bundle.name.toLowerCase().endsWith(".exe")) continue;
-    const sig = sigs.get(bundle.name);
-    if (sig) {
-      return {
-        signature: sig,
-        url: `${BASE_URL}/${encodeURIComponent(bundle.name)}`,
-      };
-    }
+  if (expectedArchive) {
+    throw new Error(
+      `Found ${expectedArchive} under ${targetDir} but missing sibling .sig`,
+    );
   }
 
   return null;
@@ -111,12 +140,17 @@ function findBundle(targetDir) {
 
 const platforms = {};
 const pubDate = new Date().toISOString();
+const selectionLog = [];
 
 for (const [target, platformKey] of Object.entries(PLATFORM_MAP)) {
   const targetDir = path.join(artifactsDir, artifactDir(target));
   const info = findBundle(targetDir);
   if (info) {
-    platforms[platformKey] = info;
+    selectionLog.push(`${platformKey}=${info.artifact} (${info.kind})`);
+    platforms[platformKey] = {
+      signature: info.signature,
+      url: info.url,
+    };
   }
 }
 
@@ -134,5 +168,8 @@ const manifest = {
   pub_date: pubDate,
   platforms,
 };
+
+// Human-readable selection summary on stderr (stdout is JSON only).
+console.error(`[generate-update-json] platforms: ${selectionLog.join("; ")}`);
 
 console.log(JSON.stringify(manifest, null, 2));

@@ -71,6 +71,18 @@ npx tauri signer sign "path\to\file.nsis.zip" -f $key --password ""
 
 ## Authenticode — optional Windows code signing
 
+### Current repo status (as of 2026-08-02)
+
+| Secret | Present? |
+|--------|----------|
+| `TAURI_SIGNING_PRIVATE_KEY` (+ password empty OK) | **Yes** — required for `gui-release.yml` |
+| `WINDOWS_CERTIFICATE` | **No** |
+| `WINDOWS_CERTIFICATE_PASSWORD` | **No** |
+
+Next `gui-v*` release ships **minisign-signed** updater artifacts; installers remain
+**without** Authenticode until a human buys a cert and sets the two secrets above.
+CI fail-soft wiring is already in `gui-release.yml` (warn + continue).
+
 ### Decision (product preference)
 
 - Ship GUI releases when **minisign** secrets are present.

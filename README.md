@@ -1,6 +1,6 @@
 # SAP ABAP Agent (Tiếng Việt)
 
-[![Version](https://img.shields.io/badge/version-1.22.1-blue.svg)](CHANGELOG.md) [![Python](https://img.shields.io/badge/Python-3.10+-blue.svg)](https://python.org) [![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE) [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](CODE_OF_CONDUCT.md) [![Security Policy](https://img.shields.io/badge/Security-View_Policy-blue.svg)](SECURITY.md) [![Changelog](https://img.shields.io/badge/Changelog-%23ff69b4.svg)](CHANGELOG.md) [![CI/CD](https://github.com/StormShynn/sap-abap-agent/actions/workflows/deploy.yml/badge.svg)](https://github.com/StormShynn/sap-abap-agent/actions/workflows/deploy.yml) [![GitHub Pages](https://img.shields.io/github/deployments/StormShynn/sap-abap-agent/github-pages?label=GitHub%20Pages&logo=github)](https://stormshynn.github.io/sap-abap-agent/)
+[![Version](https://img.shields.io/badge/version-1.22.7-blue.svg)](CHANGELOG.md) [![Python](https://img.shields.io/badge/Python-3.10+-blue.svg)](https://python.org) [![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE) [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](CODE_OF_CONDUCT.md) [![Security Policy](https://img.shields.io/badge/Security-View_Policy-blue.svg)](SECURITY.md) [![Changelog](https://img.shields.io/badge/Changelog-%23ff69b4.svg)](CHANGELOG.md) [![CI/CD](https://github.com/StormShynn/sap-abap-agent/actions/workflows/deploy.yml/badge.svg)](https://github.com/StormShynn/sap-abap-agent/actions/workflows/deploy.yml) [![GitHub Pages](https://img.shields.io/github/deployments/StormShynn/sap-abap-agent/github-pages?label=GitHub%20Pages&logo=github)](https://stormshynn.github.io/sap-abap-agent/)
 
 Plugin Claude Code + MCP server tự động kết nối **SAP BTP / S/4HANA Cloud** để thao tác
 ABAP (đọc / tìm / syntax-check / activate). Hỗ trợ **multi-profile** — mỗi project SAP
@@ -26,20 +26,21 @@ có profile riêng (URL, tenant, secret), lưu trong **folder user** trên máy
   cho daily-learner — lấy pattern từ agent-skills-for-context-engineering.
 
 
-- **🖥️ GUI desktop + system tray** (`mcp-sap-connect-gui`, cần extra `[gui]`): Tkinter window với
-  4 nút lớn (Reauth / Connect / Set Active / Remove) + log console streaming real-time +
-  status bar; tray icon (pystray) với menu chuột phải + balloon thông báo. Ẩn xuống tray khi
-  bấm X. Có license dashboard riêng (720×460) với progressbar đếm ngược thời gian sống của
-  cookie/token (xanh >20%, cam 5-20%, đỏ <5%, auto-refresh 1Hz).
+- **🖥️ GUI desktop native (Tauri)** — khuyến nghị Windows: installer NSIS từ tag `gui-v*` /
+  rolling `gui-latest`, PATH-only (cần `mcp-sap-connect` trên PATH). Profile / Reauth /
+  Connect / Ping / MCP Servers / License dashboard / system tray + **in-app updater**
+  (minisign). Xem [`gui-native/README.md`](gui-native/README.md). Legacy Tkinter
+  (`pip install "mcp-sap-connect[gui]"`) vẫn hỗ trợ ≥2 minor — không khuyến nghị user mới.
 - **⏱️ Early-finish cho reauth auto mode** (Playwright): thay vì đợi 30s timeout, tool kết
   thúc sớm khi (1) user bấm Enter/OK, (2) session cookie + ADT discovery OK, hoặc (3) URL
   ổn định 3s. Test real timing URL-stable: 4.6s thay vì 30s.
 - **⚡ SAML fast-path cho cookie auth** (port từ [vibing-steampunk](https://github.com/StormShynn/vibing-steampunk)):
-  đăng nhập qua HTTP form-fill trực tiếp (~1-3s, KHÔNG mở browser) thay vì đợi Playwright —
-  chỉ dùng được khi IAS KHÔNG yêu cầu MFA (tự fallback về browser nếu MFA/sai credential).
-  Thành công thì username/password được mã hóa lưu lại (cùng cơ chế với `authMode=password`)
-  để tự dùng lại cho **mọi lần reauth sau** — không cần mở browser lại. Có ở cả wizard tương
-  tác (option 1, mặc định) và `setup --from-file` (field `samlBootstrapUsername`/`samlBootstrapPassword`).
+  đăng nhập qua HTTP form-fill trực tiếp (**~1–3s chỉ khi IAS không MFA**, KHÔNG mở browser).
+  Nếu IAS yêu cầu MFA/OTP/FIDO → fast-path thất bại và **tự fallback browser** (chậm hơn,
+  không còn 1–3s). Thành công thì username/password được mã hóa lưu lại (cùng cơ chế với
+  `authMode=password`) để tự dùng lại cho **mọi lần reauth sau** khi vẫn không MFA. Có ở
+  cả wizard tương tác (option 1, mặc định) và `setup --from-file`
+  (`samlBootstrapUsername`/`samlBootstrapPassword`). Chi tiết: `KNOWN_LIMITATIONS.md`.
 - **🔁 Auto-reauth cho MỌI MCP tool call**: trước đây chỉ `mcp-sap-connect connect`/`reauth` (lệnh
   CLI thủ công) mới tự đăng nhập lại khi session hết hạn — các tool `sap_*` thật (gọi từ Claude)
   không có cơ chế này, lỗi thẳng giữa chừng. `create_sap_client()` (factory dùng chung cho mọi
@@ -173,6 +174,8 @@ tích sâu qua `sap-vsp`, DDIC qua `sap-dict-bridge`) riêng. Xem
 
 **Happy path end-user:** xem [`docs/onboarding-guide.md`](docs/onboarding-guide.md)
 (3 persona: ABAP Dev / Functional / Key user) — ≤ 15 phút / persona.
+Host matrix: **Claude Code** = plugin + hooks đầy đủ; **Cursor / VS Code** = MCP
+docs-only (không skill pack / SessionStart hooks) — chi tiết trong onboarding.
 
 Tóm tắt kỹ thuật (reference):
 
@@ -180,6 +183,7 @@ Tóm tắt kỹ thuật (reference):
 2. Windows GUI: **ưu tiên NSIS** tag `gui-v*` / rolling `gui-latest` (PATH-only — không embed Python;
    MSI cần admin / Error 1925 nếu không elevate)
 3. Claude Code: `/plugin install sap-abap-agent` + đăng ký MCP core (`sap-btp`, `sap-dict-bridge`)
+   (Cursor: chỉ bước MCP — bỏ `/plugin install`)
 
 Wheel pin hiện tại:
 
@@ -250,8 +254,9 @@ Wizard sẽ tự sinh profile id từ hostname (`project1.s4hana.cloud.sap`) và
 3. **Bearer token** — token có sẵn, nhập tay
 4. **Cookie-based** — session cookie SAP (`MYSAPSSO2`, `SAP_SESSIONID`, `sap-usercontext`...). Wizard hỏi tiếp lấy cookie từ đâu:
    - (1) **SAML fast-path** (mặc định) — nhập username/password IAS, tự POST form qua HTTP
-     (~1-3s, KHÔNG mở browser). Chỉ dùng được nếu IAS KHÔNG có MFA — thất bại thì tự rơi
-     xuống (2). Thành công thì lưu (mã hóa) để tự dùng lại cho lần reauth sau.
+     (~1–3s **chỉ khi không MFA**, KHÔNG mở browser). Có MFA/OTP → thất bại và tự rơi
+     xuống (2) (browser, chậm hơn — đừng kỳ vọng 1–3s). Thành công thì lưu (mã hóa) để
+     tự dùng lại cho lần reauth sau khi vẫn không MFA.
    - (2) Auto — tự mở browser cho bạn đăng nhập (hỗ trợ cả MFA/SSO), tự lấy cookie (cần
      extra `playwright`)
    - (3) File cookie Netscape format

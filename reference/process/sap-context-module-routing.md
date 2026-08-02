@@ -101,10 +101,9 @@ load deep khi user hoi cu the ve SSCUI/API/Fiori.
 
 ## Tich hop
 
-- Skill `sap-ask-consultant` - hien khong biet ve 2-layer, can update o Tier 2 tiep theo de
-  routing engine chi dispatch core cho cac module da tach.
-- Skill `sap-routing-discipline` - co the bo sung rule: "neu module chua tach, canh bao context
-  load full".
+- Skill `sap-ask-consultant` — **Buoc 4b CORE-first** cho 8 module da deep-split (FI, Fiori,
+  EWM, IBP, CAP, CPI, BTP Admin, SuccessFactors): dispatch load CORE truoc, DEEP theo route map.
+- Skill `sap-routing-discipline` — Tier 2.1 liet ke cung 8 module; module chua tach van load full.
 
 ## Luu y
 

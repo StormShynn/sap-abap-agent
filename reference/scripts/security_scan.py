@@ -169,7 +169,77 @@ def check_hardcoded_secrets() -> None:
             )
 
 
-def main() -> int:
+def _parse_finding(msg: str) -> tuple[str, int, str]:
+    """Split 'rel/path.py:12: detail' → (path, line, detail)."""
+    try:
+        path_part, rest = msg.split(":", 1)
+        line_s, detail = rest.split(":", 1)
+        return path_part.strip(), int(line_s.strip()), detail.strip()
+    except (ValueError, TypeError):
+        return "unknown", 1, msg
+
+
+def write_sarif(path: Path) -> None:
+    """Emit minimal SARIF 2.1.0 for GitHub code scanning upload."""
+    import json
+
+    results = []
+    for level, bucket in (("error", HIGH), ("warning", MEDIUM)):
+        for msg in bucket:
+            uri, line, detail = _parse_finding(msg)
+            results.append(
+                {
+                    "ruleId": "sap-abap-agent/security-scan",
+                    "level": level,
+                    "message": {"text": detail},
+                    "locations": [
+                        {
+                            "physicalLocation": {
+                                "artifactLocation": {"uri": uri.replace("\\", "/")},
+                                "region": {"startLine": max(line, 1)},
+                            }
+                        }
+                    ],
+                }
+            )
+
+    sarif = {
+        "$schema": "https://json.schemastore.org/sarif-2.1.0.json",
+        "version": "2.1.0",
+        "runs": [
+            {
+                "tool": {
+                    "driver": {
+                        "name": "sap-abap-agent-security-scan",
+                        "informationUri": "https://github.com/StormShynn/sap-abap-agent",
+                        "rules": [
+                            {
+                                "id": "sap-abap-agent/security-scan",
+                                "shortDescription": {
+                                    "text": "Custom static security patterns (shell injection, secrets, path encoding)"
+                                },
+                            }
+                        ],
+                    }
+                },
+                "results": results,
+            }
+        ],
+    }
+    path.write_text(json.dumps(sarif, indent=2), encoding="utf-8")
+    print(f"Wrote SARIF: {path} ({len(results)} result(s))")
+
+
+def main(argv: list[str] | None = None) -> int:
+    args = list(sys.argv[1:] if argv is None else argv)
+    sarif_path: Path | None = None
+    if "--sarif" in args:
+        i = args.index("--sarif")
+        if i + 1 >= len(args):
+            print("Usage: security_scan.py [--sarif PATH]", file=sys.stderr)
+            return 2
+        sarif_path = Path(args[i + 1])
+
     check_python_shell_injection()
     check_ts_exec_injection()
     check_unencoded_path_interpolation()
@@ -186,6 +256,9 @@ def main() -> int:
         for m in MEDIUM:
             print(f"  MEDIUM  {m}")
         print()
+
+    if sarif_path is not None:
+        write_sarif(sarif_path)
 
     if HIGH:
         print(f"--- {len(HIGH)} high-confidence finding(s) ---")

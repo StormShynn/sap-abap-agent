@@ -1,4 +1,4 @@
-# SAP ABAP Agent — GUI (Tauri) v1.22.1
+# SAP ABAP Agent — GUI (Tauri) v1.22.7
 
 Native desktop GUI cho `mcp-sap-connect` (Rust + Tauri v2 + vanilla TypeScript).
 
@@ -60,6 +60,8 @@ Artifact:
 - `src-tauri/target/release/bundle/nsis/*.exe` (+ `.sig` / `.nsis.zip` khi signed)
 - `src-tauri/target/release/bundle/msi/*.msi`
 - CI: `update.json` + rolling tag `gui-latest`
+  - Updater URL ưu tiên signed **`.nsis.zip`**; nếu thiếu thì signed **`*-setup.exe`**
+    (deterministic trong `scripts/generate-update-json.mjs`)
 
 Publish: set secrets → `git tag gui-vX.Y.Z && git push origin gui-vX.Y.Z`.
 

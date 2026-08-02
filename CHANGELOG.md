@@ -8,9 +8,23 @@ Format dựa trên [Keep a Changelog](https://keepachangelog.com/) và [Semantic
 
 ## [v1.22.7] — 2026-08-02
 
+### Added
+
+- `sap-ask-consultant` Buoc 4b: CORE-first routing for 8 deep-split modules
+  (FI/Fiori/EWM/IBP/CAP/CPI/BTP Admin/SuccessFactors).
+- `security_scan.py --sarif` + upload in `security-scan.yml`.
+- CodeQL matrix language `rust` (`build-mode: none`) for `gui-native/src-tauri`.
+
 ### Changed
 
-- Auto-bumped by CI (version-bump.yml).
+- Docs/DX: README badge + hero Tauri-first; onboarding + `gui-native/README` pin **1.22.7**.
+- Updater channel: deterministic artifact ranking (`.nsis.zip` → signed `*-setup.exe` fallback)
+  + CI assertion in `gui-release.yml`.
+- Tauri CSP: replace `csp: null` with local-webview safe default.
+- Validate CI: run `reference/mcp-server/tests`; drop obsolete CLI circular-import ignores;
+  coverage step fails the job (no soft `|| warning`).
+- Pages deploy: slim artifact (exclude `node_modules` / `target` / caches).
+- Authenticode: document secrets absent; fail-soft wiring unchanged (human cert still required).
 
 
 ## [v1.22.6] — 2026-08-02

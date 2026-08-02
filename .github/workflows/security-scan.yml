@@ -36,9 +36,17 @@ jobs:
 
       - name: Run security scan (HIGH/MEDIUM findings)
         run: |
-          python reference/scripts/security_scan.py
+          python reference/scripts/security_scan.py --sarif security-scan.sarif
           # HIGH findings -> exit 1 (block merge)
           # MEDIUM findings -> print only, non-blocking
+
+      - name: Upload security_scan SARIF
+        if: always()
+        continue-on-error: true
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: security-scan.sarif
+          category: sap-abap-agent-security-scan
 
       - name: Run bandit (Python security linter)
         # Bandit phat hien cac pattern security chuan trong Python (SQL injection,
@@ -65,10 +73,3 @@ jobs:
         # Warning only, vi co nhieu false positive trong comment/docstring.
         run: |
           python reference/scripts/scan_clear_text_logging.py || true
-
-      - name: Upload SARIF (optional)
-        if: always()
-        continue-on-error: true
-        run: |
-          echo "TODO: convert scan output to SARIF and upload to code-scanning UI."
-          echo "Hien tai security_scan.py chi in text, chua emit SARIF."

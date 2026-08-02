@@ -198,12 +198,31 @@ jobs:
       - name: Generate update.json
         shell: bash
         run: |
+          set -euo pipefail
           node gui-native/scripts/generate-update-json.mjs \
             "${{ steps.meta.outputs.version }}" \
             artifacts \
             gui-latest \
             > update.json
+          echo "===== update.json ====="
           cat update.json
+          # Deterministic channel assertion: must point at a signed NSIS updater
+          # artifact (.nsis.zip preferred; signed *-setup.exe accepted fallback).
+          python - <<'PY'
+          import json, sys
+          m = json.load(open("update.json", encoding="utf-8"))
+          win = (m.get("platforms") or {}).get("windows-x86_64") or {}
+          url = win.get("url") or ""
+          ok = (".nsis.zip" in url) or ("-setup.exe" in url and ".msi" not in url)
+          print(f"windows-x86_64 url={url}")
+          if not ok:
+              print("ERROR: update.json windows URL must be .nsis.zip or *-setup.exe", file=sys.stderr)
+              sys.exit(1)
+          if ".nsis.zip" not in url:
+              print("::warning::Updater channel using signed .exe fallback (no .nsis.zip in staging)")
+          else:
+              print("Updater channel: .nsis.zip (preferred)")
+          PY
 
       - name: Upload workflow artifacts
         uses: actions/upload-artifact@v4
