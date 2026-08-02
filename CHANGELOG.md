@@ -8,6 +8,13 @@ Format dựa trên [Keep a Changelog](https://keepachangelog.com/) và [Semantic
 
 ## [Unreleased]
 
+### Changed
+
+- Notion “SAP Skills”: hardcode StormShynn shared DB id
+  (`9d54b58613ad485f8b8f19909adbb219`) làm **default** trong `notion_skills_db.py`.
+  Mọi user plugin dùng chung DB học skill; vẫn override bằng env/pin (`set`/`clear`).
+  Parse URL `app.notion.com` + `get --source`.
+  
 ### Added
 
 - **GUI MCP Setup**: CTA «Đăng ký MCP bắt buộc» (Core: `sap-btp`, `sap-dict-bridge`,
