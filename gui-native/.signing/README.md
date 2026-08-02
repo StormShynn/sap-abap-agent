@@ -15,7 +15,8 @@ Private key file on the machine that generated it (do not commit):
 # (Tauri then fails with: Invalid symbol 239, offset 0).
 $key = "$env:TEMP\sap-abap-agent-gui-keys\sap-abap-agent-gui.key"
 cmd /c "gh secret set TAURI_SIGNING_PRIVATE_KEY --repo StormShynn/sap-abap-agent < %TEMP%\sap-abap-agent-gui-keys\sap-abap-agent-gui.key"
-cmd /c "echo.| gh secret set TAURI_SIGNING_PRIVATE_KEY_PASSWORD --repo StormShynn/sap-abap-agent"
+# Empty password must be ZERO bytes (not a newline from `echo.`):
+python -c "import subprocess; subprocess.run(['gh','secret','set','TAURI_SIGNING_PRIVATE_KEY_PASSWORD','--repo','StormShynn/sap-abap-agent'], input=b'', check=True)"
 ```
 
 If the key file is gone, regenerate and **replace** `plugins.updater.pubkey` in
