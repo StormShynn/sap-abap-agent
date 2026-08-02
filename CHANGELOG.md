@@ -6,10 +6,66 @@ Format dựa trên [Keep a Changelog](https://keepachangelog.com/) và [Semantic
 
 ---
 
-## [v1.22.8] — 2026-08-02
+## [Unreleased]
+
+### Added
+
+- **GUI MCP Setup**: CTA «Đăng ký MCP bắt buộc» (Core: `sap-btp`, `sap-dict-bridge`,
+  `cds-kb`, `mcp-sap-docs-btp`); nhắc confirm lần đầu khi runtime OK; «Để sau» nhớ
+  qua localStorage. Category thủ công: «Mở hướng dẫn» (browser) / «Copy lệnh cài»
+  / «Đăng ký» khi CLI hỗ trợ (vd. `sap-gui` qua uvx) — không còn dead-end «xem doc».
+
+### Changed
+
+- `mcp-setup --status-json`: thêm `docUrl`, `installHint`, `canRegister`, `coreServers`;
+  sửa URL `cds-kb` khớp `.mcp.json` (`cds-kb-mcp-kit-production`).
+
+## [v1.23.1] — 2026-08-02
 
 ### Fixed
 
+- CLI: lazy-import `cli._cancel` so pytest collect of `tests/test_cli_*` no longer
+  hits "partially initialized module" circular import on Linux CI.
+
+### Changed
+
+- Docs pins / badge follow product **1.22.8** (GUI channel tag `gui-v1.22.7` ships
+  from prior commit; retag `gui-v1.22.8` after validate green).
+
+
+## [v1.23.0] — 2026-08-02
+
+### Changed
+
+- Auto-bumped by CI (version-bump.yml).
+
+
+## [v1.22.9] — 2026-08-02
+
+### Added
+
+- **Company rollout pack**: expanded `docs/rollout-guide.md`, `docs/team-troubleshooting.md`,
+  `docs/org-authenticode-setup.md`; scripts `validate_team_setup.py`,
+  `team_profile_export.py`, `notion_skills_db.py`, `claude_plugin_install.ps1`.
+- Finish/verification evidence gates + MCP soft Stop nudge (`verify_nudge` mark-verified-mcp);
+  vsp warn on active-profile change; coverage.xml CI artifact.
+
+### Changed
+
+- Auto-bumped by CI (version-bump.yml).
+
+
+## [v1.22.8] — 2026-08-02
+
+### Added
+
+- **Multi-user / team rollout**: `docs/rollout-guide.md`, CONTRIBUTING org section,
+  shared-OS-account caveats (onboarding, SECURITY, KNOWN_LIMITATIONS).
+
+### Fixed
+
+- README / index.html wheel pins → `mcp_sap_connect-1.22.0`; marketplace add steps;
+  broken KNOWN_LIMITATIONS plan link; honest PGP status in SECURITY.md.
 - CLI: lazy-import `cli._cancel` so pytest collect of `tests/test_cli_*` no longer
   hits "partially initialized module" circular import on Linux CI.
 
