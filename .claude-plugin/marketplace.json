@@ -7,7 +7,7 @@
   "plugins": [
     {
       "name": "sap-abap-agent",
-      "version": "1.22.8",
+      "version": "1.22.9",
       "source": "./",
       "displayName": "SAP ABAP Agent",
       "description": "Claude Code plugin for SAP S/4HANA Cloud Public Edition: 25 module consultants + 1 researcher + 1 daily learner + 1 reviewer (28 agents total) with auto-scoring routing engine, CDS KB, SAP Docs Research, ABAP cloud connect, code review, clean code & extensibility. Install: /plugin marketplace add StormShynn/sap-abap-agent then /plugin install; see docs/onboarding-guide.md and docs/rollout-guide.md. Multi-system router: Public Cloud, Private Cloud, On-prem, BTP, RISE with SAP. Side-by-side with vibing-steampunk for deep analysis.",
