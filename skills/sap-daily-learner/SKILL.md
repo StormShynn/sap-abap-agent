@@ -336,12 +336,31 @@ buoc sau khi tao skill — dung MCP server `notion` (da them vao `.mcp.json`, xe
 - skill notes dung chung cho team") lam kho skill CHUNG cho ca team, bo sung cho
 `memory/procedural/skills/` (chi may minh thay).
 
-**Cau truc Notion**: 1 database ten co dinh **"SAP Skills"** — tim truoc qua tool search cua MCP
-`notion`, neu chua co thi tao moi qua tool create-database (idempotent, giong tinh than
-`bootstrap_memory.py`). Properties: `Module` (select, dung dung ma module hien co: SD/FI/MM/CO/
-PP/.../BTP Admin), `Topic` (title), `Tags` (multi-select), `Created` (date), `Source question`
-(text). Noi dung trang = y het format skill local o tren (cau truc Reference Module: Boi canh/Quy
-trinh xu ly/SSCUI/Fiori/API/Integration/Best Practices/Nguon goc).
+**Cau truc Notion**: 1 database ten co dinh **"SAP Skills"**. Properties: `Module` (select, dung
+dung ma module hien co: SD/FI/MM/CO/PP/.../BTP Admin), `Topic` (title), `Tags` (multi-select),
+`Created` (date), `Source question` (text). Noi dung trang = y het format skill local o tren
+(cau truc Reference Module: Boi canh/Quy trinh xu ly/SSCUI/Fiori/API/Integration/Best
+Practices/Nguon goc).
+
+### Resolve database id (BAT BUOC — tranh tao trung im lang)
+
+Thu tu uu tien:
+
+1. **Pin / env** (uu tien nhat):
+   ```bash
+   python "${CLAUDE_PLUGIN_ROOT}/reference/scripts/notion_skills_db.py" get
+   ```
+   Doc id tu env `SAP_ABAP_AGENT_NOTION_SKILLS_DB` **hoac** file
+   `<agent-home>/notion-skills-db.id`. Neu co id → `notion-fetch` theo id (hoac search voi
+   `data_source_url: "collection://<id>"`). **KHONG** `notion-search` theo ten, **KHONG**
+   `notion-create-database`.
+2. **Chua pin**: `notion-search "SAP Skills"` (chi database):
+   - **0 ket qua**: FAIL LOUD — bao user chua thay DB dung chung; hoi pin id/URL **hoac**
+     xac nhan ro "tao database SAP Skills moi cho team". **CAM** tu tao im lang.
+   - **1 ket qua**: dung id do; goi `notion_skills_db.py set <id>` (hoac bao user set) de pin.
+   - **>1 ket qua**: FAIL LOUD — liet ke id/title, bat user chon 1 roi pin. **CAM** doan.
+3. **`notion-create-database`**: CHI khi user xac nhan tao moi o buoc 2 (0 ket qua). Sau khi tao,
+   pin id ngay.
 
 **Da tao that ngay 2026-07-16** (database chua ton tai truoc do — day la lan dau co che nay chay
 that) — schema day du kem `Lan dung lai` (number) + `Da promote` (checkbox) tu muc 3c luon, tranh
@@ -354,26 +373,17 @@ property `Tags` (an toan nhat, tags khong bat buoc de skill hoat dong), **HOAC**
 `notion-update-data-source` them option do vao schema TRUOC roi moi tao trang. KHONG tu suy doan
 Tags se "tu tao option moi" — da xac nhan thuc te KHONG tu dong nhu vay.
 
-**Onboard nguoi moi vao team dung chung database nay — rui ro tao trung, CAN LUU Y**: co che tim
-database hien tai la theo TEN (`notion-search "SAP Skills"` -> thay thi dung, KHONG thay thi tu
-tao moi). Sharing/phan quyen Notion CHI lam duoc qua UI (Share button), KHONG co tool MCP nao lam
-duoc viec nay (da xac nhan - xem danh sach tool o tren, khong tool nao ten share/invite/permission).
+**Onboard nguoi moi (pin bat buoc)**: Sharing/phan quyen Notion CHI qua UI (Share). Tool MCP
+khong invite/share duoc.
 
-Quy trinh cho 1 nguoi moi duoc moi vao database dung chung:
-1. Accept invite/mo link share Notion truoc (thao tac tay, ngoai Claude Code).
-2. Tu `/mcp` connect Notion **cua chinh ho** (OAuth rieng tung nguoi, KHONG dung chung tai khoan).
-
-[Unverified] **Chua test duoc voi tai khoan Notion thu 2** lieu `notion-search` tu tai khoan nguoi
-duoc moi co chac chan tim ra dung database da duoc share (khac voi database ho tu tao) hay khong.
-Neu KHONG tim ra, theo dung logic hien tai se **tu tao 1 database "SAP Skills" MOI, rieng, im
-lang khong bao loi** — mat het y nghia dung chung (moi nguoi 1 ban, khong dong bo).
-
-**Giam rui ro nay** (khuyen nguoi moi lam TRUOC khi de daily-learner tu chay lan dau):
-- Tu mo link database trong trinh duyet Notion 1 lan, xac nhan thay dung noi dung/cac trang da co
-  san (VD trang `test-ket-noi-notion`) — chung minh chac chan co quyen truy cap that.
-- Hoac tu bao Claude "search notion database SAP Skills" truoc, kiem tra ket qua co dung database
-  cu (co du lieu cu) khong, thay database rong/khac thi bao ngay de xu ly, tranh de tu dong tao
-  trung trong im lang.
+1. Accept invite / mo link share Notion (tay).
+2. `/mcp` connect Notion bang tai khoan cua chinh ho.
+3. Pin id database dung chung (copy tu URL Notion):
+   ```bash
+   python "${CLAUDE_PLUGIN_ROOT}/reference/scripts/notion_skills_db.py" set "<database-id-or-url>"
+   ```
+   Hoac set env `SAP_ABAP_AGENT_NOTION_SKILLS_DB`. Sau khi pin, daily-learner **khong** con
+   auto-create DB theo ten.
 
 **Doc truoc** (mo rong dieu kien 4, TRUOC khi tu giai tu dau): khi dieu kien 1-3 da dat (van de
 >=3 buoc, co config cu the, user phan hoi tich cuc) nhung CHUA ro co trung lap khong:
@@ -393,10 +403,10 @@ chi luu local (danh dau rieng tu) — khong dong bo len Notion." Ly do: Notion g
 CHUNG ca team thay, khac han truoc day khi skill chi nam local tren may nguoi tao.
 
 **Ghi sau** (sau khi da tao xong skill local nhu muc 3, VA khong bi danh dau rieng tu o tren):
-4. Goi tool fetch database "SAP Skills" de lay data source id (tao moi qua create-database neu
-   day la lan dau, chua tung co).
+4. Resolve database id theo muc "Resolve database id" o tren (pin / search loud / create chi khi
+   user xac nhan). Lay data source id qua `notion-fetch`.
 5. Goi tool create-pages duoi dung data source do, dien properties + noi dung y het skill local
-   vua tao. **Tu dong, KHONG hoi xac nhan** (dong bo la mac dinh, khong co gate).
+   vua tao. **Tu dong, KHONG hoi xac nhan** (dong bo la mac dinh sau khi da resolve DB).
 6. Bao them cho user 1 dong: "☁️ Da dong bo len Notion (SAP Skills) - ca team dung duoc."
 
 **Fail-open (bat buoc)**: neu bat ky loi goi tool `notion` nao (chua `/mcp` connect, chua OAuth,

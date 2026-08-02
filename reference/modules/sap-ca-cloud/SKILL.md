@@ -11,6 +11,11 @@ model: haiku
 nhieu nhu SD/FI. Moi chuc nang co the thuoc pham vi cua nhieu module khac nhau. Dung ket hop voi
 skill `sap-extensibility` (bac thang extensibility chung) va `sap-clean-code` (dat ten).]
 
+## Tich hop
+
+Skill lien quan (bat buoc khi de xuat custom/mo rong): `sap-extensibility`, `sap-clean-code`,
+`sap-docs-research`. Agent `sap-ca-consultant-cloud` da nap cac skill nay qua frontmatter.
+
 ## 1. Cac chuc nang Cross-Application chinh
 
 ### 1.1 Business Partner (BP)

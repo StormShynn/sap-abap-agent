@@ -30,9 +30,10 @@ Port tu vibing-steampunk `pkg/adt/saml_auth.go` (`reference/mcp-server/mcp_sap_c
 
 - **Single-profile**: `vsp` chi nhan 1 bo credential luc khoi dong (qua env
   `SAP_ADT_URL`/`SAP_ADT_USER`/`SAP_ADT_PASSWORD`). Neu user doi profile active
-  (`mcp-sap-connect profiles use <other>`), `sap-vsp` KHONG tu dong nhan
-  credential moi - phai chay lai `mcp-sap-connect mcp-setup` de dang ky lai voi
-  credential cua profile moi.
+  (`mcp-sap-connect profiles use <other>` hoac GUI Set Active), `sap-vsp` KHONG
+  tu dong nhan credential moi - phai chay lai `mcp-sap-connect mcp-setup` de
+  dang ky lai voi credential cua profile moi. CLI/GUI in canh bao khi doi
+  active profile (khong auto-rebind).
 - **Chi ho tro password auth**: `SAP_ADT_USER`/`SAP_ADT_PASSWORD` chi dien tu
   dong duoc khi profile active dung `authMode: password` (mac dinh cho
   `onprem`/`rise_with_sap`). Profile dung `cookie` (SSO qua Playwright),

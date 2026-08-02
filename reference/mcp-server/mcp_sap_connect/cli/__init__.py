@@ -1,4 +1,4 @@
-"""CLI entry point: mcp-sap-connect setup / connect / profiles / reset.
+﻿"""CLI entry point: mcp-sap-connect setup / connect / profiles / reset.
 
 Usage:
   mcp-sap-connect                              Chay MCP stdio server (khong argument)
@@ -44,8 +44,10 @@ from ..sap.auth import (
     saml_or_browser_login,
 )
 from ..setup_vsp import VspSetupError, ensure_vsp
-from . import _cancel as _sig
 from .prompt import UserCancelled, ask, header, info, ok, warn
+
+# Lazy-import _cancel at use sites — eager from . import _cancel can raise
+# partially initialized module on some CI/pytest import orders (Linux).
 
 
 def _ask_service() -> str:
@@ -813,6 +815,8 @@ async def _cmd_reauth(profile_id: str | None) -> None:
 
     # Bat handler Ctrl+C 2-lan: lan 1 canh bao, lan 2 huy that.
     # Khoi phuc default handler khi xong (ke ca khi raise).
+    from . import _cancel as _sig
+
     _sig.install_double_ctrl_c(ReauthCancelled, lambda w: ReauthCancelled(w))
     try:
         cookie_auth = SapCookieAuth(pid, reauth_handler=reauth_handler)

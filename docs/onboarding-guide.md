@@ -1,7 +1,7 @@
 ---
 title: Onboarding Guide
 audience: end-user
-version: 1.22.7
+version: 1.22.8
 last_updated: 2026-08-02
 ---
 
@@ -76,7 +76,7 @@ Doctor phải báo `mcp-sap-connect` trên PATH (hoặc in lệnh sửa PATH). M
 ### A2. GUI Windows (khuyến nghị: Tauri native) hoặc chỉ CLI
 
 - **GUI (Tauri):** ưu tiên **NSIS** từ Release tag `gui-v*` / rolling
-  `gui-latest` v1.22.7+ (About → Check for updates). Bản local:
+  `gui-latest` (About → Check for updates). Bản local:
   `gui-native/` (`npm run tauri build`). MSI cần admin (Error 1925 nếu
   không elevate). Mở **SAP ABAP Agent** → nếu banner vàng: làm A1 rồi bấm
   **Kiểm tra lại**. Legacy Tkinter: chỉ khi cần — xem bảng nâng cao.

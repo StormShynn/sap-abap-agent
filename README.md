@@ -1,6 +1,6 @@
 # SAP ABAP Agent (Tiếng Việt)
 
-[![Version](https://img.shields.io/badge/version-1.22.7-blue.svg)](CHANGELOG.md) [![Python](https://img.shields.io/badge/Python-3.10+-blue.svg)](https://python.org) [![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE) [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](CODE_OF_CONDUCT.md) [![Security Policy](https://img.shields.io/badge/Security-View_Policy-blue.svg)](SECURITY.md) [![Changelog](https://img.shields.io/badge/Changelog-%23ff69b4.svg)](CHANGELOG.md) [![CI/CD](https://github.com/StormShynn/sap-abap-agent/actions/workflows/deploy.yml/badge.svg)](https://github.com/StormShynn/sap-abap-agent/actions/workflows/deploy.yml) [![GitHub Pages](https://img.shields.io/github/deployments/StormShynn/sap-abap-agent/github-pages?label=GitHub%20Pages&logo=github)](https://stormshynn.github.io/sap-abap-agent/)
+[![Version](https://img.shields.io/badge/version-1.22.8-blue.svg)](CHANGELOG.md) [![Python](https://img.shields.io/badge/Python-3.10+-blue.svg)](https://python.org) [![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE) [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](CODE_OF_CONDUCT.md) [![Security Policy](https://img.shields.io/badge/Security-View_Policy-blue.svg)](SECURITY.md) [![Changelog](https://img.shields.io/badge/Changelog-%23ff69b4.svg)](CHANGELOG.md) [![CI/CD](https://github.com/StormShynn/sap-abap-agent/actions/workflows/deploy.yml/badge.svg)](https://github.com/StormShynn/sap-abap-agent/actions/workflows/deploy.yml) [![GitHub Pages](https://img.shields.io/github/deployments/StormShynn/sap-abap-agent/github-pages?label=GitHub%20Pages&logo=github)](https://stormshynn.github.io/sap-abap-agent/)
 
 Plugin Claude Code + MCP server tự động kết nối **SAP BTP / S/4HANA Cloud** để thao tác
 ABAP (đọc / tìm / syntax-check / activate). Hỗ trợ **multi-profile** — mỗi project SAP
@@ -495,16 +495,12 @@ Setup phía người được mời, theo đúng thứ tự:
 2. Tự chạy `/mcp` trong Claude Code, chọn `notion`, đăng nhập **bằng tài khoản Notion của chính
    họ** (không dùng chung tài khoản với người tạo database).
 
-> ⚠️ **Rủi ro cần biết**: cơ chế tìm database hiện tại dựa theo **tên** (`notion-search "SAP
-> Skills"` → thấy thì dùng, không thấy thì tự tạo mới). Chưa test được với 1 tài khoản Notion thứ
-> 2 liệu search có chắc chắn tìm ra database đã được share (khác với database tự tạo) hay không —
-> nếu không tìm ra, Claude sẽ **tự tạo 1 database "SAP Skills" mới, riêng, không báo lỗi gì cả**,
-> làm mất ý nghĩa dùng chung (mỗi người 1 bản, không đồng bộ).
->
-> **Cách né**: trước khi để `sap-daily-learner` tự chạy lần đầu, người mới nên tự bảo Claude
-> "search notion database SAP Skills" và kiểm tra kết quả có đúng database cũ (có dữ liệu sẵn)
-> hay không — thấy database rỗng/khác thì báo ngay để xử lý thủ công, tránh bị tạo trùng trong
-> im lặng.
+> **Pin database (bắt buộc cho team dùng chung)** — sau bước 1–2, pin id/URL database đã share:
+> ```powershell
+> python reference/scripts/notion_skills_db.py set "<database-id-or-url>"
+> ```
+> hoặc env `SAP_ABAP_AGENT_NOTION_SKILLS_DB`. Có pin thì agent **không** auto-create DB theo tên.
+> Không pin: search theo tên; 0 hoặc nhiều kết quả → báo rõ / hỏi pin — **không** tạo trùng im lặng.
 
 Chi tiết đầy đủ: `skills/sap-daily-learner/SKILL.md` mục 3b.
 

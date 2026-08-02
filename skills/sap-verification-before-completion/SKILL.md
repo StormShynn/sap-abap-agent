@@ -55,6 +55,29 @@ PHAI co it nhat 1 trong:
 | Sua cau hinh BTP | `sap_ping`/lenh tuong ung chay that voi profile that |
 | Fix bug (bat ky loai) | Tai hien loi truoc khi sua, xac nhan het loi sau khi sua — bang chay that ca 2 lan |
 
+## Bang chung bat buoc (ten tool / lenh + tieu chi PASS)
+
+Truoc khi bao "xong" cho scaffold/ticket ABAP, phai co **it nhat** cac muc sau
+(trich van ban tool output vao cau tra loi — khong duoc tom tat "chac OK"):
+
+| Muc | Tool / lenh chap nhan | Tieu chi PASS |
+|---|---|---|
+| Syntax (neu vua sua source) | MCP `sap_syntax_check` | Khong error (warning ghi chu) |
+| Activate | MCP `sap_activate` (tung object / theo dependency) | Status activated / khong loi activation |
+| Unit test (neu co test class) | MCP `sap_run_unit_tests` **hoac** ADT Unit runner | 0 FAIL; so test PASS > 0 neu da sinh test |
+| ATC (pipeline codegen) | Skill `sap-atc-review` → `ATC_REVIEW.md` | Ket qua **PASS** (WARN duoc phep neu da ghi chu) |
+
+### Override (advisory soft-gate, khong hard-block CI)
+
+Neu user **chu dong** yeu cau bo qua 1 muc (vd "chua co tenant de activate"):
+1. KHONG gia mao bang chung.
+2. Bao cao **NOT READY** / liet ke muc thieu + ly do user cho phep.
+3. Chi duoc noi "handoff / tam dung" — **khong** duoc noi "ticket xong" / "da fix".
+
+Hook Claude Code `verify_nudge.py` (Stop): soft-block 1 lan neu vua Edit/Write
+file ABAP ma chua co Bash/MCP evidence trong luot — van fail-open neu hook loi.
+Day la **advisory**, khong thay the bang chung trong bang tren.
+
 ## Tich hop
 
 - Skill `sap-finish-ticket` — dung skill nay o buoc cuoi truoc khi dong ticket.

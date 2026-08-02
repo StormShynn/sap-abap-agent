@@ -24,6 +24,7 @@ from typing import Any
 
 from .. import license as _lic
 from ..config.profile import (
+    get_current_active,
     list_profiles,
     set_active_profile,
 )
@@ -527,11 +528,17 @@ class SapBtpGui:
         if not pid:
             return
         try:
+            previous = get_current_active()
             set_active_profile(pid)
         except Exception as err:
             messagebox.showerror("Error", str(err))
             return
         self._append_log(f"[OK] Da set '{pid}' lam profile active.\n")
+        if previous and previous != pid:
+            self._append_log(
+                "[WARN] sap-vsp (neu da dang ky) khong tu nhan profile moi — "
+                "chay lai mcp-setup / MCP Servers de rebind SAP_ADT_*.\n"
+            )
         self.status_var.set(f"Active: {pid}")
         self._refresh_profiles()
         self._notify_tray(f"Profile active: {pid}")

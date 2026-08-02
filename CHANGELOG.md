@@ -8,9 +8,15 @@ Format dựa trên [Keep a Changelog](https://keepachangelog.com/) và [Semantic
 
 ## [v1.22.8] — 2026-08-02
 
+### Fixed
+
+- CLI: lazy-import `cli._cancel` so pytest collect of `tests/test_cli_*` no longer
+  hits "partially initialized module" circular import on Linux CI.
+
 ### Changed
 
-- Auto-bumped by CI (version-bump.yml).
+- Docs pins / badge follow product **1.22.8** (GUI channel tag `gui-v1.22.7` ships
+  from prior commit; retag `gui-v1.22.8` after validate green).
 
 
 ## [v1.22.7] — 2026-08-02

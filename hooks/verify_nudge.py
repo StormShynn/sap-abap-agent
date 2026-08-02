@@ -15,6 +15,11 @@ import sys
 import tempfile
 
 CODE_FILE_RE = re.compile(r"\.(abap|asddls|asddlxs|asbdef|asdcls|clas\.abap)$", re.IGNORECASE)
+# MCP / short tool names that count as runtime evidence for the soft Stop nudge.
+VERIFY_TOOL_RE = re.compile(
+    r"sap_(activate|run_unit_tests|syntax_check|ping)\b",
+    re.IGNORECASE,
+)
 
 
 def sentinel_path(session_id):
@@ -29,6 +34,24 @@ def is_code_file(file_path):
     if CODE_FILE_RE.search(normalized):
         return True
     return "/out/" in normalized and "/src/" in normalized
+
+
+
+def tool_name_from_payload(payload):
+    for key in ("tool_name", "toolName", "name"):
+        value = payload.get(key)
+        if value:
+            return str(value)
+    tool_input = payload.get("tool_input") or {}
+    for key in ("tool_name", "name"):
+        value = tool_input.get(key)
+        if value:
+            return str(value)
+    return ""
+
+
+def clears_verify_pending(tool_name):
+    return bool(tool_name and VERIFY_TOOL_RE.search(tool_name))
 
 
 def main():
@@ -55,6 +78,12 @@ def main():
     if mode == "mark-verified":
         with contextlib.suppress(Exception):
             os.remove(path)
+        sys.exit(0)
+
+    if mode == "mark-verified-mcp":
+        if clears_verify_pending(tool_name_from_payload(payload)):
+            with contextlib.suppress(Exception):
+                os.remove(path)
         sys.exit(0)
 
     if mode == "check-stop":
