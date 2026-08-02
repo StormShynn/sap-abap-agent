@@ -182,19 +182,28 @@ Tóm tắt kỹ thuật (reference):
 1. `pip install "mcp-sap-connect[win-dpapi]"` rồi `python -m mcp_sap_connect.doctor`
 2. Windows GUI: **ưu tiên NSIS** tag `gui-v*` / rolling `gui-latest` (PATH-only — không embed Python;
    MSI cần admin / Error 1925 nếu không elevate)
-3. Claude Code: `/plugin install sap-abap-agent` + đăng ký MCP core (`sap-btp`, `sap-dict-bridge`)
-   (Cursor: chỉ bước MCP — bỏ `/plugin install`)
+3. Claude Code (mỗi máy):
+   ```text
+   /plugin marketplace add StormShynn/sap-abap-agent
+   /plugin install sap-abap-agent
+   ```
+   rồi đăng ký MCP **Core** (`sap-btp`, `sap-dict-bridge`, …). N users = N lần
+   marketplace add trên máy/account đó. Cursor: chỉ MCP — bỏ bước `/plugin`.
+   Team rollout: [`docs/rollout-guide.md`](docs/rollout-guide.md).
 
-Wheel pin hiện tại:
+Wheel pin (MCP package; có thể lệch patch so với plugin — ưu tiên
+`pip install "mcp-sap-connect[win-dpapi]"` nếu không cần URL cố định):
 
 ```bash
-pip install https://github.com/StormShynn/sap-abap-agent/releases/download/mcp-server-v1.22.0/mcp_sap_connect-1.19.0-py3-none-any.whl
-pip install "mcp_sap_connect-1.19.0-py3-none-any.whl[win-dpapi]"
+pip install https://github.com/StormShynn/sap-abap-agent/releases/download/mcp-server-v1.22.0/mcp_sap_connect-1.22.0-py3-none-any.whl
+pip install "mcp_sap_connect-1.22.0-py3-none-any.whl[win-dpapi]"
 # Cookie browser auto-login (tùy chọn):
-pip install "mcp_sap_connect-1.19.0-py3-none-any.whl[playwright]"
+pip install "mcp_sap_connect-1.22.0-py3-none-any.whl[playwright]"
 playwright install chromium
 ```
 
+> Cùng OS account = cùng vault `.mcp-sap-connect` (không tách người dùng trong
+> một login). Cách ly: OS user riêng hoặc `MCP_SAP_CONNECT_HOME`.
 <details>
 <summary>Dev / contributor: cài từ source (editable install)</summary>
 
@@ -662,7 +671,7 @@ echo '{}' | python hooks/error_reporter.py status
 Output mẫu:
 ```json
 {
-  "plugin_version": "1.19.0",
+  "plugin_version": "1.22.8",
   "total_logged_errors": 12,
   "total_logged_fixes": 3,
   "active_error_groups_24h": 2,
@@ -1438,6 +1447,7 @@ Nếu bạn biết repo open-source khác cùng chủ đề, mở issue / PR th�
 | File                                         | Mục đích                                              |
 |----------------------------------------------|--------------------------------------------------------|
 | [`docs/onboarding-guide.md`](docs/onboarding-guide.md)         | Hướng dẫn end-user cài đặt + dùng thử                  |
+| [`docs/rollout-guide.md`](docs/rollout-guide.md)               | Rollout nhiều user / team (OS account, MCP Core)       |
 | [`docs/sap-mcp-recommendations.md`](docs/sap-mcp-recommendations.md) | Khuyến nghị MCP server bổ sung (Tier 1/2/3, opt-in)     |
 | [`CONTRIBUTING.md`](CONTRIBUTING.md)         | Hướng dẫn đóng góp skill/agent/docs                    |
 | [`SKILL_TEMPLATE.md`](SKILL_TEMPLATE.md)     | Template chuẩn để tạo skill/agent/reference module    |

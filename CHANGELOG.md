@@ -8,8 +8,15 @@ Format dựa trên [Keep a Changelog](https://keepachangelog.com/) và [Semantic
 
 ## [v1.22.8] — 2026-08-02
 
+### Added
+
+- **Multi-user / team rollout**: `docs/rollout-guide.md`, CONTRIBUTING org section,
+  shared-OS-account caveats (onboarding, SECURITY, KNOWN_LIMITATIONS).
+
 ### Fixed
 
+- README / index.html wheel pins → `mcp_sap_connect-1.22.0`; marketplace add steps;
+  broken KNOWN_LIMITATIONS plan link; honest PGP status in SECURITY.md.
 - CLI: lazy-import `cli._cancel` so pytest collect of `tests/test_cli_*` no longer
   hits "partially initialized module" circular import on Linux CI.
 

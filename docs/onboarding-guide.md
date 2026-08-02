@@ -12,6 +12,11 @@ Chi tiết sâu nằm ở [Tùy chọn nâng cao](#tuy-chon-nang-cao) — bỏ q
 
 Yêu cầu chung: **Python ≥ 3.10**. Cần tenant SAP nếu muốn kết nối hệ thống thật.
 
+**Máy / account:** không dùng chung một Windows/macOS user cho nhiều người —
+secrets và profiles nằm trong `%USERPROFILE%\.mcp-sap-connect` (DPAPI theo user)
+hoặc `~/.mcp-sap-connect`. Lab chung: mỗi người một OS account, hoặc đặt
+`MCP_SAP_CONNECT_HOME` riêng. Rollout team: [`rollout-guide.md`](rollout-guide.md).
+
 **Host khuyến nghị:** [Claude Code](#host-matrix-claude-code-vs-cursor--vs-code) (plugin +
 hooks đầy đủ). Cursor / VS Code chỉ dùng MCP — xem host matrix bên dưới.
 

@@ -19,6 +19,7 @@ Cảm ơn bạn đã quan tâm đến việc đóng góp cho **SAP ABAP Agent**!
 - [Ý tưởng đóng góp](#ý-tưởng-đóng-góp)
 - [Test local trước khi submit](#test-local-trước-khi-submit)
 - [Tài nguyên](#tài-nguyên)
+- [Org / team rollout](#org--team-rollout)
 
 ---
 
@@ -895,3 +896,16 @@ Ngoai ruff, con co cac standard check:
 - `check-yaml/json/toml`: validate syntax cac config file
 - `mixed-line-ending --fix=lf`: chuan hoa EOL = LF (tru `.bat`/`.ps1` da config rieng trong `.editorconfig`)
 - `check-added-large-files`: chan file > 1MB (loai tru `released-objects-index.json` da duoc annotate)
+
+---
+
+## Org / team rollout
+
+Khi đưa plugin tới nhiều developer (không phải contributor flow):
+
+- Mỗi người: OS account riêng + [`docs/rollout-guide.md`](docs/rollout-guide.md).
+- Claude Code: `/plugin marketplace add StormShynn/sap-abap-agent` rồi
+  `/plugin install sap-abap-agent` trên **từng máy** — không share thư mục
+  `.mcp-sap-connect`.
+- MCP mặc định = **Core**; Full research chỉ khi cần.
+- Onboarding end-user: [`docs/onboarding-guide.md`](docs/onboarding-guide.md).

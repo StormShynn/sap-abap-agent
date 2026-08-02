@@ -1,8 +1,18 @@
 # Known Limitations
 
 > File nay track cac han che da biet nhung chua fix (khong phai bug - la
-> scope quyet dinh co chu dich). Xem `docs/plans/active/sap-multi-system-router.md`
-> cho context day du.
+> scope quyet dinh co chu dich). Multi-system context:
+> `reference/process/sap-multi-system-context.md`.
+
+## Multi-user / shared OS account
+
+- **Secrets + profiles theo OS user home** (`%USERPROFILE%\.mcp-sap-connect` /
+  `~/.mcp-sap-connect`). Cung Windows/macOS login = **cung vault** (DPAPI/AES
+  khong tach nguoi dung trong cung account).
+- **Khong copy** thu muc `.mcp-sap-connect` giua may/user — moi nguoi `setup` rieng.
+- **Cach ly lab:** bien `MCP_SAP_CONNECT_HOME`, hoac OS account rieng.
+- **GUI:** uu tien NSIS current-user; MSI per-machine can admin.
+- Rollout team: `docs/rollout-guide.md`.
 
 ## SAML fast-path (cookie auth) - saml_form_login / saml_or_browser_login
 
