@@ -9,6 +9,34 @@ use std::collections::HashMap;
 use std::process::Stdio;
 use tokio::process::Command;
 
+/// Log dir convention giong Python paths.get_log_dir():
+///   ~/.mcp-sap-connect/log   (respect MCP_SAP_CONNECT_HOME override).
+fn log_dir() -> std::path::PathBuf {
+    let base = std::env::var("MCP_SAP_CONNECT_HOME")
+        .map(std::path::PathBuf::from)
+        .unwrap_or_else(|_| {
+            dirs::home_dir()
+                .unwrap_or_else(std::env::temp_dir)
+                .join(".mcp-sap-connect")
+        });
+    base.join("log")
+}
+
+/// Mo thu muc log trong Explorer (tauri-plugin-opener) — tao neu chua co.
+/// Tra ve duong dan de frontend hien thi trong log.
+#[tauri::command]
+pub fn open_log_dir(app: tauri::AppHandle) -> Result<String, String> {
+    use tauri_plugin_opener::OpenerExt;
+    let dir = log_dir();
+    std::fs::create_dir_all(&dir)
+        .map_err(|e| format!("Khong tao duoc thu muc log: {e}"))?;
+    let path = dir.to_string_lossy().to_string();
+    app.opener()
+        .open_path(path.clone(), None::<&str>)
+        .map_err(|e| format!("Khong mo duoc thu muc log: {e}"))?;
+    Ok(path)
+}
+
 /// Tra ve command de chay CLI - uu tien binary tren PATH (entry point cua pip
 /// install), fallback ve `python -m mcp_sap_connect.cli` cho moi truong dev.
 /// Tuong duong runner._resolve_executable() ben Python.
@@ -309,4 +337,29 @@ pub async fn mcp_unregister(name: String) -> Result<(), String> {
     ];
     run_json(&args).await?;
     Ok(())
+}
+
+/// Ket qua `mcp-sap-connect doctor --json` (path_ok / path_fix cho nut Copy PATH fix).
+/// Khong dung run_json: doctor tra `all_ok: false` khi co !! — van hop le.
+#[derive(Serialize, Deserialize, Clone, Debug)]
+pub struct DoctorReport {
+    pub all_ok: bool,
+    pub path_ok: bool,
+    pub scripts_dir: Option<String>,
+    pub path_fix: Option<String>,
+}
+
+#[tauri::command]
+pub async fn doctor_json() -> Result<DoctorReport, String> {
+    let (code, stdout, stderr) =
+        run_capture(&["doctor".to_string(), "--json".to_string()]).await?;
+    if stdout.trim().is_empty() {
+        return Err(format!(
+            "doctor --json khong tra ve gi (exit {code}): {stderr}"
+        ));
+    }
+    let value: Value = serde_json::from_str(stdout.trim()).map_err(|e| {
+        format!("Khong parse duoc doctor --json: {e}\nOutput: {stdout}")
+    })?;
+    serde_json::from_value(value).map_err(|e| format!("Loi doc doctor report: {e}"))
 }

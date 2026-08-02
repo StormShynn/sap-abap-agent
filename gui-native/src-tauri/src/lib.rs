@@ -1,5 +1,6 @@
 mod jobs;
 mod mcp_cli;
+mod plugin_cli;
 mod tray;
 
 use tauri::WindowEvent;
@@ -13,7 +14,10 @@ pub fn run() {
         .plugin(tauri_plugin_updater::Builder::new().build())
         .plugin(tauri_plugin_process::init())
         .manage(jobs::JobState::default())
+        .manage(tray::NotifyState::new())
         .invoke_handler(tauri::generate_handler![
+            tray::set_notifications_enabled,
+            mcp_cli::open_log_dir,
             mcp_cli::check_runtime,
             mcp_cli::list_profiles,
             mcp_cli::get_license_statuses,
@@ -23,6 +27,9 @@ pub fn run() {
             mcp_cli::mcp_status,
             mcp_cli::mcp_register,
             mcp_cli::mcp_unregister,
+            mcp_cli::doctor_json,
+            plugin_cli::plugin_status,
+            plugin_cli::plugin_update,
             jobs::start_streamed,
             jobs::start_new_console,
             jobs::cancel_job,

@@ -97,7 +97,8 @@ lenh nay.
 python "${CLAUDE_PLUGIN_ROOT}/reference/scripts/mcp_register.py"
 ```
 
-Tuong duong `/mcp-setup` — tu dang ky server core/remote, hoi xac nhan rieng cho ADT alternative
+Tuong duong `/register-mcp-servers` — tu dang ky server core/remote, hoi xac nhan rieng cho ADT alternative
+(ten cu `/mcp-setup` van redirect). **Khac** slash `/mcp` cua Claude Code (dang nhap OAuth Notion).
 (vi day la lua chon co that giua nhieu option, khong co mac dinh ro rang), huong dan cai thu cong
 cho product-specific server.
 
@@ -129,4 +130,5 @@ Tom tat cho user server nao OK/thieu. **Nhac khoi dong lai Claude Code** de nhan
   nhap)? Van dung duoc `mcp-sap-connect setup <url>` truc tiep — khong bi thay the, chi la lua
   chon khac.
 - 🔗 Chi tiet template: `reference/templates/mcp-sap-connect-profile-sample/README.md` (5
-  edition, 4 auth mode, vi du gia tri that). Chi tiet dang ky MCP: `commands/mcp-setup.md`.
+  edition, 4 auth mode, vi du gia tri that). Chi tiet dang ky MCP: `commands/register-mcp-servers.md`
+  (alias cu `commands/mcp-setup.md`).

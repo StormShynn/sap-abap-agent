@@ -6,6 +6,13 @@ Format dựa trên [Keep a Changelog](https://keepachangelog.com/) và [Semantic
 
 ---
 
+## [v1.24.2] — 2026-08-02
+
+### Changed
+
+- Auto-bumped by CI (version-bump.yml).
+
+
 ## [v1.24.1] — 2026-08-02
 
 ### Changed
@@ -24,6 +31,17 @@ Format dựa trên [Keep a Changelog](https://keepachangelog.com/) và [Semantic
 
 ### Added
 
+- GUI: **Doctor** button + **Copy PATH fix** — chạy `mcp-sap-connect doctor` streamed,
+  rồi `doctor --json` để copy lệnh PowerShell User PATH khi Scripts thiếu trên PATH.
+- GUI MCP inventory: server `notion` (HTTP remote, category special) + CTA nhắc mở
+  Claude Code chạy `/mcp` để OAuth (không thuộc Core preset).
+- GUI Set Active: WARN rebind `sap-vsp` khi đổi active profile (parity Tkinter).
+- Command `/register-mcp-servers` (rename từ `/mcp-setup`) — đăng ký MCP servers;
+  CLI alias `mcp-sap-connect register-mcp-servers` (giữ `mcp-setup`). Phân biệt rõ với
+  `/mcp` (Claude Code OAuth).
+- Skill `sap-learn-from-system` + `CHECKLIST.md` — học từ object SAP thật qua MCP
+  (lesson local scrub + đồng bộ Notion "SAP Skills", private/fail-open).
+  Routing keywords trong `sap-ask-consultant`.
 - Skill `sap-generative-ai` — Generative AI Hub / Joule / ISLM / ABAP Cloud AI patterns.
 - Skill `sap-scaffold-cap` + `reference/templates/cap-boilerplate/` — CAP Node scaffold.
 - `reference/templates/rap-events-boilerplate/` + deeper `sap-rap-events` checklist;
@@ -33,7 +51,9 @@ Format dựa trên [Keep a Changelog](https://keepachangelog.com/) và [Semantic
 
 ### Changed
 
-- CAP consultant points scaffold to `sap-scaffold-cap`; skill inventory **42**.
+- `mcp-sap-connect doctor --json` — machine-readable `path_ok` / `scripts_dir` / `path_fix`.
+- CAP consultant points scaffold to `sap-scaffold-cap`; skill inventory **43**
+  (incl. `sap-learn-from-system`).
 - MCP tool count docs **13**.
 
 

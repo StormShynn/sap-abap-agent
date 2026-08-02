@@ -1,6 +1,9 @@
 # SAP ABAP Agent — GUI (Tauri) v1.22.8
 
-Native desktop GUI cho `mcp-sap-connect` (Rust + Tauri v2 + vanilla TypeScript).
+Native desktop GUI cho `mcp-sap-connect` (Rust + Tauri v2 + vanilla TypeScript
++ **Tailwind CSS v4** + **Shoelace** (Web Components)). Custom titlebar
+(`decorations: false`), dark/light theme toggle (lưu localStorage), toast
+thay `alert()`, license progress bar + MCP badges dùng Shoelace.
 
 **PATH-only** (Harness decision `0001-gui-path-only-no-sidecar`): installer **không**
 embed Python. Cần `mcp-sap-connect` trên PATH (`pip install`). Rust chỉ orchestration —
