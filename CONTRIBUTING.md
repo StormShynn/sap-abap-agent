@@ -921,9 +921,14 @@ Repo dùng GitHub **ruleset** `Protect main` (default branch):
 - Bắt buộc PR + status checks `validate` + `scan` (contributor)
 - **Admin** bypass luôn (push trực tiếp OK)
 
-`github-actions[bot]` **không** nằm trong bypass trên repo user-owned. Để
-`version-bump.yml` / `sync-index.yml` vẫn push được lên `main`, tạo PAT
-(classic, scope `repo`) của tài khoản admin rồi:
+`github-actions[bot]` **không** nằm trong bypass trên repo user-owned.
+`version-bump.yml` / `sync-index.yml` xử lý như sau:
+
+1. **Mặc định (không cần secret):** mở PR (`chore/bump-vX.Y.Z` /
+   `chore/sync-index-<run_id>`), chờ `validate` + `scan`, rồi squash-merge.
+   Subject luôn có `[skip version-bump]` / `[skip sync-index]` để tránh vòng lặp.
+2. **Tuỳ chọn — push thẳng vào `main`:** đặt PAT (classic, scope `repo`) của
+   admin vào secret `VERSION_BUMP_TOKEN` (bypass ruleset nhanh hơn, không chờ PR):
 
 ```bash
 gh secret set VERSION_BUMP_TOKEN --repo StormShynn/sap-abap-agent
