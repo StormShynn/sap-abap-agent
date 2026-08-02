@@ -86,6 +86,14 @@ tag `gui-v*` — current-user. SmartScreen: xem mục Authenticode bên dưới.
 
 ### 4. Claude Code plugin
 
+**Option A — script (ít typo):**
+
+```powershell
+powershell -ExecutionPolicy Bypass -File reference\scripts\claude_plugin_install.ps1
+```
+
+**Option B — tay trong Claude Code:**
+
 ```text
 /plugin marketplace add StormShynn/sap-abap-agent
 /plugin install sap-abap-agent
@@ -134,8 +142,8 @@ GUI: **MCP Servers** → Preset. Inventory: `reference/scripts/mcp_inventory.jso
 ## Windows SmartScreen / Authenticode
 
 Installer GUI **có thể chưa ký Authenticode** (minisign updater vẫn tin cậy trong app).
-Org muốn bỏ SmartScreen: cert OV/EV + GitHub secrets `WINDOWS_CERTIFICATE*` —
-xem [`gui-native/.signing/README.md`](../gui-native/.signing/README.md).
+Org muốn bỏ SmartScreen: xem [`org-authenticode-setup.md`](org-authenticode-setup.md)
+(+ chi tiết CI: [`gui-native/.signing/README.md`](../gui-native/.signing/README.md)).
 
 ---
 
@@ -164,6 +172,7 @@ xem [`gui-native/.signing/README.md`](../gui-native/.signing/README.md).
 |-----|----------|
 | [`onboarding-guide.md`](onboarding-guide.md) | Happy-path 3 persona + host matrix |
 | [`team-troubleshooting.md`](team-troubleshooting.md) | FAQ đa user |
+| [`org-authenticode-setup.md`](org-authenticode-setup.md) | Cert Windows cho GUI (org admin) |
 | [`SECURITY.md`](../SECURITY.md) | Secret / không share vault |
 | [`KNOWN_LIMITATIONS.md`](../KNOWN_LIMITATIONS.md) | MFA, vsp single-profile |
 | [`CONTRIBUTING.md`](../CONTRIBUTING.md) | Đóng góp / org fork |
