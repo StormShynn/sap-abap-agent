@@ -342,48 +342,41 @@ dung ma module hien co: SD/FI/MM/CO/PP/.../BTP Admin), `Topic` (title), `Tags` (
 (cau truc Reference Module: Boi canh/Quy trinh xu ly/SSCUI/Fiori/API/Integration/Best
 Practices/Nguon goc).
 
-### Resolve database id (BAT BUOC — tranh tao trung im lang)
+### Resolve database id (mac dinh plugin — dung chung)
+
+**Default (hardcode trong plugin):** StormShynn shared DB
+`9d54b58613ad485f8b8f19909adbb219` ("SAP Skills") — moi user cai plugin dung DB nay de
+hoc/dong bo skill notes cong dong, **khong can** `set` pin.
+
+Lay id hieu luc:
+```bash
+python "${CLAUDE_PLUGIN_ROOT}/reference/scripts/notion_skills_db.py" get
+# them --source → in kem env|pin|default
+```
 
 Thu tu uu tien:
+1. Env `SAP_ABAP_AGENT_NOTION_SKILLS_DB` (DB rieng cong ty / ca nhan)
+2. File `<agent-home>/notion-skills-db.id` (`notion_skills_db.py set …`)
+3. **DEFAULT_DATABASE_ID** (StormShynn shared)
 
-1. **Pin / env** (uu tien nhat):
-   ```bash
-   python "${CLAUDE_PLUGIN_ROOT}/reference/scripts/notion_skills_db.py" get
-   ```
-   Doc id tu env `SAP_ABAP_AGENT_NOTION_SKILLS_DB` **hoac** file
-   `<agent-home>/notion-skills-db.id`. Neu co id → `notion-fetch` theo id (hoac search voi
-   `data_source_url: "collection://<id>"`). **KHONG** `notion-search` theo ten, **KHONG**
-   `notion-create-database`.
-2. **Chua pin**: `notion-search "SAP Skills"` (chi database):
-   - **0 ket qua**: FAIL LOUD — bao user chua thay DB dung chung; hoi pin id/URL **hoac**
-     xac nhan ro "tao database SAP Skills moi cho team". **CAM** tu tao im lang.
-   - **1 ket qua**: dung id do; goi `notion_skills_db.py set <id>` (hoac bao user set) de pin.
-   - **>1 ket qua**: FAIL LOUD — liet ke id/title, bat user chon 1 roi pin. **CAM** doan.
-3. **`notion-create-database`**: CHI khi user xac nhan tao moi o buoc 2 (0 ket qua). Sau khi tao,
-   pin id ngay.
+Khi da co id (luon co nho default): `notion-fetch` / search voi
+`data_source_url: "collection://<id>"`. **KHONG** `notion-search` theo ten de "tim DB".
+**KHONG** `notion-create-database` im lang.
 
-**Da tao that ngay 2026-07-16** (database chua ton tai truoc do — day la lan dau co che nay chay
-that) — schema day du kem `Lan dung lai` (number) + `Da promote` (checkbox) tu muc 3c luon, tranh
-phai update schema lan 2.
+**Override DB rieng** (tuy chon): user muon kho skill rieng →
+`notion_skills_db.py set <id-or-url>` hoac env. Quay ve default: `notion_skills_db.py clear`.
 
-**Gotcha da xac nhan qua test that**: field `Tags` (multi_select) tao moi KHONG co san option nao
-— Notion API tu choi (`validation_error`) neu truyen thang 1 chuoi tuy y (vd `"test"`) ma chua
-duoc dinh nghia truoc trong schema. Khi tao trang MOI voi 1 tag chua tung dung: **HOAC** bo qua
-property `Tags` (an toan nhat, tags khong bat buoc de skill hoat dong), **HOAC** goi
-`notion-update-data-source` them option do vao schema TRUOC roi moi tao trang. KHONG tu suy doan
-Tags se "tu tao option moi" — da xac nhan thuc te KHONG tu dong nhu vay.
+**Tao DB moi:** CHI khi user **noi ro** muon DB rieng + xac nhan — roi `set` pin. Khong tao
+thay default.
 
-**Onboard nguoi moi (pin bat buoc)**: Sharing/phan quyen Notion CHI qua UI (Share). Tool MCP
-khong invite/share duoc.
+**Gotcha Tags**: field `Tags` (multi_select) tao moi KHONG co san option — Notion API tu choi
+neu truyen chuoi chua co trong schema. Bo qua `Tags` hoac `notion-update-data-source` them
+option truoc.
 
-1. Accept invite / mo link share Notion (tay).
-2. `/mcp` connect Notion bang tai khoan cua chinh ho.
-3. Pin id database dung chung (copy tu URL Notion):
-   ```bash
-   python "${CLAUDE_PLUGIN_ROOT}/reference/scripts/notion_skills_db.py" set "<database-id-or-url>"
-   ```
-   Hoac set env `SAP_ABAP_AGENT_NOTION_SKILLS_DB`. Sau khi pin, daily-learner **khong** con
-   auto-create DB theo ten.
+**Onboard nguoi moi (default shared):**
+1. Mo link Share StormShynn "SAP Skills" (lead gui) → Accept trong browser.
+2. `/mcp` → Notion OAuth bang tai khoan cua ho.
+3. Khong bat buoc `set` — `get` da ra default id. Chi `set` neu dung DB rieng.
 
 **Doc truoc** (mo rong dieu kien 4, TRUOC khi tu giai tu dau): khi dieu kien 1-3 da dat (van de
 >=3 buoc, co config cu the, user phan hoi tich cuc) nhung CHUA ro co trung lap khong:
