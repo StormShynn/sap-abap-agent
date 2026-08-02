@@ -6,6 +6,13 @@ Format dựa trên [Keep a Changelog](https://keepachangelog.com/) và [Semantic
 
 ---
 
+## [v1.22.6] — 2026-08-02
+
+### Changed
+
+- Auto-bumped by CI (version-bump.yml).
+
+
 ## [v1.22.5] — 2026-08-02
 
 ### Changed
