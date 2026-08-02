@@ -1,4 +1,4 @@
-"""CLI entry point: mcp-sap-connect setup / connect / profiles / reset.
+﻿"""CLI entry point: mcp-sap-connect setup / connect / profiles / reset.
 
 Usage:
   mcp-sap-connect                              Chay MCP stdio server (khong argument)

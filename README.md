@@ -174,6 +174,8 @@ tích sâu qua `sap-vsp`, DDIC qua `sap-dict-bridge`) riêng. Xem
 
 **Happy path end-user:** xem [`docs/onboarding-guide.md`](docs/onboarding-guide.md)
 (3 persona: ABAP Dev / Functional / Key user) — ≤ 15 phút / persona.
+**Team / công ty:** [`docs/rollout-guide.md`](docs/rollout-guide.md) +
+[`docs/team-troubleshooting.md`](docs/team-troubleshooting.md).
 Host matrix: **Claude Code** = plugin + hooks đầy đủ; **Cursor / VS Code** = MCP
 docs-only (không skill pack / SessionStart hooks) — chi tiết trong onboarding.
 

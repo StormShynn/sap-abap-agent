@@ -1,65 +1,169 @@
-# Rollout guide — nhiều user / team
+# Rollout guide — nhiều user / team (công ty)
 
-Hướng dẫn cho team lead khi đưa **SAP ABAP Agent** tới N developer.
-Chi tiết happy-path từng người: [`onboarding-guide.md`](onboarding-guide.md).
+Hướng dẫn cho **team lead / Basis / champion** khi đưa SAP ABAP Agent tới N người.
+Happy-path từng người: [`onboarding-guide.md`](onboarding-guide.md).  
+Sự cố team: [`team-troubleshooting.md`](team-troubleshooting.md).
 
 **Phiên bản tài liệu:** khớp plugin **1.22.8** (xem `.claude-plugin/plugin.json`).
-Wheel MCP gần nhất trên Releases: `mcp-server-v1.22.0` (có thể lệch patch so với plugin).
 
 ---
 
-## Mô hình triển khai (khuyến nghị)
+## Mục tiêu “sản phẩm nội bộ”
+
+Sau rollout, mỗi consultant/dev:
+
+1. Có **Claude Code** + plugin + MCP Core trên máy riêng.
+2. Kết nối đúng **tenant/profile** (secret không share file).
+3. (Tuỳ team) Pin chung **Notion “SAP Skills”** — một DB, không tạo trùng.
+4. Biết host: Claude = full; Cursor = MCP only.
+
+---
+
+## Mô hình triển khai (bắt buộc)
 
 | Nguyên tắc | Chi tiết |
 |------------|----------|
-| **1 người = 1 OS account** | Secrets/profiles nằm trong `%USERPROFILE%\.mcp-sap-connect` (Windows DPAPI theo user) hoặc `~/.mcp-sap-connect`. Cùng login Windows = **cùng vault SAP**. |
-| **Không copy thư mục profile giữa máy** | Mỗi máy chạy `setup` / GUI Add profile riêng. |
-| **Cách ly lab** | Đặt `MCP_SAP_CONNECT_HOME` trỏ tới thư mục riêng nếu nhiều người buộc dùng chung OS user (không khuyến nghị). |
-| **Claude Code = full stack** | Skills + hooks + agents. Cursor / VS Code = **chỉ MCP** (không plugin/hooks). |
+| **1 người = 1 OS account** | Vault: `%USERPROFILE%\.mcp-sap-connect` (DPAPI) / `~/.mcp-sap-connect`. Cùng login Windows = **cùng vault SAP**. |
+| **Không copy thư mục profile giữa máy** | Mỗi máy `setup` / GUI Add riêng. |
+| **Lab chung (escape hatch)** | `MCP_SAP_CONNECT_HOME` trỏ thư mục riêng / người — không khuyến nghị lâu dài. |
+| **Claude Code = full stack** | Skills + hooks + agents. Cursor / VS Code = **chỉ MCP**. |
+| **Notion team = pin DB** | `notion_skills_db.py set <id>` trên mọi máy sau khi Share. |
+
+### Kịch bản nhanh
+
+| Scenario | Làm gì |
+|----------|--------|
+| A — Nhiều máy, cùng tenant | Mỗi người setup + ping; export template không secret nếu cần thống nhất URL |
+| B — VM lab nhiều user | Mỗi user Windows account riêng |
+| C — Bắt buộc 1 OS user | `MCP_SAP_CONNECT_HOME` per person + kỷ luật tuyệt đối |
+| D — Skill notes team | 1 Notion DB + Share + pin id trên mọi máy |
 
 ---
 
-## Checklist rollout N seats
+## Day-0 (team lead, 1 lần)
 
-1. Mỗi máy: Python ≥ 3.10, `pip install "mcp-sap-connect[win-dpapi]"`, `python -m mcp_sap_connect.doctor`.
-2. Windows GUI (tuỳ chọn): NSIS từ [gui-latest](https://github.com/StormShynn/sap-abap-agent/releases/tag/gui-latest) / tag `gui-v*` — **current-user**, không cần admin.
-3. Claude Code (mỗi máy một lần):
-   ```text
-   /plugin marketplace add StormShynn/sap-abap-agent
-   /plugin install sap-abap-agent
+1. Chọn **edition** tenant (`s4hc_(public)` / BTP / …) — ghi vào wiki nội bộ.
+2. Chuẩn bị **Communication Arrangement / user** đủ quyền ADT (không dùng chung 1 service key cho cả cty nếu policy cấm).
+3. (Khuyến nghị) Tạo Notion database **SAP Skills**, Share cho team, lấy URL/id.
+4. Export template an toàn từ máy pilot (không secret):
+   ```powershell
+   python reference/scripts/team_profile_export.py <pilot-profile-id> -o team-s4-template.json
    ```
-4. Đăng ký **MCP Core** trước (`sap-btp`, `sap-dict-bridge`, `cds-kb`, `mcp-sap-docs-btp`). Full research (ADT alt, sap-vsp, …) chỉ khi cần — Claude Code giới hạn số stdio MCP.
-5. Onboarding theo persona trong [`onboarding-guide.md`](onboarding-guide.md).
+   Đưa `team-s4-template.json` vào wiki nội bộ (chỉ placeholder). Mẫu sẵn:
+   `reference/templates/mcp-sap-connect-profile-sample/`.
+5. Gửi link: onboarding-guide + rollout này + Notion invite.
+
+---
+
+## Checklist mỗi seat (≤ 20 phút)
+
+### 0. Pre-flight
+
+```powershell
+cd path\to\sap-abap-agent   # hoặc clone / plugin path
+python reference/scripts/validate_team_setup.py --persona A
+```
+
+`A` = ABAP Dev, `B` = Functional, `C` = Key user. Required phải PASS.
+
+### 1. CLI + doctor
+
+```powershell
+pip install "mcp-sap-connect[win-dpapi]"
+python -m mcp_sap_connect.doctor
+```
+
+### 2. GUI (Windows, tuỳ chọn)
+
+NSIS từ [gui-latest](https://github.com/StormShynn/sap-abap-agent/releases/tag/gui-latest) /
+tag `gui-v*` — current-user. SmartScreen: xem mục Authenticode bên dưới.
+
+### 3. Profile SAP
+
+- Từ template team: điền secret **local** → `mcp-sap-connect setup --from-file team-s4-template.json`
+- Hoặc wizard: `mcp-sap-connect setup https://<tenant>...`
+- Xác nhận: `mcp-sap-connect ping` rồi `connect`
+
+### 4. Claude Code plugin
+
+```text
+/plugin marketplace add StormShynn/sap-abap-agent
+/plugin install sap-abap-agent
+```
+
+Restart session Claude Code.
+
+### 5. MCP Core
+
+```powershell
+mcp-sap-connect mcp-setup
+# hoặc GUI → MCP Servers → Preset Core
+```
+
+| Preset | Servers | Khi nào |
+|--------|---------|---------|
+| **Core** | `sap-btp`, `sap-dict-bridge` (+ remote CDS/docs nếu cần) | Mặc định mọi user |
+| **Full / Research** | + `sap-vsp`, ADT alt, … | Chỉ khi lead bật — tốn slot stdio |
+
+### 6. Notion (nếu team dùng skill notes)
+
+1. Accept Share trong browser.
+2. `/mcp` → OAuth Notion (tài khoản cá nhân).
+3. Pin:
+   ```powershell
+   python reference/scripts/notion_skills_db.py set "<database-id-or-url>"
+   python reference/scripts/notion_skills_db.py get
+   ```
+
+### 7. Smoke
+
+- `Liệt kê profile SAP của tôi`
+- (Dev) tìm 1 class `Z*` / ping
+- (Team Notion) hỏi topic đã có note — không tạo DB mới
 
 ---
 
 ## MCP: Core vs Full
 
-| Preset | Servers (tóm tắt) | Khi nào |
-|--------|-------------------|---------|
-| **Core** | `sap-btp`, `sap-dict-bridge`, + remote docs/CDS | Mặc định mọi user |
-| **Research / Full** | + `arc-1` hoặc `mcp-abap-adt`, `sap-vsp`, … | Dev cần ADT sâu / VSP — đăng ký thêm có kiểm soát |
+GUI: **MCP Servers** → Preset. Inventory: `reference/scripts/mcp_inventory.json`.
 
-GUI: **MCP Servers** → Preset Core / Preset Research. Chi tiết inventory: `reference/scripts/mcp_inventory.json`.
+Đổi active profile khi đã bật `sap-vsp` → chạy lại `mcp-setup` (CLI/GUI có cảnh báo).
 
 ---
 
 ## Windows SmartScreen / Authenticode
 
-Installer GUI hiện **có thể chưa ký Authenticode** (minisign updater vẫn tin cậy cho update trong app). User có thể thấy cảnh báo SmartScreen lần đầu — kỳ vọng cho đến khi org upload cert OV/EV (`WINDOWS_CERTIFICATE*`). Xem [`gui-native/.signing/README.md`](../gui-native/.signing/README.md).
+Installer GUI **có thể chưa ký Authenticode** (minisign updater vẫn tin cậy trong app).
+Org muốn bỏ SmartScreen: cert OV/EV + GitHub secrets `WINDOWS_CERTIFICATE*` —
+xem [`gui-native/.signing/README.md`](../gui-native/.signing/README.md).
 
 ---
 
-## Không nằm trong phạm vi rollout này
+## Việc team lead theo dõi hàng tuần
 
-- SSO / IdP tổ chức (mỗi user auth SAP/BTP riêng).
-- Private marketplace nội bộ Claude (dùng public `StormShynn/sap-abap-agent` hoặc fork + `marketplace add` URL nội bộ).
-- Rate-limit phía remote MCP (cds-kb, sap-docs) — phụ thuộc nhà cung cấp endpoint.
+- [ ] Mọi seat `validate_team_setup.py` READY (spot-check người mới)
+- [ ] Notion: một DB, không ai tạo “SAP Skills” rỗng song song (`notion_skills_db.py get` giống nhau)
+- [ ] Không ai commit `.mcp-sap-connect/` / secrets
+- [ ] Plugin/wheel theo version wiki (badge README / Releases)
+- [ ] Sự cố lặp → bổ sung [`team-troubleshooting.md`](team-troubleshooting.md)
+
+---
+
+## Ngoài phạm vi
+
+- SSO/IdP org cho SAP (mỗi user auth riêng).
+- Private Claude marketplace (fork + `marketplace add` URL nội bộ nếu cần).
+- Rate-limit remote MCP (cds-kb, sap-docs).
+- Port skills/hooks sang Cursor (quyết định: Claude-only).
 
 ---
 
 ## Liên kết
 
-- Bảo mật & chia sẻ secret: [`SECURITY.md`](../SECURITY.md)
-- Hạn chế đã biết: [`KNOWN_LIMITATIONS.md`](../KNOWN_LIMITATIONS.md)
-- Đóng góp / org pointer: [`CONTRIBUTING.md`](../CONTRIBUTING.md)
+| Doc | Mục đích |
+|-----|----------|
+| [`onboarding-guide.md`](onboarding-guide.md) | Happy-path 3 persona + host matrix |
+| [`team-troubleshooting.md`](team-troubleshooting.md) | FAQ đa user |
+| [`SECURITY.md`](../SECURITY.md) | Secret / không share vault |
+| [`KNOWN_LIMITATIONS.md`](../KNOWN_LIMITATIONS.md) | MFA, vsp single-profile |
+| [`CONTRIBUTING.md`](../CONTRIBUTING.md) | Đóng góp / org fork |

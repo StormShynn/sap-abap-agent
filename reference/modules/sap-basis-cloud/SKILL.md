@@ -12,6 +12,11 @@ khac xa on-premise. Nhieu tac vu Basis truyen thong (kernel update, DB admin, ST
 the lam tren Cloud — SAP tu quan ly. Dung ket hop voi skill `sap-extensibility` (bac thang
 extensibility chung) va `sap-clean-code` (dat ten) khi lien quan toi custom object.]
 
+## Tich hop
+
+Skill lien quan (bat buoc khi de xuat custom/mo rong): `sap-extensibility`, `sap-clean-code`,
+`sap-docs-research`. Agent `sap-basis-consultant-cloud` da nap cac skill nay qua frontmatter.
+
 ## 1. Van hanh he thong Public Cloud
 
 | Tac vu | Ai lam | Ghi chu |

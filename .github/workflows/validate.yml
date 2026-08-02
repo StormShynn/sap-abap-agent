@@ -78,6 +78,14 @@ jobs:
             --cov-fail-under=60 \
             -q --no-header -p no:cacheprovider
 
+      - name: Upload coverage.xml (report artifact; gate remains cov-fail-under)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-xml
+          path: coverage.xml
+          if-no-files-found: ignore
+
       - name: Run MCP server unit tests
         working-directory: reference/mcp-server
         run: |
