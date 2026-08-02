@@ -1,6 +1,6 @@
 [package]
 name = "gui-native"
-version = "1.22.2"
+version = "1.22.3"
 description = "SAP ABAP Agent native GUI (PATH-only; orchestrates mcp-sap-connect)"
 authors = ["StormShynn"]
 edition = "2021"
