@@ -22,6 +22,14 @@ Format dựa trên [Keep a Changelog](https://keepachangelog.com/) và [Semantic
 
 ## [v1.22.9] — 2026-08-02
 
+### Added
+
+- **Company rollout pack**: expanded `docs/rollout-guide.md`, `docs/team-troubleshooting.md`,
+  `docs/org-authenticode-setup.md`; scripts `validate_team_setup.py`,
+  `team_profile_export.py`, `notion_skills_db.py`, `claude_plugin_install.ps1`.
+- Finish/verification evidence gates + MCP soft Stop nudge (`verify_nudge` mark-verified-mcp);
+  vsp warn on active-profile change; coverage.xml CI artifact.
+
 ### Changed
 
 - Auto-bumped by CI (version-bump.yml).
