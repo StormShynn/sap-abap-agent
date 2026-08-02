@@ -62,10 +62,10 @@ jobs:
           echo '{"tool_input":{"file_path":"README.md"}}' | python hooks/post_tool_select_star.py 2>&1 | grep -q 'SELECT \*' && { echo "post_tool_select_star: WARN detected on non-ABAP - BUG"; exit 1; } || echo "post_tool_select_star: clean (no warn for non-ABAP)"
 
       - name: pytest collect-only (smoke)
-        # collect-only de khong can install ca mcp_sap_connect deps.
-        # Test that pytest discovery khong crash.
+        # Root tests/ only — reference/mcp-server/tests import runtime deps
+        # (httpx/cryptography) which this job does not install.
         run: |
-          python -m pytest tests/ reference/mcp-server/tests/ --collect-only -q -p no:cacheprovider
+          python -m pytest tests/ --collect-only -q -p no:cacheprovider
 
       - name: Run pytest with coverage (root tests only)
         # Chi chay test cho `tests/` root (reference/scripts/, hooks/).
