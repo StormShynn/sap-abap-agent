@@ -1476,7 +1476,7 @@
 <div class="feature-card">
           <span class="fc-icon">⚡</span>
           <h4>Thêm project chỉ 1 lệnh</h4>
-          <p><code>sap-btp-agent setup &lt;URL&gt;</code> — wizard tự sinh profile, hỏi thông tin OAuth2 và lưu cấu hình.</p>
+          <p><code>mcp-sap-connect setup &lt;URL&gt;</code> — wizard tự sinh profile, hỏi thông tin OAuth2 và lưu cấu hình.</p>
         </div>
         <div class="feature-card">
           <span class="fc-icon">📚</span>
@@ -1538,7 +1538,7 @@
 <span class="dir">┌─────────────────────────────────────────────────────────┐</span>
 <span class="dir">│               MCP Servers &amp; Skills Layer               │</span>
 <span class="dir">│                                                         │</span>
-<span class="dir">│  📦 sap-btp-setup  → sap-btp-agent CLI                │</span>
+<span class="dir">│  📦 sap-btp-setup  → mcp-sap-connect CLI                │</span>
 <span class="dir">│  📚 sap-cds-kb      → cds-kb-mcp (7,355 CDS views)    │</span>
 <span class="dir">│  📖 sap-docs-research → mcp-sap-docs-btp               │</span>
 <span class="dir">│  🧹 sap-clean-code  → ABAP Cloud naming rules         │</span>
@@ -1657,7 +1657,7 @@ claude mcp add --transport http notion https://mcp.notion.com/mcp</code><button 
         <li>Cấu hình Claude Code plugin:</li>
       </ol>
 
-      <pre><code>claude mcp add --transport stdio sap-btp -- sap-btp-agent</code><button class="copy-btn" onclick="copyCode(this)">Sao chép</button></pre>
+      <pre><code>claude mcp add --transport stdio sap-btp -- mcp-sap-connect</code><button class="copy-btn" onclick="copyCode(this)">Sao chép</button></pre>
 
       <p>Sau bước này, các MCP tool và 28 agents sẽ sẵn sàng trong Claude Code.</p>
     </section>
@@ -1670,14 +1670,21 @@ claude mcp add --transport http notion https://mcp.notion.com/mcp</code><button 
         <span class="env-name">SAP_BTP_PROFILE</span>
         <span class="env-eq">=</span>
         <span class="env-val">&lt;id&gt;</span>
-        <span style="color:var(--text-dim);font-family:var(--font);margin-left:8px;">— Khóa profile cho 1 lần chạy (ưu tiên hơn registry)</span>
+        <span style="color:var(--text-dim);font-family:var(--font);margin-left:8px;">— Khóa profile cho 1 lần chạy (alias cũ; ưu tiên hơn registry)</span>
       </div>
 
       <div class="env-row">
-        <span class="env-name">SAP_BTP_AGENT_HOME</span>
+        <span class="env-name">MCP_SAP_CONNECT_PROFILE</span>
+        <span class="env-eq">=</span>
+        <span class="env-val">&lt;id&gt;</span>
+        <span style="color:var(--text-dim);font-family:var(--font);margin-left:8px;">— Giống trên, tên mới (ưu tiên hơn <code>SAP_BTP_PROFILE</code>)</span>
+      </div>
+
+      <div class="env-row">
+        <span class="env-name">MCP_SAP_CONNECT_HOME</span>
         <span class="env-eq">=</span>
         <span class="env-val">/path/to/folder</span>
-        <span style="color:var(--text-dim);font-family:var(--font);margin-left:8px;">— Đổi thư mục cấu hình (test, multi-tenant)</span>
+        <span style="color:var(--text-dim);font-family:var(--font);margin-left:8px;">— Đổi thư mục cấu hình (mặc định <code>~/.mcp-sap-connect</code>)</span>
       </div>
     </section>
     <!-- ===== BÁO CÁO LỖI TỰ ĐỘNG ===== -->
@@ -1867,7 +1874,7 @@ Issue = [🐛 error] + [✅ fix solution] → Dev fix → release → user updat
 
       <p>Cách nhanh nhất — truyền URL trực tiếp:</p>
 
-      <pre><code>sap-btp-agent setup https://project1.s4hana.cloud.sap</code><button class="copy-btn" onclick="copyCode(this)">Sao chép</button></pre>
+      <pre><code>mcp-sap-connect setup https://project1.s4hana.cloud.sap</code><button class="copy-btn" onclick="copyCode(this)">Sao chép</button></pre>
 
       <p>Wizard sẽ tự sinh profile ID từ hostname (vd: <code>project1.s4hana.cloud.sap</code>) và hỏi phương thức xác thực (chọn 1-4):</p>
       <ul>
@@ -1881,15 +1888,15 @@ Issue = [🐛 error] + [✅ fix solution] → Dev fix → release → user updat
       <p>Thông tin được lưu riêng trong thư mục profile:</p>
 
       <div class="tree">
-<div class="dir">📂 %USERPROFILE%\.sap-btp-agent\profiles\project1.s4hana.cloud.sap\</div>
+<div class="dir">📂 %USERPROFILE%\.mcp-sap-connect\profiles\project1.s4hana.cloud.sap\</div>
 <div class="branch">├──</div> <span class="highlight">config.json</span> <span class="file">   ← URL, tenant, client_id, region, service (không nhạy cảm)</span>
 <div class="branch">└──</div> <span class="highlight">secrets.json</span>  <span class="file">  ← client_secret / token (ĐÃ MÃ HÓA)</span>
       </div>
 
       <p><strong>Thêm project thứ 2, thứ 3...</strong> cũng dễ dàng:</p>
 
-      <pre><code>sap-btp-agent setup https://project2.s4hana.cloud.sap
-sap-btp-agent setup https://project3.s4hana.cloud.sap</code><button class="copy-btn" onclick="copyCode(this)">Sao chép</button></pre>
+      <pre><code>mcp-sap-connect setup https://project2.s4hana.cloud.sap
+mcp-sap-connect setup https://project3.s4hana.cloud.sap</code><button class="copy-btn" onclick="copyCode(this)">Sao chép</button></pre>
 
       <p>Mỗi project có profile riêng, secret riêng (mã hóa độc lập).</p>
     </section>
@@ -1941,10 +1948,10 @@ sap-btp-agent setup https://project3.s4hana.cloud.sap</code><button class="copy-
       </ol>
 
       <h3>Wizard Setup chi tiết</h3>
-      <p>Khi chạy <code>sap-btp-agent setup</code>, wizard sẽ hỏi từng thông tin:</p>
+      <p>Khi chạy <code>mcp-sap-connect setup</code>, wizard sẽ hỏi từng thông tin:</p>
 
       <pre><code><span class="hl-com"># Bước 1: Nhập URL SAP BTP</span>
-$ sap-btp-agent setup https://project1.s4hana.cloud.sap
+$ mcp-sap-connect setup https://project1.s4hana.cloud.sap
 
 <span class="hl-com"># Bước 2: Chọn chế độ xác thực</span>
 ? Chọn auth mode:
@@ -2008,11 +2015,11 @@ $ sap-btp-agent setup https://project1.s4hana.cloud.sap
 <span class="hl-com"># HOẶC chạy lại setup với đúng token URL</span>
 
 <span class="hl-com"># Cách nhanh: chạy lại setup với flag --overwrite</span>
-sap-btp-agent setup https://project1.s4hana.cloud.sap
+mcp-sap-connect setup https://project1.s4hana.cloud.sap
 
 <span class="hl-com"># Sau đó sửa tokenUrl trong profile</span>
 <span class="hl-com"># File nằm ở:</span>
-<span class="hl-path">%USERPROFILE%\.sap-btp-agent\profiles\project1.s4hana.cloud.sap\secrets.json</span></code><button class="copy-btn" onclick="copyCode(this)">Sao chép</button></pre>
+<span class="hl-path">%USERPROFILE%\.mcp-sap-connect\profiles\project1.s4hana.cloud.sap\secrets.json</span></code><button class="copy-btn" onclick="copyCode(this)">Sao chép</button></pre>
 
       <h3>Token Lifecycle &amp; Auto-Refresh</h3>
       <p>Agent quản lý vòng đời token hoàn toàn tự động:</p>
@@ -2065,10 +2072,10 @@ sap-btp-agent setup https://project1.s4hana.cloud.sap
       </div>
 
       <h3>🔧 CLI Wizard — Cài đặt Cookie Auth</h3>
-      <p>Khi chạy <code>sap-btp-agent setup</code> (hoặc <code>mcp-sap-connect setup</code>), wizard hỏi phương thức xác thực. <strong>Cookie-based là mặc định (option 4)</strong>:</p>
+      <p>Khi chạy <code>mcp-sap-connect setup</code>, wizard hỏi phương thức xác thực. <strong>Cookie-based là mặc định (option 4)</strong>:</p>
 
       <pre><code><span class="hl-com"># Chạy setup wizard</span>
-$ sap-btp-agent setup https://project1.s4hana.cloud.sap
+$ mcp-sap-connect setup https://project1.s4hana.cloud.sap
 
 <span class="hl-com"># Auth mode — mặc định 4 (Cookie)</span>
 ? Chon (1-4) [4]:
@@ -2139,7 +2146,7 @@ pip install -e ".[playwright]"
 playwright install chromium
 
 <span class="hl-com"># Setup: Cookie (4) → nguồn cookie Auto browser (2)</span>
-sap-btp-agent setup https://project1.s4hana.cloud.sap</code><button class="copy-btn" onclick="copyCode(this)">Sao chép</button></pre>
+mcp-sap-connect setup https://project1.s4hana.cloud.sap</code><button class="copy-btn" onclick="copyCode(this)">Sao chép</button></pre>
 
       <h3>🧠 Kiến trúc — Lấy cảm hứng từ vibing-steampunk</h3>
       <p>Cơ chế cookie re-auth được xây dựng dựa trên pattern từ <a href="https://github.com/StormShynn/vibing-steampunk" target="_blank">vibing-steampunk</a> (dự án ADT → MCP bridge bằng Go):</p>
@@ -2201,11 +2208,10 @@ sap-btp-agent setup https://project1.s4hana.cloud.sap</code><button class="copy-
     <section id="ket-noi">
       <h2><span class="section-icon">🔌</span> Kiểm tra kết nối</h2>
 
-      <p>Sau khi <a href="#them-project">thêm project</a>, kiểm tra profile trước khi dùng MCP. Entry point chính thức là <code>mcp-sap-connect</code>; <code>sap-btp-agent</code> vẫn là shim tương đương.</p>
+      <p>Sau khi <a href="#them-project">thêm project</a>, kiểm tra profile trước khi dùng MCP:</p>
 
       <pre><code><span class="hl-com"># Ping nhanh — chỉ đọc session (nhẹ, không xin CSRF/write)</span>
 mcp-sap-connect ping
-sap-btp-agent ping
 
 <span class="hl-com"># Connect đầy đủ — đọc + kiểm tra ghi (CSRF). Dùng trước activate / list_packages…</span>
 mcp-sap-connect connect
@@ -2229,7 +2235,7 @@ python -m mcp_sap_connect.doctor</code><button class="copy-btn" onclick="copyCod
     <section id="quan-ly-profile">
       <h2><span class="section-icon">👥</span> Quản lý nhiều profile</h2>
 
-      <p>Mỗi URL SAP = 1 profile (secrets riêng). Entry chính: <code>mcp-sap-connect</code> (<code>sap-btp-agent</code> = shim cùng lệnh).</p>
+      <p>Mỗi URL SAP = 1 profile (secrets riêng). Entry chính: <code>mcp-sap-connect</code>.</p>
 
       <div class="cmd-grid">
         <div class="cmd-item">
@@ -2298,7 +2304,7 @@ mcp-sap-connect</code><button class="copy-btn" onclick="copyCode(this)">Sao ché
 
       <p>Claude Code không còn dùng file <code>mcp_servers.json</code> — đăng ký bằng lệnh <code>claude mcp add</code>:</p>
 
-      <pre><code>claude mcp add --transport stdio sap-btp -- sap-btp-agent</code><button class="copy-btn" onclick="copyCode(this)">Sao chép</button></pre>
+      <pre><code>claude mcp add --transport stdio sap-btp -- mcp-sap-connect</code><button class="copy-btn" onclick="copyCode(this)">Sao chép</button></pre>
 
       <p>Mặc định scope <code>local</code> (chỉ máy này, chỉ project hiện tại). Dùng <code>--scope user</code> để dùng được ở mọi project, hoặc <code>--scope project</code> để lưu vào <code>.mcp.json</code> và chia sẻ qua git cho cả team.</p>
 
@@ -2438,50 +2444,50 @@ bash reference/scripts/update.sh</code></pre>
           </thead>
           <tbody>
             <tr>
-              <td>sap-btp-agent setup &lt;URL&gt;</td>
+              <td>mcp-sap-connect setup &lt;URL&gt;</td>
               <td>Thêm project SAP mới (wizard)</td>
             </tr>
             <tr>
-              <td>sap-btp-agent connect</td>
+              <td>mcp-sap-connect connect</td>
               <td>Test kết nối profile active</td>
             </tr>
             <tr>
-              <td>sap-btp-agent connect &lt;id&gt;</td>
+              <td>mcp-sap-connect connect &lt;id&gt;</td>
               <td>Test kết nối một profile cụ thể</td>
             </tr>
             <tr>
-              <td>sap-btp-agent profiles list</td>
+              <td>mcp-sap-connect profiles list</td>
               <td>Liệt kê tất cả profile</td>
             </tr>
             <tr>
-              <td>sap-btp-agent profiles use &lt;id&gt;</td>
+              <td>mcp-sap-connect profiles use &lt;id&gt;</td>
               <td>Chọn profile active</td>
             </tr>
             <tr>
-              <td>sap-btp-agent profiles show</td>
+              <td>mcp-sap-connect profiles show</td>
               <td>Xem chi tiết profile active</td>
             </tr>
             <tr>
-              <td>sap-btp-agent profiles remove &lt;id&gt;</td>
+              <td>mcp-sap-connect profiles remove &lt;id&gt;</td>
               <td>Xóa một profile</td>
             </tr>
             <tr>
-              <td>sap-btp-agent reset</td>
+              <td>mcp-sap-connect reset</td>
               <td>⚠️ Xóa tất cả dữ liệu</td>
             </tr>
             <tr>
-              <td>sap-btp-agent doctor</td>
+              <td>mcp-sap-connect doctor</td>
               <td>Kiểm tra môi trường (PATH, dependency...)</td>
             </tr>
             <tr>
-              <td>sap-btp-agent --help</td>
+              <td>mcp-sap-connect --help</td>
               <td>Xem trợ giúp</td>
             </tr>
           </tbody>
         </table>
       </div>
 
-      <p><strong>Tips:</strong> Bạn có thể dùng lệnh <code>/sap-connect</code> ngay trong Claude Code để được hướng dẫn từng bước. Nếu <code>sap-btp-agent</code> báo "not recognized", chạy <code>python -m sap_btp_agent.doctor</code> — lệnh này chạy được dù PATH chưa đúng.</p>
+      <p><strong>Tips:</strong> Bạn có thể dùng lệnh <code>/sap-connect</code> ngay trong Claude Code để được hướng dẫn từng bước. Nếu <code>mcp-sap-connect</code> báo "not recognized", chạy <code>python -m sap_btp_agent.doctor</code> — lệnh này chạy được dù PATH chưa đúng.</p>
     </section>
 
     
@@ -3498,7 +3504,7 @@ java -jar cdata.jdbc.sapfieldglass.jar --license</code><button class="copy-btn" 
     <!-- ===== SKILL: SERVICE TYPE CONTEXT ===== -->
     <section id="skill-service-type-context">
       <h2><span class="section-icon">🧭</span> Service Type Context (sap-service-type-context)</h2>
-      <p><strong>reference/process/sap-service-type-context.md</strong> — Xác định hệ thống đang làm việc là <code>s4hc_(private)</code> / <code>s4hc_(public)</code> / <code>btp</code> / <code>onprem</code> bằng cách đọc <code>profiles/&lt;id&gt;/config.json</code> của <code>sap-btp-agent</code> (offline, không gọi MCP, không đụng secret) — hỏi user nếu chưa xác định được — trước khi trả lời câu hỏi bị ảnh hưởng bởi edition.</p>
+      <p><strong>reference/process/sap-service-type-context.md</strong> — Xác định hệ thống đang làm việc là <code>s4hc_(private)</code> / <code>s4hc_(public)</code> / <code>btp</code> / <code>onprem</code> bằng cách đọc <code>profiles/&lt;id&gt;/config.json</code> của <code>mcp-sap-connect</code> (offline, không gọi MCP, không đụng secret) — hỏi user nếu chưa xác định được — trước khi trả lời câu hỏi bị ảnh hưởng bởi edition.</p>
 
       <h3>So sánh nhanh theo Service Type</h3>
       <div class="table-wrap">
@@ -3525,7 +3531,7 @@ java -jar cdata.jdbc.sapfieldglass.jar --license</code><button class="copy-btn" 
           <tbody>
             <tr><td><code>config</code></td><td>Đã có giá trị <code>service</code> user xác nhận lúc setup</td><td>Dùng thẳng, không hỏi lại</td></tr>
             <tr><td><code>config_default</code></td><td>Config tồn tại nhưng thiếu/sai field <code>service</code></td><td>Hỏi lại user xác nhận</td></tr>
-            <tr><td><code>not_configured</code></td><td>Chưa từng chạy <code>sap-btp-agent setup</code></td><td>Hỏi thẳng user (giữ nguyên taxonomy 4 nhánh)</td></tr>
+            <tr><td><code>not_configured</code></td><td>Chưa từng chạy <code>mcp-sap-connect setup</code></td><td>Hỏi thẳng user (giữ nguyên taxonomy 4 nhánh)</td></tr>
           </tbody>
         </table>
       </div>
@@ -3639,7 +3645,7 @@ java -jar cdata.jdbc.sapfieldglass.jar --license</code><button class="copy-btn" 
       <h2><span class="section-icon">🔌</span> SAP BTP Setup Helper (multi-profile)</h2>
       <p><strong>skills/sap-btp-setup/SKILL.md</strong> — Setup &amp; xử lý sự cố kết nối SAP BTP qua MCP, hỗ trợ nhiều project SAP cùng lúc (multi-profile).</p>
 
-      <p>Thêm project mới chỉ 1 lệnh: <code>sap-btp-agent setup https://project1.s4hana.cloud.sap</code> — wizard tự sinh profile, hỏi phương thức xác thực.</p>
+      <p>Thêm project mới chỉ 1 lệnh: <code>mcp-sap-connect setup https://project1.s4hana.cloud.sap</code> — wizard tự sinh profile, hỏi phương thức xác thực.</p>
 
       <h3>4 phương thức xác thực</h3>
       <div class="table-wrap">
@@ -3657,7 +3663,7 @@ java -jar cdata.jdbc.sapfieldglass.jar --license</code><button class="copy-btn" 
       <h3>13 MCP tools</h3>
       <p><code>sap_list_profiles</code>, <code>sap_ping</code>, <code>sap_list_packages</code>, <code>sap_search</code>, <code>sap_read_source</code>, <code>sap_syntax_check</code>, <code>sap_activate</code>, <code>sap_find_where_used</code>, <code>sap_execute_query</code>, <code>sap_run_unit_tests</code>, <code>sap_get_system_info</code>, <code>sap_analyze_dump</code> — mỗi tool đều nhận tham số <code>profile</code> (để trống = active).</p>
 
-      <p>💡 <strong>Xử lý sự cố nhanh:</strong> lỗi <code>'sap-btp-agent' is not recognized</code> (Windows, hay gặp nhất) → chạy <code>python -m sap_btp_agent.doctor</code> để tự phát hiện và lấy lệnh fix PATH.</p>
+      <p>💡 <strong>Xử lý sự cố nhanh:</strong> lỗi <code>'mcp-sap-connect' is not recognized</code> (Windows, hay gặp nhất) → chạy <code>python -m sap_btp_agent.doctor</code> để tự phát hiện và lấy lệnh fix PATH.</p>
     </section>
 
     <!-- ===== SKILL: DOC TO MD ===== -->
@@ -3802,7 +3808,7 @@ java -jar cdata.jdbc.sapfieldglass.jar --license</code><button class="copy-btn" 
     <!-- ===== CODEGEN PIPELINE SECTION ===== -->
     <section id="codegen-pipeline">
       <h2><span class="section-icon">🏗️</span> Codegen Pipeline — Function Spec → ABAP code</h2>
-      <p>7 skill nối tiếp nhau, biến 1 file Function Spec (<code>.docx</code> khách hàng gửi) thành code ABAP scaffold theo chuẩn RAP/CDS. File trung gian đặt trong <code>in/</code>/<code>out/</code> — <strong>thư mục local per-user, không nằm trong git repo</strong>: <code>%USERPROFILE%\.sap-btp-agent\in\</code> + <code>...\out\</code> (Windows) hoặc <code>~/.sap-btp-agent/in/</code> + <code>.../out/</code> (macOS/Linux) — cùng nơi lưu profile/secrets kết nối SAP BTP. Lý do: tài liệu FS và output sinh ra là dữ liệu nghiệp vụ/khách hàng, không nên nằm chung với source code plugin.</p>
+      <p>7 skill nối tiếp nhau, biến 1 file Function Spec (<code>.docx</code> khách hàng gửi) thành code ABAP scaffold theo chuẩn RAP/CDS. File trung gian đặt trong <code>in/</code>/<code>out/</code> — <strong>thư mục local per-user, không nằm trong git repo</strong>: <code>%USERPROFILE%\.mcp-sap-connect\in\</code> + <code>...\out\</code> (Windows) hoặc <code>~/.mcp-sap-connect/in/</code> + <code>.../out/</code> (macOS/Linux) — cùng nơi lưu profile/secrets kết nối SAP BTP. Lý do: tài liệu FS và output sinh ra là dữ liệu nghiệp vụ/khách hàng, không nên nằm chung với source code plugin.</p>
 
       <div class="tree" style="line-height:1.9;">
 <span class="dir">┌─────────────────────────────────────────────────────────┐</span>
@@ -4067,7 +4073,7 @@ java -jar cdata.jdbc.sapfieldglass.jar --license</code><button class="copy-btn" 
 <span class="branch">│</span>   <span class="branch">│</span>   <span class="branch">├──</span> <span class="highlight">sap_btp_agent/sap/</span>    <span class="file"> ← auth (OAuth2), client (REST + auto-reconnect)</span>
 <span class="branch">│</span>   <span class="branch">│</span>   <span class="branch">├──</span> <span class="highlight">sap_btp_agent/tools/</span>  <span class="file"> ← registry các tool MCP</span>
 <span class="branch">│</span>   <span class="branch">│</span>   <span class="branch">├──</span> <span class="highlight">sap_btp_agent/cli/</span>    <span class="file"> ← wizard setup + quản lý profile</span>
-<span class="branch">│</span>   <span class="branch">│</span>   <span class="branch">└──</span> <span class="highlight">pyproject.toml</span>       <span class="file"> ← entry point <code>sap-btp-agent</code></span>
+<span class="branch">│</span>   <span class="branch">│</span>   <span class="branch">└──</span> <span class="highlight">pyproject.toml</span>       <span class="file"> ← entry point <code>mcp-sap-connect</code></span>
 <span class="branch">│</span>   <span class="branch">├──</span> <span class="highlight">process/</span>      <span class="file">   ← Context engineering: tool-result-trim, scaffold-summary, module-routing</span>
 <span class="branch">│</span>   <span class="branch">├──</span> <span class="highlight">mcp-guides/</span>   <span class="file">   ← MCP setup references: ADT, GUI, SuccessFactors, CData</span>
 <span class="branch">│</span>   <span class="branch">├──</span> <span class="highlight">scripts/</span>       <span class="file">   ← office_to_md, sync_skills, agent_home, cleanup_agent_home...</span>
@@ -4078,8 +4084,8 @@ java -jar cdata.jdbc.sapfieldglass.jar --license</code><button class="copy-btn" 
 
       <h3>Cấu hình (User folder)</h3>
       <div class="tree">
-<span class="dir">📂 %USERPROFILE%\.sap-btp-agent\</span>  <span class="file">(Windows)</span>
-<span class="dir">📂 ~/.sap-btp-agent/</span>              <span class="file">  (macOS/Linux)</span>
+<span class="dir">📂 %USERPROFILE%\.mcp-sap-connect\</span>  <span class="file">(Windows)</span>
+<span class="dir">📂 ~/.mcp-sap-connect/</span>              <span class="file">  (macOS/Linux)</span>
 <span class="branch">├──</span> <span class="highlight">profiles.json</span>                <span class="file">   ← Registry (danh sách + active)</span>
 <span class="branch">├──</span> <span class="highlight">profiles/</span>
 <span class="branch">│</span>   <span class="branch">└──</span> <span class="highlight">&lt;profile-id&gt;/</span>
@@ -4106,7 +4112,7 @@ java -jar cdata.jdbc.sapfieldglass.jar --license</code><button class="copy-btn" 
       </div>
 
       <p><strong>Lưu ý</strong>: đây là 2 folder <strong>tách biệt</strong> tên gần giống nhau —
-      <code>.sap-btp-agent\</code> lưu profile kết nối SAP BTP (MCP server), còn
+      <code>.mcp-sap-connect\</code> lưu profile kết nối SAP BTP (MCP server), còn
       <code>.sap-abap-agent\</code> lưu state riêng của <strong>plugin Claude Code</strong>
       (memory học tập, cache, session đang làm). Mặc định luôn ghi vào <code>%USERPROFILE%</code>
       dù đang mở project SAP nào; override qua <code>SAP_ABAP_AGENT_HOME</code> khi dev/test
@@ -4119,7 +4125,7 @@ java -jar cdata.jdbc.sapfieldglass.jar --license</code><button class="copy-btn" 
 
       <div class="trouble-card">
         <div class="tc-title">❌ 401 Unauthorized</div>
-        <p class="tc-desc">Client_secret sai hoặc hết hạn. Chạy <code>sap-btp-agent setup &lt;profile-id&gt;</code> để cập nhật thông tin OAuth2.</p>
+        <p class="tc-desc">Client_secret sai hoặc hết hạn. Chạy <code>mcp-sap-connect setup &lt;profile-id&gt;</code> để cập nhật thông tin OAuth2.</p>
       </div>
 
       <div class="trouble-card ok">
@@ -4129,21 +4135,21 @@ java -jar cdata.jdbc.sapfieldglass.jar --license</code><button class="copy-btn" 
 
       <div class="trouble-card">
         <div class="tc-title">🔒 Không giải mã được secret</div>
-        <p class="tc-desc">Đổi máy / hostname. Chạy lại <code>sap-btp-agent setup &lt;profile-id&gt;</code> để tạo lại secret.</p>
+        <p class="tc-desc">Đổi máy / hostname. Chạy lại <code>mcp-sap-connect setup &lt;profile-id&gt;</code> để tạo lại secret.</p>
       </div>
 
       <div class="trouble-card ok">
         <div class="tc-title">📭 Chưa có profile nào</div>
-        <p class="tc-desc">Chạy <code>sap-btp-agent setup &lt;URL&gt;</code> để thêm project SAP đầu tiên.</p>
+        <p class="tc-desc">Chạy <code>mcp-sap-connect setup &lt;URL&gt;</code> để thêm project SAP đầu tiên.</p>
       </div>
 
       <div class="trouble-card">
         <div class="tc-title">🔌 MCP tool không xuất hiện</div>
-        <p class="tc-desc">Kiểm tra đã <code>claude mcp add --transport stdio sap-btp -- sap-btp-agent</code> chưa (<code>claude mcp list</code> để xem). Đảm bảo <code>sap-btp-agent</code> có trong PATH.</p>
+        <p class="tc-desc">Kiểm tra đã <code>claude mcp add --transport stdio sap-btp -- mcp-sap-connect</code> chưa (<code>claude mcp list</code> để xem). Đảm bảo <code>mcp-sap-connect</code> có trong PATH.</p>
       </div>
 
       <div class="trouble-card">
-        <div class="tc-title">💻 'sap-btp-agent' is not recognized</div>
+        <div class="tc-title">💻 'mcp-sap-connect' is not recognized</div>
         <p class="tc-desc">PATH thiếu folder chứa entry point — lỗi rất hay gặp trên Windows khi <code>pip</code> cài vào user-scheme site-packages. Chạy <code>python -m sap_btp_agent.doctor</code> (chạy được dù PATH sai) để tự phát hiện và lấy sẵn lệnh fix.</p>
       </div>
     
@@ -4984,7 +4990,7 @@ java -jar cdata.jdbc.sapfieldglass.jar --license</code><button class="copy-btn" 
     // --- Features section ---
     '✨ Tính năng nổi bật': '✨ Key Features',
     'Thêm project chỉ 1 lệnh': 'One-Command Setup',
-    'sap-btp-agent setup <URL>': 'sap-btp-agent setup <URL>',
+    'mcp-sap-connect setup <URL>': 'mcp-sap-connect setup <URL>',
     ' — wizard tự sinh profile, hỏi thông tin OAuth2 và lưu cấu hình.': ' — auto-generates profile, prompts for OAuth2 info, saves config.',
     'Chuyển qua lại giữa nhiều project SAP trong cùng một phiên Claude bằng tham số ': 'Switch between SAP projects within one Claude session using the ',
     'profile': 'profile',
@@ -5614,8 +5620,8 @@ java -jar cdata.jdbc.sapfieldglass.jar --license</code><button class="copy-btn" 
     'Kiểm tra <code>skills/sap-user-skills/</code> không có file tương tự trước khi tạo mới.':
         'Checks <code>skills/sap-user-skills/</code> for no similar file before creating new one.',
 
-    'Xác định hệ thống đang làm việc là <code>s4hc_(private)</code> / <code>s4hc_(public)</code> / <code>btp</code> / <code>onprem</code> bằng cách đọc <code>profiles/&lt;id&gt;/config.json</code> của <code>sap-btp-agent</code> (offline, không gọi MCP, không đụng secret) — hỏi user nếu chưa xác định được — trước khi trả lời câu hỏi bị ảnh hưởng bởi edition.':
-        'Determines whether the connected system is <code>s4hc_(private)</code> / <code>s4hc_(public)</code> / <code>btp</code> / <code>onprem</code> by reading <code>profiles/&lt;id&gt;/config.json</code> from <code>sap-btp-agent</code> (offline, no MCP call, no secret touched) — asks the user if it cannot be determined — before answering edition-dependent questions.',
+    'Xác định hệ thống đang làm việc là <code>s4hc_(private)</code> / <code>s4hc_(public)</code> / <code>btp</code> / <code>onprem</code> bằng cách đọc <code>profiles/&lt;id&gt;/config.json</code> của <code>mcp-sap-connect</code> (offline, không gọi MCP, không đụng secret) — hỏi user nếu chưa xác định được — trước khi trả lời câu hỏi bị ảnh hưởng bởi edition.':
+        'Determines whether the connected system is <code>s4hc_(private)</code> / <code>s4hc_(public)</code> / <code>btp</code> / <code>onprem</code> by reading <code>profiles/&lt;id&gt;/config.json</code> from <code>mcp-sap-connect</code> (offline, no MCP call, no secret touched) — asks the user if it cannot be determined — before answering edition-dependent questions.',
 
     'So sánh nhanh theo Service Type': 'Quick comparison by Service Type',
     'Khía cạnh': 'Aspect',
@@ -5639,7 +5645,7 @@ java -jar cdata.jdbc.sapfieldglass.jar --license</code><button class="copy-btn" 
     'Dùng thẳng, không hỏi lại': 'Use it directly, do not ask again',
     'Config tồn tại nhưng thiếu/sai field <code>service</code>': 'Config exists but the <code>service</code> field is missing/invalid',
     'Hỏi lại user xác nhận': 'Ask the user to confirm',
-    'Chưa từng chạy <code>sap-btp-agent setup</code>': 'Has never run <code>sap-btp-agent setup</code>',
+    'Chưa từng chạy <code>mcp-sap-connect setup</code>': 'Has never run <code>mcp-sap-connect setup</code>',
     'Hỏi thẳng user (giữ nguyên taxonomy 4 nhánh)': 'Ask the user directly (keep the 4-branch taxonomy)',
 
     '<strong>Tích hợp:</strong> <code>sap-routing-discipline</code> trỏ tới skill này trước khi trả lời câu hỏi bị ảnh hưởng bởi edition; <code>sap-ask-consultant</code>/<code>sap-extensibility</code>/<code>sap-clean-code</code>/<code>sap-abap-sql</code> đọc kết quả để rẽ nhánh hoặc chèn cảnh báo thay vì mặc định Public Edition.':
