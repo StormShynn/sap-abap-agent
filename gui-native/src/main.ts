@@ -356,6 +356,7 @@ const el = {
   logCard: byId<HTMLDivElement>("log-text").parentElement as HTMLDivElement,
   btnClear: byId<HTMLButtonElement>("btn-clear"),
   btnCopy: byId<HTMLButtonElement>("btn-copy"),
+  btnOpenLogDir: byId<HTMLButtonElement>("btn-open-log-dir"),
   btnCopyPathFix: byId<HTMLButtonElement>("btn-copy-path-fix"),
   btnClearOnJob: byId<HTMLButtonElement>("btn-clear-on-job"),
   btnDone: byId<HTMLButtonElement>("btn-done"),
@@ -476,11 +477,20 @@ function confirmDialog(title: string, message: string): Promise<boolean> {
   });
 }
 
-// ===== Log helpers (raw text + colorized render) =====
-// rawLog la nguon that (de Copy / Clear). logText hien thi HTML co mau theo
-// muc: lenh `$` (cmd), [OK], [ERROR], [WARN], [exit ...] (dim).
+// ===== Log helpers (raw text + timestamped/colorized render) =====
+// rawLog la nguon that (de Copy / Clear — khong kem timestamp). logLines luu
+// tung dong + timestamp tai thoi diem append (renderLog chay lai toan bo moi
+// lan nen timestamp phai tinh luc append, khong phai luc render). logText hien
+// thi HTML co mau theo muc: lenh `$` (cmd), [OK], [ERROR], [WARN], [exit ...]
+// (dim), moi dong co prefix [HH:MM:SS] muted.
+
+interface LogLine {
+  ts: string;
+  text: string;
+}
 
 let rawLog = "";
+let logLines: LogLine[] = [];
 
 function escapeHtml(s: string): string {
   return s.replace(/[&<>"']/g, (c) => {
@@ -503,17 +513,24 @@ function logLineClass(line: string): string {
   return "";
 }
 
+function nowTimestamp(): string {
+  const d = new Date();
+  const p = (n: number) => String(n).padStart(2, "0");
+  return `${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`;
+}
+
 // Follow mode: chi auto-scroll xuong day khi user DANG o day (cach day < 40px).
 // Neu user da cuon len doc log cu, giu nguyen vi tri doc khi log them dong moi.
 function renderLog() {
   const scrolledAway =
     el.logCard.scrollHeight - el.logCard.scrollTop - el.logCard.clientHeight > 40;
-  const lines = rawLog.split("\n");
-  el.logText.innerHTML = lines
-    .map((line) => {
-      const cls = logLineClass(line);
-      const safe = escapeHtml(line);
-      return cls ? `<span class="${cls}">${safe}</span>` : safe;
+  el.logText.innerHTML = logLines
+    .map(({ ts, text }) => {
+      if (!text) return ""; // dong rong: giu nguyen, khong prefix timestamp
+      const cls = logLineClass(text);
+      const safe = escapeHtml(text);
+      const body = cls ? `<span class="${cls}">${safe}</span>` : safe;
+      return `<span class="log-ts">[${ts}]</span> ${body}`;
     })
     .join("\n");
   if (!scrolledAway) {
@@ -522,12 +539,20 @@ function renderLog() {
 }
 
 function appendLog(text: string) {
+  const ts = nowTimestamp();
   rawLog += text.endsWith("\n") ? text : text + "\n";
+  // Giu ca dong rong (log format) — moi dong 1 timestamp rieng tai luc append.
+  const chunks = text.split("\n");
+  if (text.endsWith("\n")) chunks.pop();
+  for (const chunk of chunks) {
+    logLines.push({ ts, text: chunk });
+  }
   renderLog();
 }
 
 function clearLog() {
   rawLog = "";
+  logLines = [];
   renderLog();
 }
 
@@ -829,6 +854,18 @@ async function refreshDoctorPathFix(opts: { announce?: boolean } = {}) {
     if (opts.announce) {
       appendLog(`[WARN] Không đọc được doctor --json: ${err}`);
     }
+  }
+}
+
+/** Mo thu muc log (~/.mcp-sap-connect/log) trong Explorer. */
+async function onOpenLogDir() {
+  try {
+    const path = await invoke<string>("open_log_dir");
+    appendLog(`[OK] Đã mở thư mục log: ${path}`);
+    setStatus("Đã mở thư mục log");
+  } catch (err) {
+    appendLog(`[ERROR] Không mở được thư mục log: ${err}`);
+    showToast(`Không mở được thư mục log: ${err}`, "danger");
   }
 }
 
@@ -1657,6 +1694,7 @@ function initEventListeners() {
 
   el.btnClear.addEventListener("click", clearLog);
   el.btnCopy.addEventListener("click", () => void copyLog());
+  el.btnOpenLogDir.addEventListener("click", () => void onOpenLogDir());
   el.btnCopyPathFix.addEventListener("click", () => void onCopyPathFix());
   el.btnClearOnJob.addEventListener("click", toggleClearOnJobStart);
   el.btnDone.addEventListener("click", () => void onDoneClicked());

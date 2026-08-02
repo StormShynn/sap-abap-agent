@@ -17,6 +17,7 @@ pub fn run() {
         .manage(tray::NotifyState::new())
         .invoke_handler(tauri::generate_handler![
             tray::set_notifications_enabled,
+            mcp_cli::open_log_dir,
             mcp_cli::check_runtime,
             mcp_cli::list_profiles,
             mcp_cli::get_license_statuses,

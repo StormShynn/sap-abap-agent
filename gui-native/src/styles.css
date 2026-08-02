@@ -574,6 +574,14 @@ button {
   word-break: break-word;
 }
 
+/* Log line timestamp prefix */
+.log-text .log-ts {
+  color: var(--muted);
+  opacity: 0.75;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
 /* Log line levels */
 .log-text .log-cmd {
   color: var(--accent);

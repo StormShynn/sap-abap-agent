@@ -9,6 +9,34 @@ use std::collections::HashMap;
 use std::process::Stdio;
 use tokio::process::Command;
 
+/// Log dir convention giong Python paths.get_log_dir():
+///   ~/.mcp-sap-connect/log   (respect MCP_SAP_CONNECT_HOME override).
+fn log_dir() -> std::path::PathBuf {
+    let base = std::env::var("MCP_SAP_CONNECT_HOME")
+        .map(std::path::PathBuf::from)
+        .unwrap_or_else(|_| {
+            dirs::home_dir()
+                .unwrap_or_else(std::env::temp_dir)
+                .join(".mcp-sap-connect")
+        });
+    base.join("log")
+}
+
+/// Mo thu muc log trong Explorer (tauri-plugin-opener) — tao neu chua co.
+/// Tra ve duong dan de frontend hien thi trong log.
+#[tauri::command]
+pub fn open_log_dir(app: tauri::AppHandle) -> Result<String, String> {
+    use tauri_plugin_opener::OpenerExt;
+    let dir = log_dir();
+    std::fs::create_dir_all(&dir)
+        .map_err(|e| format!("Khong tao duoc thu muc log: {e}"))?;
+    let path = dir.to_string_lossy().to_string();
+    app.opener()
+        .open_path(path.clone(), None::<&str>)
+        .map_err(|e| format!("Khong mo duoc thu muc log: {e}"))?;
+    Ok(path)
+}
+
 /// Tra ve command de chay CLI - uu tien binary tren PATH (entry point cua pip
 /// install), fallback ve `python -m mcp_sap_connect.cli` cho moi truong dev.
 /// Tuong duong runner._resolve_executable() ben Python.
