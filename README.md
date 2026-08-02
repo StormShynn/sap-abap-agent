@@ -197,7 +197,7 @@ Wheel pin (MCP package; có thể lệch patch so với plugin — ưu tiên
 `pip install "mcp-sap-connect[win-dpapi]"` nếu không cần URL cố định):
 
 ```bash
-pip install https://github.com/StormShynn/sap-abap-agent/releases/download/mcp-server-v1.22.0/mcp_sap_connect-1.22.0-py3-none-any.whl
+pip install https://github.com/StormShynn/sap-abap-agent/releases/download/mcp-server-v1.23.0/mcp_sap_connect-1.22.0-py3-none-any.whl
 pip install "mcp_sap_connect-1.22.0-py3-none-any.whl[win-dpapi]"
 # Cookie browser auto-login (tùy chọn):
 pip install "mcp_sap_connect-1.22.0-py3-none-any.whl[playwright]"
