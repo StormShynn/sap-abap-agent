@@ -422,6 +422,10 @@ Các text cần dịch:
 
 ## 🔄 Quy trình Pull Request
 
+**Canonical upstream:** `https://github.com/StormShynn/sap-abap-agent.git`
+(not a `-backup` mirror). Maintainers: `git remote set-url origin https://github.com/StormShynn/sap-abap-agent.git`.
+GUI signing / release notes: `gui-native/.signing/README.md`.
+
 ### Step-by-step
 
 ```bash

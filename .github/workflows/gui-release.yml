@@ -3,9 +3,15 @@ name: GUI Native Windows Release
 # Build signed NSIS + MSI + update.json when a gui-v* tag is pushed.
 # Example: git tag gui-v1.19.3 && git push origin gui-v1.19.3
 #
-# Required secrets:
+# Required secrets (Tauri updater / minisign — fail hard if missing):
 #   TAURI_SIGNING_PRIVATE_KEY
 #   TAURI_SIGNING_PRIVATE_KEY_PASSWORD  (empty string OK if key has no password)
+#
+# Optional secrets (Windows Authenticode / SmartScreen — fail-soft if missing):
+#   WINDOWS_CERTIFICATE            # raw base64 of .pfx (no PEM headers)
+#   WINDOWS_CERTIFICATE_PASSWORD   # PFX export password
+# When absent: warn and ship unsigned for Authenticode; minisign still applies.
+# See gui-native/.signing/README.md
 #
 # Also refreshes rolling tag `gui-latest` so in-app updater endpoint stays stable:
 #   https://github.com/StormShynn/sap-abap-agent/releases/download/gui-latest/update.json
@@ -75,7 +81,7 @@ jobs:
           [[ "$CARGO" == "$VERSION" ]] || { echo "Cargo.toml mismatch"; fail=1; }
           exit "$fail"
 
-      - name: Require signing secrets
+      - name: Require updater (minisign) secrets
         shell: bash
         env:
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
@@ -84,6 +90,58 @@ jobs:
             echo "Missing secret TAURI_SIGNING_PRIVATE_KEY — see gui-native/.signing/README.md" >&2
             exit 1
           fi
+
+      - name: Optional Authenticode (import PFX when secrets present)
+        id: authenticode
+        shell: pwsh
+        env:
+          WINDOWS_CERTIFICATE: ${{ secrets.WINDOWS_CERTIFICATE }}
+          WINDOWS_CERTIFICATE_PASSWORD: ${{ secrets.WINDOWS_CERTIFICATE_PASSWORD }}
+        run: |
+          if ([string]::IsNullOrWhiteSpace($env:WINDOWS_CERTIFICATE) -or
+              [string]::IsNullOrWhiteSpace($env:WINDOWS_CERTIFICATE_PASSWORD)) {
+            Write-Host "::warning::Authenticode secrets absent — shipping without Windows code signing (SmartScreen may warn). Minisign updater signing still applies. See gui-native/.signing/README.md"
+            "enabled=false" >> $env:GITHUB_OUTPUT
+            exit 0
+          }
+
+          $certDir = Join-Path $env:RUNNER_TEMP "authenticode"
+          New-Item -ItemType Directory -Force -Path $certDir | Out-Null
+          $pfxPath = Join-Path $certDir "certificate.pfx"
+          try {
+            $b64 = $env:WINDOWS_CERTIFICATE.Trim() -replace '-----[^-]+-----', '' -replace '\s', ''
+            [IO.File]::WriteAllBytes($pfxPath, [Convert]::FromBase64String($b64))
+          } catch {
+            Write-Host "::warning::Failed to decode WINDOWS_CERTIFICATE — continuing unsigned Authenticode. $_"
+            "enabled=false" >> $env:GITHUB_OUTPUT
+            exit 0
+          }
+
+          try {
+            $secure = ConvertTo-SecureString -String $env:WINDOWS_CERTIFICATE_PASSWORD -Force -AsPlainText
+            $cert = Import-PfxCertificate -FilePath $pfxPath -CertStoreLocation Cert:\CurrentUser\My -Password $secure
+          } catch {
+            Write-Host "::warning::Failed to import PFX — continuing unsigned Authenticode. $_"
+            "enabled=false" >> $env:GITHUB_OUTPUT
+            exit 0
+          }
+
+          $thumb = $cert.Thumbprint
+          Write-Host "Imported Authenticode certificate thumbprint=$thumb"
+          $overlayPath = Join-Path $certDir "authenticode.tauri.conf.json"
+          $overlay = @{
+            bundle = @{
+              windows = @{
+                certificateThumbprint = $thumb
+                digestAlgorithm       = "sha256"
+                timestampUrl          = "http://timestamp.digicert.com"
+              }
+            }
+          } | ConvertTo-Json -Depth 6 -Compress
+          # UTF-8 without BOM — Tauri JSON parse is picky about BOM
+          [IO.File]::WriteAllText($overlayPath, $overlay)
+          "enabled=true" >> $env:GITHUB_OUTPUT
+          "config=$overlayPath" >> $env:GITHUB_OUTPUT
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -112,7 +170,17 @@ jobs:
           # secret here — PowerShell/gh often stores a newline and Tauri then
           # reports "Wrong password". Literal "" is intentional.
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ""
-        run: npm run tauri build
+          AUTHENTICODE_ENABLED: ${{ steps.authenticode.outputs.enabled }}
+          AUTHENTICODE_CONFIG: ${{ steps.authenticode.outputs.config }}
+        shell: bash
+        run: |
+          if [[ "${AUTHENTICODE_ENABLED}" == "true" && -n "${AUTHENTICODE_CONFIG}" ]]; then
+            echo "Building with Authenticode overlay: ${AUTHENTICODE_CONFIG}"
+            npm run tauri build -- --config "${AUTHENTICODE_CONFIG}"
+          else
+            echo "Building without Authenticode (fail-soft)"
+            npm run tauri build
+          fi
 
       - name: Stage artifacts for update.json
         shell: bash
