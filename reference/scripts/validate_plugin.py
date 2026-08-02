@@ -359,6 +359,28 @@ def check_namespace_guard_coverage() -> None:
         )
 
 
+def check_readme_skill_count() -> None:
+    """Warn (not fail) if README claims a skill count that drifts from skills/ on disk."""
+    readme = ROOT / "README.md"
+    if not readme.exists():
+        return
+    text = read(readme)
+    real = _real_skill_count()
+    # Match common Vietnamese/English table cells like "| 40 skill |" or "40 skills"
+    for m in re.finditer(r"\b(\d+)\s+skills?\b", text, re.IGNORECASE):
+        claimed = int(m.group(1))
+        # Ignore tiny numbers that are clearly not inventory totals (e.g. "2 skills")
+        if claimed < 10:
+            continue
+        if claimed != real:
+            warn(
+                "doc-drift",
+                f"README.md mentions '{claimed} skill(s)' but skills/ currently has {real} "
+                f"(excluding sap-user-skills placeholder) — update the inventory table/badge copy",
+            )
+            return  # one warn is enough
+
+
 def check_version_consistency() -> None:
     plugin_json = ROOT / ".claude-plugin" / "plugin.json"
     changelog = ROOT / "CHANGELOG.md"
@@ -396,6 +418,7 @@ def main() -> int:
     check_routing_matrix_coverage()
     check_index_html_counts()
     check_namespace_guard_coverage()
+    check_readme_skill_count()
     check_version_consistency()
 
     if WARNINGS:

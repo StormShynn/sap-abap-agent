@@ -8,8 +8,20 @@ Format dựa trên [Keep a Changelog](https://keepachangelog.com/) và [Semantic
 
 ## [v1.22.1] — 2026-08-02
 
+### Added
+
+- Scaffold RAP/CDS/CDS-analytics: Buoc-0 edition gate (`sap-service-type-context` +
+  `sap-extensibility`), aligned with `sap-scaffold-report`.
+- `docs/architecture.md` §6.1 — short skill-vs-agent routing table (docs-research,
+  daily-learner, atc-review vs abap-reviewer).
+- `validate_plugin.py`: warn when README skill-count copy drifts from `skills/`.
+
 ### Changed
 
+- `sap-daily-learner`: Write/Edit scoped to `<agent-home>` (promote to `reference/modules/`
+  still requires explicit user confirm).
+- Module deep-split backlog copy: 8 modules already split (was stale "17 remaining").
+- GUI signing docs: set secrets via `cmd /c` stdin to avoid UTF-8 BOM (Tauri decode error 239).
 - Auto-bumped by CI (version-bump.yml).
 
 

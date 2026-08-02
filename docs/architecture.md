@@ -181,6 +181,15 @@ pipeline (mục 2): không báo "xong" nếu chỉ dựa vào đọc code, phả
 | **Action skill riêng lẻ** | `sap-package-backup`, `sap-handoff`, `sap-cloud-migration` | Gọi trực tiếp theo nhu cầu cụ thể |
 | **Placeholder** | `sap-user-skills` | Rỗng, chỗ user tự thêm skill riêng — không tính vào 40 |
 
+## 6.1 Khi nào dùng skill vs agent (tránh trùng)
+
+| Nhu cầu | Dùng | Không nhầm với |
+|---|---|---|
+| Tra cứu SAP Help / Notes / Fiori App Library / Clean Core objects | Skill `sap-docs-research` (trong session hiện tại) | Agent `sap-docs-researcher` — cùng kiến thức, nhưng qua `Task` khi cần tách ngữ cảnh / chạy song song với consultant |
+| Học hàng ngày, tip, quiz, lesson card, auto-skill cá nhân | Skill `sap-daily-learner` | Agent `sap-daily-learner` / module `sap-daily-learner-cloud` — agent/module chỉ khi dispatch tư vấn lộ trình học; skill mới ghi memory dưới `<agent-home>` |
+| Review ABAP sau scaffold (naming, released API, checklist ATC) | Skill `sap-atc-review` (script + báo cáo `ATC_REVIEW.md`) | Agent `abap-reviewer` — review defect-first rộng hơn (security/clean-code), gọi thêm skill khi cần; không thay ATC scripts |
+| Câu hỏi nghiệp vụ theo phân hệ | Skill `sap-ask-consultant` → agent `sap-*-consultant-cloud` | Đừng trả lời thẳng từ kiến thức chung nếu routing khớp (xem `sap-routing-discipline`) |
+
 ## 7. Nguồn
 
 - `docs/audits/2026-Q3-skill-rationalization.md` (2026-07-14) — đợt rà soát đầu tiên, giảm 75

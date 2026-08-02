@@ -1,7 +1,7 @@
 ---
 title: Onboarding Guide
 audience: end-user
-version: 1.21.0
+version: 1.22.1
 last_updated: 2026-08-02
 ---
 

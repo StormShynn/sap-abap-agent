@@ -49,8 +49,10 @@ theo mac dinh. Chi load DEEP layer (`deep/SKILL.md`) khi:
 - User hoi extensibility bac thang cho 1 module cu the.
 - Agent phai cross-check voi SAP Help / API Hub.
 
-Module FI da tach (xem `reference/modules/sap-fi-cloud/SKILL.md` core + `deep/SKILL.md`). 17
-module con lai se tach lan luot theo `reference/process/sap-context-module-routing.md`.
+Da tach core+deep (8): `sap-fi-cloud`, `sap-fiori-cloud`, `sap-ewm-cloud`, `sap-ibp-cloud`,
+`sap-cap-cloud`, `sap-cpi-cloud`, `sap-btp-admin-cloud`, `sap-successfactors-cloud`. Cac module
+`reference/modules/` con lai (backlog, khong bat buoc truoc release) tach lan luot theo
+`reference/process/sap-context-module-routing.md` — uu tien module hay duoc dispatch.
 
 Khi dispatch nhieu module song song (vd SD + FI + CO), **tong token** = tong CORE layers (nho)
 + chi module nao load DEEP (neu can). Truoc day: tong FULL SKILL.md cua 3 module (~600 lines).

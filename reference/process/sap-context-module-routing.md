@@ -96,7 +96,8 @@ load deep khi user hoi cu the ve SSCUI/API/Fiori.
 - **Token khi dispatch song song 3 module**: giam ~60-70% (vi moi module chi load core).
 - **Agent khong "tra loi tu CORE"** nham (vi CORE khong chua thong tin co the tra loi sai).
 - **Backwards compatible**: DEEP file giu nguyen ten `SKILL.md`, agent van doc duoc bang `Read`.
-- **De tach them**: 17 module con lai ap dung pattern giong FI.
+- **De tach them**: cac module `reference/modules/` chua co `deep/` (backlog) ap dung pattern
+  giong FI; da co deep: FI, Fiori, EWM, IBP, CAP, CPI, BTP Admin, SuccessFactors.
 
 ## Tich hop
 

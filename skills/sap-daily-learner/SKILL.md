@@ -25,6 +25,13 @@ python "${CLAUDE_PLUGIN_ROOT}/reference/scripts/bootstrap_memory.py"
 ```
 Script idempotent: lan dau tao toan bo cay memory + LEARNING_PROGRESS.md + knowledge_graph.jsonl; cac lan sau chi skip, KHONG ghi de du lieu dang co.
 
+**Write/Edit scope (BAT BUOC)**: moi lan dung tool `Write` / `Edit` trong skill nay chi duoc ghi
+duoi `<agent-home>` (resolve bang `agent_home.py` — thuong `%USERPROFILE%\.sap-abap-agent\` /
+`~/.sap-abap-agent/`, hoac `SAP_ABAP_AGENT_HOME`). Duong dan hop le: `memory/**`, `cron/**`,
+va cac file bootstrap tao trong `<agent-home>`. **KHONG** ghi vao workspace/repo dang mo
+(`skills/`, `docs/`, `out/`, source ABAP...). Ngoai le duy nhat: muc **3c Promote skill** sau khi
+user xac nhan ro — chi khi do moi `Write`/`Edit` `reference/modules/...` trong plugin root.
+
 Khi can them folder/file rieng (vd them skill-moi/ hoac notes/<concept>.md), truyen lap lai:
 ```bash
 python "${CLAUDE_PLUGIN_ROOT}/reference/scripts/bootstrap_memory.py" \

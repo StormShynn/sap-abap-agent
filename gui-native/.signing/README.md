@@ -10,10 +10,12 @@ Private key file on the machine that generated it (do not commit):
 `%TEMP%\sap-abap-agent-gui-keys\sap-abap-agent-gui.key`
 
 ```powershell
-# From a shell that can reach GitHub (gh auth login)
+# From a shell that can reach GitHub (gh auth login).
+# IMPORTANT: use cmd.exe stdin redirect — PowerShell piping/UTF-8-BOM corrupts the key
+# (Tauri then fails with: Invalid symbol 239, offset 0).
 $key = "$env:TEMP\sap-abap-agent-gui-keys\sap-abap-agent-gui.key"
-gh secret set TAURI_SIGNING_PRIVATE_KEY --repo StormShynn/sap-abap-agent < $key
-gh secret set TAURI_SIGNING_PRIVATE_KEY_PASSWORD --repo StormShynn/sap-abap-agent --body ""
+cmd /c "gh secret set TAURI_SIGNING_PRIVATE_KEY --repo StormShynn/sap-abap-agent < %TEMP%\sap-abap-agent-gui-keys\sap-abap-agent-gui.key"
+cmd /c "echo.| gh secret set TAURI_SIGNING_PRIVATE_KEY_PASSWORD --repo StormShynn/sap-abap-agent"
 ```
 
 If the key file is gone, regenerate and **replace** `plugins.updater.pubkey` in
