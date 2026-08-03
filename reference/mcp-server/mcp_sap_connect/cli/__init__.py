@@ -912,6 +912,54 @@ def _sanitize_for_json_output(data: Any, key_hint: str | None = None) -> Any:
     return data
 
 
+def _sanitize_license_status_for_json(status: Any) -> dict[str, Any]:
+    """Strict allowlist sanitizer for license status JSON output."""
+    if not isinstance(status, dict):
+        return {}
+
+    out: dict[str, Any] = {}
+    for k in (
+        "profile_id",
+        "label",
+        "url",
+        "is_active",
+        "has_credentials",
+        "type",
+        "expires_at",
+        "expires_in_human",
+        "is_expired",
+        "is_warning",
+        "last_saved",
+    ):
+        if k in status:
+            out[k] = status.get(k)
+
+    extra = status.get("extra")
+    if isinstance(extra, dict):
+        safe_extra: dict[str, Any] = {}
+        if "total_cookies" in extra:
+            safe_extra["total_cookies"] = extra.get("total_cookies")
+        if "max_age_hours" in extra:
+            safe_extra["max_age_hours"] = extra.get("max_age_hours")
+        if "session_cookies" in extra and isinstance(extra.get("session_cookies"), list):
+            safe_extra["session_cookie_count"] = len(extra.get("session_cookies") or [])
+        if "token_endpoint" in extra:
+            safe_extra["token_endpoint"] = extra.get("token_endpoint")
+        if "scope" in extra:
+            safe_extra["scope"] = extra.get("scope")
+        out["extra"] = safe_extra
+    else:
+        out["extra"] = {}
+
+    return out
+
+
+def _sanitize_license_statuses_for_json(statuses: Any) -> list[dict[str, Any]]:
+    if not isinstance(statuses, list):
+        return []
+    return [_sanitize_license_status_for_json(item) for item in statuses]
+
+
 def _cmd_license(profile_id, *, json_mode: bool = False):
     """In trang thai license (cookie/token) cua 1 hoac tat ca profile.
 
@@ -928,13 +976,13 @@ def _cmd_license(profile_id, *, json_mode: bool = False):
         if profile_id:
             try:
                 status = _lic.get_profile_status(profile_id)
-                print(_json.dumps(_sanitize_for_json_output(status), ensure_ascii=False))
+                print(_json.dumps(_sanitize_license_status_for_json(status), ensure_ascii=False))
             except Exception as err:
                 print(_json.dumps({"error": str(err)}, ensure_ascii=False))
         else:
             try:
                 statuses = _lic.list_all_statuses()
-                print(_json.dumps(_sanitize_for_json_output(statuses), ensure_ascii=False))
+                print(_json.dumps(_sanitize_license_statuses_for_json(statuses), ensure_ascii=False))
             except Exception as err:
                 print(_json.dumps({"error": str(err)}, ensure_ascii=False))
         return
