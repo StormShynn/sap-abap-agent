@@ -2,7 +2,7 @@
 name: sap-mcp-status
 description: |
   Doi chieu danh sach MCP server ma cac skill/README cua plugin nay co nhac toi
-  (sap-btp, sap-dict-bridge, arc-1, mcp-abap-adt, cds-kb, mcp-sap-docs-btp,
+  (sap-connect, sap-dict-bridge, arc-1, mcp-abap-adt, cds-kb, mcp-sap-docs-btp,
   sap-notes, sap-gui, sf-mcp, sf-cdata, sap-concur, sap-fieldglass...) voi
   nhung gi THUC SU dang duoc dang ky trong Claude Code (user/local/project
   scope) cho project hien tai. Chi doc - khong sua `.claude.json`/`.mcp.json`,

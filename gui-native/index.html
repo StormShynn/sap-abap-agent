@@ -54,9 +54,16 @@
           <button id="btn-refresh" class="btn btn-flat" title="Làm mới danh sách profile">
             <span aria-hidden="true">⟳</span> Refresh
           </button>
+          <button id="btn-edit-profile" class="btn btn-flat" title="Sửa profile đang chọn (điền lại form, cần nhập lại secret/password)">
+            ✏️ Sửa
+          </button>
+          <button id="btn-profile-info" class="btn btn-flat" title="Xem thông tin profile (chỉ xem — để biết tên/URL/tenant khi hỏi Claude)">
+            ℹ️ Info
+          </button>
           <div class="add-menu">
             <button id="btn-add" class="btn btn-accent">+ Add ▾</button>
             <div id="add-dropdown" class="dropdown hidden">
+              <button data-action="new-form">🆕 New profile (điền form)...</button>
               <button data-action="wizard">🧙 Setup wizard (interactive)...</button>
               <button data-action="from-file">📄 Setup from file (--from-file)...</button>
               <button data-action="import-json">📥 Import from JSON backup...</button>
@@ -124,14 +131,14 @@
         <div class="modal-header">
           <h2>Cài đặt MCP Servers</h2>
           <div class="mcp-preset-row">
-            <button id="btn-mcp-preset-core" class="btn btn-flat btn-sm" title="sap-btp, sap-dict-bridge, cds-kb, mcp-sap-docs-btp">Cài Core</button>
+            <button id="btn-mcp-preset-core" class="btn btn-flat btn-sm" title="sap-connect, sap-dict-bridge, cds-kb, mcp-sap-docs-btp">Cài Core</button>
             <button id="btn-mcp-preset-research" class="btn btn-flat btn-sm" title="Core + arc-1 + sap-vsp">Preset Research</button>
             <button id="btn-mcp-refresh" class="btn btn-flat btn-sm">Làm mới</button>
             <button id="btn-mcp-close" class="btn btn-flat btn-sm">Đóng</button>
           </div>
         </div>
         <p class="muted mcp-intro">
-          Đăng ký MCP với Claude Code. <strong>Core (bắt buộc)</strong>: sap-btp, sap-dict-bridge, cds-kb, mcp-sap-docs-btp.
+          Đăng ký MCP với Claude Code. <strong>Core (bắt buộc)</strong>: sap-connect, sap-dict-bridge, cds-kb, mcp-sap-docs-btp.
           Sau khi đăng ký, khởi động lại Claude Code để nhận server mới.
         </p>
         <div id="mcp-core-cta" class="mcp-core-cta hidden">
@@ -220,6 +227,157 @@
           Auto-update qua tag <code>gui-latest</code> / <code>update.json</code> (ký minisign).
           Plugin Claude Code: xem nút 📦 Plugin. CLI (<code>mcp-server-v*</code>): pip / <code>update.ps1</code>.
         </p>
+      </div>
+    </div>
+
+    <div id="setup-form-modal" class="modal-overlay hidden">
+      <div class="modal-panel">
+        <div class="modal-header">
+          <h2 id="setup-form-title">Tạo profile SAP mới</h2>
+          <button id="btn-setup-form-close" class="btn btn-flat btn-sm">Đóng</button>
+        </div>
+        <p id="setup-form-intro" class="muted mcp-intro">
+          Điền thông tin rồi bấm "Tạo profile" — không cần chạy lệnh tay. Chỉ field có
+          <strong>*</strong> là bắt buộc. Xem <code>reference/templates/mcp-sap-connect-profile-sample/README.md</code>
+          trong repo nếu cần giải thích field/edition chi tiết hơn.
+        </p>
+        <div id="setup-form-error" class="form-error hidden"></div>
+
+        <div class="form-row">
+          <label for="sf-url">URL SAP *</label>
+          <input id="sf-url" class="prompt-input" type="text" placeholder="https://your-tenant.s4hana.cloud.sap" />
+        </div>
+        <div class="form-row form-row-2">
+          <div>
+            <label for="sf-profile-id">Profile ID (để trống = tự sinh từ URL)</label>
+            <input id="sf-profile-id" class="prompt-input" type="text" placeholder="tuỳ chọn" />
+          </div>
+          <div>
+            <label for="sf-region">Region</label>
+            <input id="sf-region" class="prompt-input" type="text" value="eu10" />
+          </div>
+        </div>
+        <div class="form-row form-row-2">
+          <div>
+            <label for="sf-service">Edition</label>
+            <select id="sf-service" class="prompt-input">
+              <option value="s4hc_(public)">S/4HANA Cloud Public Edition</option>
+              <option value="s4hc_(private)">S/4HANA Cloud Private Edition</option>
+              <option value="btp">SAP BTP ABAP Environment (Steampunk)</option>
+              <option value="onprem">On-premise</option>
+              <option value="rise_with_sap">RISE with SAP</option>
+            </select>
+          </div>
+          <div>
+            <label for="sf-auth-mode">Cách xác thực *</label>
+            <select id="sf-auth-mode" class="prompt-input">
+              <option value="oauth2">OAuth2 (Communication Arrangement - khuyến nghị)</option>
+              <option value="password">Username / Password</option>
+              <option value="bearer">Bearer token có sẵn</option>
+              <option value="cookie">Cookie (session browser)</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="sf-group-oauth2" class="sf-group">
+          <div class="form-row form-row-2">
+            <div>
+              <label for="sf-client-id">Client ID *</label>
+              <input id="sf-client-id" class="prompt-input" type="text" />
+            </div>
+            <div>
+              <label for="sf-client-secret">Client Secret *</label>
+              <input id="sf-client-secret" class="prompt-input" type="password" />
+            </div>
+          </div>
+          <div class="form-row form-row-2">
+            <div>
+              <label for="sf-scope">Scope (tuỳ chọn)</label>
+              <input id="sf-scope" class="prompt-input" type="text" />
+            </div>
+            <div>
+              <label for="sf-tenant-oauth2">Tenant (tuỳ chọn)</label>
+              <input id="sf-tenant-oauth2" class="prompt-input" type="text" />
+            </div>
+          </div>
+        </div>
+
+        <div id="sf-group-password" class="sf-group hidden">
+          <div class="form-row form-row-2">
+            <div>
+              <label for="sf-username">Username *</label>
+              <input id="sf-username" class="prompt-input" type="text" />
+            </div>
+            <div>
+              <label for="sf-password">Password *</label>
+              <input id="sf-password" class="prompt-input" type="password" />
+            </div>
+          </div>
+        </div>
+
+        <div id="sf-group-bearer" class="sf-group hidden">
+          <div class="form-row">
+            <label for="sf-access-token">Access token *</label>
+            <input id="sf-access-token" class="prompt-input" type="password" />
+          </div>
+        </div>
+
+        <div id="sf-group-cookie" class="sf-group hidden">
+          <div class="form-row">
+            <label for="sf-reauth-mode">Khi cookie hết hạn</label>
+            <select id="sf-reauth-mode" class="prompt-input">
+              <option value="auto">Tự mở browser cho đăng nhập lại (khuyến nghị nếu không rành F12)</option>
+              <option value="manual">Tự paste lại cookie mới (thủ công, cần F12)</option>
+            </select>
+          </div>
+
+          <div id="sf-cookie-auto-hint" class="muted sf-hint">
+            Để trống Cookies bên dưới — sau khi bấm "Tạo profile", 1 cửa sổ browser sẽ tự mở
+            để bạn đăng nhập SAP như bình thường (không cần F12). Điền thêm Username/Password
+            bên dưới (tuỳ chọn) để đăng nhập nhanh hơn (~1-3s, không mở browser) nếu hệ thống
+            của bạn <strong>không</strong> bắt buộc MFA/OTP — bỏ trống hoặc không hợp lệ thì
+            vẫn tự chuyển qua mở browser bình thường.
+          </div>
+          <div id="sf-group-saml" class="sf-group">
+            <div class="form-row form-row-2">
+              <div>
+                <label for="sf-saml-username">Username (tuỳ chọn — đăng nhập nhanh)</label>
+                <input id="sf-saml-username" class="prompt-input" type="text" />
+              </div>
+              <div>
+                <label for="sf-saml-password">Password (tuỳ chọn — đăng nhập nhanh)</label>
+                <input id="sf-saml-password" class="prompt-input" type="password" />
+              </div>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <label id="sf-cookies-label" for="sf-cookies">Cookies (để trống nếu muốn tự mở browser)</label>
+            <textarea id="sf-cookies" class="prompt-input sf-textarea" rows="3" placeholder="MYSAPSSO2=...&#10;SAP_SESSIONID_ABC_100=...&#10;sap-usercontext=..."></textarea>
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button id="btn-setup-form-cancel" class="btn btn-flat">Hủy</button>
+          <button id="btn-setup-form-ok" class="btn btn-accent">Tạo profile</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="profile-info-modal" class="modal-overlay hidden">
+      <div class="modal-panel modal-panel-small">
+        <div class="modal-header">
+          <h3 id="profile-info-title">Thông tin profile</h3>
+          <button id="btn-profile-info-close" class="btn btn-flat btn-sm">Đóng</button>
+        </div>
+        <p class="muted" style="font-size: 0.85em; margin-top: -4px;">
+          Chỉ xem — dùng để biết đúng tên/URL/tenant khi nói chuyện với Claude
+          (vd: "kết nối tới tenant ..." hoặc "dùng profile ..."). Bấm vào 1 dòng để copy giá trị đó.
+        </p>
+        <div id="profile-info-rows" class="info-rows"></div>
+        <div class="modal-actions">
+          <button id="btn-profile-info-copy" class="btn btn-flat">📋 Copy tất cả</button>
+        </div>
       </div>
     </div>
 

@@ -48,10 +48,18 @@ mcp-sap-connect mcp-setup
 Script se tu dong:
 1. Quet inventory (`mcp_inventory.json` — 15 servers)
 2. Kiem tra server nao da register roi
-3. **Core + Remote** (sap-btp, sap-dict-bridge, cds-kb, mcp-sap-docs-btp, notion) → register ngay
-4. **ADT alternatives** (arc-1, mcp-abap-adt, …) → hoi xac nhan + env vars
-5. **Product-specific / dev-tool** → huong dan cai dat thu cong (hoac prompt Y/n)
-6. Ghi vao `~/.claude.json` (user scope) + `.mcp.json` (project scope)
+3. **Core + Remote + dev-tool** (sap-connect, sap-dict-bridge, cds-kb, mcp-sap-docs-btp, notion,
+   chrome-devtools) → register ngay, khong hoi
+4. **ADT alternatives** (arc-1, mcp-abap-adt, …) → hoi xac nhan + env vars (lua chon thay the
+   nhau, khong co mac dinh dung nhat)
+5. **Product-specific** → huong dan cai dat thu cong (can clone/build/license rieng)
+6. Ghi vao **3 file khac nhau** (Claude Code va Claude Desktop la 2 app khac nhau, moi app doc
+   file cua rieng no — thieu 1 buoc la MCP "bien mat" o dung app do):
+   - `.mcp.json` (project scope, core+docs-remote, git-tracked dung chung team)
+   - `~/.claude.json` `mcpServers` (Claude Code CLI, user scope — chi `chrome-devtools`, tranh
+     trung voi `.mcp.json` o tren)
+   - `claude_desktop_config.json` (app **Claude Desktop**, KHAC Claude Code CLI — core+docs-
+     remote+dev-tool, chi khi thu muc config cua Desktop da ton tai san tren may)
 
 ## Kiem tra
 
@@ -67,9 +75,10 @@ Khoi dong lai Claude Code de nhan server moi. Neu can OAuth Notion: dung **`/mcp
 ## ─── Servers co the auto-register ngay ───
 
 ```bash
-claude mcp add --transport stdio sap-btp -- mcp-sap-connect
+claude mcp add --transport stdio sap-connect -- mcp-sap-connect
 claude mcp add --transport stdio sap-dict-bridge -- python -m mcp_sap_connect.bridge_server
 claude mcp add --transport sse cds-kb --url https://cds-kb-mcp-kit-production.up.railway.app/sse
+claude mcp add --transport stdio chrome-devtools -- npx -y chrome-devtools-mcp@latest
 ```
 
 ## ─── ADT alternatives (npx, can Node.js) ───

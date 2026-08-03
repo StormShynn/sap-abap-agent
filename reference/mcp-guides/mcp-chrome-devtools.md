@@ -16,7 +16,7 @@ that dang chay - khac voi WebFetch (chi convert HTML tinh sang markdown, khong c
 
 **Khong phai tool SAP-specific** - nhung huu ich trong plugin nay de debug **Fiori/UI5 app chay
 tren browser** (console error runtime, network call OData bi loi, performance load cham) - viec
-ma khong MCP server SAP nao trong plugin nay lam duoc (`sap-btp`, ADT alternatives... deu la
+ma khong MCP server SAP nao trong plugin nay lam duoc (`sap-connect`, ADT alternatives... deu la
 source-level ABAP/OData, khong "nhin" duoc vao trang da render that tren browser).
 
 **Yeu cau**: Node.js (LTS) + Google Chrome (ban stable) da cai san tren may. Chi ho tro chinh
@@ -41,7 +41,7 @@ Script se hoi `Register chrome-devtools (...)? [Y/n]` - dong y thi tu dong chay 
 `reference/scripts/mcp_inventory.json` - cung nhom "prompt" voi cac ADT alternative (hoi truoc
 khi chay, khong tu dong bundle), du khong can credential rieng nhu ADT. Ly do: day la nang luc
 dieu khien 1 Chrome that (mo URL, chay JS tuy y), khac voi cac MCP server tra cuu docs read-only
-dang duoc bundle san (`sap-btp`, `cds-kb`, `notion`...), nen van can 1 buoc xac nhan thay vi tu
+dang duoc bundle san (`sap-connect`, `cds-kb`, `notion`...), nen van can 1 buoc xac nhan thay vi tu
 dong bat cho moi nguoi cai plugin.
 
 ### Cau hinh .mcp.json (thay the neu dung file thay vi CLI)
@@ -119,7 +119,7 @@ neu can dung toi nhom nay.
 |--------|-------------|
 | Dieu khien Chrome THAT | Dung `--isolated` de khong dung toi cookie/session/lich su cua Chrome that dang dung hang ngay |
 | `evaluate_script` chay JS tuy y | Chi dung tren trang/URL ban tin tuong (VD Fiori Launchpad noi bo), khong dung tren trang la |
-| Khong phai tool SAP | Khong thay the `sap-btp`/ADT alternatives - chi ho tro debug **lop giao dien** (Fiori/UI5), khong doc/sua code ABAP |
+| Khong phai tool SAP | Khong thay the `sap-connect`/ADT alternatives - chi ho tro debug **lop giao dien** (Fiori/UI5), khong doc/sua code ABAP |
 | Opt-in, khong bundle mac dinh | Giong `sap-gui` - can Node.js + Chrome cai san may, nen KHONG nam trong `.mcp.json` bundled cua plugin; tu `claude mcp add` khi can dung |
 
 ## Vi du su dung trong Claude

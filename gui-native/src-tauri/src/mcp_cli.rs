@@ -210,6 +210,23 @@ pub async fn list_profiles() -> Result<ProfilesData, String> {
     serde_json::from_value(value).map_err(|e| format!("Loi doc profiles: {e}"))
 }
 
+/// Doc config KHONG nhay cam (btpUrl/service/region/authMode/clientId/
+/// scope/tenant/reauthMode...) cua 1 profile, dung de form "New profile"
+/// tu dien lai khi user bam "Sua" - `profiles show --json` (Python) CHI
+/// tra load_config(), KHONG BAO GIO chua secret (clientSecret/password/
+/// accessToken/cookies nam rieng trong secrets.json, khong nam trong day) -
+/// an toan de dua nguyen ve frontend.
+#[tauri::command]
+pub async fn get_profile_config(profile_id: String) -> Result<Value, String> {
+    run_json(&[
+        "profiles".to_string(),
+        "show".to_string(),
+        profile_id,
+        "--json".to_string(),
+    ])
+    .await
+}
+
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct LicenseStatus {
     pub profile_id: String,

@@ -10,17 +10,27 @@ import json
 import os
 from typing import Any
 
-from ..config.profile import get_current_active, list_profiles
+from ..config.profile import get_current_active, list_profiles, resolve_profile_id
 from ..sap.client import create_sap_client
 
 
 def _pick_profile(args: dict[str, Any] | None) -> str | None:
-    """Uu tien: env SAP_BTP_PROFILE -> arg.profile -> None (SapClient tu lay active)."""
+    """Uu tien: env SAP_BTP_PROFILE -> arg.profile -> None (SapClient tu lay
+    active). arg.profile KHONG bat buoc la profileId chinh xac - Claude co
+    the dua nguyen URL day du, hostname/tenant subdomain, hoac tenant (field
+    Communication Arrangement) nhu user vua noi trong cau hoi tu nhien;
+    resolve_profile_id() tu tim profileId thuc tu 1 trong may thu do.
+
+    resolve_profile_id() raise ValueError khi hint khong khop hoac khop qua
+    nhieu profile - de exception nay tu nhien lan len qua handler (KHONG bat
+    o day), vi day la truong hop PHAI bao loi ro cho Claude/user, khong duoc
+    am tham fallback ve active profile (co the la SAP system khac hoan toan
+    voi cai user dinh noi toi)."""
     env = os.environ.get("SAP_BTP_PROFILE", "").strip()
     if env:
-        return env
+        return resolve_profile_id(env)  # non-empty hint -> luon tra ve id hoac raise, khong bao gio None
     if args and isinstance(args.get("profile"), str) and args["profile"].strip():
-        return args["profile"].strip()
+        return resolve_profile_id(args["profile"].strip())
     return None
 
 
@@ -38,7 +48,13 @@ def build_tools() -> list[dict[str, Any]]:
                 "properties": {
                     "profile": {
                         "type": "string",
-                        "description": "Profile id (de trong = active). VD: project1.s4hana.cloud.sap",
+                        "description": (
+                            "Profile id, HOAC url day du, HOAC hostname/tenant subdomain "
+                            "(VD: project1.s4hana.cloud.sap), HOAC tenant (Communication "
+                            "Arrangement) - dua nguyen gia tri user vua noi trong cau hoi, "
+                            "khong can biet truoc profileId noi bo. De trong = profile "
+                            "active. Xem sap_list_profiles neu can."
+                        ),
                     },
                 },
             },
@@ -56,7 +72,15 @@ def build_tools() -> list[dict[str, Any]]:
             "inputSchema": {
                 "type": "object",
                 "properties": {
-                    "profile": {"type": "string", "description": "Profile id (de trong = active)."},
+                    "profile": {
+                        "type": "string",
+                        "description": (
+                            "Profile id, HOAC url day du, HOAC hostname/tenant subdomain, "
+                            "HOAC tenant (Communication Arrangement) - dua nguyen gia tri "
+                            "user vua noi trong cau hoi, khong can biet truoc profileId noi "
+                            "bo. De trong = profile active. Xem sap_list_profiles neu can."
+                        ),
+                    },
                     "parent": {"type": "string", "description": "Ten package cha. De rong = top."},
                 },
             },
@@ -68,7 +92,15 @@ def build_tools() -> list[dict[str, Any]]:
             "inputSchema": {
                 "type": "object",
                 "properties": {
-                    "profile": {"type": "string"},
+                    "profile": {
+                        "type": "string",
+                        "description": (
+                            "Profile id, HOAC url day du, HOAC hostname/tenant subdomain, "
+                            "HOAC tenant (Communication Arrangement) - dua nguyen gia tri "
+                            "user vua noi trong cau hoi, khong can biet truoc profileId noi "
+                            "bo. De trong = profile active. Xem sap_list_profiles neu can."
+                        ),
+                    },
                     "query": {"type": "string", "description": "Chuoi tim kiem (VD: ZCL_)"},
                     "objectType": {"type": "string",
                                    "description": "Loc theo loai (CLAS, PROG, ...). De rong = tat ca."},
@@ -83,7 +115,15 @@ def build_tools() -> list[dict[str, Any]]:
             "inputSchema": {
                 "type": "object",
                 "properties": {
-                    "profile": {"type": "string"},
+                    "profile": {
+                        "type": "string",
+                        "description": (
+                            "Profile id, HOAC url day du, HOAC hostname/tenant subdomain, "
+                            "HOAC tenant (Communication Arrangement) - dua nguyen gia tri "
+                            "user vua noi trong cau hoi, khong can biet truoc profileId noi "
+                            "bo. De trong = profile active. Xem sap_list_profiles neu can."
+                        ),
+                    },
                     "objectUri": {"type": "string",
                                   "description": "URI ADT, VD: /sap/bc/adt/oo/classes/zcl_demo"},
                     "objectType": {"type": "string", "description": "Loai: CLAS, PROG, INCL, FUGR..."},
@@ -98,7 +138,15 @@ def build_tools() -> list[dict[str, Any]]:
             "inputSchema": {
                 "type": "object",
                 "properties": {
-                    "profile": {"type": "string"},
+                    "profile": {
+                        "type": "string",
+                        "description": (
+                            "Profile id, HOAC url day du, HOAC hostname/tenant subdomain, "
+                            "HOAC tenant (Communication Arrangement) - dua nguyen gia tri "
+                            "user vua noi trong cau hoi, khong can biet truoc profileId noi "
+                            "bo. De trong = profile active. Xem sap_list_profiles neu can."
+                        ),
+                    },
                     "objectUri": {"type": "string"},
                     "objectType": {"type": "string", "description": "CLAS, PROG, INCL..."},
                 },
@@ -112,7 +160,15 @@ def build_tools() -> list[dict[str, Any]]:
             "inputSchema": {
                 "type": "object",
                 "properties": {
-                    "profile": {"type": "string"},
+                    "profile": {
+                        "type": "string",
+                        "description": (
+                            "Profile id, HOAC url day du, HOAC hostname/tenant subdomain, "
+                            "HOAC tenant (Communication Arrangement) - dua nguyen gia tri "
+                            "user vua noi trong cau hoi, khong can biet truoc profileId noi "
+                            "bo. De trong = profile active. Xem sap_list_profiles neu can."
+                        ),
+                    },
                     "objectUri": {"type": "string"},
                     "objectType": {"type": "string"},
                 },
@@ -127,7 +183,15 @@ def build_tools() -> list[dict[str, Any]]:
             "inputSchema": {
                 "type": "object",
                 "properties": {
-                    "profile": {"type": "string", "description": "Profile id (de trong = active)."},
+                    "profile": {
+                        "type": "string",
+                        "description": (
+                            "Profile id, HOAC url day du, HOAC hostname/tenant subdomain, "
+                            "HOAC tenant (Communication Arrangement) - dua nguyen gia tri "
+                            "user vua noi trong cau hoi, khong can biet truoc profileId noi "
+                            "bo. De trong = profile active. Xem sap_list_profiles neu can."
+                        ),
+                    },
                     "objectName": {"type": "string", "description": "Ten object can tim (VD: ZCL_MY_CLASS, I_SalesDocument...)"},
                     "objectType": {"type": "string", "description": "Loai object (CLAS, PROG, TABL, DDLS...)"},
                 },
@@ -141,7 +205,15 @@ def build_tools() -> list[dict[str, Any]]:
             "inputSchema": {
                 "type": "object",
                 "properties": {
-                    "profile": {"type": "string"},
+                    "profile": {
+                        "type": "string",
+                        "description": (
+                            "Profile id, HOAC url day du, HOAC hostname/tenant subdomain, "
+                            "HOAC tenant (Communication Arrangement) - dua nguyen gia tri "
+                            "user vua noi trong cau hoi, khong can biet truoc profileId noi "
+                            "bo. De trong = profile active. Xem sap_list_profiles neu can."
+                        ),
+                    },
                     "tableName": {"type": "string", "description": "Ten bang / CDS view (VD: I_SalesDocument, MARA, T000)"},
                     "objectType": {"type": "string", "description": "Loai object: TABL (bang), DDLS (CDS view), VIEW (view). Mac dinh TABL.", "default": "TABL"},
                     "top": {"type": "number", "description": "So dong toi da (mac dinh 50, toi da 500).", "default": 50},
@@ -156,7 +228,15 @@ def build_tools() -> list[dict[str, Any]]:
             "inputSchema": {
                 "type": "object",
                 "properties": {
-                    "profile": {"type": "string"},
+                    "profile": {
+                        "type": "string",
+                        "description": (
+                            "Profile id, HOAC url day du, HOAC hostname/tenant subdomain, "
+                            "HOAC tenant (Communication Arrangement) - dua nguyen gia tri "
+                            "user vua noi trong cau hoi, khong can biet truoc profileId noi "
+                            "bo. De trong = profile active. Xem sap_list_profiles neu can."
+                        ),
+                    },
                     "objectUri": {"type": "string", "description": "URI ADT cua class (VD: /sap/bc/adt/oo/classes/zcl_demo)"},
                     "objectType": {"type": "string", "description": "Loai object (CLAS, PROG...)"},
                 },
@@ -174,7 +254,15 @@ def build_tools() -> list[dict[str, Any]]:
             "inputSchema": {
                 "type": "object",
                 "properties": {
-                    "profile": {"type": "string"},
+                    "profile": {
+                        "type": "string",
+                        "description": (
+                            "Profile id, HOAC url day du, HOAC hostname/tenant subdomain, "
+                            "HOAC tenant (Communication Arrangement) - dua nguyen gia tri "
+                            "user vua noi trong cau hoi, khong can biet truoc profileId noi "
+                            "bo. De trong = profile active. Xem sap_list_profiles neu can."
+                        ),
+                    },
                     "objectUri": {
                         "type": "string",
                         "description": "URI ADT object (VD: /sap/bc/adt/oo/classes/zcl_demo)",
@@ -200,7 +288,15 @@ def build_tools() -> list[dict[str, Any]]:
             "inputSchema": {
                 "type": "object",
                 "properties": {
-                    "profile": {"type": "string"},
+                    "profile": {
+                        "type": "string",
+                        "description": (
+                            "Profile id, HOAC url day du, HOAC hostname/tenant subdomain, "
+                            "HOAC tenant (Communication Arrangement) - dua nguyen gia tri "
+                            "user vua noi trong cau hoi, khong can biet truoc profileId noi "
+                            "bo. De trong = profile active. Xem sap_list_profiles neu can."
+                        ),
+                    },
                 },
             },
             "handler": _handle_get_system_info,
@@ -211,7 +307,15 @@ def build_tools() -> list[dict[str, Any]]:
             "inputSchema": {
                 "type": "object",
                 "properties": {
-                    "profile": {"type": "string"},
+                    "profile": {
+                        "type": "string",
+                        "description": (
+                            "Profile id, HOAC url day du, HOAC hostname/tenant subdomain, "
+                            "HOAC tenant (Communication Arrangement) - dua nguyen gia tri "
+                            "user vua noi trong cau hoi, khong can biet truoc profileId noi "
+                            "bo. De trong = profile active. Xem sap_list_profiles neu can."
+                        ),
+                    },
                     "dumpId": {"type": "string", "description": "ID dump cu the (VD: DMP_20250101_123456). De trong = lay dump gan nhat."},
                     "top": {"type": "number", "description": "So dump gan nhat (mac dinh 20). Chi dung khi dumpId de trong.", "default": 20},
                 },

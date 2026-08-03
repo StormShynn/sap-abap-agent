@@ -10,7 +10,7 @@ def test_notion_in_inventory_special_http():
     assert notion["category"] == "special"
     assert notion["transport"] == "http"
     assert notion["url"] == "https://mcp.notion.com/mcp"
-    assert notion["name"] not in {"sap-btp", "sap-dict-bridge", "cds-kb", "mcp-sap-docs-btp"}
+    assert notion["name"] not in {"sap-connect", "sap-dict-bridge", "cds-kb", "mcp-sap-docs-btp"}
 
 
 def test_notion_not_listed_as_core_server_name():

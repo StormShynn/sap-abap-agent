@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Emit Cursor/VS Code mcp.json for SAP ABAP Agent Core (docs-only host).
 
-Core = sap-btp + sap-dict-bridge + cds-kb + mcp-sap-docs-btp (same contract as
+Core = sap-connect + sap-dict-bridge + cds-kb + mcp-sap-docs-btp (same contract as
 CLI/GUI mcp-setup). Does NOT install Claude skills/hooks.
 
 Usage:
@@ -19,7 +19,7 @@ from pathlib import Path
 
 CDS_KB_SSE = "https://cds-kb-mcp-kit-production.up.railway.app/sse"
 SAP_DOCS_SSE = "https://sap-docs-extend-mcp.cfapps.ap21.hana.ondemand.com/sse"
-CORE_KEYS = ("sap-btp", "sap-dict-bridge", "cds-kb", "mcp-sap-docs-btp")
+CORE_KEYS = ("sap-connect", "sap-dict-bridge", "cds-kb", "mcp-sap-docs-btp")
 
 
 def build_core_servers() -> dict:
@@ -36,7 +36,7 @@ def build_core_servers() -> dict:
         docs["env"] = docs_env
 
     return {
-        "sap-btp": {"command": "mcp-sap-connect", "args": []},
+        "sap-connect": {"command": "mcp-sap-connect", "args": []},
         "sap-dict-bridge": {
             "command": "python",
             "args": ["-m", "mcp_sap_connect.bridge_server"],

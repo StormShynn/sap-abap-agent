@@ -25,7 +25,7 @@ def _mock_result(returncode=0, stdout="", stderr=""):
 def test_stdio_env_before_separator():
     with patch("subprocess.run", return_value=_mock_result()) as mock_run:
         ok, detail = _claude_mcp_add(
-            "claude", "sap-btp", "stdio",
+            "claude", "sap-connect", "stdio",
             cmd="mcp-sap-connect", args=[], env={"FOO": "bar"},
         )
     assert ok is True

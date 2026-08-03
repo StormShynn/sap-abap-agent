@@ -1331,7 +1331,7 @@
         <li>
           <div>
             <strong>Đăng ký MCP bắt buộc</strong>
-            <span>Thêm <code>sap-btp</code>, <code>sap-dict-bridge</code>, <code>cds-kb</code>, <code>mcp-sap-docs-btp</code>. Xem <a href="#dang-ky-mcp">Đăng ký MCP</a>.</span>
+            <span>Thêm <code>sap-connect</code>, <code>sap-dict-bridge</code>, <code>cds-kb</code>, <code>mcp-sap-docs-btp</code>. Xem <a href="#dang-ky-mcp">Đăng ký MCP</a>.</span>
           </div>
         </li>
         <li>
@@ -1509,7 +1509,7 @@
         <div class="feature-card" style="border-color:var(--cyan);">
           <span class="fc-icon">🔌</span>
           <h4>MCP core sẵn sàng</h4>
-          <p>sap-btp, dict-bridge, CDS KB, SAP Docs — đủ để đọc/tìm/activate và tra cứu Cloud.</p>
+          <p>sap-connect, dict-bridge, CDS KB, SAP Docs — đủ để đọc/tìm/activate và tra cứu Cloud.</p>
         </div>
 <div class="feature-card">
           <span class="fc-icon">⚡</span>
@@ -1541,7 +1541,7 @@
         </div>
         <div class="arch-layer">
           <h4>3. MCP → SAP</h4>
-          <p>sap-btp, dict-bridge, CDS KB, docs — đọc/tìm/activate/tạo object trên BTP / S/4HANA Cloud.</p>
+          <p>sap-connect, dict-bridge, CDS KB, docs — đọc/tìm/activate/tạo object trên BTP / S/4HANA Cloud.</p>
         </div>
       </div>
 
@@ -1695,7 +1695,7 @@ claude mcp add --transport http notion https://mcp.notion.com/mcp</code><button 
         <li>Cấu hình Claude Code plugin:</li>
       </ol>
 
-      <pre><code>claude mcp add --transport stdio sap-btp -- mcp-sap-connect</code><button class="copy-btn" onclick="copyCode(this)">Sao chép</button></pre>
+      <pre><code>claude mcp add --transport stdio sap-connect -- mcp-sap-connect</code><button class="copy-btn" onclick="copyCode(this)">Sao chép</button></pre>
 
       <p>Sau bước này, các MCP tool và 28 agents sẽ sẵn sàng trong Claude Code.</p>
     </section>
@@ -2343,7 +2343,7 @@ mcp-sap-connect</code><button class="copy-btn" onclick="copyCode(this)">Sao ché
 
       <p>Claude Code không còn dùng file <code>mcp_servers.json</code> — đăng ký bằng lệnh <code>claude mcp add</code>:</p>
 
-      <pre><code>claude mcp add --transport stdio sap-btp -- mcp-sap-connect</code><button class="copy-btn" onclick="copyCode(this)">Sao chép</button></pre>
+      <pre><code>claude mcp add --transport stdio sap-connect -- mcp-sap-connect</code><button class="copy-btn" onclick="copyCode(this)">Sao chép</button></pre>
 
       <p>Mặc định scope <code>local</code> (chỉ máy này, chỉ project hiện tại). Dùng <code>--scope user</code> để dùng được ở mọi project, hoặc <code>--scope project</code> để lưu vào <code>.mcp.json</code> và chia sẻ qua git cho cả team.</p>
 
@@ -4216,7 +4216,7 @@ java -jar cdata.jdbc.sapfieldglass.jar --license</code><button class="copy-btn" 
 
       <div class="trouble-card">
         <div class="tc-title">🔌 MCP tool không xuất hiện</div>
-        <p class="tc-desc">Kiểm tra đã <code>claude mcp add --transport stdio sap-btp -- mcp-sap-connect</code> chưa (<code>claude mcp list</code> để xem). Đảm bảo <code>mcp-sap-connect</code> có trong PATH.</p>
+        <p class="tc-desc">Kiểm tra đã <code>claude mcp add --transport stdio sap-connect -- mcp-sap-connect</code> chưa (<code>claude mcp list</code> để xem). Đảm bảo <code>mcp-sap-connect</code> có trong PATH.</p>
       </div>
 
       <div class="trouble-card">
@@ -4553,8 +4553,8 @@ java -jar cdata.jdbc.sapfieldglass.jar --license</code><button class="copy-btn" 
     "App Windows đăng ký MCP, quản lý profile, kiểm tra cập nhật qua kênh":
         "Windows app to register MCP, manage profiles, and check updates via the",
     "MCP core sẵn sàng": "Core MCP ready",
-    "sap-btp, dict-bridge, CDS KB, SAP Docs — đủ để đọc/tìm/activate và tra cứu Cloud.":
-        "sap-btp, dict-bridge, CDS KB, SAP Docs — enough to read/search/activate and research Cloud.",
+    "sap-connect, dict-bridge, CDS KB, SAP Docs — đủ để đọc/tìm/activate và tra cứu Cloud.":
+        "sap-connect, dict-bridge, CDS KB, SAP Docs — enough to read/search/activate and research Cloud.",
     "Chọn lối vào": "Choose a path",
     "Học & hỏi": "Learn & ask",
     "Kết nối nâng cao": "Advanced connection",
