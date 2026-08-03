@@ -1094,11 +1094,18 @@ async function onEditProfile() {
   updateSetupFormGroups();
 
   el.setupFormTitle.textContent = `Sửa profile "${pid}"`;
-  el.setupFormIntro.innerHTML =
-    `Đang sửa profile <strong>${pid}</strong>. Các field không nhạy cảm đã điền sẵn. ` +
-    "<strong>Bắt buộc điền lại</strong> Client Secret/Password/Access token/Cookies " +
-    "hiện tại (hệ thống không lưu lại secret cũ, vì lý do an toàn) — nếu không, bấm " +
-    '"Lưu thay đổi" sẽ báo thiếu field.';
+  el.setupFormIntro.textContent = "";
+  el.setupFormIntro.append("Đang sửa profile ");
+  const strongPid = document.createElement("strong");
+  strongPid.textContent = pid;
+  el.setupFormIntro.append(strongPid);
+  el.setupFormIntro.append(". Các field không nhạy cảm đã điền sẵn. ");
+  const strongRequired = document.createElement("strong");
+  strongRequired.textContent = "Bắt buộc điền lại";
+  el.setupFormIntro.append(strongRequired);
+  el.setupFormIntro.append(
+    " Client Secret/Password/Access token/Cookies hiện tại (hệ thống không lưu lại secret cũ, vì lý do an toàn) — nếu không, bấm \"Lưu thay đổi\" sẽ báo thiếu field."
+  );
   el.btnSetupFormOk.textContent = "Lưu thay đổi";
   el.setupFormModal.classList.remove("hidden");
 }
