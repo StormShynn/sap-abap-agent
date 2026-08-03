@@ -341,7 +341,7 @@ jobs:
           pip install mcp_sap_connect-${VERSION}-py3-none-any.whl
           mcp-sap-connect doctor      # kiem tra moi truong
           mcp-sap-connect setup https://xxx.s4hana.cloud.sap
-          claude mcp add --transport stdio sap-btp -- mcp-sap-connect
+          claude mcp add --transport stdio sap-connect -- mcp-sap-connect
           \`\`\`
 
           Extra tuy chon:

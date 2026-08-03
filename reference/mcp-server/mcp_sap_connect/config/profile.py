@@ -149,6 +149,104 @@ def list_profiles() -> dict[str, Any]:
     return {"active": reg.get("active"), "items": items}
 
 
+def resolve_profile_id(hint: str | None) -> str | None:
+    """Tim profileId tu 1 hint bat ky ma user/Claude dua vao trong cau hoi tu
+    nhien - profileId chinh xac, URL day du, hostname/tenant subdomain, hoac
+    gia tri field "tenant" trong config.json cua profile (BTP Communication
+    Arrangement). Claude khong can biet truoc profileId noi bo (thuong la
+    hostname duoc derive tu URL luc setup, xem derive_profile_id_from_url) -
+    chi can nhac lai URL/tenant ma user vua noi trong cau hoi.
+
+    hint rong/None -> tra ve None (caller (_pick_profile) tu fallback ve
+    active profile - hanh vi cu, KHONG doi).
+
+    Neu hint KHONG rong nhung khong khop profile nao, hoac khop nhieu profile
+    cung luc (ambiguous) -> raise ValueError liet ke ro cac profile hien co/
+    trung, ep Claude phai hoi lai user hoac dung profileId chinh xac - TUYET
+    DOI KHONG duoc am tham fallback ve active profile (co the la 1 he thong
+    SAP khac hoan toan voi cai user dinh noi toi - fallback sai o day nguy
+    hiem hon la bao loi).
+    """
+    hint = (hint or "").strip()
+    if not hint:
+        return None
+
+    reg = load_registry()
+    profiles = reg.get("profiles", {})
+    if not profiles:
+        return None
+
+    # 1) Exact profileId - fast path, day la hanh vi CU, khong doi gi ca.
+    if hint in profiles:
+        return hint
+
+    items = list(profiles.values())
+
+    # 2) Exact url (dung y het gia tri "url" luu trong registry.json)
+    exact_url = [p for p in items if p.get("url") == hint]
+    if len(exact_url) == 1:
+        return exact_url[0]["id"]
+
+    # 3) Hostname/tenant subdomain - cho phep user noi URL day du HOAC chi
+    # ten tenant/subdomain (vd "my123456" khop voi "my123456.s4hana.cloud.sap").
+    from urllib.parse import urlparse
+
+    def _hostname(value: str) -> str:
+        v = value.strip()
+        if "//" not in v:
+            v = f"//{v}"
+        return (urlparse(v).hostname or value).lower()
+
+    hint_host = _hostname(hint)
+
+    def _host_matches(p: dict[str, Any]) -> bool:
+        url = p.get("url") or ""
+        if not url:
+            return False
+        host = _hostname(url)
+        return bool(host) and (hint_host in host or host in hint_host)
+
+    host_hits = [p for p in items if _host_matches(p)]
+    if len(host_hits) == 1:
+        return host_hits[0]["id"]
+    if len(host_hits) > 1:
+        raise ValueError(
+            f'"{hint}" khop nhieu profile theo URL/hostname: '
+            f'{[p["id"] for p in host_hits]} - dung chinh xac profileId '
+            "(xem sap_list_profiles)."
+        )
+
+    # 4) Field "tenant" trong config.json rieng tung profile (Communication
+    # Arrangement cua BTP) - KHONG nam trong registry.json nen phai doc tung
+    # profile. Lazy import de tranh circular import (store.py da import tu
+    # module nay).
+    from .store import load_config
+
+    tenant_hits = []
+    for p in items:
+        try:
+            cfg = load_config(p["id"])
+        except Exception:
+            continue
+        if str(cfg.get("tenant") or "").strip().lower() == hint.lower():
+            tenant_hits.append(p)
+    if len(tenant_hits) == 1:
+        return tenant_hits[0]["id"]
+    if len(tenant_hits) > 1:
+        raise ValueError(
+            f'tenant "{hint}" khop nhieu profile: '
+            f'{[p["id"] for p in tenant_hits]} - dung chinh xac profileId '
+            "(xem sap_list_profiles)."
+        )
+
+    # Khong khop gi - bao loi ro, KHONG am tham fallback active profile.
+    raise ValueError(
+        f'"{hint}" khong khop profileId/url/tenant cua bat ky profile SAP nao '
+        f'da cau hinh. Cac profile hien co: {sorted(profiles.keys())}. '
+        "Dung sap_list_profiles de xem URL/chi tiet tung profile."
+    )
+
+
 def reset_all() -> None:
     """Xoa toan bo folder cau hinh (can than!)."""
     root = get_app_dir()

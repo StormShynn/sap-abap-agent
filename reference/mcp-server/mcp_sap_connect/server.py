@@ -2,7 +2,7 @@
 
 Day la phan transport con thieu truoc day -- `mcp-sap-connect` goi khong co
 subcommand (setup/connect/profiles/reset) se chay server nay, dung cho
-`claude mcp add --transport stdio sap-btp -- mcp-sap-connect`.
+`claude mcp add --transport stdio sap-connect -- mcp-sap-connect`.
 """
 from __future__ import annotations
 

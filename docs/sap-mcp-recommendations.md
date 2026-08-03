@@ -15,7 +15,7 @@ thể bật thêm tùy nhu cầu. Mỗi MCP dưới đây đã được đối c
 
 | Server              | Type  | Endpoint / Command                                                  | Vai trò |
 |---------------------|-------|---------------------------------------------------------------------|---------|
-| `sap-btp`           | stdio | `mcp-sap-connect`                                                     | Kết nối S/4HANA Cloud, ADT CRUD, multi-profile |
+| `sap-connect`       | stdio | `mcp-sap-connect`                                                     | Kết nối S/4HANA Cloud, ADT CRUD, multi-profile |
 | `sap-dict-bridge`   | stdio | `python -m mcp_sap_connect.bridge_server`                             | Tạo Domain / Data Element / Table qua cookie auth |
 | `cds-kb`            | sse   | `https://cds-kb-mcp-kit-production.up.railway.app/sse`              | Tra cứu 7,355 CDS view released (semantic search) |
 | `mcp-sap-docs-btp`  | sse   | `https://sap-docs-extend-mcp.cfapps.ap21.hana.ondemand.com/sse`     | Tra cứu SAP Help / Community / API Hub |
@@ -29,7 +29,7 @@ Mọi MCP trong các bảng dưới đều **bổ sung**, không thay thế.
 
 | Server | Repo | Lý do | Cách bật (ví dụ) |
 |--------|------|-------|------------------|
-| `mcp-abap-adt` | `fr0ster/mcp-abap-adt` | Wrap `abap-adt-api` cho cả Cloud và On-Prem, hỗ trợ JWT/XSUAA + service-key. Bổ sung CRUD đầy đủ khi muốn chạy song song với `sap-btp` cho hệ thống ECC on-prem. | `command: "uvx"`, `args: ["mcp-abap-adt"]` |
+| `mcp-abap-adt` | `fr0ster/mcp-abap-adt` | Wrap `abap-adt-api` cho cả Cloud và On-Prem, hỗ trợ JWT/XSUAA + service-key. Bổ sung CRUD đầy đủ khi muốn chạy song song với `sap-connect` cho hệ thống ECC on-prem. | `command: "uvx"`, `args: ["mcp-abap-adt"]` |
 | `mcp-sap-notes` | `marianfoo/mcp-sap-notes` | Tìm & đọc SAP Notes. Bổ sung cho `sap-docs-research`. | `command: "npx"`, `args: ["-y", "mcp-sap-notes"]` |
 | `hana-mcp-server` | `HatriGt/hana-mcp-server` | HANA-native MCP — query trực tiếp khi không qua ADT (debug nhanh CDS view). | `command: "npx"`, `args: ["-y", "hana-mcp-server"]` |
 

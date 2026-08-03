@@ -1269,8 +1269,8 @@ def _cmd_mcp_setup() -> None:
 
     # --- Core servers (bat buoc) ---
     header("Core servers (bat buoc)")
-    ok("Dang ky sap-btp...")
-    _register("sap-btp", "stdio", cmd="mcp-sap-connect")
+    ok("Dang ky sap-connect...")
+    _register("sap-connect", "stdio", cmd="mcp-sap-connect")
     ok("Dang ky sap-dict-bridge...")
     _register("sap-dict-bridge", "stdio", cmd="python",
               args=["-m", "mcp_sap_connect.bridge_server"])
@@ -1323,7 +1323,7 @@ def _cmd_mcp_setup() -> None:
 # sach server thay doi.
 
 _MCP_JSON_INVENTORY: list[dict[str, Any]] = [
-    {"name": "sap-btp", "category": "core", "transport": "stdio",
+    {"name": "sap-connect", "category": "core", "transport": "stdio",
      "description": "Main mcp-sap-connect server: profiles, search, read source, activate",
      "envVars": [], "cmd": "mcp-sap-connect", "args": []},
     {"name": "sap-dict-bridge", "category": "core", "transport": "stdio",
@@ -1337,7 +1337,7 @@ _MCP_JSON_INVENTORY: list[dict[str, Any]] = [
      "envVars": ["SAP-API-HUB-KEY"],
      "url": "https://sap-docs-extend-mcp.cfapps.ap21.hana.ondemand.com/sse"},
     {"name": "arc-1", "category": "adt-alternative", "transport": "stdio",
-     "description": "Enterprise ADT MCP (XSUAA, audit log) - alternative to sap-btp",
+     "description": "Enterprise ADT MCP (XSUAA, audit log) - alternative to sap-connect",
      "envVars": [], "cmd": "npx", "args": ["-y", "arc-1@latest"]},
     {"name": "mcp-abap-adt", "category": "adt-alternative", "transport": "stdio",
      "description": "Community read-only ADT MCP (mario-andreschak) - needs its own basic auth",
@@ -1465,7 +1465,7 @@ def _cmd_mcp_status_json() -> None:
     print(json.dumps({
         "servers": items,
         "claudeAvailable": shutil.which("claude") is not None,
-        "coreServers": ["sap-btp", "sap-dict-bridge", "cds-kb", "mcp-sap-docs-btp"],
+        "coreServers": ["sap-connect", "sap-dict-bridge", "cds-kb", "mcp-sap-docs-btp"],
     }, ensure_ascii=False))
 
 

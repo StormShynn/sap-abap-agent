@@ -1126,7 +1126,7 @@ const MCP_CATEGORY_LABELS: Record<string, string> = {
 const MCP_CATEGORY_ORDER = ["core", "remote", "adt-alternative", "special", "manual"];
 
 /** Core = bắt buộc theo rollout + MCP_PRESET_CORE. */
-const MCP_PRESET_CORE = ["sap-btp", "sap-dict-bridge", "cds-kb", "mcp-sap-docs-btp"];
+const MCP_PRESET_CORE = ["sap-connect", "sap-dict-bridge", "cds-kb", "mcp-sap-docs-btp"];
 const MCP_PRESET_RESEARCH = [...MCP_PRESET_CORE, "arc-1", "sap-vsp"];
 const MCP_CORE_SKIP_KEY = "sap-abap-agent.mcpCoreSkip";
 const MCP_CORE_OFFERED_KEY = "sap-abap-agent.mcpCoreOffered";
@@ -1439,7 +1439,7 @@ async function maybeOfferCoreOnStartup() {
   const ok = await confirmDialog(
     "Cài MCP bắt buộc?",
     `Thiếu: ${missing.map((s) => s.name).join(", ")}.\n\n`
-      + "Đăng ký Core (sap-btp, sap-dict-bridge, cds-kb, mcp-sap-docs-btp) ngay? "
+      + "Đăng ký Core (sap-connect, sap-dict-bridge, cds-kb, mcp-sap-docs-btp) ngay? "
       + "Bạn có thể chọn «Hủy» rồi cài sau trong MCP Servers.",
   );
   if (ok) {

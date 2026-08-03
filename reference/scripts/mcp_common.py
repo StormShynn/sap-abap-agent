@@ -6,12 +6,31 @@ mutates anything.
 from __future__ import annotations
 
 import json
+import os
+import platform
 from pathlib import Path
 from typing import Any, NamedTuple
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 INVENTORY_PATH = SCRIPT_DIR / "mcp_inventory.json"
 USER_CLAUDE_JSON = Path.home() / ".claude.json"
+
+
+def claude_desktop_config_path() -> Path | None:
+    """Duong dan claude_desktop_config.json - config cua app Claude Desktop,
+    HOAN TOAN KHAC voi ~/.claude.json (Claude Code CLI) va .mcp.json (project
+    scope). `claude mcp add`/.mcp.json KHONG BAO GIO dong bo qua file nay -
+    day la nguyen nhan pho bien khi user "cai roi ma Claude Desktop khong
+    thay MCP"."""
+    system = platform.system()
+    if system == "Windows":
+        appdata = os.environ.get("APPDATA")
+        if not appdata:
+            return None
+        return Path(appdata) / "Claude" / "claude_desktop_config.json"
+    if system == "Darwin":
+        return Path.home() / "Library" / "Application Support" / "Claude" / "claude_desktop_config.json"
+    return None  # Claude Desktop chua co ban Linux chinh thuc tai thoi diem viet
 
 
 def project_key(path: Path) -> str:

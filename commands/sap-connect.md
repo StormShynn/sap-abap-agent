@@ -59,7 +59,7 @@ mcp-sap-connect mcp-setup
 Hoac setup wizard se tu hoi khi ban tao profile moi.
 
 Cac server duoc dang ky tu dong (bat buoc):
-- `sap-btp` — ket noi chinh den SAP BTP
+- `sap-connect` — ket noi chinh den SAP BTP
 - `sap-dict-bridge` — tao Domain/DataElement/Table
 - `cds-kb` — tra cuu 7,355 CDS views
 - `mcp-sap-docs-btp` — tra cuu SAP Help / API Hub
@@ -75,6 +75,15 @@ Sau khi cau hinh nhieu profile, Claude se co cac tool:
 - `sap_list_profiles` -- liet ke profile
 - `sap_ping { profile }` -- test 1 profile cu the
 - `sap_list_packages`, `sap_search`, `sap_read_source`, `sap_syntax_check`, `sap_activate` -- deu co tham so `profile` (de trong = active)
+
+**`profile` KHONG bat buoc la profileId chinh xac.** Neu user noi trong cau hoi tu nhien mot
+URL, hostname/tenant subdomain, hoac tenant (Communication Arrangement) - Claude co the dua
+nguyen gia tri do vao `profile`, KHONG can tu tra `sap_list_profiles` truoc de doi ra profileId
+noi bo. Vi du user noi "connect toi project1.s4hana.cloud.sap" hoac "dung tenant abc-xyz" deu
+duoc, khong can biet profileId thuc su la gi. Neu gia tri khong khop profile nao, hoac khop
+nhieu profile cung luc (2 profile trung ten tenant chang han), tool se tra ve loi ro liet ke cac
+profile hien co - **Claude PHAI hoi lai user de chon dung**, KHONG duoc tu doan/fallback ve
+profile active (co the la 1 he thong SAP khac hoan toan voi cai user dinh noi toi).
 
 ## Loi thuong gap
 

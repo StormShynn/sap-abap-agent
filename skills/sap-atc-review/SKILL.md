@@ -17,7 +17,7 @@ tools: [Bash, Read, Glob, Grep]
 
 # SAP ATC Review — Naming + Released API + Clean ABAP checklist
 
-> **System ATC (MCP):** khi session co `sap-btp` + tenant mo ADT ATC, goi tool
+> **System ATC (MCP):** khi session co `sap-connect` + tenant mo ADT ATC, goi tool
 > `sap_run_atc` (objectUri ADT, checkVariant mac dinh `DEFAULT`) va dan JSON vao
 > report muc "System ATC". **Fail-open:** neu tool 404/loi → ghi chu, van chay
 > checklist local ben duoi (khong hard-block).

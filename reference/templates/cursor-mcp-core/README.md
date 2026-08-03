@@ -4,7 +4,7 @@ Template khớp **Core bắt buộc** của plugin (không port skills/hooks):
 
 | Server | Transport |
 |--------|-----------|
-| `sap-btp` | stdio → `mcp-sap-connect` |
+| `sap-connect` | stdio → `mcp-sap-connect` |
 | `sap-dict-bridge` | stdio → `python -m mcp_sap_connect.bridge_server` |
 | `cds-kb` | stdio bridge → SSE via `npx supergateway` |
 | `mcp-sap-docs-btp` | stdio bridge → SSE via `npx supergateway` |

@@ -17,11 +17,11 @@ def _load_mod():
 
 def test_clears_verify_pending_helper():
     mod = _load_mod()
-    assert mod.clears_verify_pending("mcp__sap-btp__sap_activate")
+    assert mod.clears_verify_pending("mcp__sap-connect__sap_activate")
     assert mod.clears_verify_pending("sap_run_unit_tests")
     assert mod.clears_verify_pending("sap_syntax_check")
     assert mod.clears_verify_pending("sap_ping")
-    assert not mod.clears_verify_pending("mcp__sap-btp__sap_search")
+    assert not mod.clears_verify_pending("mcp__sap-connect__sap_search")
     assert not mod.clears_verify_pending("sap_read_source")
     assert not mod.clears_verify_pending("")
 

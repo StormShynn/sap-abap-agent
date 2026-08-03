@@ -28,11 +28,11 @@ def test_hub_key_added(monkeypatch):
 
 
 def test_merge_preserves_other_servers():
-    existing = {"other": {"command": "echo"}, "sap-btp": {"command": "old"}}
+    existing = {"other": {"command": "echo"}, "sap-connect": {"command": "old"}}
     core = emit.build_core_servers()
     merged = emit.merge_servers(existing, core)
     assert merged["other"]["command"] == "echo"
-    assert merged["sap-btp"]["command"] == "mcp-sap-connect"
+    assert merged["sap-connect"]["command"] == "mcp-sap-connect"
 
 
 def test_cli_write(tmp_path, monkeypatch):
@@ -40,5 +40,5 @@ def test_cli_write(tmp_path, monkeypatch):
     out = tmp_path / "mcp.json"
     assert emit.main(["-o", str(out)]) == 0
     data = json.loads(out.read_text(encoding="utf-8"))
-    assert "sap-btp" in data["mcpServers"]
+    assert "sap-connect" in data["mcpServers"]
     assert "cds-kb" in data["mcpServers"]

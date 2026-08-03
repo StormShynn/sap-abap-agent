@@ -114,7 +114,7 @@ mcp-sap-connect mcp-setup
 
 | Preset | Servers | Khi nào |
 |--------|---------|---------|
-| **Core (bắt buộc)** | `sap-btp`, `sap-dict-bridge`, `cds-kb`, `mcp-sap-docs-btp` | Mặc định mọi user — GUI nhắc khi thiếu |
+| **Core (bắt buộc)** | `sap-connect`, `sap-dict-bridge`, `cds-kb`, `mcp-sap-docs-btp` | Mặc định mọi user — GUI nhắc khi thiếu |
 | **Full / Research** | + `sap-vsp`, ADT alt, … | Chỉ khi lead bật — tốn slot stdio |
 
 ### 6. Notion (skill notes — mặc định shared)

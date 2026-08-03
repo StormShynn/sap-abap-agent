@@ -34,13 +34,13 @@ MCP docs-only (không port skill pack).
 | Khả năng | Claude Code | Cursor / VS Code |
 |----------|-------------|------------------|
 | CLI `mcp-sap-connect` + GUI Windows | Có | Có |
-| **MCP Core** (`sap-btp`, `sap-dict-bridge`, `cds-kb`, `mcp-sap-docs-btp`) | Có (`mcp-setup` / GUI) | Có (emit pack → `mcp.json`) |
+| **MCP Core** (`sap-connect`, `sap-dict-bridge`, `cds-kb`, `mcp-sap-docs-btp`) | Có (`mcp-setup` / GUI) | Có (emit pack → `mcp.json`) |
 | `/plugin install` + marketplace | Có | **Không** |
 | Skills / agents / SessionStart hooks (routing, verification nudge) | Có | **Không** |
 | Pipeline FS → scaffold → finish (kỷ luật tự động) | Có | Thủ công — bạn phải tự nhắc checklist |
 
 **Core (bắt buộc, thống nhất CLI/GUI/rollout):** 2 stdio + 2 remote SSE —
-`sap-btp`, `sap-dict-bridge`, `cds-kb`, `mcp-sap-docs-btp`. Không tách “research”
+`sap-connect`, `sap-dict-bridge`, `cds-kb`, `mcp-sap-docs-btp`. Không tách “research”
 ra khỏi Core.
 
 ### Cursor / VS Code — happy path MCP
@@ -114,13 +114,13 @@ Trong Claude Code:
 ```powershell
 mcp-sap-connect mcp-setup
 # hoặc non-interactive:
-mcp-sap-connect mcp-setup --register-json sap-btp
+mcp-sap-connect mcp-setup --register-json sap-connect
 mcp-sap-connect mcp-setup --register-json sap-dict-bridge
 ```
 
 | Preset | Servers |
 |--------|---------|
-| **Core (bắt buộc)** | `sap-btp`, `sap-dict-bridge`, `cds-kb`, `mcp-sap-docs-btp` |
+| **Core (bắt buộc)** | `sap-connect`, `sap-dict-bridge`, `cds-kb`, `mcp-sap-docs-btp` |
 | **Full / extras** | Core + `sap-vsp`, ADT alt, … (+ Notion HTTP nếu team dùng skill notes) |
 
 ### A5. Thử ngay

@@ -4,7 +4,7 @@ Dùng mỗi session `sap-learn-from-system`. In lại cho user khi kết thúc.
 
 ## Trước khi đọc
 
-- [ ] MCP Core đã đăng ký (`mcp-sap-connect` / `sap-btp`, …)
+- [ ] MCP Core đã đăng ký (`mcp-sap-connect` / `sap-connect`, …)
 - [ ] `sap_ping` hoặc `mcp-sap-connect ping` **OK**
 - [ ] Đã chọn profile đúng (nếu multi-profile)
 - [ ] Có mục tiêu: object cụ thể **hoặc** package / chủ đề hẹp

@@ -16,6 +16,9 @@ Scope this script CAN see:
                     disabledMcpjsonServers for approval state
                     (this also doubles as the plugin's own bundled servers
                     when this repo IS the plugin root, e.g. during dev)
+  - Claude Desktop: claude_desktop_config.json (Windows/macOS only) - a
+                    SEPARATE app from Claude Code CLI, reported in its own
+                    section since it never shares the 3 scopes above
 
 Known blind spots (not an error - just not checkable from a script):
   - MCP servers provided by a DIFFERENT plugin (lifecycle = `claude plugin
@@ -34,7 +37,7 @@ import sys
 from pathlib import Path
 from typing import Any
 
-from mcp_common import load_inventory, load_live_config
+from mcp_common import claude_desktop_config_path, load_inventory, load_json, load_live_config, servers_map
 
 
 def _config_issues(cfg: dict[str, Any], expected_env: list[str]) -> list[str]:
@@ -96,6 +99,28 @@ def build_report(project_root: Path) -> int:
                 print(f"  WARN  {name:<20} {found_scope} scope - {'; '.join(issues)}{approval}")
             else:
                 print(f"  OK    {name:<20} {found_scope} scope{approval}")
+
+    # Claude Desktop la 1 app HOAN TOAN KHAC Claude Code CLI - doc rieng
+    # claude_desktop_config.json, KHONG BAO GIO thay .mcp.json/~/.claude.json.
+    # In rieng vi cac scope o tren (user/local/project) deu KHONG lien quan.
+    print("\n[Claude Desktop - app rieng, khac Claude Code CLI o tren]")
+    desktop_path = claude_desktop_config_path()
+    if desktop_path is None:
+        print("  ?     khong xac dinh duoc thu muc config tren OS nay (chi ho tro Windows/macOS)")
+    elif not desktop_path.exists():
+        print(f"  -     {desktop_path} khong ton tai - chua cai Claude Desktop tren may nay, hoac chua tung chay mcp_register.py")
+    else:
+        desktop_cfg = load_json(desktop_path) or {}
+        desktop_servers = servers_map(desktop_cfg)
+        personal_categories = {"core", "docs-remote", "dev-tool"}
+        for entry in inventory:
+            if entry["category"] not in personal_categories:
+                continue
+            name = entry["name"]
+            if name in desktop_servers:
+                print(f"  OK    {name:<20} co trong {desktop_path.name}")
+            else:
+                print(f"  -     {name:<20} chua co trong Claude Desktop - chay lai mcp_register.py de dong bo")
 
     orphans = [
         (scope, name, servers[name])

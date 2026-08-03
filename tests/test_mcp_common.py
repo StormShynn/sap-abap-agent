@@ -178,7 +178,7 @@ def test_load_inventory_real_file():
 
 
 def test_load_inventory_contains_known_servers():
-    """Inventory phai co it nhat 1 server bat ky (vd sap-btp)."""
+    """Inventory phai co it nhat 1 server bat ky (vd sap-connect)."""
     inventory = mc.load_inventory()
     names = [e["name"] for e in inventory]
     # Day la smoke test - chi can list khong empty

@@ -160,7 +160,7 @@ def _print_learning_next_steps(checks: list[Check]) -> None:
     print(
         "  • Cursor/VS Code only: python reference/scripts/emit_cursor_mcp_pack.py -o …"
     )
-    print("  • Core MCP = sap-btp + sap-dict-bridge + cds-kb + mcp-sap-docs-btp")
+    print("  • Core MCP = sap-connect + sap-dict-bridge + cds-kb + mcp-sap-docs-btp")
 
 
 def main(argv: list[str] | None = None) -> int:

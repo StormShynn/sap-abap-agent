@@ -189,7 +189,7 @@ Tóm tắt kỹ thuật (reference):
    /plugin marketplace add StormShynn/sap-abap-agent
    /plugin install sap-abap-agent
    ```
-   rồi đăng ký MCP **Core** (`sap-btp`, `sap-dict-bridge`, …). N users = N lần
+   rồi đăng ký MCP **Core** (`sap-connect`, `sap-dict-bridge`, …). N users = N lần
    marketplace add trên máy/account đó. Cursor: chỉ MCP — bỏ bước `/plugin`.
    Team rollout: [`docs/rollout-guide.md`](docs/rollout-guide.md).
 
@@ -412,7 +412,7 @@ bên dưới qua JSON-RPC. Đã test end-to-end (initialize -> tools/list -> too
 Dùng lệnh `claude mcp add` (Claude Code không còn dùng file `mcp_servers.json`):
 
 ```bash
-claude mcp add --transport stdio sap-btp -- mcp-sap-connect
+claude mcp add --transport stdio sap-connect -- mcp-sap-connect
 ```
 
 Mặc định là scope `local` (chỉ máy này, chỉ project hiện tại). Dùng `--scope user` để dùng được ở mọi project,
@@ -949,7 +949,7 @@ Hoặc dùng script chung của plugin (hỏi Y/n rồi tự chạy lệnh trên
 python reference/scripts/mcp_register.py
 ```
 
-Server này **không** nằm trong `.mcp.json` bundled sẵn của plugin (khác `sap-btp`/`cds-kb`/`notion`)
+Server này **không** nằm trong `.mcp.json` bundled sẵn của plugin (khác `sap-connect`/`cds-kb`/`notion`)
 — dù không cần credential, nó vẫn cần 1 bước xác nhận (Y/n) vì là năng lực điều khiển 1 Chrome
 thật, không nên tự động bật cho mọi người cài plugin.
 
