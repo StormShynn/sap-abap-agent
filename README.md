@@ -181,7 +181,7 @@ docs-only (không skill pack / SessionStart hooks) — chi tiết trong onboardi
 
 Tóm tắt kỹ thuật (reference):
 
-1. `pip install "mcp-sap-connect[win-dpapi]"` rồi `python -m mcp_sap_connect.doctor`
+1. Cài MCP server từ wheel mới nhất (lệnh ở mục "Wheel pin" dưới) rồi `python -m mcp_sap_connect.doctor`
 2. Windows GUI: **ưu tiên NSIS** tag `gui-v*` / rolling `gui-latest` (PATH-only — không embed Python;
    MSI cần admin / Error 1925 nếu không elevate)
 3. Claude Code (mỗi máy):
@@ -193,16 +193,21 @@ Tóm tắt kỹ thuật (reference):
    marketplace add trên máy/account đó. Cursor: chỉ MCP — bỏ bước `/plugin`.
    Team rollout: [`docs/rollout-guide.md`](docs/rollout-guide.md).
 
-Wheel pin (MCP package; có thể lệch patch so với plugin — ưu tiên
-`pip install "mcp-sap-connect[win-dpapi]"` nếu không cần URL cố định):
+Wheel pin (MCP package chưa publish lên PyPI, có thể lệch patch so với plugin —
+lệnh dưới tự lấy release `mcp-server-v*` mới nhất, không cần biết version):
 
 ```bash
-pip install https://github.com/StormShynn/sap-abap-agent/releases/download/mcp-server-v1.24.3/mcp_sap_connect-1.22.0-py3-none-any.whl
-pip install "mcp_sap_connect-1.22.0-py3-none-any.whl[win-dpapi]"
+WHL=$(python -c "import json,urllib.request as u; r=json.load(u.urlopen('https://api.github.com/repos/StormShynn/sap-abap-agent/releases')); rel=next(x for x in r if x['tag_name'].startswith('mcp-server-v')); print(next(a['browser_download_url'] for a in rel['assets'] if a['name'].endswith('.whl')))")
+pip install "mcp_sap_connect @ $WHL"
+pip install "mcp_sap_connect[win-dpapi] @ $WHL"
 # Cookie browser auto-login (tùy chọn):
-pip install "mcp_sap_connect-1.22.0-py3-none-any.whl[playwright]"
+pip install "mcp_sap_connect[playwright] @ $WHL"
 playwright install chromium
 ```
+
+Muốn pin cứng 1 version cụ thể? Lấy URL wheel trực tiếp từ trang
+[Releases](https://github.com/StormShynn/sap-abap-agent/releases) (tag `mcp-server-v*`)
+rồi dùng thay cho `$WHL`.
 
 > Cùng OS account = cùng vault `.mcp-sap-connect` (không tách người dùng trong
 > một login). Cách ly: OS user riêng hoặc `MCP_SAP_CONNECT_HOME`.
