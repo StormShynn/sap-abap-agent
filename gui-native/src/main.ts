@@ -328,6 +328,10 @@ let profilesData: ProfilesData = { active: null, items: [] };
 let licenseCache: Map<string, LicenseStatus> = new Map();
 let selectedId: string | null = null;
 let earlyFinishPath: string | null = null;
+/** File tam sinh boi form "New profile" (chua secret dang plaintext) - can
+ * xoa sau khi `setup --from-file` doc xong. KHAC voi khi user tu chon file
+ * qua "Setup from file" (đó là file THẬT của họ, KHÔNG được xóa). */
+let pendingTempProfilePath: string | null = null;
 let licenseDashboardOpen = false;
 /** Cached PowerShell/shell PATH fix from last doctor --json (null when PATH OK). */
 let cachedPathFix: string | null = null;
@@ -343,6 +347,43 @@ const el = {
   btnRefresh: byId<HTMLButtonElement>("btn-refresh"),
   btnAdd: byId<HTMLButtonElement>("btn-add"),
   addDropdown: byId<HTMLDivElement>("add-dropdown"),
+  btnEditProfile: byId<HTMLButtonElement>("btn-edit-profile"),
+  btnProfileInfo: byId<HTMLButtonElement>("btn-profile-info"),
+  profileInfoModal: byId<HTMLDivElement>("profile-info-modal"),
+  profileInfoTitle: byId<HTMLHeadingElement>("profile-info-title"),
+  profileInfoRows: byId<HTMLDivElement>("profile-info-rows"),
+  btnProfileInfoClose: byId<HTMLButtonElement>("btn-profile-info-close"),
+  btnProfileInfoCopy: byId<HTMLButtonElement>("btn-profile-info-copy"),
+  setupFormModal: byId<HTMLDivElement>("setup-form-modal"),
+  setupFormTitle: byId<HTMLHeadingElement>("setup-form-title"),
+  setupFormIntro: byId<HTMLParagraphElement>("setup-form-intro"),
+  setupFormError: byId<HTMLDivElement>("setup-form-error"),
+  sfUrl: byId<HTMLInputElement>("sf-url"),
+  sfProfileId: byId<HTMLInputElement>("sf-profile-id"),
+  sfRegion: byId<HTMLInputElement>("sf-region"),
+  sfService: byId<HTMLSelectElement>("sf-service"),
+  sfAuthMode: byId<HTMLSelectElement>("sf-auth-mode"),
+  sfGroupOauth2: byId<HTMLDivElement>("sf-group-oauth2"),
+  sfGroupPassword: byId<HTMLDivElement>("sf-group-password"),
+  sfGroupBearer: byId<HTMLDivElement>("sf-group-bearer"),
+  sfGroupCookie: byId<HTMLDivElement>("sf-group-cookie"),
+  sfClientId: byId<HTMLInputElement>("sf-client-id"),
+  sfClientSecret: byId<HTMLInputElement>("sf-client-secret"),
+  sfScope: byId<HTMLInputElement>("sf-scope"),
+  sfTenantOauth2: byId<HTMLInputElement>("sf-tenant-oauth2"),
+  sfUsername: byId<HTMLInputElement>("sf-username"),
+  sfPassword: byId<HTMLInputElement>("sf-password"),
+  sfAccessToken: byId<HTMLInputElement>("sf-access-token"),
+  sfReauthMode: byId<HTMLSelectElement>("sf-reauth-mode"),
+  sfCookieAutoHint: byId<HTMLDivElement>("sf-cookie-auto-hint"),
+  sfGroupSaml: byId<HTMLDivElement>("sf-group-saml"),
+  sfSamlUsername: byId<HTMLInputElement>("sf-saml-username"),
+  sfSamlPassword: byId<HTMLInputElement>("sf-saml-password"),
+  sfCookiesLabel: byId<HTMLLabelElement>("sf-cookies-label"),
+  sfCookies: byId<HTMLTextAreaElement>("sf-cookies"),
+  btnSetupFormClose: byId<HTMLButtonElement>("btn-setup-form-close"),
+  btnSetupFormCancel: byId<HTMLButtonElement>("btn-setup-form-cancel"),
+  btnSetupFormOk: byId<HTMLButtonElement>("btn-setup-form-ok"),
   urlText: byId<HTMLSpanElement>("url-text"),
   licenseText: byId<HTMLSpanElement>("license-text"),
   btnLicense: byId<HTMLButtonElement>("btn-license"),
@@ -946,6 +987,354 @@ async function onNewSetup() {
   } catch (err) {
     appendLog(`[ERROR] ${err}`);
     currentJobLabel = null;
+  }
+}
+
+// ===== New profile form (Add > New profile - dien form, khong go lenh) =====
+
+function updateSetupFormGroups() {
+  const mode = el.sfAuthMode.value;
+  el.sfGroupOauth2.classList.toggle("hidden", mode !== "oauth2");
+  el.sfGroupPassword.classList.toggle("hidden", mode !== "password");
+  el.sfGroupBearer.classList.toggle("hidden", mode !== "bearer");
+  el.sfGroupCookie.classList.toggle("hidden", mode !== "cookie");
+  updateCookieReauthGroups();
+}
+
+/** Trong nhom Cookie: "auto" hien hint + field SAML bootstrap (tuy chon,
+ * dang nhap nhanh khong MFA) va Cookies thanh tuy chon (backend tu mo
+ * browser neu de trong); "manual" an SAML, Cookies thanh bat buoc - day la
+ * duong de nhat cho user khong ranh F12/DevTools: chon "auto", de trong
+ * Cookies, bam Tao profile la co browser tu mo cho ho dang nhap. */
+function updateCookieReauthGroups() {
+  const isAuto = el.sfReauthMode.value === "auto";
+  el.sfCookieAutoHint.classList.toggle("hidden", !isAuto);
+  el.sfGroupSaml.classList.toggle("hidden", !isAuto);
+  el.sfCookiesLabel.textContent = isAuto
+    ? "Cookies (để trống nếu muốn tự mở browser)"
+    : "Cookies * — dán mỗi dòng 1 cặp Tên=Giá trị (F12 → Application → Cookies)";
+}
+
+function showSetupFormError(msg: string) {
+  el.setupFormError.textContent = msg;
+  el.setupFormError.classList.remove("hidden");
+}
+
+function resetSetupForm() {
+  el.sfUrl.value = "";
+  el.sfProfileId.value = "";
+  el.sfRegion.value = "eu10";
+  el.sfService.value = "s4hc_(public)";
+  el.sfAuthMode.value = "oauth2";
+  el.sfClientId.value = "";
+  el.sfClientSecret.value = "";
+  el.sfScope.value = "";
+  el.sfTenantOauth2.value = "";
+  el.sfUsername.value = "";
+  el.sfPassword.value = "";
+  el.sfAccessToken.value = "";
+  el.sfReauthMode.value = "auto";
+  el.sfSamlUsername.value = "";
+  el.sfSamlPassword.value = "";
+  el.sfCookies.value = "";
+  el.setupFormError.classList.add("hidden");
+  el.setupFormError.textContent = "";
+  updateSetupFormGroups();
+}
+
+function openSetupFormModal() {
+  if (currentJobLabel) return;
+  resetSetupForm();
+  el.setupFormTitle.textContent = "Tạo profile SAP mới";
+  el.setupFormIntro.innerHTML =
+    'Điền thông tin rồi bấm "Tạo profile" — không cần chạy lệnh tay. Chỉ field có ' +
+    "<strong>*</strong> là bắt buộc. Xem " +
+    "<code>reference/templates/mcp-sap-connect-profile-sample/README.md</code> " +
+    "trong repo nếu cần giải thích field/edition chi tiết hơn.";
+  el.btnSetupFormOk.textContent = "Tạo profile";
+  el.setupFormModal.classList.remove("hidden");
+}
+
+/** Bam "Sua" ben canh profile-select: doc config KHONG nhay cam (url/
+ * service/region/authMode/clientId/scope/tenant/reauthMode) cua profile
+ * dang chon qua `profiles show --json`, tu dien lai vao form - CHI field
+ * secret (clientSecret/password/accessToken/cookies) de trong vi khong the
+ * doc lai duoc (ma hoa DPAPI, khong bao gio tra ve qua CLI) - user PHAI
+ * dien lai gia tri hien tai de luu thay doi (khong giu duoc secret cu). */
+async function onEditProfile() {
+  if (currentJobLabel) return;
+  if (!selectedId) {
+    showToast("Chưa chọn profile nào để sửa.", "danger");
+    return;
+  }
+  const pid = selectedId;
+  let cfg: Record<string, unknown>;
+  try {
+    cfg = await invoke<Record<string, unknown>>("get_profile_config", { profileId: pid });
+  } catch (err) {
+    showToast(`Không đọc được config của '${pid}': ${err}`, "danger");
+    return;
+  }
+  if (typeof cfg.error === "string") {
+    showToast(`Không đọc được config của '${pid}': ${cfg.error}`, "danger");
+    return;
+  }
+
+  resetSetupForm();
+  el.sfProfileId.value = pid;
+  el.sfUrl.value = String(cfg.btpUrl ?? "");
+  el.sfRegion.value = String(cfg.region ?? "eu10");
+  if (typeof cfg.service === "string") el.sfService.value = cfg.service;
+  const authMode = typeof cfg.authMode === "string" ? cfg.authMode : "oauth2";
+  el.sfAuthMode.value = authMode;
+  el.sfClientId.value = String(cfg.clientId ?? "");
+  el.sfScope.value = String(cfg.scope ?? "");
+  el.sfTenantOauth2.value = String(cfg.tenant ?? "");
+  if (typeof cfg.reauthMode === "string") el.sfReauthMode.value = cfg.reauthMode;
+  updateSetupFormGroups();
+
+  el.setupFormTitle.textContent = `Sửa profile "${pid}"`;
+  el.setupFormIntro.innerHTML =
+    `Đang sửa profile <strong>${pid}</strong>. Các field không nhạy cảm đã điền sẵn. ` +
+    "<strong>Bắt buộc điền lại</strong> Client Secret/Password/Access token/Cookies " +
+    "hiện tại (hệ thống không lưu lại secret cũ, vì lý do an toàn) — nếu không, bấm " +
+    '"Lưu thay đổi" sẽ báo thiếu field.';
+  el.btnSetupFormOk.textContent = "Lưu thay đổi";
+  el.setupFormModal.classList.remove("hidden");
+}
+
+function closeSetupFormModal() {
+  el.setupFormModal.classList.add("hidden");
+}
+
+// ===== Profile info (chi xem - biet ten/URL/tenant de hoi Claude) =====
+
+const SERVICE_LABELS: Record<string, string> = {
+  "s4hc_(public)": "S/4HANA Cloud Public Edition",
+  "s4hc_(private)": "S/4HANA Cloud Private Edition",
+  btp: "SAP BTP ABAP Environment (Steampunk)",
+  onprem: "On-premise",
+  rise_with_sap: "RISE with SAP",
+};
+
+const AUTH_MODE_LABELS: Record<string, string> = {
+  oauth2: "OAuth2 (Communication Arrangement)",
+  password: "Username / Password",
+  bearer: "Bearer token",
+  cookie: "Cookie (session browser)",
+};
+
+interface InfoRow {
+  label: string;
+  value: string;
+}
+
+function buildProfileInfoRows(pid: string, cfg: Record<string, unknown>): InfoRow[] {
+  const rows: InfoRow[] = [{ label: "Profile ID", value: pid }];
+  const url = String(cfg.btpUrl ?? "").trim();
+  if (url) rows.push({ label: "URL", value: url });
+  const tenant = String(cfg.tenant ?? "").trim();
+  if (tenant) rows.push({ label: "Tenant", value: tenant });
+  const service = typeof cfg.service === "string" ? cfg.service : "";
+  if (service) rows.push({ label: "Edition", value: SERVICE_LABELS[service] ?? service });
+  const authMode = typeof cfg.authMode === "string" ? cfg.authMode : "";
+  if (authMode) rows.push({ label: "Cách xác thực", value: AUTH_MODE_LABELS[authMode] ?? authMode });
+  const region = String(cfg.region ?? "").trim();
+  if (region) rows.push({ label: "Region", value: region });
+  const clientId = String(cfg.clientId ?? "").trim();
+  if (clientId) rows.push({ label: "Client ID", value: clientId });
+  const scope = String(cfg.scope ?? "").trim();
+  if (scope) rows.push({ label: "Scope", value: scope });
+  rows.push({ label: "Đang active", value: pid === profilesData.active ? "Có" : "Không" });
+  return rows;
+}
+
+function renderProfileInfoRows(rows: InfoRow[]) {
+  el.profileInfoRows.innerHTML = "";
+  for (const row of rows) {
+    const div = document.createElement("div");
+    div.className = "info-row";
+    div.title = "Bấm để copy giá trị này";
+    const label = document.createElement("span");
+    label.className = "info-row-label";
+    label.textContent = row.label;
+    const value = document.createElement("span");
+    value.className = "info-row-value";
+    value.textContent = row.value;
+    div.append(label, value);
+    div.addEventListener("click", () => {
+      void navigator.clipboard.writeText(row.value);
+      showToast(`Đã copy "${row.label}": ${row.value}`, "success", 2500);
+    });
+    el.profileInfoRows.appendChild(div);
+  }
+}
+
+async function onOpenProfileInfo() {
+  if (!selectedId) {
+    showToast("Chưa chọn profile nào để xem.", "danger");
+    return;
+  }
+  const pid = selectedId;
+  let cfg: Record<string, unknown>;
+  try {
+    cfg = await invoke<Record<string, unknown>>("get_profile_config", { profileId: pid });
+  } catch (err) {
+    showToast(`Không đọc được config của '${pid}': ${err}`, "danger");
+    return;
+  }
+  if (typeof cfg.error === "string") {
+    showToast(`Không đọc được config của '${pid}': ${cfg.error}`, "danger");
+    return;
+  }
+  el.profileInfoTitle.textContent = `Thông tin profile "${pid}"`;
+  renderProfileInfoRows(buildProfileInfoRows(pid, cfg));
+  el.profileInfoModal.classList.remove("hidden");
+}
+
+function closeProfileInfoModal() {
+  el.profileInfoModal.classList.add("hidden");
+}
+
+async function onCopyAllProfileInfo() {
+  const rows = Array.from(el.profileInfoRows.querySelectorAll<HTMLDivElement>(".info-row")).map((div) => {
+    const label = div.querySelector(".info-row-label")?.textContent ?? "";
+    const value = div.querySelector(".info-row-value")?.textContent ?? "";
+    return `${label}: ${value}`;
+  });
+  await navigator.clipboard.writeText(rows.join("\n"));
+  showToast("Đã copy toàn bộ thông tin profile.", "success");
+}
+
+/** Parse textarea thanh {name: value} - chap nhan moi dong "Ten=Gia tri"
+ * hoac "Ten: Gia tri", HOAC ca dong kieu document.cookie ("a=1; b=2"). Bo
+ * qua dong rong / khong co dau phan tach. */
+function parseCookiesText(raw: string): Record<string, string> {
+  const cookies: Record<string, string> = {};
+  const parts = raw
+    .split(/[\n;]/)
+    .map((s) => s.trim())
+    .filter(Boolean);
+  for (const part of parts) {
+    const sep = part.includes("=") ? "=" : part.includes(":") ? ":" : null;
+    if (!sep) continue;
+    const idx = part.indexOf(sep);
+    const name = part.slice(0, idx).trim();
+    const value = part.slice(idx + 1).trim();
+    if (name) cookies[name] = value;
+  }
+  return cookies;
+}
+
+/** Build object cung shape voi reference/templates/mcp-sap-connect-profile-
+ * sample/*.json tu cac field user da dien. Tra ve null (da tu goi
+ * showSetupFormError) neu thieu field bat buoc theo tung authMode. */
+function buildProfileFromForm(): Record<string, unknown> | null {
+  const url = el.sfUrl.value.trim();
+  if (!url) {
+    showSetupFormError("Thiếu URL SAP.");
+    return null;
+  }
+  const authMode = el.sfAuthMode.value;
+  const base: Record<string, unknown> = {
+    profileId: el.sfProfileId.value.trim(),
+    url,
+    service: el.sfService.value,
+    region: el.sfRegion.value.trim() || "eu10",
+    authMode,
+  };
+
+  if (authMode === "oauth2") {
+    const clientId = el.sfClientId.value.trim();
+    const clientSecret = el.sfClientSecret.value.trim();
+    if (!clientId || !clientSecret) {
+      showSetupFormError("OAuth2 cần điền Client ID + Client Secret.");
+      return null;
+    }
+    return {
+      ...base,
+      clientId,
+      clientSecret,
+      scope: el.sfScope.value.trim(),
+      tenant: el.sfTenantOauth2.value.trim(),
+    };
+  }
+  if (authMode === "password") {
+    const username = el.sfUsername.value.trim();
+    const password = el.sfPassword.value;
+    if (!username || !password) {
+      showSetupFormError("Cần điền Username + Password.");
+      return null;
+    }
+    return { ...base, username, password, clientId: "", tenant: "" };
+  }
+  if (authMode === "bearer") {
+    const accessToken = el.sfAccessToken.value.trim();
+    if (!accessToken) {
+      showSetupFormError("Cần điền Access token.");
+      return null;
+    }
+    return { ...base, accessToken, tenant: "" };
+  }
+  // cookie
+  const reauthMode = el.sfReauthMode.value;
+  const cookies = parseCookiesText(el.sfCookies.value);
+  if (reauthMode === "manual" && Object.keys(cookies).length === 0) {
+    showSetupFormError(
+      "Chế độ thủ công cần dán ít nhất 1 cookie (Tên=Giá trị) — hoặc đổi " +
+        '"Khi cookie hết hạn" sang "Tự mở browser" để không cần tự lấy cookie.',
+    );
+    return null;
+  }
+  const result: Record<string, unknown> = { ...base, reauthMode, cookies, tenant: "" };
+  if (reauthMode === "auto") {
+    const samlUsername = el.sfSamlUsername.value.trim();
+    const samlPassword = el.sfSamlPassword.value.trim();
+    if (samlUsername && samlPassword) {
+      result.samlBootstrapUsername = samlUsername;
+      result.samlBootstrapPassword = samlPassword;
+    }
+  }
+  return result;
+}
+
+async function onSetupFormSubmit() {
+  if (currentJobLabel) return;
+  el.setupFormError.classList.add("hidden");
+  const profile = buildProfileFromForm();
+  if (!profile) return;
+
+  let tempPath: string;
+  try {
+    tempPath = await invoke<string>("write_temp_profile_json", {
+      contents: JSON.stringify(profile, null, 2),
+    });
+  } catch (err) {
+    showSetupFormError(`Không tạo được file tạm: ${err}`);
+    return;
+  }
+
+  closeSetupFormModal();
+  pendingTempProfilePath = tempPath;
+  earlyFinishPath = await invoke<string>("make_early_finish_path");
+  el.btnDone.disabled = false;
+
+  maybeClearLogForNewJob();
+  appendLog(`$ mcp-sap-connect setup --from-file "${tempPath}"  (sinh từ form GUI)`);
+  currentJobLabel = "setup --from-file";
+  setButtonsEnabled(false);
+  setStatus("Đang tạo profile...");
+  try {
+    await invoke("start_streamed", {
+      args: ["setup", "--from-file", tempPath],
+      envExtra: { SAP_BTP_EARLY_FINISH_FILE: earlyFinishPath },
+      label: currentJobLabel,
+    });
+  } catch (err) {
+    appendLog(`[ERROR] ${err}`);
+    resetJobState();
+    void invoke("cleanup_early_finish", { path: tempPath });
+    pendingTempProfilePath = null;
   }
 }
 
@@ -1671,6 +2060,10 @@ function initEventListeners() {
 
   el.profileSelect.addEventListener("change", onProfileChanged);
   el.btnRefresh.addEventListener("click", () => void refreshProfiles());
+  el.btnEditProfile.addEventListener("click", () => void onEditProfile());
+  el.btnProfileInfo.addEventListener("click", () => void onOpenProfileInfo());
+  el.btnProfileInfoClose.addEventListener("click", closeProfileInfoModal);
+  el.btnProfileInfoCopy.addEventListener("click", () => void onCopyAllProfileInfo());
 
   el.btnAdd.addEventListener("click", (e) => {
     e.stopPropagation();
@@ -1681,11 +2074,18 @@ function initEventListeners() {
     btn.addEventListener("click", () => {
       el.addDropdown.classList.add("hidden");
       const action = btn.dataset.action;
-      if (action === "wizard") void onNewSetup();
+      if (action === "new-form") openSetupFormModal();
+      else if (action === "wizard") void onNewSetup();
       else if (action === "from-file") void onSetupFromFile();
       else if (action === "import-json") void onImportJson();
     });
   });
+
+  el.sfAuthMode.addEventListener("change", updateSetupFormGroups);
+  el.sfReauthMode.addEventListener("change", updateCookieReauthGroups);
+  el.btnSetupFormClose.addEventListener("click", closeSetupFormModal);
+  el.btnSetupFormCancel.addEventListener("click", closeSetupFormModal);
+  el.btnSetupFormOk.addEventListener("click", () => void onSetupFormSubmit());
 
   el.btnReauth.addEventListener("click", () => void onReauth());
   el.btnConnect.addEventListener("click", () => void onConnect());
@@ -1739,6 +2139,12 @@ function initEventListeners() {
     appendLog(`\n[exit ${label} rc=${code}]\n`);
     setStatus(`${label}: rc=${code}`);
     resetJobState();
+    if (pendingTempProfilePath) {
+      // File tam sinh boi form "New profile" - CLI da doc xong luc nay
+      // (job-done nghia la process thoat), xoa plaintext secret khoi dia.
+      void invoke("cleanup_early_finish", { path: pendingTempProfilePath });
+      pendingTempProfilePath = null;
+    }
     void refreshProfiles();
     if (label === "doctor" || label.startsWith("doctor")) {
       void refreshDoctorPathFix({ announce: true });

@@ -1085,11 +1085,24 @@ async def _cmd_profiles(subcmd: str, arg: str | None, json_mode: bool = False) -
         from ..config.store import load_config
         pid = arg or get_current_active()
         if not pid:
-            print("  ❌ Chua co profile nao.")
+            if json_mode:
+                import json as _json
+                print(_json.dumps({"error": "Chua co profile nao."}, ensure_ascii=False))
+            else:
+                print("  ❌ Chua co profile nao.")
             return
         try:
+            # cfg (load_config) CHI chua field khong nhay cam (btpUrl, service,
+            # region, authMode, clientId, scope, tenant, reauthMode...) -
+            # secret (clientSecret/password/accessToken/cookies) nam RIENG
+            # trong secrets.json/load_secrets(), KHONG BAO GIO nam trong day -
+            # an toan de tra thang ve GUI (--json) dung cho form "Sua profile".
             cfg = await asyncio.to_thread(load_config, pid)
             await load_secrets(pid)
+            if json_mode:
+                import json as _json
+                print(_json.dumps({"profileId": pid, **cfg}, ensure_ascii=False))
+                return
             print()
             header(f"Profile: {pid}")
             for k, v in cfg.items():
@@ -1097,7 +1110,11 @@ async def _cmd_profiles(subcmd: str, arg: str | None, json_mode: bool = False) -
             print("  secrets: loaded")
             print()
         except RuntimeError as err:
-            print(f"  ❌ {err}")
+            if json_mode:
+                import json as _json
+                print(_json.dumps({"error": str(err)}, ensure_ascii=False))
+            else:
+                print(f"  ❌ {err}")
 
     elif subcmd == "remove" and arg:
         try:

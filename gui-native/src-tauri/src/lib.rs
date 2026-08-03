@@ -20,6 +20,7 @@ pub fn run() {
             mcp_cli::open_log_dir,
             mcp_cli::check_runtime,
             mcp_cli::list_profiles,
+            mcp_cli::get_profile_config,
             mcp_cli::get_license_statuses,
             mcp_cli::set_active_profile,
             mcp_cli::remove_profile,
@@ -37,6 +38,7 @@ pub fn run() {
             jobs::make_early_finish_path,
             jobs::touch_early_finish,
             jobs::cleanup_early_finish,
+            jobs::write_temp_profile_json,
         ])
         .setup(|app| {
             tray::build_tray(app.handle())?;

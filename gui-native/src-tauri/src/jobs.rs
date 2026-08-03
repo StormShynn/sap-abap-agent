@@ -191,6 +191,27 @@ pub fn touch_early_finish(path: String) -> Result<(), String> {
     Ok(())
 }
 
+// ===== Temp profile JSON (form "New profile" trong GUI) =================
+// Form nhap lieu (Add > New profile) build 1 object JSON o phia TypeScript
+// (cung shape voi reference/templates/mcp-sap-connect-profile-sample/*.json)
+// roi goi lenh nay de ghi ra file tam, sau do tai su dung nguyen luong
+// `setup --from-file` da co san (xem onSetupFromFile trong main.ts) - KHONG
+// can them Rust command moi cho viec goi CLI, chi can 1 cho ghi file tam.
+#[tauri::command]
+pub fn write_temp_profile_json(contents: String) -> Result<String, String> {
+    let dir = std::env::temp_dir();
+    let unique = format!(
+        "sap_profile_form_{}.json",
+        std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .map(|d| d.as_nanos())
+            .unwrap_or(0)
+    );
+    let path = dir.join(unique);
+    std::fs::write(&path, contents).map_err(|e| format!("Khong ghi duoc file tam: {e}"))?;
+    Ok(path.to_string_lossy().to_string())
+}
+
 #[tauri::command]
 pub fn cleanup_early_finish(path: String) {
     let _ = std::fs::remove_file(path);
