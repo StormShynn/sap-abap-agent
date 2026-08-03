@@ -1660,19 +1660,19 @@
         <li>Cài MCP Server từ file wheel:</li>
       </ol>
 
-      <pre><code><span class="hl-com"># Cài MCP Server — không cần clone repo (kiểm tra bản mới nhất tại
-# https://github.com/StormShynn/sap-abap-agent/releases, tìm tag mcp-server-v*)</span>
-pip install https://github.com/StormShynn/sap-abap-agent/releases/download/mcp-server-v1.22.0/mcp_sap_connect-1.22.0-py3-none-any.whl
+      <pre><code><span class="hl-com"># Cài MCP Server — không cần clone repo, tự lấy release mcp-server-v* mới nhất</span>
+WHL=$(python -c "import json,urllib.request as u; r=json.load(u.urlopen('https://api.github.com/repos/StormShynn/sap-abap-agent/releases')); rel=next(x for x in r if x['tag_name'].startswith('mcp-server-v')); print(next(a['browser_download_url'] for a in rel['assets'] if a['name'].endswith('.whl')))")
+pip install "mcp_sap_connect @ $WHL"
 
 <span class="hl-com"># Trên Windows, thêm win-dpapi</span>
-pip install "mcp_sap_connect-1.22.0-py3-none-any.whl[win-dpapi]"
+pip install "mcp_sap_connect[win-dpapi] @ $WHL"
 
 <span class="hl-com"># Muốn dùng Cookie Auth kiểu tự mở browser đăng nhập (Auto mode)</span>
-pip install "mcp_sap_connect-1.22.0-py3-none-any.whl[playwright]"
+pip install "mcp_sap_connect[playwright] @ $WHL"
 playwright install chromium
 
 <span class="hl-com"># Kiểm tra môi trường — chạy được dù PATH chưa đúng</span>
-python -m sap_btp_agent.doctor</code><button class="copy-btn" onclick="copyCode(this)">Sao chép</button></pre>
+python -m mcp_sap_connect.doctor</code><button class="copy-btn" onclick="copyCode(this)">Sao chép</button></pre>
 
       <p>Lệnh <code>doctor</code> tự phát hiện các lỗi môi trường hay gặp nhất (PATH thiếu entry point, thiếu pywin32/playwright...) và in sẵn lệnh fix — không cần debug thủ công.</p>
 
@@ -2526,7 +2526,7 @@ bash reference/scripts/update.sh</code></pre>
         </table>
       </div>
 
-      <p><strong>Tips:</strong> Bạn có thể dùng lệnh <code>/sap-connect</code> ngay trong Claude Code để được hướng dẫn từng bước. Nếu <code>mcp-sap-connect</code> báo "not recognized", chạy <code>python -m sap_btp_agent.doctor</code> — lệnh này chạy được dù PATH chưa đúng.</p>
+      <p><strong>Tips:</strong> Bạn có thể dùng lệnh <code>/sap-connect</code> ngay trong Claude Code để được hướng dẫn từng bước. Nếu <code>mcp-sap-connect</code> báo "not recognized", chạy <code>python -m mcp_sap_connect.doctor</code> — lệnh này chạy được dù PATH chưa đúng.</p>
     </section>
 
     
@@ -3734,7 +3734,7 @@ java -jar cdata.jdbc.sapfieldglass.jar --license</code><button class="copy-btn" 
       <h3>13 MCP tools</h3>
       <p><code>sap_list_profiles</code>, <code>sap_ping</code>, <code>sap_list_packages</code>, <code>sap_search</code>, <code>sap_read_source</code>, <code>sap_syntax_check</code>, <code>sap_activate</code>, <code>sap_find_where_used</code>, <code>sap_execute_query</code>, <code>sap_run_unit_tests</code>, <code>sap_get_system_info</code>, <code>sap_analyze_dump</code> — mỗi tool đều nhận tham số <code>profile</code> (để trống = active).</p>
 
-      <p>💡 <strong>Xử lý sự cố nhanh:</strong> lỗi <code>'mcp-sap-connect' is not recognized</code> (Windows, hay gặp nhất) → chạy <code>python -m sap_btp_agent.doctor</code> để tự phát hiện và lấy lệnh fix PATH.</p>
+      <p>💡 <strong>Xử lý sự cố nhanh:</strong> lỗi <code>'mcp-sap-connect' is not recognized</code> (Windows, hay gặp nhất) → chạy <code>python -m mcp_sap_connect.doctor</code> để tự phát hiện và lấy lệnh fix PATH.</p>
     </section>
 
     <!-- ===== SKILL: DOC TO MD ===== -->
@@ -4221,7 +4221,7 @@ java -jar cdata.jdbc.sapfieldglass.jar --license</code><button class="copy-btn" 
 
       <div class="trouble-card">
         <div class="tc-title">💻 'mcp-sap-connect' is not recognized</div>
-        <p class="tc-desc">PATH thiếu folder chứa entry point — lỗi rất hay gặp trên Windows khi <code>pip</code> cài vào user-scheme site-packages. Chạy <code>python -m sap_btp_agent.doctor</code> (chạy được dù PATH sai) để tự phát hiện và lấy sẵn lệnh fix.</p>
+        <p class="tc-desc">PATH thiếu folder chứa entry point — lỗi rất hay gặp trên Windows khi <code>pip</code> cài vào user-scheme site-packages. Chạy <code>python -m mcp_sap_connect.doctor</code> (chạy được dù PATH sai) để tự phát hiện và lấy sẵn lệnh fix.</p>
       </div>
     
       <div class="trouble-card ok">
