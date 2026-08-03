@@ -57,6 +57,17 @@ function artifactDir(target) {
   return `sap-abap-agent-gui-${target}`;
 }
 
+/**
+ * GitHub Releases rewrites spaces in uploaded asset filenames to periods
+ * (confirmed by diffing a live release: local build produces
+ * "SAP ABAP Agent_1.23.1_x64-setup.exe", the uploaded asset is served as
+ * "SAP.ABAP.Agent_1.23.1_x64-setup.exe"). Without this, the updater URL
+ * baked into update.json 404s against the real asset on every release.
+ */
+function githubAssetName(name) {
+  return name.replace(/ /g, ".");
+}
+
 function rankOf(name) {
   const lower = name.toLowerCase();
   const i = BUNDLE_EXT_RANK.findIndex((ext) => lower.endsWith(ext));
@@ -120,7 +131,7 @@ function findBundle(targetDir) {
     }
     return {
       signature: sig,
-      url: `${BASE_URL}/${encodeURIComponent(bundle.name)}`,
+      url: `${BASE_URL}/${encodeURIComponent(githubAssetName(bundle.name))}`,
       artifact: bundle.name,
       kind,
     };
