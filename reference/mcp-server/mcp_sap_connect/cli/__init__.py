@@ -892,6 +892,26 @@ def _safe_display_value(key: str, value: Any) -> str:
     return str(value)
 
 
+def _sanitize_for_json_output(data: Any, key_hint: str | None = None) -> Any:
+    """Redact sensitive fields recursively before printing JSON to stdout."""
+    if isinstance(data, dict):
+        sanitized: dict[str, Any] = {}
+        for k, v in data.items():
+            if _is_sensitive_key(str(k)):
+                sanitized[k] = "***REDACTED***"
+            else:
+                sanitized[k] = _sanitize_for_json_output(v, str(k))
+        return sanitized
+
+    if isinstance(data, list):
+        return [_sanitize_for_json_output(item, key_hint) for item in data]
+
+    if key_hint is not None:
+        return _safe_display_value(key_hint, data)
+
+    return data
+
+
 def _cmd_license(profile_id, *, json_mode: bool = False):
     """In trang thai license (cookie/token) cua 1 hoac tat ca profile.
 
@@ -907,12 +927,14 @@ def _cmd_license(profile_id, *, json_mode: bool = False):
         import json as _json
         if profile_id:
             try:
-                print(_json.dumps(_lic.get_profile_status(profile_id), ensure_ascii=False))
+                status = _lic.get_profile_status(profile_id)
+                print(_json.dumps(_sanitize_for_json_output(status), ensure_ascii=False))
             except Exception as err:
                 print(_json.dumps({"error": str(err)}, ensure_ascii=False))
         else:
             try:
-                print(_json.dumps(_lic.list_all_statuses(), ensure_ascii=False))
+                statuses = _lic.list_all_statuses()
+                print(_json.dumps(_sanitize_for_json_output(statuses), ensure_ascii=False))
             except Exception as err:
                 print(_json.dumps({"error": str(err)}, ensure_ascii=False))
         return
