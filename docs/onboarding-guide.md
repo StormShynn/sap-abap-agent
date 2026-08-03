@@ -45,7 +45,7 @@ ra khỏi Core.
 
 ### Cursor / VS Code — happy path MCP
 
-1. Cài CLI như persona A1: `pip install "mcp-sap-connect[win-dpapi]"` + `doctor`.
+1. Cài CLI như persona A1 (xem lệnh ở mục A1) + `doctor`.
 2. `mcp-sap-connect setup` / `ping` / `connect` như thường.
 3. Emit **Core pack** (không claim skill parity):
 
@@ -71,7 +71,8 @@ Mục tiêu: kết nối hệ thống + scaffold / review / test ABAP Cloud.
 ### A1. Cài CLI (PATH-only)
 
 ```powershell
-pip install "mcp-sap-connect[win-dpapi]"
+$WHL = python -c 'import json,urllib.request as u; r=json.load(u.urlopen("https://api.github.com/repos/StormShynn/sap-abap-agent/releases")); rel=next(x for x in r if x["tag_name"].startswith("mcp-server-v")); print(next(a["browser_download_url"] for a in rel["assets"] if a["name"].endswith(".whl")))'
+pip install "mcp_sap_connect[win-dpapi] @ $WHL"
 python -m mcp_sap_connect.doctor
 ```
 
@@ -137,7 +138,8 @@ Mục tiêu: hỏi nghiệp vụ module + tra CDS/docs — **không** scaffold A
 ### B1. Cài tối thiểu
 
 ```powershell
-pip install "mcp-sap-connect[win-dpapi]"
+$WHL = python -c 'import json,urllib.request as u; r=json.load(u.urlopen("https://api.github.com/repos/StormShynn/sap-abap-agent/releases")); rel=next(x for x in r if x["tag_name"].startswith("mcp-server-v")); print(next(a["browser_download_url"] for a in rel["assets"] if a["name"].endswith(".whl")))'
+pip install "mcp_sap_connect[win-dpapi] @ $WHL"
 python -m mcp_sap_connect.doctor
 ```
 
@@ -199,7 +201,7 @@ Skill chính: `sap-key-user-toolkit` + consultant module khi cần.
 | sap-vsp / ADT thay thế | `KNOWN_LIMITATIONS.md` — đổi active profile → chạy lại `mcp-setup` để rebind `sap-vsp` |
 | Cookie / SAML reauth | Fast-path ~1–3s **chỉ khi IAS không MFA**; có MFA → browser (chậm hơn). Xem `KNOWN_LIMITATIONS.md` |
 | Cursor / VS Code | Xem [Host matrix](#host-matrix-claude-code-vs-cursor--vs-code) — MCP only, không hooks |
-| Legacy Tkinter GUI | `pip install "mcp-sap-connect[gui]"` — không khuyến nghị user mới |
+| Legacy Tkinter GUI | Đổi extra thành `[gui]` trong lệnh cài ở A1 — không khuyến nghị user mới |
 
 ---
 

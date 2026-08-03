@@ -30,7 +30,7 @@ có profile riêng (URL, tenant, secret), lưu trong **folder user** trên máy
   rolling `gui-latest`, PATH-only (cần `mcp-sap-connect` trên PATH). Profile / Reauth /
   Connect / Ping / MCP Servers / License dashboard / system tray + **in-app updater**
   (minisign). Xem [`gui-native/README.md`](gui-native/README.md). Legacy Tkinter
-  (`pip install "mcp-sap-connect[gui]"`) vẫn hỗ trợ ≥2 minor — không khuyến nghị user mới.
+  (extra `[gui]` của wheel MCP server) vẫn hỗ trợ ≥2 minor — không khuyến nghị user mới.
 - **⏱️ Early-finish cho reauth auto mode** (Playwright): thay vì đợi 30s timeout, tool kết
   thúc sớm khi (1) user bấm Enter/OK, (2) session cookie + ADT discovery OK, hoặc (3) URL
   ổn định 3s. Test real timing URL-stable: 4.6s thay vì 30s.
@@ -322,7 +322,8 @@ mcp-sap-connect connect project1.s4hana.cloud.sap  # test 1 profile cụ thể
 **PATH-only:** cài CLI trước, rồi cài installer GUI (không embed Python).
 
 ```powershell
-pip install "mcp-sap-connect[win-dpapi]"
+$WHL = python -c 'import json,urllib.request as u; r=json.load(u.urlopen("https://api.github.com/repos/StormShynn/sap-abap-agent/releases")); rel=next(x for x in r if x["tag_name"].startswith("mcp-server-v")); print(next(a["browser_download_url"] for a in rel["assets"] if a["name"].endswith(".whl")))'
+pip install "mcp_sap_connect[win-dpapi] @ $WHL"
 python -m mcp_sap_connect.doctor
 ```
 
@@ -338,7 +339,8 @@ App mở ra: kiểm tra runtime → Add profile → Ping/Connect → MCP Servers
 Vẫn hỗ trợ ≥2 minor sau GA native; không khuyến nghị cho user mới:
 
 ```bash
-pip install "mcp-sap-connect[gui]"
+WHL=$(python -c "import json,urllib.request as u; r=json.load(u.urlopen('https://api.github.com/repos/StormShynn/sap-abap-agent/releases')); rel=next(x for x in r if x['tag_name'].startswith('mcp-server-v')); print(next(a['browser_download_url'] for a in rel['assets'] if a['name'].endswith('.whl')))")
+pip install "mcp_sap_connect[gui] @ $WHL"
 mcp-sap-connect-gui
 ```
 

@@ -587,7 +587,9 @@ async function checkRuntime(): Promise<boolean> {
     el.runtimeBannerTitle.textContent = "Không kiểm tra được runtime";
     el.runtimeBannerDetail.textContent = String(err);
     el.runtimeBannerHint.textContent =
-      'pip install "mcp-sap-connect[win-dpapi]"\npython -m mcp_sap_connect.doctor';
+      '$WHL = python -c \'import json,urllib.request as u; r=json.load(u.urlopen("https://api.github.com/repos/StormShynn/sap-abap-agent/releases")); rel=next(x for x in r if x["tag_name"].startswith("mcp-server-v")); print(next(a["browser_download_url"] for a in rel["assets"] if a["name"].endswith(".whl")))\'\n' +
+      'pip install "mcp_sap_connect[win-dpapi] @ $WHL"\n' +
+      'python -m mcp_sap_connect.doctor';
     return false;
   }
 }

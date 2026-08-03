@@ -263,8 +263,9 @@ jobs:
           Native GUI for SAP ABAP Agent (PATH-only) v${VERSION}.
 
           Prerequisite:
-          \`\`\`
-          pip install "mcp-sap-connect[win-dpapi]"
+          \`\`\`powershell
+          \$WHL = python -c 'import json,urllib.request as u; r=json.load(u.urlopen("https://api.github.com/repos/StormShynn/sap-abap-agent/releases")); rel=next(x for x in r if x["tag_name"].startswith("mcp-server-v")); print(next(a["browser_download_url"] for a in rel["assets"] if a["name"].endswith(".whl")))'
+          pip install "mcp_sap_connect[win-dpapi] @ \$WHL"
           python -m mcp_sap_connect.doctor
           \`\`\`
 

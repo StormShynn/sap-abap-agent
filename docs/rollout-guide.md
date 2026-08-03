@@ -72,7 +72,8 @@ python reference/scripts/validate_team_setup.py --persona A
 ### 1. CLI + doctor
 
 ```powershell
-pip install "mcp-sap-connect[win-dpapi]"
+$WHL = python -c 'import json,urllib.request as u; r=json.load(u.urlopen("https://api.github.com/repos/StormShynn/sap-abap-agent/releases")); rel=next(x for x in r if x["tag_name"].startswith("mcp-server-v")); print(next(a["browser_download_url"] for a in rel["assets"] if a["name"].endswith(".whl")))'
+pip install "mcp_sap_connect[win-dpapi] @ $WHL"
 python -m mcp_sap_connect.doctor
 ```
 

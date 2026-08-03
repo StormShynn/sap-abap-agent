@@ -12,7 +12,7 @@ auth/secrets vẫn ở Python, gọi qua `mcp-sap-connect <command> --json`.
 **Auto-updater** (decision `0002-gui-auto-updater`): `tauri-plugin-updater` + minisign +
 `update.json` trên rolling tag **`gui-latest`**.
 
-Bản Python/Tkinter (`pip install mcp-sap-connect[gui]` → `mcp-sap-connect-gui`) là
+Bản Python/Tkinter (extra `[gui]` của wheel MCP server → `mcp-sap-connect-gui`) là
 **legacy** — vẫn chạy trong ≥2 minor sau GA native; khuyến nghị dùng installer này.
 
 ## End-user (Windows)
@@ -20,7 +20,8 @@ Bản Python/Tkinter (`pip install mcp-sap-connect[gui]` → `mcp-sap-connect-gu
 1. Cài CLI (một lần):
 
 ```powershell
-pip install "mcp-sap-connect[win-dpapi]"
+$WHL = python -c 'import json,urllib.request as u; r=json.load(u.urlopen("https://api.github.com/repos/StormShynn/sap-abap-agent/releases")); rel=next(x for x in r if x["tag_name"].startswith("mcp-server-v")); print(next(a["browser_download_url"] for a in rel["assets"] if a["name"].endswith(".whl")))'
+pip install "mcp_sap_connect[win-dpapi] @ $WHL"
 python -m mcp_sap_connect.doctor
 ```
 
