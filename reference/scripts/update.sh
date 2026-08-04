@@ -32,7 +32,7 @@ if not mcp:
     sys.exit(1)
 r = mcp[0]
 version = r['tag_name'].replace('mcp-server-v', '')
-wheel = f'sap_abap_agent_mcp-{version}-py3-none-any.whl'
+wheel = f'mcp_sap_connect-{version}-py3-none-any.whl'
 for a in r['assets']:
     if a['name'] == wheel:
         print(a['browser_download_url'])
@@ -51,7 +51,7 @@ fi
 TMPDIR=$(mktemp -d)
 trap "rm -rf $TMPDIR" EXIT
 
-echo "  Downloading sap_abap_agent_mcp-${WHEEL_VER} ..."
+echo "  Downloading mcp_sap_connect-${WHEEL_VER} ..."
 curl -sL "$WHEEL_URL" -o "$TMPDIR/wheel.whl"
 echo "  OK Downloaded"
 

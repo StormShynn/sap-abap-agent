@@ -48,7 +48,7 @@ try {
         exit 1
     }
     $version = $mcpRelease.tag_name -replace "^mcp-server-v", ""
-    $wheelName = "sap_abap_agent_mcp-${version}-py3-none-any.whl"
+    $wheelName = "mcp_sap_connect-${version}-py3-none-any.whl"
     $asset = $mcpRelease.assets | Where-Object { $_.name -eq $wheelName }
     if (-not $asset) {
         Write-Host "  !! Wheel not found in release" -ForegroundColor Red
