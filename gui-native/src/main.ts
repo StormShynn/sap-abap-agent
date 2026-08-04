@@ -1965,10 +1965,22 @@ async function onCheckUpdate() {
     el.aboutUpdateActions.appendChild(notesBtn);
   } catch (err) {
     const msg = String(err);
-    const hint =
-      msg.includes("404") || msg.toLowerCase().includes("not found")
-        ? " (chua co release gui-latest/update.json — can CI secrets + tag gui-v*)"
-        : "";
+    const m = msg.toLowerCase();
+    let hint = "";
+    if (msg.includes("404") || m.includes("not found")) {
+      hint = " (chua co release gui-latest/update.json — can CI secrets + tag gui-v*)";
+    } else if (
+      m.includes("error sending request") ||
+      m.includes("connection") ||
+      m.includes("dns") ||
+      m.includes("timed out") ||
+      m.includes("timeout") ||
+      m.includes("tls") ||
+      m.includes("ssl")
+    ) {
+      hint = " (network/proxy bi chan github.com — kiem tra VPN, firewall, antivirus, hoac ping github.com)";
+    }
+    console.error("[updater] check() failed:", err);
     setUpdateMsg(`${msg}${hint}`, true);
     el.btnCheckUpdate.disabled = false;
     el.btnCheckUpdate.textContent = "Check for updates";

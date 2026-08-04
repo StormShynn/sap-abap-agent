@@ -301,6 +301,36 @@ jobs:
           git push origin "$PLUGIN_VERSION"
           echo "Tagged plugin: $PLUGIN_VERSION"
 
+      - name: Tag gui-v version (triggers GUI release + gui-latest update.json)
+        env:
+          GH_TOKEN: ${{ secrets.VERSION_BUMP_TOKEN || github.token }}
+          NEW_VERSION: ${{ steps.version.outputs.new }}
+        run: |
+          set -euo pipefail
+          GUI_TAG="gui-v${NEW_VERSION}"
+          # gui-release.yml chi chay khi push tag gui-v* (hoac workflow_dispatch).
+          # Auto-push o day de moi plugin-version bump cung tao GUI release moi
+          # + refresh rolling gui-latest/update.json (phuc vu in-app updater).
+          # Cung wait-for-merge guard nhu "Tag plugin version" - tag dung commit
+          # da carry GUI versions moi tren main (khong phai bump branch tip).
+          for i in 1 2 3 4 5 6; do
+            git fetch origin main
+            REMOTE_VER=$(git show origin/main:gui-native/package.json | jq -r .version)
+            if [[ "$REMOTE_VER" == "$NEW_VERSION" ]]; then
+              break
+            fi
+            echo "main gui-native/package.json still at $REMOTE_VER (want $NEW_VERSION); retry $i..."
+            sleep 5
+          done
+          REMOTE_VER=$(git show origin/main:gui-native/package.json | jq -r .version)
+          if [[ "$REMOTE_VER" != "$NEW_VERSION" ]]; then
+            echo "main gui-native/package.json is $REMOTE_VER, expected $NEW_VERSION after publish." >&2
+            exit 1
+          fi
+          git tag "$GUI_TAG" "origin/main"
+          git push origin "$GUI_TAG"
+          echo "Tagged gui: $GUI_TAG (triggers .github/workflows/gui-release.yml)"
+
   release-mcp-server:
     needs: bump-version
     if: needs.bump-version.outputs.mcp_changed == 'true'
