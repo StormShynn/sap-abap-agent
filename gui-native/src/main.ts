@@ -1881,28 +1881,14 @@ function resetUpdateActions() {
   el.btnCheckUpdate.onclick = () => void onCheckUpdate();
 }
 
-function showRetryActions(extraBrowse = false) {
-  el.aboutUpdateActions.innerHTML = "";
-  const again = document.createElement("button");
-  again.className = "btn btn-flat btn-sm";
-  again.textContent = "Check again";
-  again.addEventListener("click", () => void onCheckUpdate());
-  el.aboutUpdateActions.appendChild(again);
-  if (extraBrowse) {
-    const browse = document.createElement("button");
-    browse.className = "btn btn-flat btn-sm";
-    browse.textContent = "Browse releases";
-    browse.addEventListener("click", () => {
-      void openUrl(RELEASES_URL);
-    });
-    el.aboutUpdateActions.appendChild(browse);
-  }
-}
-
 async function onInstallUpdate() {
   if (!pendingUpdate) return;
   setUpdateMsg("Downloading update…");
-  el.aboutUpdateActions.innerHTML = "";
+  // Disable existing buttons (kept in DOM) instead of clearing the container,
+  // so the "Check for updates" button survives a failed install.
+  for (const btn of Array.from(el.aboutUpdateActions.querySelectorAll<HTMLButtonElement>("button"))) {
+    btn.disabled = true;
+  }
   const progress = document.createElement("span");
   progress.className = "muted";
   progress.textContent = "0%";
@@ -1928,48 +1914,55 @@ async function onInstallUpdate() {
     await relaunch();
   } catch (err) {
     setUpdateMsg(String(err), true);
-    showRetryActions(true);
+    // Re-enable existing buttons + add "Browse releases" helper
+    progress.remove();
+    for (const btn of Array.from(el.aboutUpdateActions.querySelectorAll<HTMLButtonElement>("button"))) {
+      btn.disabled = false;
+    }
+    const browse = document.createElement("button");
+    browse.className = "btn btn-flat btn-sm";
+    browse.textContent = "Browse releases";
+    browse.addEventListener("click", () => void openUrl(RELEASES_URL));
+    el.aboutUpdateActions.appendChild(browse);
   }
 }
 
 async function onCheckUpdate() {
   setUpdateMsg("Checking…");
-  el.aboutUpdateActions.innerHTML = "";
-  const checking = document.createElement("span");
-  checking.className = "muted";
-  checking.textContent = "Checking…";
-  el.aboutUpdateActions.appendChild(checking);
+  // Transform the original button in place — never remove it from the DOM,
+  // otherwise the "Check for updates" button is permanently lost after the
+  // first click and the user thinks the button is broken.
+  el.btnCheckUpdate.disabled = true;
+  el.btnCheckUpdate.textContent = "Checking…";
   pendingUpdate = null;
 
   try {
     const update = await check();
     if (!update) {
       setUpdateMsg("You are on the latest version.");
-      showRetryActions(false);
+      el.btnCheckUpdate.disabled = false;
+      el.btnCheckUpdate.textContent = "Check for updates";
       return;
     }
     pendingUpdate = update;
     setUpdateMsg(
       `Update available: v${update.version}${update.body ? ` — ${update.body}` : ""}`,
     );
-    el.aboutUpdateActions.innerHTML = "";
+    el.btnCheckUpdate.disabled = false;
+    el.btnCheckUpdate.textContent = "Check for updates";
+    // Sibling action buttons (check button itself stays as the re-check trigger)
     const installBtn = document.createElement("button");
     installBtn.className = "btn btn-accent btn-sm";
     installBtn.textContent = `Download & install v${update.version}`;
     installBtn.addEventListener("click", () => void onInstallUpdate());
     el.aboutUpdateActions.appendChild(installBtn);
-    const again = document.createElement("button");
-    again.className = "btn btn-flat btn-sm";
-    again.textContent = "Check again";
-    again.addEventListener("click", () => void onCheckUpdate());
-    el.aboutUpdateActions.appendChild(again);
-    const browse = document.createElement("button");
-    browse.className = "btn btn-flat btn-sm";
-    browse.textContent = "Release notes";
-    browse.addEventListener("click", () => {
+    const notesBtn = document.createElement("button");
+    notesBtn.className = "btn btn-flat btn-sm";
+    notesBtn.textContent = "Release notes";
+    notesBtn.addEventListener("click", () => {
       void openUrl(GUI_LATEST_URL);
     });
-    el.aboutUpdateActions.appendChild(browse);
+    el.aboutUpdateActions.appendChild(notesBtn);
   } catch (err) {
     const msg = String(err);
     const hint =
@@ -1977,7 +1970,8 @@ async function onCheckUpdate() {
         ? " (chua co release gui-latest/update.json — can CI secrets + tag gui-v*)"
         : "";
     setUpdateMsg(`${msg}${hint}`, true);
-    showRetryActions(true);
+    el.btnCheckUpdate.disabled = false;
+    el.btnCheckUpdate.textContent = "Check for updates";
   }
 }
 
