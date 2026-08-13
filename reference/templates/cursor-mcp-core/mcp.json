@@ -9,13 +9,8 @@
       "args": ["-m", "mcp_sap_connect.bridge_server"]
     },
     "cds-kb": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "supergateway@2.0.0",
-        "--sse",
-        "https://cds-kb-mcp-kit-production.up.railway.app/sse"
-      ]
+      "type": "http",
+      "url": "https://mcp.tringhia.io.vn/mcp"
     },
     "mcp-sap-docs-btp": {
       "command": "npx",

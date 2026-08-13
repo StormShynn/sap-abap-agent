@@ -1362,11 +1362,11 @@ def _cmd_mcp_setup() -> None:
     _register("sap-dict-bridge", "stdio", cmd="python",
               args=["-m", "mcp_sap_connect.bridge_server"])
 
-    # --- Remote SSE servers (bat buoc - chi can URL) ---
+    # --- Remote servers (bat buoc - chi can URL) ---
     header("Remote servers (bat buoc)")
     ok("Dang ky cds-kb...")
-    _register("cds-kb", "sse",
-              url="https://cds-kb-mcp-kit-production.up.railway.app/sse")
+    _register("cds-kb", "http",
+              url="https://mcp.tringhia.io.vn/mcp")
     ok("Dang ky mcp-sap-docs-btp...")
     sap_hub_key = os.environ.get("SAP_API_HUB_KEY", "")
     _register("mcp-sap-docs-btp", "sse",
@@ -1416,9 +1416,9 @@ _MCP_JSON_INVENTORY: list[dict[str, Any]] = [
     {"name": "sap-dict-bridge", "category": "core", "transport": "stdio",
      "description": "DDIC create (Domain/DataElement/Table) via mcp-sap-connect's cookie auth",
      "envVars": [], "cmd": "python", "args": ["-m", "mcp_sap_connect.bridge_server"]},
-    {"name": "cds-kb", "category": "remote", "transport": "sse",
-     "description": "Remote CDS view knowledge base (7,355 views)",
-     "envVars": [], "url": "https://cds-kb-mcp-kit-production.up.railway.app/sse"},
+    {"name": "cds-kb", "category": "remote", "transport": "http",
+     "description": "Remote CDS view knowledge base (cds-kb-mcp, Streamable HTTP)",
+     "envVars": [], "url": "https://mcp.tringhia.io.vn/mcp"},
     {"name": "mcp-sap-docs-btp", "category": "remote", "transport": "sse",
      "description": "Remote SAP Docs / API Hub / Help Portal search",
      "envVars": ["SAP-API-HUB-KEY"],

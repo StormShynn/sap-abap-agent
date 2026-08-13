@@ -13,8 +13,8 @@
       ]
     },
     "cds-kb": {
-      "type": "sse",
-      "url": "https://cds-kb-mcp-kit-production.up.railway.app/sse"
+      "type": "http",
+      "url": "https://mcp.tringhia.io.vn/mcp"
     },
     "mcp-sap-docs-btp": {
       "type": "sse",

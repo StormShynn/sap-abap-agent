@@ -6,7 +6,7 @@ Template khớp **Core bắt buộc** của plugin (không port skills/hooks):
 |--------|-----------|
 | `sap-connect` | stdio → `mcp-sap-connect` |
 | `sap-dict-bridge` | stdio → `python -m mcp_sap_connect.bridge_server` |
-| `cds-kb` | stdio bridge → SSE via `npx supergateway` |
+| `cds-kb` | Streamable HTTP → `https://mcp.tringhia.io.vn/mcp` |
 | `mcp-sap-docs-btp` | stdio bridge → SSE via `npx supergateway` |
 
 ## Emit
