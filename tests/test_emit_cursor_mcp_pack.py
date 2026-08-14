@@ -16,8 +16,8 @@ def test_build_core_has_kit_url_and_four_servers(monkeypatch):
     monkeypatch.delenv("SAP_API_HUB_KEY", raising=False)
     servers = emit.build_core_servers()
     assert set(servers) == set(emit.CORE_KEYS)
-    cds_args = servers["cds-kb"]["args"]
-    assert any("cds-kb-mcp-kit-production" in a for a in cds_args)
+    assert servers["cds-kb"]["type"] == "http"
+    assert servers["cds-kb"]["url"] == emit.CDS_KB_HTTP
     assert "env" not in servers["mcp-sap-docs-btp"]
 
 

@@ -17,7 +17,7 @@ import os
 import sys
 from pathlib import Path
 
-CDS_KB_SSE = "https://cds-kb-mcp-kit-production.up.railway.app/sse"
+CDS_KB_HTTP = "https://mcp.tringhia.io.vn/mcp"
 SAP_DOCS_SSE = "https://sap-docs-extend-mcp.cfapps.ap21.hana.ondemand.com/sse"
 CORE_KEYS = ("sap-connect", "sap-dict-bridge", "cds-kb", "mcp-sap-docs-btp")
 
@@ -42,8 +42,8 @@ def build_core_servers() -> dict:
             "args": ["-m", "mcp_sap_connect.bridge_server"],
         },
         "cds-kb": {
-            "command": "npx",
-            "args": ["-y", "supergateway@2.0.0", "--sse", CDS_KB_SSE],
+            "type": "http",
+            "url": CDS_KB_HTTP,
         },
         "mcp-sap-docs-btp": docs,
     }

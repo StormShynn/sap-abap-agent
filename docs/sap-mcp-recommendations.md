@@ -17,7 +17,7 @@ thể bật thêm tùy nhu cầu. Mỗi MCP dưới đây đã được đối c
 |---------------------|-------|---------------------------------------------------------------------|---------|
 | `sap-connect`       | stdio | `mcp-sap-connect`                                                     | Kết nối S/4HANA Cloud, ADT CRUD, multi-profile |
 | `sap-dict-bridge`   | stdio | `python -m mcp_sap_connect.bridge_server`                             | Tạo Domain / Data Element / Table qua cookie auth |
-| `cds-kb`            | sse   | `https://cds-kb-mcp-kit-production.up.railway.app/sse`              | Tra cứu 7,355 CDS view released (semantic search) |
+| `cds-kb`            | http  | `https://mcp.tringhia.io.vn/mcp`                                    | Tra cứu CDS view released (cds-kb-mcp, semantic search) |
 | `mcp-sap-docs-btp`  | sse   | `https://sap-docs-extend-mcp.cfapps.ap21.hana.ondemand.com/sse`     | Tra cứu SAP Help / Community / API Hub |
 | `notion`            | http  | `https://mcp.notion.com/mcp`                                        | Đồng bộ skill user lên Notion team |
 

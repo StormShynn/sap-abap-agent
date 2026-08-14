@@ -30,13 +30,13 @@
     {
       "name": "cds-kb",
       "category": "docs-remote",
-      "transport": "sse",
+      "transport": "http",
       "envVars": [],
       "doc": "README.md",
-      "description": "Remote CDS view knowledge base (7,355 views)",
-      "url": "https://cds-kb-mcp-kit-production.up.railway.app/sse",
+      "description": "Remote CDS view knowledge base (cds-kb-mcp, Streamable HTTP)",
+      "url": "https://mcp.tringhia.io.vn/mcp",
       "config": {
-        "url": "https://cds-kb-mcp-kit-production.up.railway.app/sse"
+        "url": "https://mcp.tringhia.io.vn/mcp"
       }
     },
     {
