@@ -77,7 +77,7 @@ Khoi dong lai Claude Code de nhan server moi. Neu can OAuth Notion: dung **`/mcp
 ```bash
 claude mcp add --transport stdio sap-connect -- mcp-sap-connect
 claude mcp add --transport stdio sap-dict-bridge -- python -m mcp_sap_connect.bridge_server
-claude mcp add --transport sse cds-kb --url https://cds-kb-mcp-kit-production.up.railway.app/sse
+claude mcp add --transport http cds-kb --url https://mcp.tringhia.io.vn/mcp
 claude mcp add --transport stdio chrome-devtools -- npx -y chrome-devtools-mcp@latest
 ```
 

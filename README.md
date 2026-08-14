@@ -433,26 +433,37 @@ Mở Claude Code với plugin, các tool sau sẽ xuất hiện:
 ### MCP server phụ trợ: tra cứu CDS view & SAP docs
 
 Theo mặc định, Claude Code chỉ chấp nhận 1 MCP server stdio. Để sử dụng thêm các MCP server
-remote (cds-kb-mcp và mcp-sap-docs), dùng `claude mcp add` với transport `sse`:
+remote (cds-kb-mcp và mcp-sap-docs), dùng `claude mcp add` với transport `http` / `sse`:
 
-**CDS Knowledge Base** (7,355 released CDS views):
+**CDS Knowledge Base** (released CDS views, cds-kb-mcp):
 
-Cách 1 — `claude mcp add` (nếu Claude Code hỗ trợ `--transport sse`):
+Cách 1 — `claude mcp add` (Streamable HTTP, khuyến nghị):
 
 ```bash
-claude mcp add --transport sse cds-kb --url https://cds-kb-mcp-kit-production.up.railway.app/sse
-# Nếu primary không truy cập được, dùng fallback:
-# claude mcp add --transport sse cds-kb --url https://cds-kb-mcp.cfapps.ap21.hana.ondemand.com/sse
+claude mcp add --transport http cds-kb --url https://mcp.tringhia.io.vn/mcp
 ```
 
-Cách 2 — `supergateway` (tương thích với mọi IDE hỗ trợ MCP: Cursor, Claude Desktop, VS Code, Gemini IDE):
+Cách 2 — cấu hình trực tiếp trong `.mcp.json` / Cursor `mcp.json`:
 
 ```json
 {
   "mcpServers": {
     "cds-kb": {
+      "type": "http",
+      "url": "https://mcp.tringhia.io.vn/mcp"
+    }
+  }
+}
+```
+
+Cách 3 — `supergateway` (chỉ khi IDE chưa hỗ trợ HTTP MCP native; **mcp-sap-docs-btp** vẫn dùng SSE):
+
+```json
+{
+  "mcpServers": {
+    "mcp-sap-docs-btp": {
       "command": "npx",
-      "args": ["-y", "supergateway@2.0.0", "--sse", "https://cds-kb-mcp-kit-production.up.railway.app/sse"]
+      "args": ["-y", "supergateway@2.0.0", "--sse", "https://sap-docs-extend-mcp.cfapps.ap21.hana.ondemand.com/sse"]
     }
   }
 }
