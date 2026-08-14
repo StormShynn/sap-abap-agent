@@ -944,9 +944,9 @@ def _sanitize_license_status_for_json(status: Any) -> dict[str, Any]:
         if "session_cookies" in extra and isinstance(extra.get("session_cookies"), list):
             safe_extra["session_cookie_count"] = len(extra.get("session_cookies") or [])
         if "token_endpoint" in extra:
-            safe_extra["token_endpoint"] = extra.get("token_endpoint")
+            safe_extra["has_token_endpoint"] = bool(extra.get("token_endpoint"))
         if "scope" in extra:
-            safe_extra["scope"] = extra.get("scope")
+            safe_extra["has_scope"] = bool(extra.get("scope"))
         out["extra"] = safe_extra
     else:
         out["extra"] = {}
