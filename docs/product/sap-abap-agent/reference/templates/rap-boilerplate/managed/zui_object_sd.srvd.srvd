@@ -1,0 +1,3 @@
+service ZUI_<OBJECT>_SD {
+  expose ZR_<OBJECT> as <Object>;
+}

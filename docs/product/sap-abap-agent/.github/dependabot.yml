@@ -1,0 +1,109 @@
+version: 2
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Asia/Saigon"
+    commit-message:
+      prefix: "ci"
+      prefix-development: "ci(dev)"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "ci"
+    groups:
+      github-actions:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+    open-pull-requests-limit: 5
+
+  # MCP server Python deps (kept in sync with reference/mcp-server/pyproject.toml).
+  - package-ecosystem: "pip"
+    directory: "/reference/mcp-server"
+    schedule:
+      interval: "weekly"
+      day: "tuesday"
+      time: "09:00"
+      timezone: "Asia/Saigon"
+    commit-message:
+      prefix: "ci(pip)"
+      prefix-development: "ci(pip-dev)"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "ci"
+    groups:
+      python-runtime:
+        patterns:
+          - "mcp"
+          - "httpx"
+          - "cryptography"
+        update-types:
+          - "minor"
+          - "patch"
+      python-extras:
+        patterns:
+          - "pywin32"
+          - "keyring"
+          - "playwright"
+          - "pystray"
+          - "Pillow"
+        update-types:
+          - "minor"
+          - "patch"
+    open-pull-requests-limit: 5
+
+  - package-ecosystem: "npm"
+    directory: "/gui-native"
+    schedule:
+      interval: "weekly"
+      day: "wednesday"
+      time: "09:00"
+      timezone: "Asia/Saigon"
+    commit-message:
+      prefix: "ci(npm)"
+      prefix-development: "ci(npm-dev)"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "ci"
+    groups:
+      tauri-frontend:
+        patterns:
+          - "@tauri-apps/*"
+          - "vite"
+          - "typescript"
+        update-types:
+          - "minor"
+          - "patch"
+    open-pull-requests-limit: 5
+
+  - package-ecosystem: "cargo"
+    directory: "/gui-native/src-tauri"
+    schedule:
+      interval: "weekly"
+      day: "wednesday"
+      time: "09:00"
+      timezone: "Asia/Saigon"
+    commit-message:
+      prefix: "ci(cargo)"
+      prefix-development: "ci(cargo-dev)"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "ci"
+    groups:
+      tauri-rust:
+        patterns:
+          - "tauri*"
+          - "serde*"
+        update-types:
+          - "minor"
+          - "patch"
+    open-pull-requests-limit: 5

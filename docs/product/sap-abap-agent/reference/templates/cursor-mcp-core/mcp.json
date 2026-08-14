@@ -1,0 +1,25 @@
+{
+  "mcpServers": {
+    "sap-connect": {
+      "command": "mcp-sap-connect",
+      "args": []
+    },
+    "sap-dict-bridge": {
+      "command": "python",
+      "args": ["-m", "mcp_sap_connect.bridge_server"]
+    },
+    "cds-kb": {
+      "type": "http",
+      "url": "https://mcp.tringhia.io.vn/mcp"
+    },
+    "mcp-sap-docs-btp": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "supergateway@2.0.0",
+        "--sse",
+        "https://sap-docs-extend-mcp.cfapps.ap21.hana.ondemand.com/sse"
+      ]
+    }
+  }
+}

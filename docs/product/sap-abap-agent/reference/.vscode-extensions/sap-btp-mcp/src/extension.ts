@@ -1,0 +1,92 @@
+import * as vscode from 'vscode';
+
+function quoteForShell(value: string): string {
+    return /\s/.test(value) ? `"${value}"` : value;
+}
+
+// terminal.sendText() writes raw text into whatever shell the user's integrated
+// terminal happens to be (cmd/PowerShell/bash) - quoteForShell only wraps values
+// containing whitespace, it does not escape shell metacharacters embedded in the
+// value itself (e.g. an embedded `"` breaks out of that wrapping). `command` and
+// `profile` come from workspace/user settings, so reject anything shell-special
+// instead of trying to perfectly quote for an unknown target shell.
+const UNSAFE_SHELL_CHARS = /[;&|`$(){}<>"'\r\n]/;
+
+function isSafeShellToken(value: string): boolean {
+    return !UNSAFE_SHELL_CHARS.test(value);
+}
+
+export function activate(context: vscode.ExtensionContext) {
+    const disposables: vscode.Disposable[] = [];
+
+    // Register MCP server definition provider
+    const provider = vscode.lm.registerMcpServerDefinitionProvider('sap-btp-mcp', {
+        provideMcpServerDefinitions: async (_token: vscode.CancellationToken) => {
+            const config = vscode.workspace.getConfiguration('sapBtpMcp');
+            const command = config.get<string>('command', 'sap-btp-agent');
+            const args = config.get<string[]>('args', []);
+            const profile = config.get<string>('profile', '');
+
+            const env: Record<string, string | number | null> = {};
+            if (profile) {
+                env['SAP_BTP_PROFILE'] = profile;
+            }
+
+            const def: vscode.McpStdioServerDefinition = {
+                command,
+                label: 'SAP BTP Agent',
+                args,
+                env,
+            };
+
+            return [def];
+        }
+    });
+    disposables.push(provider);
+
+    // Command: check connection
+    disposables.push(
+        vscode.commands.registerCommand('sapBtpMcp.checkConnection', async () => {
+            const config = vscode.workspace.getConfiguration('sapBtpMcp');
+            const command = config.get<string>('command', 'sap-btp-agent');
+            const profile = config.get<string>('profile', '');
+            if (!isSafeShellToken(command) || !isSafeShellToken(profile)) {
+                vscode.window.showErrorMessage(
+                    'SAP BTP: "sapBtpMcp.command" or "sapBtpMcp.profile" contains characters not allowed in a shell command — refusing to run. Check Settings > Extensions > SAP BTP Agent.'
+                );
+                return;
+            }
+            const terminal = vscode.window.createTerminal('SAP BTP');
+            terminal.show();
+            const profileArg = profile ? ` ${quoteForShell(profile)}` : '';
+            terminal.sendText(`${quoteForShell(command)} connect${profileArg}`); // security-scan: reviewed, guarded by isSafeShellToken() above
+        })
+    );
+
+    // Command: open settings
+    disposables.push(
+        vscode.commands.registerCommand('sapBtpMcp.openSettings', () => {
+            vscode.commands.executeCommand('workbench.action.openSettings', '@ext:sap-btp-mcp');
+        })
+    );
+
+    // Command: run doctor
+    disposables.push(
+        vscode.commands.registerCommand('sapBtpMcp.runDoctor', async () => {
+            const command = vscode.workspace.getConfiguration('sapBtpMcp').get<string>('command', 'sap-btp-agent');
+            if (!isSafeShellToken(command)) {
+                vscode.window.showErrorMessage(
+                    'SAP BTP: "sapBtpMcp.command" contains characters not allowed in a shell command — refusing to run. Check Settings > Extensions > SAP BTP Agent.'
+                );
+                return;
+            }
+            const terminal = vscode.window.createTerminal('SAP Doctor');
+            terminal.show();
+            terminal.sendText(`${quoteForShell(command)} doctor`); // security-scan: reviewed, guarded by isSafeShellToken() above
+        })
+    );
+
+    context.subscriptions.push(...disposables);
+}
+
+export function deactivate() { }

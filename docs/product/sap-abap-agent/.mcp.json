@@ -1,0 +1,28 @@
+{
+  "mcpServers": {
+    "sap-connect": {
+      "type": "stdio",
+      "command": "mcp-sap-connect"
+    },
+    "sap-dict-bridge": {
+      "type": "stdio",
+      "command": "python",
+      "args": [
+        "-m",
+        "mcp_sap_connect.bridge_server"
+      ]
+    },
+    "cds-kb": {
+      "type": "http",
+      "url": "https://mcp.tringhia.io.vn/mcp"
+    },
+    "mcp-sap-docs-btp": {
+      "type": "sse",
+      "url": "https://sap-docs-extend-mcp.cfapps.ap21.hana.ondemand.com/sse"
+    },
+    "notion": {
+      "type": "http",
+      "url": "https://mcp.notion.com/mcp"
+    }
+  }
+}

@@ -1,0 +1,26 @@
+managed implementation in class zbp_<object> unique;
+with draft;
+
+define behavior for ZI_<OBJECT> alias <Object>
+implementation in class zbp_<object> unique
+with draft
+{
+  field ( readonly ) <KeyField>, CreatedBy, CreatedAt, ChangedBy, ChangedAt;
+  field ( mandatory ) <Field1>;
+
+  numbering: managed by master;
+
+  create;
+  update;
+  delete;
+
+  validation validate<Field1> on save { field <Field1>; }
+
+  determination setDefault on modify { create; }
+
+  /* TODO: add action / determination / validation from INTAKE section 5.4 */
+  /* Vd:
+  action ( features : instance ) approve result [1] $self;
+  action ( features : instance ) reject  result [1] $self;
+  */
+}

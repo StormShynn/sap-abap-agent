@@ -1,0 +1,16 @@
+{
+  "_comment": "Auth mode: OAuth2 client_credentials (M2M) - mac dinh khuyen dung. Dien cac field co <...>, xoa field _comment/_help_* truoc khi dung (khong bat buoc, script tu bo qua). Chay: mcp-sap-connect setup --from-file duong-dan-file-nay.json",
+  "_help_url": "URL day du he thong, vd https://my123456.s4hana.cloud.sap",
+  "_help_service": "1 trong 5: s4hc_(public) | s4hc_(private) | btp | onprem | rise_with_sap - xem README.md cung thu muc",
+  "_help_clientId_clientSecret": "Lay tu Communication Arrangement (SAP BTP Cockpit -> Communication Management -> Communication Arrangements -> tao/xem scenario tuong ung) hoac Communication System/User",
+
+  "profileId": "<TEN_PROFILE_TUY_CHON_de_trong_se_tu_sinh_tu_url>",
+  "url": "<https://YOUR_TENANT.s4hana.cloud.sap>",
+  "service": "s4hc_(public)",
+  "region": "eu10",
+  "authMode": "oauth2",
+  "clientId": "<YOUR_CLIENT_ID>",
+  "clientSecret": "<YOUR_CLIENT_SECRET>",
+  "scope": "",
+  "tenant": ""
+}

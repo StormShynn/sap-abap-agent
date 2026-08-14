@@ -1,0 +1,3 @@
+﻿# .gitattributes intentionally empty.
+# LFS tracking was removed because the remote GitHub repository has Git LFS disabled.
+# The 5.5MB JSON file is committed directly (well below GitHub's 100MB limit).

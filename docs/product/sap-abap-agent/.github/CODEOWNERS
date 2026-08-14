@@ -1,0 +1,49 @@
+# CODEOWNERS - GitHub auto-assign reviewer cho tung path.
+# Format: pattern    @owner (user hoac team)
+# Pattern cuoi cung la pattern cuoi cung cua file (last match wins).
+# Doc: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+#
+# Hien tai chi co 1 maintainer (@StormShynn) nen cac rule deu assign cung
+# nguoi, NHUNG pattern rieng giup:
+#   1. Document rang cac path khac nhau can review level khac nhau
+#   2. De dang them reviewer khac sau nay (uncomment dong tuong ung)
+#   3. GitHub auto-suggest reviewer cho PR theo path dang review
+
+# --- Critical paths (security, auth, secrets) ---
+/reference/mcp-server/sap_btp_agent/config/    @StormShynn
+/reference/mcp-server/sap_btp_agent/sap/auth.py @StormShynn
+/reference/mcp-server/sap_btp_agent/license.py  @StormShynn
+
+# --- MCP server source code ---
+/reference/mcp-server/sap_btp_agent/    @StormShynn
+/reference/mcp-server/pyproject.toml    @StormShynn
+
+# --- Hooks (Claude Code session safety) ---
+/hooks/                                @StormShynn
+
+# --- CI/CD workflows (build, deploy, security) ---
+/.github/workflows/                    @StormShynn
+/.github/CODEOWNERS                    @StormShynn
+
+# --- Documentation ---
+/docs/                                 @StormShynn
+/README.md                             @StormShynn
+/CHANGELOG.md                          @StormShynn
+/CONTRIBUTING.md                       @StormShynn
+
+# --- Skills & agents (high-level entry points) ---
+/agents/                               @StormShynn
+/skills/                               @StormShynn
+/.claude-plugin/                       @StormShynn
+
+# --- Tests ---
+/tests/                                @StormShynn
+/reference/mcp-server/tests/           @StormShynn
+
+# --- Build / tooling config ---
+/Makefile                              @StormShynn
+/pyproject.toml                        @StormShynn
+/index.html                            @StormShynn
+
+# --- Default fallback (catch-all) ---
+*                                       @StormShynn

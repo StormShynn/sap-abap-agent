@@ -1,0 +1,23 @@
+_schema-version: "3.1"
+ID: z-cap-boilerplate
+version: 0.0.1
+description: Minimal CAP MTA stub — adjust for your BTP org/space
+modules:
+  - name: z-cap-boilerplate-srv
+    type: nodejs
+    path: gen/srv
+    requires:
+      - name: z-cap-boilerplate-db
+      - name: z-cap-boilerplate-uaa
+    provides:
+      - name: srv-api
+        properties:
+          srv-url: ${default-url}
+resources:
+  - name: z-cap-boilerplate-db
+    type: com.sap.xs.hdi-container
+  - name: z-cap-boilerplate-uaa
+    type: org.cloudfoundry.managed-service
+    parameters:
+      service: xsuaa
+      service-plan: application
