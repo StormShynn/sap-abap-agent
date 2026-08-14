@@ -6,7 +6,7 @@ Format dựa trên [Keep a Changelog](https://keepachangelog.com/) và [Semantic
 
 ---
 
-## [v1.24.10] — 2026-08-13
+## [v1.25.0] — 2026-08-04
 
 ### Changed
 
