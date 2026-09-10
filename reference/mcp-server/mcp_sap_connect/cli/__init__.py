@@ -976,13 +976,15 @@ def _cmd_license(profile_id, *, json_mode: bool = False):
         if profile_id:
             try:
                 status = _lic.get_profile_status(profile_id)
-                print(_json.dumps(_sanitize_license_status_for_json(status), ensure_ascii=False))
+                safe_status = _sanitize_for_json_output(_sanitize_license_status_for_json(status))
+                print(_json.dumps(safe_status, ensure_ascii=False))
             except Exception as err:
                 print(_json.dumps({"error": str(err)}, ensure_ascii=False))
         else:
             try:
                 statuses = _lic.list_all_statuses()
-                print(_json.dumps(_sanitize_license_statuses_for_json(statuses), ensure_ascii=False))
+                safe_statuses = _sanitize_for_json_output(_sanitize_license_statuses_for_json(statuses))
+                print(_json.dumps(safe_statuses, ensure_ascii=False))
             except Exception as err:
                 print(_json.dumps({"error": str(err)}, ensure_ascii=False))
         return
