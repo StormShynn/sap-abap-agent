@@ -14,7 +14,7 @@
     },
     "cds-kb": {
       "type": "http",
-      "url": "https://api.cf.us10-001.hana.ondemand.com/mcp"
+      "url": "https://mcp.tringhia.io.vn/mcp"
     },
     "mcp-sap-docs-btp": {
       "type": "sse",
