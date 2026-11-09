@@ -1434,7 +1434,7 @@ dependencies = [
 
 [[package]]
 name = "gui-native"
-version = "1.25.16"
+version = "1.25.17"
 dependencies = [
  "dirs 6.0.0",
  "serde",
